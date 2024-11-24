@@ -1,0 +1,10 @@
+{
+    "HeadNavBar": {
+        "navList": {
+            "launch": "启动",
+            "games": "游戏",
+            "accounts": "账户",
+            "settings": "设置"
+        }
+    }
+}

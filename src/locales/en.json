@@ -1,0 +1,10 @@
+{
+    "HeadNavBar": {
+        "navList": {
+            "launch": "Launch",
+            "games": "Games",
+            "accounts": "Accounts",
+            "settings": "Settings"
+        }
+    }
+}

@@ -19,15 +19,17 @@ import {
 import { useRouter } from 'next/router';
 
 import styles from './head-navbar.module.css';
+import { useTranslation } from 'react-i18next';
 
 const HeadNavBar = () => {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const navList = [
-    { icon: LuZap, label: '启动', path: '/launch' },
-    { icon: LuBox, label: '游戏', path: '/games' },
-    { icon: LuUserCircle2, label: '账户', path: '/accounts' },
-    { icon: LuSettings, label: '设置', path: '/settings' },
+    { icon: LuZap, label: "launch", path: '/launch' },
+    { icon: LuBox, label: "games", path: '/games' },
+    { icon: LuUserCircle2, label: "accounts", path: '/accounts' },
+    { icon: LuSettings, label: "settings", path: '/settings' },
   ]
 
   const selectedIndex = navList.findIndex((item) =>
@@ -54,7 +56,7 @@ const HeadNavBar = () => {
                 <Tab key={item.path} fontWeight={selectedIndex === index ? '600' : 'normal'}>
                   <HStack spacing={2}>
                     <Icon as={item.icon} />
-                    <Text>{item.label}</Text>
+                    <Text>{t(`HeadNavBar.navList.${item.label}`)}</Text>
                   </HStack>
                 </Tab>
               ))}
