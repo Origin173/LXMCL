@@ -1,4 +1,8 @@
-import { Flex } from "@chakra-ui/react";
+import { 
+  Card,
+  Flex
+} from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import HeadNavBar from "@/components/head-navbar";
 
 interface MainLayoutProps {
@@ -6,6 +10,8 @@ interface MainLayoutProps {
 }
 
 const MainLayout = ({ children }: MainLayoutProps) => {
+  const router = useRouter();
+
   return (
     <Flex
       direction="column"
@@ -16,7 +22,17 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       bgRepeat="no-repeat"
     >
       <HeadNavBar />
-      {children}
+      {
+        router.pathname === '/launch'
+          ? <>{children}</>
+          : <Card 
+              className="content-blur-bg"
+              h="100%" 
+              mt={1} mb={4} mx={4} p={3}
+            >
+              {children}
+            </Card>
+      }
     </Flex>
   );
 };

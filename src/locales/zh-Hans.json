@@ -6,5 +6,11 @@
             "accounts": "账户",
             "settings": "设置"
         }
+    },
+    "SettingsLayout": {
+        "settingsDomainList": {
+            "appearance": "外观",
+            "about": "关于"
+        }
     }
 }
