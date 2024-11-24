@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, ButtonProps, useColorModeValue, useTheme } from '@chakra-ui/react';
+import { Button, ButtonProps, useTheme } from '@chakra-ui/react';
 
 interface SelectableButtonProps extends ButtonProps {
   isSelected?: boolean;
