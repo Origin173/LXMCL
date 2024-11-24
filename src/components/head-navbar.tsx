@@ -38,7 +38,7 @@ const HeadNavBar = () => {
 
   return (
     <Flex justify="center" p={4}>
-      <Card className={styles['card-blur']} px={8} py={2}>
+      <Card className="content-blur-bg" px={8} py={2}>
         <HStack spacing={4}>
           <Heading size="md" className={styles.title}>
             <Highlight query="L" styles={{ color: "blue.600" }}>
