@@ -1,4 +1,14 @@
 {
+    "AppearanceSettingsPage": {
+        "appearance": {
+            "title": "Launcher Appearance",
+            "settings": {
+                "language": {
+                    "title": "Language"
+                }
+            }
+        }
+    },
     "HeadNavBar": {
         "navList": {
             "launch": "Launch",

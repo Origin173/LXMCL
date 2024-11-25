@@ -1,4 +1,14 @@
 {
+    "AppearanceSettingsPage": {
+        "appearance": {
+            "title": "启动器外观",
+            "settings": {
+                "language": {
+                    "title": "显示语言"
+                }
+            }
+        }
+    },
     "HeadNavBar": {
         "navList": {
             "launch": "启动",

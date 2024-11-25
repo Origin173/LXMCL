@@ -5,7 +5,8 @@ import {
   VStack, 
   Icon, 
   HStack,
-  Text
+  Text,
+  Box
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
@@ -28,23 +29,25 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
   return (
     <Grid templateColumns="2fr 7fr" gap={6} minW="md">
       <GridItem>
-        <VStack align="stretch">
-          <NavMenu
-            spacing={1}
-            selectedKeys={[router.asPath]}
-            onClick={(value) => {
-              router.push(value);
-            }}
-            items={settingsDomainList.map((item) => ({
-              label: 
-              <HStack spacing={2} overflow="hidden">
-                <Icon as={item.icon}/>
-                <Text fontSize="sm">{t(`SettingsLayout.settingsDomainList.${item.key}`)}</Text>
-              </HStack>,
-              value: `/settings/${item.key}`,
-            }))}
-          />
-        </VStack>
+        <Box position="sticky" top="0">
+          <VStack align="stretch" position="sticky">
+            <NavMenu
+              spacing={1}
+              selectedKeys={[router.asPath]}
+              onClick={(value) => {
+                router.push(value);
+              }}
+              items={settingsDomainList.map((item) => ({
+                label: 
+                <HStack spacing={2} overflow="hidden">
+                  <Icon as={item.icon}/>
+                  <Text fontSize="sm">{t(`SettingsLayout.settingsDomainList.${item.key}`)}</Text>
+                </HStack>,
+                value: `/settings/${item.key}`,
+              }))}
+            />
+          </VStack>
+        </Box>
       </GridItem>
       <GridItem>{children}</GridItem>
     </Grid>

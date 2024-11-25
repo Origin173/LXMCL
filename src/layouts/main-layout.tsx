@@ -27,8 +27,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           ? <>{children}</>
           : <Card 
               className="content-blur-bg"
-              h="100%" 
-              mt={1} mb={4} mx={4} p={3}
+              h="100%"
+              overflow="auto"
+              mt={1} mb={4} mx={4} p={3.5}
             >
               {children}
             </Card>
