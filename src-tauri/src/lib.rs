@@ -3,6 +3,7 @@ use tauri::menu::MenuBuilder;
 
 pub fn run() {
   tauri::Builder::default()
+    .plugin(tauri_plugin_shell::init())
     .setup(|app| {
       let menu = MenuBuilder::new(app).build()?;
       app.set_menu(menu)?;
