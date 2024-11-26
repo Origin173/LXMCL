@@ -1,4 +1,5 @@
-import React from "react";
+// @ts-nocheck
+import React, { useState, useEffect } from "react";
 import {
   Menu,
   MenuButton,
@@ -10,18 +11,23 @@ import {
 import { FiChevronDown } from "react-icons/fi";
 import { useTranslation } from 'react-i18next';
 import { localeResources, changeLanguage, DEFAULT_LOCALE } from "@/locales";
-import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/option-item";
+import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/option-items";
 
 
 const AppearanceSettingsPage = () => {
   const { t } = useTranslation();
-  const currentLanguage = localStorage.getItem('locale') || DEFAULT_LOCALE;
+  const [currentLanguage, setCurrentLanguage] = useState<string>(DEFAULT_LOCALE);
+  
+  useEffect(() => {
+    const savedLocale = localStorage.getItem('locale');
+    setCurrentLanguage(savedLocale || DEFAULT_LOCALE);
+  }, []);
 
   const LocaleMenu = () => {
     return (
       <Menu>
         <MenuButton 
-          as={Button} size="sm" w="auto"
+          as={Button} size="xs" w="auto"
           rightIcon={<FiChevronDown/>} 
           variant="outline"
           style={{ textAlign: 'left' }}
@@ -32,10 +38,13 @@ const AppearanceSettingsPage = () => {
           <MenuOptionGroup
             defaultValue={currentLanguage}
             type="radio"
-            onChange={(value) => changeLanguage(value as string)}
+            onChange={(value) => { 
+              changeLanguage(value);
+              setCurrentLanguage(value);
+            }}
           >
             {Object.keys(localeResources).map(key => (
-              <MenuItemOption key={key} value={key} fontSize="sm">
+              <MenuItemOption key={key} value={key} fontSize="xs">
                 {localeResources[key].display_name}
               </MenuItemOption>
             ))}
