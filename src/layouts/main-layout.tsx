@@ -29,7 +29,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               className="content-blur-bg"
               h="100%"
               overflow="auto"
-              mt={1} mb={4} mx={4} p={3.5}
+              mt={1} mb={4} mx={4}
             >
               {children}
             </Card>

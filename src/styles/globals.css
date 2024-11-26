@@ -54,3 +54,9 @@ body {
   background-color: var(--chakra-colors-gray-50) !important;
   padding: var(--chakra-sizes-3);
 }
+
+.content-full-y {
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--chakra-sizes-3-5);
+}
