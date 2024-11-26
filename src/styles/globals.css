@@ -38,6 +38,11 @@ body {
   color: var(--chakra-colors-gray-500);
 }
 
+.no-select {
+  cursor: default;
+  user-select: none;
+}
+
 
 /* card-style content container */
 .content-blur-bg {
@@ -47,5 +52,5 @@ body {
 
 .content-card {
   background-color: var(--chakra-colors-gray-50) !important;
-  padding: var(--chakra-sizes-2-5);
+  padding: var(--chakra-sizes-3);
 }

@@ -1,4 +1,47 @@
 {
+    "AboutSettingsPage": {
+        "about": {
+            "title": "About",
+            "settings": {
+                "version": {
+                    "title": "Version"
+                },
+                "contributors": {
+                    "title": "Contributors"
+                },
+                "reportIssue": {
+                    "title": "Report Issue"
+                },
+                "aboutSJMC": {
+                    "title": "About SJTU Minecraft Club (SJMC)"
+                }
+            }
+        },
+        "ack": {
+            "title": "Acknowledgement",
+            "settings": {
+                "bmclapi": {
+                    "title": "BMCLAPI",
+                    "description": "Thanks to @bangbang93 for providing the high-speed download source mirror"
+                }
+            }
+        },
+        "legalInfo": {
+            "title": "Legal Notices",
+            "settings": {
+                "copyright": {
+                    "title": "Copyright",
+                    "description": "Copyright © 2024 SJMC."
+                },
+                "userAgreement": {
+                    "title": "User Agreement"
+                },
+                "openSourceLicense": {
+                    "title": "Open Source License"
+                }
+            }
+        }
+    },
     "AppearanceSettingsPage": {
         "appearance": {
             "title": "Launcher Appearance",

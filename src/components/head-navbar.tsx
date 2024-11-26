@@ -1,8 +1,6 @@
 import { 
   Card,
   Flex, 
-  Heading,
-  Highlight,
   HStack,
   Icon,
   Tab,
@@ -17,9 +15,8 @@ import {
   LuSettings
 } from "react-icons/lu";
 import { useRouter } from 'next/router';
-
-import styles from './head-navbar.module.css';
 import { useTranslation } from 'react-i18next';
+import { TitleShort } from '@/components/logo-title';
 
 const HeadNavBar = () => {
   const router = useRouter();
@@ -40,11 +37,7 @@ const HeadNavBar = () => {
     <Flex justify="center" p={4}>
       <Card className="content-blur-bg" px={8} py={2}>
         <HStack spacing={4}>
-          <Heading size="md" className={styles.title}>
-            <Highlight query="L" styles={{ color: "blue.600" }}>
-              SJMCL
-            </Highlight>
-          </Heading>
+          <TitleShort />
           <Tabs
             variant="soft-rounded"
             size="sm"

@@ -1,4 +1,47 @@
 {
+    "AboutSettingsPage": {
+        "about": {
+            "title": "关于",
+            "settings": {
+                "version": {
+                    "title": "版本"
+                },
+                "contributors": {
+                    "title": "开发者名单"
+                },
+                "reportIssue": {
+                    "title": "报告问题"
+                },
+                "aboutSJMC": {
+                    "title": "关于上海交通大学 Minecraft 社（SJMC）"
+                }
+            }
+        },
+        "ack": {
+            "title": "致谢",
+            "settings": {
+                "bmclapi": {
+                    "title": "BMCLAPI",
+                    "description": "感谢 @bangbang93 提供的高速下载源"
+                }
+            }
+        },
+        "legalInfo": {
+            "title": "法律信息",
+            "settings": {
+                "copyright": {
+                    "title": "版权",
+                    "description": "版权所有 © 2024 SJMC."
+                },
+                "userAgreement": {
+                    "title": "用户协议"
+                },
+                "openSourceLicense": {
+                    "title": "开源许可"
+                }
+            }
+        }
+    },
     "AppearanceSettingsPage": {
         "appearance": {
             "title": "启动器外观",

@@ -40,8 +40,11 @@ const chakraExtendTheme = extendTheme({
       baseStyle: {
         borderColor: "gray.300",
       },
-    },
+    }
   },
+  fontSizes: {
+    'xs-sm': '0.8rem'
+  }
 });
 
 export default chakraExtendTheme;

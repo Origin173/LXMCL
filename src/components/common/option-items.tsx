@@ -13,13 +13,13 @@ import React from "react";
 export interface OptionItemProps extends BoxProps {
   title: string;
   description?: string;
-  titleExtra?: string;
+  titleExtra?: React.ReactNode;
   children: React.ReactNode;
 }
 
 export interface OptionItemGroupProps extends BoxProps {
-  title: string;
-  items: OptionItemProps[];
+  title?: string;
+  items: (OptionItemProps | React.ReactNode)[];
 }
 
 const OptionItem: React.FC<OptionItemProps> = ({
@@ -31,16 +31,20 @@ const OptionItem: React.FC<OptionItemProps> = ({
 }) => {
   return (
     <Flex justify="space-between" alignItems="self-start" {...boxProps}>
-      <VStack spacing={1} mr={2} alignItems="start" overflow="hidden">
+      <VStack spacing={0} mr={2} alignItems="start" overflow="hidden">
         <HStack spacing={2} flexWrap="wrap">
-          <Text fontSize="sm">
+          <Text fontSize="xs-sm" className="no-select">
             {title}
           </Text>
           {titleExtra}
         </HStack>
-        {description && <Text fontSize="sm" className="secondary-text">{description}</Text>}
+        {description && <Text fontSize="xs" className="secondary-text no-select">{description}</Text>}
       </VStack>
-      {children}
+      {
+        typeof children === 'string' 
+        ? <Text fontSize="xs-sm" className="secondary-text">{children}</Text>
+        : children
+      }
     </Flex>
   );
 };
@@ -50,21 +54,28 @@ export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
   items,
   ...boxProps
 }) => {
+
+  function isOptionItemProps(item: any): item is OptionItemProps {
+    return (item as OptionItemProps)?.title != null && (item as OptionItemProps)?.children != null;
+  }
+
   return (
-    <Box {...boxProps}>
-      <Text fontWeight="semibold" fontSize="md">
+    <Box mb={4}{...boxProps}>
+      {title && <Text fontWeight="bold" fontSize="sm" className="no-select">
         {title}
-      </Text>
+      </Text>}
       <Card mt={2.5} className="content-card">
         {items.map((item, index) => (
           <React.Fragment key={index}>
-            <OptionItem
-              title={item.title}
-              description={item.description}
-              titleExtra={item.titleExtra}
-            >
-              {item.children}
-            </OptionItem>
+            {isOptionItemProps(item) ? (
+              <OptionItem
+                title={item.title}
+                description={item.description}
+                titleExtra={item.titleExtra}
+              >
+                {item.children}
+              </OptionItem>
+            ) : (item)}
             {index !== items.length - 1 && (
               <Divider my={2} />
             )}
@@ -74,5 +85,3 @@ export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
     </Box>
   );
 };
-
-export default OptionItem;
