@@ -79,6 +79,17 @@
             "settings": "设置"
         }
     },
+    "LaunchPage": {
+        "Button": {
+            "launch": "启动游戏"
+        },
+        "SwitchButton": {
+            "tooltip": {
+                "switchRole": "切换角色",
+                "switchGame": "切换游戏实例"
+            }
+        }
+    },
     "SettingsLayout": {
         "settingsDomainList": {
             "appearance": "外观",

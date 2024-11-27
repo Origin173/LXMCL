@@ -79,6 +79,17 @@
             "settings": "Settings"
         }
     },
+    "LaunchPage": {
+        "Button": {
+            "launch": "Launch Game"
+        },
+        "SwitchButton": {
+            "tooltip": {
+                "switchRole": "Switch Role",
+                "switchGame": "Switch Game"
+            }
+        }
+    },
     "SettingsLayout": {
         "settingsDomainList": {
             "appearance": "Appearance",
