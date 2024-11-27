@@ -11,6 +11,7 @@ import {
 import React from "react";
 
 export interface OptionItemProps extends BoxProps {
+  prefixElement?: React.ReactNode;
   title: string;
   description?: string;
   titleExtra?: React.ReactNode;
@@ -22,7 +23,8 @@ export interface OptionItemGroupProps extends BoxProps {
   items: (OptionItemProps | React.ReactNode)[];
 }
 
-const OptionItem: React.FC<OptionItemProps> = ({
+export const OptionItem: React.FC<OptionItemProps> = ({
+  prefixElement,
   title,
   description,
   titleExtra,
@@ -31,15 +33,18 @@ const OptionItem: React.FC<OptionItemProps> = ({
 }) => {
   return (
     <Flex justify="space-between" alignItems="self-start" {...boxProps}>
-      <VStack spacing={0} mr={2} alignItems="start" overflow="hidden">
-        <HStack spacing={2} flexWrap="wrap">
-          <Text fontSize="xs-sm" className="no-select">
-            {title}
-          </Text>
-          {titleExtra}
-        </HStack>
-        {description && <Text fontSize="xs" className="secondary-text no-select">{description}</Text>}
-      </VStack>
+      <HStack spacing={2}>
+        {prefixElement}
+        <VStack spacing={0} mr={2} alignItems="start" overflow="hidden">
+          <HStack spacing={2} flexWrap="wrap">
+            <Text fontSize="xs-sm" className="no-select">
+              {title}
+            </Text>
+            {titleExtra}
+          </HStack>
+          {description && <Text fontSize="xs" className="secondary-text no-select">{description}</Text>}
+        </VStack>
+      </HStack>
       {
         typeof children === 'string' 
         ? <Text fontSize="xs-sm" className="secondary-text">{children}</Text>
@@ -72,6 +77,7 @@ export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
                 title={item.title}
                 description={item.description}
                 titleExtra={item.titleExtra}
+                prefixElement={item.prefixElement}
               >
                 {item.children}
               </OptionItem>

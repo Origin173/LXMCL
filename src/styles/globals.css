@@ -43,6 +43,13 @@ body {
   user-select: none;
 }
 
+.ellipsis-text {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 
 /* card-style content container */
 .content-blur-bg {

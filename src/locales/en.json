@@ -42,6 +42,19 @@
             }
         }
     },
+    "AccountsPage": {
+        "Button": {
+            "addRole": "Add Role",
+            "add3rdPartySource": "Add 3rd-party Auth"
+        },
+        "roleTypeList": {
+            "all": "All Source"
+        },
+        "viewTypeList": {
+            "grid": "Grid View",
+            "list": "List View"
+        }
+    },
     "AppearanceSettingsPage": {
         "appearance": {
             "title": "Launcher Appearance",
@@ -50,6 +63,12 @@
                     "title": "Language"
                 }
             }
+        }
+    },
+    "Enums": {
+        "roleTypes": {
+            "offline": "Offline Mode",
+            "3rdparty": "The 3rd-party Authentication"
         }
     },
     "HeadNavBar": {

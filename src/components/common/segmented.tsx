@@ -3,11 +3,12 @@ import {
   BoxProps,
   Button,
   Stack,
-  Tooltip
+  Tooltip,
+  useBreakpointValue 
 } from "@chakra-ui/react";
 
 interface SegmentedControlProps extends BoxProps {
-  size?: "xs" | "sm" | "md" | "lg";
+  size?: "2xs" | "xs" | "sm" | "md" | "lg";
   colorScheme?: string;
   items: {
     label: string,
@@ -31,7 +32,7 @@ const SegmentedControl: React.FC<SegmentedControlProps> = ({
   ...boxProps
 }) => {
 
-  const sp = { xs: 0.5, sm: 1, md: 1, lg: 2 }[size];
+  const sp = { "2xs": 0.5, xs: 0.5, sm: 1, md: 1, lg: 2 }[size];
 
   return (
     <Box
@@ -50,7 +51,8 @@ const SegmentedControl: React.FC<SegmentedControlProps> = ({
           const button = (
             <Button
               key={item.label}
-              size={size}
+              size={size == "2xs" ? "xs" : size}
+              {...(size == "2xs" && { h: '1.25rem', w: '1.25rem' })} 
               colorScheme={colorScheme}
               variant={isSelected ? "outline" : "subtle"}
               bgColor={isSelected ? "white" : `${colorScheme}.100`}

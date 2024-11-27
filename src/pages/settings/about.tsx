@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/option-items";
+import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/option-item";
 import { TitleFull } from '@/components/logo-title';
 import LinkIconButton from '@/components/common/link-icon-button';
 

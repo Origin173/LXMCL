@@ -11,7 +11,7 @@ import {
 import { FiChevronDown } from "react-icons/fi";
 import { useTranslation } from 'react-i18next';
 import { localeResources, changeLanguage, DEFAULT_LOCALE } from "@/locales";
-import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/option-items";
+import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/option-item";
 
 
 const AppearanceSettingsPage = () => {

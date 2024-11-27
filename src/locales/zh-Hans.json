@@ -42,6 +42,19 @@
             }
         }
     },
+    "AccountsPage": {
+        "Button": {
+            "addRole": "添加角色",
+            "add3rdPartySource": "添加第三方认证源"
+        },
+        "roleTypeList": {
+            "all": "全部来源"
+        },
+        "viewTypeList": {
+            "grid": "网格视图",
+            "list": "列表视图"
+        }
+    },
     "AppearanceSettingsPage": {
         "appearance": {
             "title": "启动器外观",
@@ -50,6 +63,12 @@
                     "title": "显示语言"
                 }
             }
+        }
+    },
+    "Enums": {
+        "roleTypes": {
+            "offline": "离线模式",
+            "3rdparty": "第三方认证"
         }
     },
     "HeadNavBar": {
