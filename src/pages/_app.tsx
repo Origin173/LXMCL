@@ -6,6 +6,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import MainLayout from "@/layouts/main-layout";
 import SettingsLayout from '@/layouts/settings-layout';
+import { Fade } from '@/components/common/transition';
 import { changeLanguage, localeResources } from '@/locales';
 import chakraExtendTheme from '@/chakra-theme';
 
@@ -47,9 +48,11 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <ChakraProvider theme={chakraExtendTheme}>
       <MainLayout>
-        <SpecLayout>
-          <Component {...pageProps} />
-        </SpecLayout>
+        <Fade key={router.pathname.split('/')[1] || ''} in>
+          <SpecLayout>
+            <Component {...pageProps} />
+          </SpecLayout>
+        </Fade>
       </MainLayout>
     </ChakraProvider>
   )
