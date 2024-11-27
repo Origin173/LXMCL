@@ -71,8 +71,8 @@ const RolesGridView: React.FC<RolesGridProps> = ({ roles, ...boxProps }) => {
     <RadioGroup>  {/* TBD: select id and logic from context */}
       <Wrap spacing={3.5} {...boxProps}>
           {roles.map((role, index) => (
-            <WrapItem>
-              <RoleCard key={role.id} role={role} isSelected={index === 0}/>  {/* TBD: only mock */}
+            <WrapItem key={role.id}>
+              <RoleCard role={role} isSelected={index === 0}/>  {/* TBD: only mock */}
             </WrapItem>
           ))}
       </Wrap>
