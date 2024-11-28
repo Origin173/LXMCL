@@ -66,6 +66,18 @@
         }
     },
     "Enums": {
+        "chakraColors": {
+            "gray": "Gray",
+            "red": "Red",
+            "orange": "Orange",
+            "yellow": "Yellow",
+            "green": "Green",
+            "teal": "Teal",
+            "blue": "Blue",
+            "cyan": "Cyan",
+            "purple": "Purple",
+            "pink": "Pink"
+        },
         "roleTypes": {
             "offline": "Offline Mode",
             "3rdparty": "The 3rd-party Authentication"
@@ -89,6 +101,9 @@
                 "switchGame": "Switch Game"
             }
         }
+    },
+    "NotFoundPage": {
+        "text": "Page not found, redirecting to launch page in {{seconds}} seconds..."
     },
     "RoleMenu": {
         "label": {
