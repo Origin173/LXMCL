@@ -41,6 +41,14 @@ const chakraExtendTheme = extendTheme({
         borderColor: "gray.300",
       },
     },
+    Menu: {
+      baseStyle: {
+        list: {
+          minWidth: "auto",
+          py: 1
+        },
+      },
+    },
   },
   fontSizes: {
     'xs-sm': '0.8rem'
