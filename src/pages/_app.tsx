@@ -12,6 +12,7 @@ import { isProd } from '@/utils/env';
 import chakraExtendTheme from '@/chakra-theme';
 
 import "@/styles/globals.css";
+import { ToastContextProvider } from '@/contexts/toast';
 
 i18n
   .use(initReactI18next)
@@ -56,13 +57,15 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <ChakraProvider theme={chakraExtendTheme}>
-      <MainLayout>
-        <Fade key={router.pathname.split('/')[1] || ''} in>
-          <SpecLayout>
-            <Component {...pageProps} />
-          </SpecLayout>
-        </Fade>
-      </MainLayout>
+      <ToastContextProvider>
+        <MainLayout>
+          <Fade key={router.pathname.split("/")[1] || ""} in>
+            <SpecLayout>
+              <Component {...pageProps} />
+            </SpecLayout>
+          </Fade>
+        </MainLayout>
+      </ToastContextProvider>
     </ChakraProvider>
-  )
+  );
 }
