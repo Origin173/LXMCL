@@ -7,12 +7,12 @@ import { initReactI18next } from 'react-i18next';
 import MainLayout from "@/layouts/main-layout";
 import SettingsLayout from '@/layouts/settings-layout';
 import { Fade } from '@/components/common/transition';
+import { ToastContextProvider } from '@/contexts/toast';
 import { changeLanguage, localeResources } from '@/locales';
 import { isProd } from '@/utils/env';
 import chakraExtendTheme from '@/chakra-theme';
 
 import "@/styles/globals.css";
-import { ToastContextProvider } from '@/contexts/toast';
 
 i18n
   .use(initReactI18next)

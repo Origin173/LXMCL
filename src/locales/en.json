@@ -90,6 +90,12 @@
             }
         }
     },
+    "RoleMenu": {
+        "label": {
+            "skin": "Manage Skin",
+            "delete": "Delete"
+        }
+    },
     "SettingsLayout": {
         "settingsDomainList": {
             "appearance": "Appearance",

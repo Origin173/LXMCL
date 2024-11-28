@@ -6,7 +6,8 @@ import {
   HStack
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { OptionItemGroup } from "./common/option-item";
+import { OptionItemGroup } from "@/components/common/option-item";
+import { RoleMenuBtnGroup } from "@/components/role-menu";
 import { Role } from "@/models/account";
 
 interface RolesListProps extends BoxProps {
@@ -22,7 +23,7 @@ const RolesListView: React.FC<RolesListProps> = ({ roles, ...boxProps }) => {
       ? t("Enums.roleTypes.offline")
       : `${t("Enums.roleTypes.3rdparty")} - ${role.authServer?.name} (${role.authAccount})`,
       prefixElement: 
-        <HStack spacing={2} mr={1.5}>
+        <HStack spacing={2.5}>
           <Radio value={role.uuid}/>
           <Image
             boxSize='32px'
@@ -31,7 +32,7 @@ const RolesListView: React.FC<RolesListProps> = ({ roles, ...boxProps }) => {
             alt={role.name}
           />
         </HStack>,
-    children: ""
+    children: <RoleMenuBtnGroup role={role}/>
   }));
   
   return (

@@ -90,6 +90,12 @@
             }
         }
     },
+    "RoleMenu": {
+        "label": {
+            "skin": "管理皮肤",
+            "delete": "删除此角色"
+        }
+    },
     "SettingsLayout": {
         "settingsDomainList": {
             "appearance": "外观",

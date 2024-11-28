@@ -30,7 +30,7 @@ const AppearanceSettingsPage = () => {
           as={Button} size="xs" w="auto"
           rightIcon={<FiChevronDown/>} 
           variant="outline"
-          style={{ textAlign: 'left' }}
+          textAlign="left"
         >
           {localeResources[currentLanguage]?.display_name}
         </MenuButton>

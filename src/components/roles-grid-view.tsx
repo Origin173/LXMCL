@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { LuMoreHorizontal } from "react-icons/lu";
 import { useTranslation } from "react-i18next";
+import RoleMenu from "@/components/role-menu";
 import { Role } from "@/models/account";
 
 interface RoleCardProps {
@@ -37,12 +38,9 @@ const RoleCard: React.FC<RoleCardProps> = ({ role, isSelected }) => {
       <Box position="absolute" top={2} left={2}>
         <Radio value={role.uuid} />
       </Box>
-      <IconButton 
-        size="xs" variant="ghost"
-        position="absolute" top={1} right={1}
-        aria-label="operations"
-        icon={<LuMoreHorizontal />}
-      />
+      <Box position="absolute" top={0.5} right={1}>
+        <RoleMenu role={role} />
+      </Box>
       <VStack spacing={0} >
         <Image
           boxSize='36px'

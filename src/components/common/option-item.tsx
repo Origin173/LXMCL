@@ -33,7 +33,7 @@ export const OptionItem: React.FC<OptionItemProps> = ({
 }) => {
   return (
     <Flex justify="space-between" alignItems="self-start" {...boxProps}>
-      <HStack spacing={2}>
+      <HStack spacing={2.5}>
         {prefixElement}
         <VStack spacing={0} mr={2} alignItems="start" overflow="hidden">
           <HStack spacing={2} flexWrap="wrap">
