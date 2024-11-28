@@ -93,7 +93,8 @@
     "SettingsLayout": {
         "settingsDomainList": {
             "appearance": "外观",
-            "about": "关于"
+            "about": "关于",
+            "dev-test": "开发 - 测试页"
         }
     }
 }

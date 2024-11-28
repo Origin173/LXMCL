@@ -9,8 +9,13 @@ import {
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
-import { LuPalette, LuInfo } from "react-icons/lu";
+import { 
+  LuPalette, 
+  LuInfo,
+  LuFlaskConical
+} from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
+import { isDev } from "@/utils/env";
 
 interface SettingsLayoutProps {
   children: React.ReactNode;
@@ -22,7 +27,8 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
 
   const settingsDomainList = [
     { key: "appearance", icon: LuPalette },
-    { key: "about", icon: LuInfo }
+    { key: "about", icon: LuInfo },
+    ...(isDev ? [{ key: "dev-test", icon: LuFlaskConical }] : [])
   ];
 
   return (

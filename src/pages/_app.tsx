@@ -8,6 +8,7 @@ import MainLayout from "@/layouts/main-layout";
 import SettingsLayout from '@/layouts/settings-layout';
 import { Fade } from '@/components/common/transition';
 import { changeLanguage, localeResources } from '@/locales';
+import { isProd } from '@/utils/env';
 import chakraExtendTheme from '@/chakra-theme';
 
 import "@/styles/globals.css";
@@ -27,11 +28,19 @@ export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   
   useEffect(() => {
+    // set locales
     const storedLocaleKey = localStorage.getItem('locale');
     if (storedLocaleKey) {
       changeLanguage(storedLocaleKey);
     } else {
       changeLanguage();
+    }
+
+    // forbid right mouse menu of webview
+    if (isProd) {
+      document.addEventListener('contextmenu', (event) => {
+        event.preventDefault();
+      });
     }
   }, []);
 

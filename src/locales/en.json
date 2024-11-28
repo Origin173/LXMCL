@@ -93,7 +93,8 @@
     "SettingsLayout": {
         "settingsDomainList": {
             "appearance": "Appearance",
-            "about": "About"
+            "about": "About",
+            "dev-test": "Dev - Test Page"
         }
     }
 }
