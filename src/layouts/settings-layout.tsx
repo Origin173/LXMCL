@@ -10,7 +10,11 @@ import {
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
 import { 
-  LuPalette, 
+  LuGamepad2,
+  LuSettings,
+  LuPalette,
+  LuDownloadCloud,
+  LuHelpCircle,
   LuInfo,
   LuFlaskConical
 } from "react-icons/lu";
@@ -26,7 +30,11 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
   const { t } = useTranslation();
 
   const settingsDomainList = [
+    { key: "global-game", icon: LuGamepad2 },
+    { key: "general", icon: LuSettings },
     { key: "appearance", icon: LuPalette },
+    { key: "download", icon: LuDownloadCloud },
+    { key: "help", icon: LuHelpCircle },
     { key: "about", icon: LuInfo },
     ...(isDev ? [{ key: "dev-test", icon: LuFlaskConical }] : [])
   ];

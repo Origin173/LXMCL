@@ -55,16 +55,6 @@
             "list": "List View"
         }
     },
-    "AppearanceSettingsPage": {
-        "appearance": {
-            "title": "Launcher Appearance",
-            "settings": {
-                "language": {
-                    "title": "Language"
-                }
-            }
-        }
-    },
     "Enums": {
         "chakraColors": {
             "gray": "Gray",
@@ -81,6 +71,16 @@
         "roleTypes": {
             "offline": "Offline Mode",
             "3rdparty": "The 3rd-party Authentication"
+        }
+    },
+    "GeneralSettingsPage": {
+        "general": {
+            "title": "General Settings",
+            "settings": {
+                "language": {
+                    "title": "Language"
+                }
+            }
         }
     },
     "HeadNavBar": {
@@ -113,7 +113,11 @@
     },
     "SettingsLayout": {
         "settingsDomainList": {
+            "global-game": "Game Settings",
+            "general": "General",
             "appearance": "Appearance",
+            "download": "Download",
+            "help": "Docs and Help",
             "about": "About",
             "dev-test": "Dev - Test Page"
         }

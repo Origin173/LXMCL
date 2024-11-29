@@ -69,25 +69,27 @@ export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
       {title && <Text fontWeight="bold" fontSize="sm" className="no-select">
         {title}
       </Text>}
-      <Card mt={2.5} className="content-card">
-        {items.map((item, index) => (
-          <React.Fragment key={index}>
-            {isOptionItemProps(item) ? (
-              <OptionItem
-                title={item.title}
-                description={item.description}
-                titleExtra={item.titleExtra}
-                prefixElement={item.prefixElement}
-              >
-                {item.children}
-              </OptionItem>
-            ) : (item)}
-            {index !== items.length - 1 && (
-              <Divider my={2} />
-            )}
-          </React.Fragment>
-        ))}
-      </Card>
+      {items.length > 0 && 
+        <Card mt={2.5} className="content-card">
+          {items.map((item, index) => (
+            <React.Fragment key={index}>
+              {isOptionItemProps(item) ? (
+                <OptionItem
+                  title={item.title}
+                  description={item.description}
+                  titleExtra={item.titleExtra}
+                  prefixElement={item.prefixElement}
+                >
+                  {item.children}
+                </OptionItem>
+              ) : (item)}
+              {index !== items.length - 1 && (
+                <Divider my={2} />
+              )}
+            </React.Fragment>
+          ))}
+        </Card>
+      }
     </Box>
   );
 };

@@ -1,23 +1,23 @@
 import { useTranslation } from 'react-i18next';
 import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/option-item";
 
-const AppearanceSettingsPage = () => {
+const HelpSettingsPage = () => {
   const { t } = useTranslation();
 
-  const appearanceSettings: OptionItemGroupProps[] = [
+  const helpSettings: OptionItemGroupProps[] = [
     {
-      title: t("AppearanceSettingsPage.appearance.title"),
+      title: t("HelpSettingsPage.help.title"),
       items: []
     }
   ];
 
   return (
     <>
-      {appearanceSettings.map((group, index) => (
+      {helpSettings.map((group, index) => (
         <OptionItemGroup title={group.title} items={group.items} key={index} />
       ))}
     </>
   );
 }
 
-export default AppearanceSettingsPage;
+export default HelpSettingsPage;

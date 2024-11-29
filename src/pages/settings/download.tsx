@@ -1,23 +1,23 @@
 import { useTranslation } from 'react-i18next';
 import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/option-item";
 
-const AppearanceSettingsPage = () => {
+const DownloadSettingsPage = () => {
   const { t } = useTranslation();
 
-  const appearanceSettings: OptionItemGroupProps[] = [
+  const downloadSettings: OptionItemGroupProps[] = [
     {
-      title: t("AppearanceSettingsPage.appearance.title"),
+      title: t("DownloadSettingsPage.download.title"),
       items: []
     }
   ];
 
   return (
     <>
-      {appearanceSettings.map((group, index) => (
+      {downloadSettings.map((group, index) => (
         <OptionItemGroup title={group.title} items={group.items} key={index} />
       ))}
     </>
   );
 }
 
-export default AppearanceSettingsPage;
+export default DownloadSettingsPage;

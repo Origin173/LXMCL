@@ -55,16 +55,6 @@
             "list": "列表视图"
         }
     },
-    "AppearanceSettingsPage": {
-        "appearance": {
-            "title": "启动器外观",
-            "settings": {
-                "language": {
-                    "title": "显示语言"
-                }
-            }
-        }
-    },
     "Enums": {
         "chakraColors": {
             "gray": "灰色",
@@ -81,6 +71,16 @@
         "roleTypes": {
             "offline": "离线模式",
             "3rdparty": "第三方认证"
+        }
+    },
+    "GeneralSettingsPage": {
+        "general": {
+            "title": "通用设置",
+            "settings": {
+                "language": {
+                    "title": "语言"
+                }
+            }
         }
     },
     "HeadNavBar": {
@@ -113,7 +113,11 @@
     },
     "SettingsLayout": {
         "settingsDomainList": {
+            "global-game": "全局游戏设置",
+            "general": "通用",
             "appearance": "外观",
+            "download": "下载资源",
+            "help": "文档与帮助",
             "about": "关于",
             "dev-test": "开发 - 测试页"
         }

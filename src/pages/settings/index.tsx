@@ -5,7 +5,7 @@ const SettingsPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    router.push('/settings/appearance');
+    router.push('/settings/general');
   }, [router]);
 
   return null;
