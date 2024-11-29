@@ -21,7 +21,7 @@ const NavMenu: React.FC<NavMenuProps> = ({
   selectedKeys = [],
   onClick,
   size = 'sm',
-  spacing = 1
+  spacing = 0.5
 }) => {
   return (
     <VStack spacing={spacing} align="stretch">
