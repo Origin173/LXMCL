@@ -26,6 +26,14 @@ const subtleButtonVariant = (props: any) => ({
   },
 });
 
+const darkGrayButtonVariant = (props: any) => ({
+  bg: "gray.600",
+  color: "white",
+  _hover: { bg: "gray.700" },
+  _active: { bg: "gray.800" },
+  _focus: { boxShadow: "none" }
+});
+
 const chakraExtendTheme = extendTheme({
   components: {
     Button: {
@@ -34,6 +42,7 @@ const chakraExtendTheme = extendTheme({
       },
       variants: {
         subtle: subtleButtonVariant,
+        darkGray: darkGrayButtonVariant
       },
     },
     Divider: {

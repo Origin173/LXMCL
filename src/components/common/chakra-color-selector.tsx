@@ -35,20 +35,12 @@ const ChakraColorSelector: React.FC<ChakraColorSelectorProps> =({
                 <IconButton
                   key={color}
                   size={size}
-                  variant={current === color ? "solid" : "subtle"}
+                  variant={current === color ? 
+                    (color === "gray" ? "darkGray" : "solid") : "subtle"}
                   colorScheme={color}
                   aria-label={color}
                   icon={current === color ? <FaCircleCheck color="white"/> : <FaRegCircle/>}
                   onClick={() => onColorSelect(color)}
-                  sx={
-                    current === color && color === 'gray'
-                      ? {
-                          bg: 'gray.600',
-                          _hover: { bg: 'gray.700' },
-                          _active: { bg: 'gray.800' },
-                        }
-                      : {}
-                  }
                 />
               </Tooltip>
               {index < ChakraColorEnums.length - 1 && <Spacer />}
