@@ -8,7 +8,8 @@ import MainLayout from "@/layouts/main-layout";
 import SettingsLayout from '@/layouts/settings-layout';
 import { Fade } from '@/components/common/transition';
 import { ToastContextProvider } from '@/contexts/toast';
-import { changeLanguage, localeResources } from '@/locales';
+import { LauncherConfigProvider } from '@/contexts/config';
+import { localeResources } from '@/locales';
 import { isProd } from '@/utils/env';
 import chakraExtendTheme from '@/chakra-theme';
 
@@ -29,14 +30,6 @@ export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   
   useEffect(() => {
-    // set locales
-    const storedLocaleKey = localStorage.getItem('locale');
-    if (storedLocaleKey) {
-      changeLanguage(storedLocaleKey);
-    } else {
-      changeLanguage();
-    }
-
     // forbid right mouse menu of webview
     if (isProd) {
       document.addEventListener('contextmenu', (event) => {
@@ -58,13 +51,15 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <ChakraProvider theme={chakraExtendTheme}>
       <ToastContextProvider>
-        <MainLayout>
-          <Fade key={router.pathname.split("/")[1] || ""} in>
-            <SpecLayout>
-              <Component {...pageProps} />
-            </SpecLayout>
-          </Fade>
-        </MainLayout>
+        <LauncherConfigProvider>
+          <MainLayout>
+            <Fade key={router.pathname.split("/")[1] || ""} in>
+              <SpecLayout>
+                <Component {...pageProps} />
+              </SpecLayout>
+            </Fade>
+          </MainLayout>
+        </LauncherConfigProvider>
       </ToastContextProvider>
     </ChakraProvider>
   );

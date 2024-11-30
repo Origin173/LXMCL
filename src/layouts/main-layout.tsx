@@ -3,7 +3,9 @@ import {
   Flex
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import { BeatLoader } from 'react-spinners';
 import HeadNavBar from "@/components/head-navbar";
+import { useLauncherConfig } from "@/contexts/config";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -11,6 +13,19 @@ interface MainLayoutProps {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
   const router = useRouter();
+  const { config } = useLauncherConfig();
+
+  if (config.mocked) return (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      width: '100vw',
+    }}>
+      <BeatLoader size={16} color="gray" />
+    </div>
+  );
 
   return (
     <Flex

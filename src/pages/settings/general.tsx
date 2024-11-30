@@ -10,20 +10,19 @@ import {
 } from "@chakra-ui/react";
 import { FiChevronDown } from "react-icons/fi";
 import { useTranslation } from 'react-i18next';
-import { localeResources, changeLanguage, DEFAULT_LOCALE } from "@/locales";
+import { localeResources } from "@/locales";
 import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/option-item";
+import { useLauncherConfig } from "@/contexts/config";
 
 
 const GeneralSettingsPage = () => {
   const { t } = useTranslation();
-  const [currentLanguage, setCurrentLanguage] = useState<string>(DEFAULT_LOCALE);
-  
-  useEffect(() => {
-    const savedLocale = localStorage.getItem('locale');
-    setCurrentLanguage(savedLocale || DEFAULT_LOCALE);
-  }, []);
+  const { config, update } = useLauncherConfig();
+  const generalConfigs = config.general;
 
   const LocaleMenu = () => {
+    const currentLanguage = generalConfigs.general.language;
+
     return (
       <Menu>
         <MenuButton 
@@ -39,8 +38,7 @@ const GeneralSettingsPage = () => {
             defaultValue={currentLanguage}
             type="radio"
             onChange={(value) => { 
-              changeLanguage(value);
-              setCurrentLanguage(value);
+              update("general.general.language", value as string);
             }}
           >
             {Object.keys(localeResources).map(key => (
