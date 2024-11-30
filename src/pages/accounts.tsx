@@ -31,10 +31,13 @@ import {
   mockAuthServerList,
   mockRoleList
 } from "@/models/account";
+import { useLauncherConfig } from '@/contexts/config';
 
 const AccountsPage = () => {
   const router = useRouter();
   const { t } = useTranslation();
+  const { config } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
 
   const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
   const [selectedRoleType, setSelectedRoleType] = useState<string>("all");
@@ -124,7 +127,9 @@ const AccountsPage = () => {
             />
             <Button 
               leftIcon={<LuPlus/>} 
-              size="xs"  colorScheme="blue"
+              size="xs"
+              colorScheme={primaryColor}
+              variant={primaryColor === "gray" ? "darkGray" : "solid"}
               onClick={() => {}}  // todo
             >
               {t("AccountsPage.Button.addRole")}

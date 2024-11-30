@@ -17,10 +17,13 @@ import {
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
 import { TitleShort } from '@/components/logo-title';
+import { useLauncherConfig } from '@/contexts/config';
 
 const HeadNavBar = () => {
   const router = useRouter();
   const { t } = useTranslation();
+  const { config } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
 
   const navList = [
     { icon: LuZap, label: "launch", path: '/launch' },
@@ -41,6 +44,7 @@ const HeadNavBar = () => {
           <Tabs
             variant="soft-rounded"
             size="sm"
+            colorScheme={primaryColor}
             index={selectedIndex}
             onChange={(index) => { router.push(navList[index].path) }}
           >

@@ -55,6 +55,16 @@
             "list": "列表视图"
         }
     },
+    "AppearanceSettingsPage": {
+        "theme": {
+            "title": "主题",
+            "settings": {
+                "primaryColor": {
+                    "title": "启动器强调色"
+                }
+            }
+        }
+    },
     "Enums": {
         "chakraColors": {
             "gray": "灰色",

@@ -55,6 +55,16 @@
             "list": "List View"
         }
     },
+    "AppearanceSettingsPage": {
+        "theme": {
+            "title": "Theme",
+            "settings": {
+                "primaryColor": {
+                    "title": "Launcher Primary Color"
+                }
+            }
+        }
+    },
     "Enums": {
         "chakraColors": {
             "gray": "Gray",
