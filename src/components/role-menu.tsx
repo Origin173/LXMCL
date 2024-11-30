@@ -55,9 +55,8 @@ export const RoleMenuBtnGroup: React.FC<RoleMenuProps> = ({ role }) => {
   return (
     <HStack spacing={0}>
       {roleMenuOperations.map(item => (
-        <Tooltip label={t(`RoleMenu.label.${item.key}`)} fontSize="sm">
+        <Tooltip label={t(`RoleMenu.label.${item.key}`)} fontSize="sm" key={item.key}>
           <IconButton 
-            key={item.key}
             size="sm"
             aria-label={item.key}
             icon={<item.icon />}

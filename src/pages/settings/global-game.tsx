@@ -4,7 +4,7 @@ import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/optio
 const GlobalGameSettingsPage = () => {
   const { t } = useTranslation();
 
-  const globalGameSettings: OptionItemGroupProps[] = [
+  const globalGameSettingGroups: OptionItemGroupProps[] = [
     {
       title: t("GlobalGameSettingsPage.java.title"),
       items: []
@@ -13,7 +13,7 @@ const GlobalGameSettingsPage = () => {
 
   return (
     <>
-      {globalGameSettings.map((group, index) => (
+      {globalGameSettingGroups.map((group, index) => (
         <OptionItemGroup title={group.title} items={group.items} key={index} />
       ))}
     </>

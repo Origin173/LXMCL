@@ -47,7 +47,7 @@ const AppearanceSettingsPage = () => {
     )
   }
 
-  const appearanceSettings: OptionItemGroupProps[] = [
+  const appearanceSettingGroups: OptionItemGroupProps[] = [
     {
       title: t("AppearanceSettingsPage.theme.title"),
       items: [
@@ -61,7 +61,7 @@ const AppearanceSettingsPage = () => {
 
   return (
     <>
-      {appearanceSettings.map((group, index) => (
+      {appearanceSettingGroups.map((group, index) => (
         <OptionItemGroup title={group.title} items={group.items} key={index} />
       ))}
     </>

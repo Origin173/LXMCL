@@ -4,7 +4,7 @@ import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/optio
 const DownloadSettingsPage = () => {
   const { t } = useTranslation();
 
-  const downloadSettings: OptionItemGroupProps[] = [
+  const downloadSettingGroups: OptionItemGroupProps[] = [
     {
       title: t("DownloadSettingsPage.download.title"),
       items: []
@@ -13,7 +13,7 @@ const DownloadSettingsPage = () => {
 
   return (
     <>
-      {downloadSettings.map((group, index) => (
+      {downloadSettingGroups.map((group, index) => (
         <OptionItemGroup title={group.title} items={group.items} key={index} />
       ))}
     </>

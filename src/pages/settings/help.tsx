@@ -4,7 +4,7 @@ import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/optio
 const HelpSettingsPage = () => {
   const { t } = useTranslation();
 
-  const helpSettings: OptionItemGroupProps[] = [
+  const helpSettingGroups: OptionItemGroupProps[] = [
     {
       title: t("HelpSettingsPage.help.title"),
       items: []
@@ -13,7 +13,7 @@ const HelpSettingsPage = () => {
 
   return (
     <>
-      {helpSettings.map((group, index) => (
+      {helpSettingGroups.map((group, index) => (
         <OptionItemGroup title={group.title} items={group.items} key={index} />
       ))}
     </>

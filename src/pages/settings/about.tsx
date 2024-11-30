@@ -6,7 +6,7 @@ import LinkIconButton from '@/components/common/link-icon-button';
 const AboutSettingsPage = () => {
   const { t } = useTranslation();
 
-  const aboutSettings: OptionItemGroupProps[] = [
+  const aboutSettingGroups: OptionItemGroupProps[] = [
     {
       title: t("AboutSettingsPage.about.title"),
       items: [
@@ -61,7 +61,7 @@ const AboutSettingsPage = () => {
 
   return (
     <>
-      {aboutSettings.map((group, index) => (
+      {aboutSettingGroups.map((group, index) => (
         <OptionItemGroup title={group.title} items={group.items} key={index} />
       ))}
     </>

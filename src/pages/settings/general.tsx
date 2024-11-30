@@ -52,7 +52,7 @@ const GeneralSettingsPage = () => {
     )
   }
 
-  const generalSettings: OptionItemGroupProps[] = [{
+  const generalSettingGroups: OptionItemGroupProps[] = [{
     title: t("GeneralSettingsPage.general.title"),
     items: [
       {
@@ -64,7 +64,7 @@ const GeneralSettingsPage = () => {
   
   return (
     <>
-      {generalSettings.map((group, index) => (
+      {generalSettingGroups.map((group, index) => (
         <OptionItemGroup title={group.title} items={group.items} key={index} />
       ))}
     </>

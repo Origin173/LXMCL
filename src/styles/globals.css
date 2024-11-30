@@ -36,6 +36,7 @@ body {
 
 .secondary-text {
   color: var(--chakra-colors-gray-500);
+  line-height: var(--chakra-lineHeights-4);
 }
 
 .no-select {
