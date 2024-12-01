@@ -31,13 +31,14 @@
             "settings": {
                 "copyright": {
                     "title": "版权",
-                    "description": "版权所有 © 2024 SJMC."
+                    "description": "版权所有 © 2024 SJMCL 开发团队."
                 },
                 "userAgreement": {
                     "title": "用户协议"
                 },
                 "openSourceLicense": {
-                    "title": "开源许可"
+                    "title": "开源许可",
+                    "description": "本项目遵循 GNU General Public License v3.0 协议"
                 }
             }
         }
@@ -177,7 +178,6 @@
             "delete": "删除此角色"
         }
     },
-    
     "SettingsLayout": {
         "settingsDomainList": {
             "global-game": "全局游戏设置",

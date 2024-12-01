@@ -31,13 +31,14 @@
             "settings": {
                 "copyright": {
                     "title": "Copyright",
-                    "description": "Copyright © 2024 SJMC."
+                    "description": "Copyright © 2024 SJMCL Team."
                 },
                 "userAgreement": {
                     "title": "User Agreement"
                 },
                 "openSourceLicense": {
-                    "title": "Open Source License"
+                    "title": "Open Source License",
+                    "description": "Licensed under the GNU General Public License v3.0"
                 }
             }
         }
@@ -177,7 +178,6 @@
             "delete": "Delete"
         }
     },
-
     "SettingsLayout": {
         "settingsDomainList": {
             "global-game": "Game Settings",

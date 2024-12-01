@@ -53,7 +53,8 @@ const AboutSettingsPage = () => {
         },
         {
           title: t("AboutSettingsPage.legalInfo.settings.openSourceLicense.title"),
-          children: <LinkIconButton url="about:blank" aria-label="openSourceLicense" isExternal h={18} isDisabled/>  // TBD
+          description: t("AboutSettingsPage.legalInfo.settings.openSourceLicense.description"),
+          children: <LinkIconButton url="https://github.com/UNIkeEN/SJMCL?tab=GPL-3.0-1-ov-file#readme" aria-label="openSourceLicense" isExternal/> 
         }
       ]
     }
