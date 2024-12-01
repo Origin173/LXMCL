@@ -86,7 +86,7 @@
             "title": "Source",
             "settings": {
                 "strategy": {
-                    "title": "Download  Source Selection Strategy",
+                    "title": "Download Source Selection Strategy",
                     "auto": "Auto Select",
                     "official": "Official Source Priority",
                     "mirror": "Mirror Source Priority"
@@ -96,16 +96,16 @@
         "download": {
             "title": "Download",
             "settings": {
-                "autoconcurrent": {
+                "autoConcurrent": {
                     "title": "Auto Select Concurrent Downloads"
                 },
-                "countconcurrent": {
+                "concurrentCount": {
                     "title": "Concurrent Count"
                 },
-                "speedenable": {
+                "enableSpeedLimit": {
                     "title": "Limit Download Speed"
                 },
-                "speedlimit": {
+                "speedLimitValue": {
                     "title": "Speed Limit Settings"
                 }
             }

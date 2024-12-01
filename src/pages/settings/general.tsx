@@ -8,7 +8,7 @@ import {
   MenuItemOption,
   Button
 } from "@chakra-ui/react";
-import { FiChevronDown } from "react-icons/fi";
+import { LuChevronDown } from "react-icons/lu";
 import { useTranslation } from 'react-i18next';
 import { localeResources } from "@/locales";
 import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/option-item";
@@ -27,7 +27,7 @@ const GeneralSettingsPage = () => {
       <Menu>
         <MenuButton 
           as={Button} size="xs" w="auto"
-          rightIcon={<FiChevronDown/>} 
+          rightIcon={<LuChevronDown/>} 
           variant="outline"
           textAlign="left"
         >

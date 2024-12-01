@@ -96,16 +96,16 @@
         "download": {
             "title": "下载",
             "settings": {
-                "autoconcurrent": {
+                "autoConcurrent": {
                     "title": "自动选择并发数"
             },
-                "countconcurrent": {
+                "concurrentCount": {
                     "title": "并发数"
                 },
-                "speedenable": {
+                "enableSpeedLimit": {
                     "title": "限制下载速度"
                 },
-                "speedlimit": {
+                "speedLimitValue": {
                     "title": "限速设置"
                 }
             }
