@@ -121,7 +121,7 @@
                 }
             }
         }
-    },  
+    },
     "Enums": {
         "chakraColors": {
             "gray": "Gray",
@@ -156,6 +156,46 @@
             "games": "Games",
             "accounts": "Accounts",
             "settings": "Settings"
+        }
+    },
+    "HelpSettingsPage": {
+        "community": {
+            "title": "University Player Community",
+            "settings": {
+                "MUA": {
+                    "title": "Minecraft University Alliance (MUA)",
+                    "description": "Play with university players across China"
+                },
+                "SJMC": {
+                    "title": "SJTU Minecraft Club (SJMC)"
+                }
+            }
+        },
+        "minecraft": {
+            "title": "Minecraft",
+            "settings": {
+                "mcWiki": {
+                    "title": "Minecraft Wiki",
+                    "description": "The most detailed Minecraft encyclopedia",
+                    "url": "https://minecraft.wiki/"
+                },
+                "mcMod": {
+                    "title": "MCMod",
+                    "description": "A Chinese mod encyclopedia for Minecraft"
+                },
+                "curseforge": {
+                    "title": "CurseForge",
+                    "description": "Discover the world's largest Minecraft mod repository"
+                }
+            }
+        },
+        "top": {
+            "title": "",
+            "settings": {
+                "LauncherDocs": {
+                    "title": "SJMC Launcher Documentation"
+                }
+            }
         }
     },
     "LaunchPage": {
