@@ -59,7 +59,7 @@ const DownloadSettingsPage = () => {
                   >
                     {
                       sourceStrategyTypes.map((type) => (
-                        <MenuItemOption value={type} fontSize="xs">
+                        <MenuItemOption value={type} fontSize="xs" key={type}>
                           {t(`DownloadSettingPage.source.settings.strategy.${type}`)}
                         </MenuItemOption>
                       ))

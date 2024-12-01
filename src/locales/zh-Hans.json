@@ -190,10 +190,9 @@
             }
         },
         "top": {
-            "title": "",
             "settings": {
                 "LauncherDocs": {
-                    "title": "启动器使用指南"
+                    "title": "SJMC Launcher 文档"
                 }
             }
         }

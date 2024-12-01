@@ -6,7 +6,6 @@ const HelpSettingsPage = () => {
   const { t } = useTranslation();
   const helpSettingGroups: OptionItemGroupProps[] = [
     {
-      title: t("HelpSettingsPage.top.title"),
       items: [
         {
           title: t("HelpSettingsPage.top.settings.LauncherDocs.title"),

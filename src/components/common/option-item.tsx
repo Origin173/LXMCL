@@ -70,7 +70,7 @@ export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
         {title}
       </Text>}
       {items.length > 0 && 
-        <Card mt={2.5} className="content-card">
+        <Card mt={title ? 2.5 : 0} className="content-card">
           {items.map((item, index) => (
             <React.Fragment key={index}>
               {isOptionItemProps(item) ? (
