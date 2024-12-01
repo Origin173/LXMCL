@@ -52,7 +52,7 @@ const AppearanceSettingsPage = () => {
   }
 
   const PresetBackgroundList = () => {
-    const presetBgList = [ "Jǫkull", "SJTU-eastgate" ]
+    const presetBgList = [ "Jokull", "SJTU-eastgate" ]
     const presetChoice = appearanceConfigs.background.presetChoice;
 
     return (

@@ -25,7 +25,7 @@ export const defaultConfig: LauncherConfig = {
       primaryColor: "blue",
     },
     background: {
-      presetChoice: "Jǫkull"
+      presetChoice: "Jokull"
     }
   },
   general: {
