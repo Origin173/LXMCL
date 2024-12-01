@@ -63,6 +63,22 @@
                     "title": "启动器强调色"
                 }
             }
+        },
+        "background": {
+            "title": "背景",
+            "settings": {
+                "preset": {
+                    "title": "选择预设"
+                }
+            },
+            "presetBgList": {
+                "Jǫkull": {
+                    "name": "银淞雪镇"
+                },
+                "SJTU-eastgate": {
+                    "name": "SJTU 紫气东来门"
+                }
+            }
         }
     },
     "Enums": {
@@ -124,6 +140,7 @@
     "SettingsLayout": {
         "settingsDomainList": {
             "global-game": "全局游戏设置",
+            "java": "Java",
             "general": "通用",
             "appearance": "外观",
             "download": "下载资源",

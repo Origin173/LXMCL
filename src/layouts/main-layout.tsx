@@ -31,7 +31,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     <Flex
       direction="column"
       h="100vh"
-      bgImg="url('/images/Jǫkull-3.png')"
+      bgImg={`url('/images/${config.appearance.background.presetChoice}.jpg')`}
       bgSize="cover"
       bgPosition="center"
       bgRepeat="no-repeat"

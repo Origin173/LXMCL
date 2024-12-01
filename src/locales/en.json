@@ -63,6 +63,22 @@
                     "title": "Launcher Primary Color"
                 }
             }
+        },
+        "background": {
+            "title": "Background",
+            "settings": {
+                "preset": {
+                    "title": "Preset Images"
+                }
+            },
+            "presetBgList": {
+                "Jǫkull": {
+                    "name": "Jǫkull Village"
+                },
+                "SJTU-eastgate": {
+                    "name": "SJTU Eastgate"
+                }
+            }
         }
     },
     "Enums": {
@@ -124,6 +140,7 @@
     "SettingsLayout": {
         "settingsDomainList": {
             "global-game": "Game Settings",
+            "java": "Java",
             "general": "General",
             "appearance": "Appearance",
             "download": "Download",

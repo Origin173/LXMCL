@@ -4,6 +4,9 @@ export interface LauncherConfig {
   appearance: {
     theme: {
       primaryColor: string;
+    },
+    background: {
+      presetChoice: string;
     }
   }
   general: {
@@ -21,6 +24,9 @@ export const defaultConfig: LauncherConfig = {
     theme: {
       primaryColor: "blue",
     },
+    background: {
+      presetChoice: "Jǫkull"
+    }
   },
   general: {
     general: {
