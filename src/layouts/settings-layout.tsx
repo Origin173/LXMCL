@@ -16,7 +16,8 @@ import {
   LuDownloadCloud,
   LuHelpCircle,
   LuInfo,
-  LuFlaskConical
+  LuFlaskConical,
+  LuCoffee
 } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import { isDev } from "@/utils/env";
@@ -31,7 +32,10 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
   const { t } = useTranslation();
 
   const settingsDomainList: { key: string; icon: IconType }[][] = [
-    [{ key: "global-game", icon: LuGamepad2 }],
+    [
+      { key: "global-game", icon: LuGamepad2 },
+      { key: "java", icon: LuCoffee },
+    ],
     [
       { key: "general", icon: LuSettings },
       { key: "appearance", icon: LuPalette },
@@ -45,7 +49,7 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
   return (
     <Grid templateColumns="1fr 3fr" gap={4} h="100%">
       <GridItem className="content-full-y">
-        <VStack align="stretch" spacing={3.5}>
+        <VStack align="stretch" spacing={4}>
           {settingsDomainList.map((group, index) => (
             <NavMenu
               key={index}
@@ -68,7 +72,11 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
           ))}
         </VStack>
       </GridItem>
-      <GridItem className="content-full-y">{children}</GridItem>
+      <GridItem className="content-full-y">
+        <VStack align="stretch" spacing={4}>
+          {children}
+        </VStack>
+      </GridItem>
     </Grid>
   );
 };

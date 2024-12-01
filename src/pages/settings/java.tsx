@@ -1,23 +1,24 @@
+import { VStack } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/option-item";
 
-const GlobalGameSettingsPage = () => {
+const JavaSettingsPage = () => {
   const { t } = useTranslation();
 
-  const globalGameSettingGroups: OptionItemGroupProps[] = [
+  const javaSettingGroups: OptionItemGroupProps[] = [
     {
-      title: t("GlobalGameSettingsPage.game.title"),
+      title: t("JavaSettingsPage.java.title"),
       items: []
     }
   ];
 
   return (
     <>
-      {globalGameSettingGroups.map((group, index) => (
+      {javaSettingGroups.map((group, index) => (
         <OptionItemGroup title={group.title} items={group.items} key={index} />
       ))}
     </>
   );
 }
 
-export default GlobalGameSettingsPage;
+export default JavaSettingsPage;

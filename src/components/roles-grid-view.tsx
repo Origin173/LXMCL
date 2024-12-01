@@ -35,7 +35,7 @@ const RoleCard: React.FC<RoleCardProps> = ({ role, isSelected }) => {
     <Card 
       className="content-card" 
       w="10.55rem" 
-      borderColor={`${primaryColor}.400`}
+      borderColor={`${primaryColor}.500`}
       variant={isSelected ? "outline" : "elevated"}
     >
       <Box position="absolute" top={2} left={2}>

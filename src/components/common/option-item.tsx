@@ -65,7 +65,7 @@ export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
   }
 
   return (
-    <Box mb={4} {...boxProps}>
+    <Box {...boxProps}>
       {title && <Text fontWeight="bold" fontSize="sm" className="no-select">
         {title}
       </Text>}
