@@ -41,3 +41,7 @@ next-env.d.ts
 
 # lock
 package-lock.json
+
+# IDE
+/.vscode
+/.idea
