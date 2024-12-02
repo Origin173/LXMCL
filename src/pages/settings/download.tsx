@@ -132,7 +132,10 @@ const DownloadSettingsPage = () => {
                       maxW={16}
                       value={downloadConfigs.download.concurrentCount || 64}
                       onChange={(value) => {
-                        update("download.download.concurrentCount", value);
+                        update(
+                          "download.download.concurrentCount",
+                          Number(value)
+                        );
                       }}
                     >
                       <NumberInputField />
@@ -179,9 +182,12 @@ const DownloadSettingsPage = () => {
                       min={1}
                       size="xs"
                       maxW={16}
-                      value={downloadConfigs.download.speedLimitValue}
+                      value={downloadConfigs.download.speedLimitValue || 0}
                       onChange={(value) => {
-                        update("download.download.speedLimitValue", value);
+                        update(
+                          "download.download.speedLimitValue",
+                          Number(value)
+                        );
                       }}
                     >
                       {/* no stepper NumberInput, use pr={0} */}
