@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import { useRouter } from "next/router";
 import { Alert, AlertIcon, VStack } from "@chakra-ui/react";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 import { isProd } from "@/utils/env";
 
 // ============================================================
@@ -11,20 +11,22 @@ import { isProd } from "@/utils/env";
 const DevTestPage = () => {
   const router = useRouter();
   useEffect(() => {
-    if (isProd) { router.push("/launch"); }
-  }, []);
+    if (isProd) {
+      router.push("/launch");
+    }
+  }, [router]);
 
   return (
     <VStack>
-      <Alert status='warning' fontSize='sm' variant='left-accent'>
+      <Alert status="warning" fontSize="sm" variant="left-accent">
         <AlertIcon />
-        This Page is only for developer to test components and etc. It will not shown in production mode.
+        This Page is only for developer to test components and etc. It will not
+        shown in production mode.
       </Alert>
 
       {/* Add test components here */}
-
     </VStack>
-  )
-}
+  );
+};
 
 export default DevTestPage;

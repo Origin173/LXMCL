@@ -1,17 +1,17 @@
-import React from 'react';
-import { Button, ButtonProps, useTheme } from '@chakra-ui/react';
+import { Button, ButtonProps, useTheme } from "@chakra-ui/react";
+import React from "react";
 
 interface SelectableButtonProps extends ButtonProps {
   isSelected?: boolean;
   bgColorScheme?: string;
 }
 
-const SelectableButton: React.FC<SelectableButtonProps> = ({ 
-  isSelected = false, 
-  bgColorScheme = 'blackAlpha', 
-  colorScheme = 'gray',
-  children, 
-  ...props 
+const SelectableButton: React.FC<SelectableButtonProps> = ({
+  isSelected = false,
+  bgColorScheme = "blackAlpha",
+  colorScheme = "gray",
+  children,
+  ...props
 }) => {
   const theme = useTheme();
 
@@ -21,8 +21,8 @@ const SelectableButton: React.FC<SelectableButtonProps> = ({
 
   return (
     <Button
-      variant='ghost'
-      bg={isSelected ? selectedBg : 'transparent'}
+      variant="ghost"
+      bg={isSelected ? selectedBg : "transparent"}
       color={isSelected ? selectedColor : defaultColor}
       textAlign="left"
       justifyContent="flex-start"

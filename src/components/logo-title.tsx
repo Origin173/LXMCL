@@ -1,10 +1,5 @@
-import {
-  Heading,
-  Highlight,
-  BoxProps
-} from '@chakra-ui/react';
-
-import styles from './logo-title.module.css';
+import { BoxProps, Heading, Highlight } from "@chakra-ui/react";
+import styles from "./logo-title.module.css";
 
 interface LogoTitleProps extends BoxProps {}
 
@@ -16,7 +11,7 @@ export const TitleShort: React.FC<LogoTitleProps> = (props) => {
       </Highlight>
     </Heading>
   );
-}
+};
 
 export const TitleFull: React.FC<LogoTitleProps> = (props) => {
   return (
@@ -26,5 +21,4 @@ export const TitleFull: React.FC<LogoTitleProps> = (props) => {
       </Highlight>
     </Heading>
   );
-}
-
+};

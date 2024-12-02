@@ -1,19 +1,21 @@
 // @ts-nocheck
-import React, { useState, useEffect } from "react";
 import {
+  Button,
   Menu,
   MenuButton,
+  MenuItemOption,
   MenuList,
   MenuOptionGroup,
-  MenuItemOption,
-  Button
 } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { LuChevronDown } from "react-icons/lu";
-import { useTranslation } from 'react-i18next';
-import { localeResources } from "@/locales";
-import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/option-item";
+import {
+  OptionItemGroup,
+  OptionItemGroupProps,
+} from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
-
+import { localeResources } from "@/locales";
 
 const GeneralSettingsPage = () => {
   const { t } = useTranslation();
@@ -25,9 +27,11 @@ const GeneralSettingsPage = () => {
 
     return (
       <Menu>
-        <MenuButton 
-          as={Button} size="xs" w="auto"
-          rightIcon={<LuChevronDown/>} 
+        <MenuButton
+          as={Button}
+          size="xs"
+          w="auto"
+          rightIcon={<LuChevronDown />}
           variant="outline"
           textAlign="left"
         >
@@ -37,11 +41,11 @@ const GeneralSettingsPage = () => {
           <MenuOptionGroup
             defaultValue={currentLanguage}
             type="radio"
-            onChange={(value) => { 
+            onChange={(value) => {
               update("general.general.language", value as string);
             }}
           >
-            {Object.keys(localeResources).map(key => (
+            {Object.keys(localeResources).map((key) => (
               <MenuItemOption key={key} value={key} fontSize="xs">
                 {localeResources[key].display_name}
               </MenuItemOption>
@@ -49,19 +53,21 @@ const GeneralSettingsPage = () => {
           </MenuOptionGroup>
         </MenuList>
       </Menu>
-    )
-  }
+    );
+  };
 
-  const generalSettingGroups: OptionItemGroupProps[] = [{
-    title: t("GeneralSettingsPage.general.title"),
-    items: [
-      {
-        title: t("GeneralSettingsPage.general.settings.language.title"),
-        children: <LocaleMenu />
-      }
-    ]
-  }]
-  
+  const generalSettingGroups: OptionItemGroupProps[] = [
+    {
+      title: t("GeneralSettingsPage.general.title"),
+      items: [
+        {
+          title: t("GeneralSettingsPage.general.settings.language.title"),
+          children: <LocaleMenu />,
+        },
+      ],
+    },
+  ];
+
   return (
     <>
       {generalSettingGroups.map((group, index) => (
@@ -69,6 +75,6 @@ const GeneralSettingsPage = () => {
       ))}
     </>
   );
-}
+};
 
 export default GeneralSettingsPage;

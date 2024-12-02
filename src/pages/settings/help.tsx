@@ -1,6 +1,9 @@
-import { useTranslation } from 'react-i18next';
-import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/option-item";
+import { useTranslation } from "react-i18next";
 import LinkIconButton from "@/components/common/link-icon-button";
+import {
+  OptionItemGroup,
+  OptionItemGroupProps,
+} from "@/components/common/option-item";
 
 const HelpSettingsPage = () => {
   const { t } = useTranslation();
@@ -9,29 +12,60 @@ const HelpSettingsPage = () => {
       items: [
         {
           title: t("HelpSettingsPage.top.settings.LauncherDocs.title"),
-          children: <LinkIconButton url="https://mc.sjtu.cn/launcher-faq" aria-label="launcherdoc" isExternal h={18}/>
-        }
-      ]
+          children: (
+            <LinkIconButton
+              url="https://mc.sjtu.cn/launcher-faq"
+              aria-label="launcherdoc"
+              isExternal
+              h={18}
+            />
+          ),
+        },
+      ],
     },
     {
       title: t("HelpSettingsPage.minecraft.title"),
       items: [
         {
           title: t("HelpSettingsPage.minecraft.settings.mcWiki.title"),
-          description: t("HelpSettingsPage.minecraft.settings.mcWiki.description"),
-          children: <LinkIconButton url={t("HelpSettingsPage.minecraft.settings.mcWiki.url")} aria-label="mcWiki" isExternal/>
+          description: t(
+            "HelpSettingsPage.minecraft.settings.mcWiki.description"
+          ),
+          children: (
+            <LinkIconButton
+              url={t("HelpSettingsPage.minecraft.settings.mcWiki.url")}
+              aria-label="mcWiki"
+              isExternal
+            />
+          ),
         },
         {
           title: t("HelpSettingsPage.minecraft.settings.mcMod.title"),
-          description: t("HelpSettingsPage.minecraft.settings.mcMod.description"),
-          children: <LinkIconButton url="https://www.mcmod.cn/" aria-label="mcMod" isExternal/>
+          description: t(
+            "HelpSettingsPage.minecraft.settings.mcMod.description"
+          ),
+          children: (
+            <LinkIconButton
+              url="https://www.mcmod.cn/"
+              aria-label="mcMod"
+              isExternal
+            />
+          ),
         },
         {
           title: t("HelpSettingsPage.minecraft.settings.curseforge.title"),
-          description: t("HelpSettingsPage.minecraft.settings.curseforge.description"),
-          children: <LinkIconButton url="https://www.curseforge.com/minecraft" aria-label="curseforge" isExternal/>
+          description: t(
+            "HelpSettingsPage.minecraft.settings.curseforge.description"
+          ),
+          children: (
+            <LinkIconButton
+              url="https://www.curseforge.com/minecraft"
+              aria-label="curseforge"
+              isExternal
+            />
+          ),
         },
-      ]
+      ],
     },
     {
       title: t("HelpSettingsPage.community.title"),
@@ -39,14 +73,27 @@ const HelpSettingsPage = () => {
         {
           title: t("HelpSettingsPage.community.settings.MUA.title"),
           description: t("HelpSettingsPage.community.settings.MUA.description"),
-          children: <LinkIconButton url="https://www.mualliance.cn/" aria-label="MUA" isExternal/>
+          children: (
+            <LinkIconButton
+              url="https://www.mualliance.cn/"
+              aria-label="MUA"
+              isExternal
+            />
+          ),
         },
         {
           title: t("HelpSettingsPage.community.settings.SJMC.title"),
-          children: <LinkIconButton url="https://mc.sjtu.cn/" aria-label="SJMC" isExternal h={18}/>
+          children: (
+            <LinkIconButton
+              url="https://mc.sjtu.cn/"
+              aria-label="SJMC"
+              isExternal
+              h={18}
+            />
+          ),
         },
-      ]
-    }
+      ],
+    },
   ];
 
   return (
@@ -56,6 +103,6 @@ const HelpSettingsPage = () => {
       ))}
     </>
   );
-}
+};
 
 export default HelpSettingsPage;

@@ -4,11 +4,10 @@
   "semi": true,
   "singleQuote": false,
   "importOrder": [
-    "^[A-Za-z]",
-    "^@/(.*)$",
-    "^[./]"
+    "^(?:@[^/].*|[A-Za-z].*)$",
+    "^@/.*$",
+    "^[./].*$"
   ],
-  "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
   "plugins": [
     "@trivago/prettier-plugin-sort-imports"

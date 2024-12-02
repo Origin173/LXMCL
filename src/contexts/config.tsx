@@ -1,33 +1,31 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { LauncherConfig, defaultConfig } from "@/models/config"
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { changeLanguage } from "@/locales";
+import { LauncherConfig, defaultConfig } from "@/models/config";
 
 interface LauncherConfigContextType {
   config: LauncherConfig;
   update: (path: string, value: any) => void;
 }
 
-const LauncherConfigContext = createContext<LauncherConfigContextType | undefined>(
-  undefined
-);
+const LauncherConfigContext = createContext<
+  LauncherConfigContextType | undefined
+>(undefined);
 
-export const LauncherConfigProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const LauncherConfigProvider: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
   const [config, setConfig] = useState<LauncherConfig>(defaultConfig);
-
 
   useEffect(() => {
     // only for mock, @TODO: get from backend
     setTimeout(() => {
       update("mocked", false);
     }, 1000);
-  }, []);
+  });
 
   useEffect(() => {
     changeLanguage(config.general.general.language);
   }, [config.general.general.language]);
-
 
   const updateByKeyPath = (obj: any, path: string, value: any): void => {
     const keys = path.split(".");

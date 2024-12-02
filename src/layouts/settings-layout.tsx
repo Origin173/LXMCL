@@ -1,27 +1,20 @@
-import React from "react";
-import { 
-  Grid, 
-  GridItem, 
-  VStack, 
-  Icon, 
-  HStack,
-  Text
-} from "@chakra-ui/react";
-import { useTranslation } from "react-i18next";
+import { Grid, GridItem, HStack, Icon, Text, VStack } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { 
-  LuGamepad2,
-  LuSettings,
-  LuPalette,
+import React from "react";
+import { useTranslation } from "react-i18next";
+import { IconType } from "react-icons";
+import {
+  LuCoffee,
   LuDownloadCloud,
+  LuFlaskConical,
+  LuGamepad2,
   LuHelpCircle,
   LuInfo,
-  LuFlaskConical,
-  LuCoffee
+  LuPalette,
+  LuSettings,
 } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import { isDev } from "@/utils/env";
-import { IconType } from "react-icons";
 
 interface SettingsLayoutProps {
   children: React.ReactNode;
@@ -43,7 +36,7 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
       { key: "help", icon: LuHelpCircle },
       { key: "about", icon: LuInfo },
     ],
-    ...(isDev ? [[{ key: "dev-test", icon: LuFlaskConical }]] : [])
+    ...(isDev ? [[{ key: "dev-test", icon: LuFlaskConical }]] : []),
   ];
 
   return (

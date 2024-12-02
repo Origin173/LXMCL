@@ -1,11 +1,11 @@
 // user role
 export interface Role {
-  id: number
+  id: number;
   name: string;
   uuid: string;
   avatarUrl: string;
   type: "offline" | "3rdparty";
-  authServer?: AuthServer;  // only from authlib-injector
+  authServer?: AuthServer; // only from authlib-injector
   authAccount?: string; // only from authlib-injector
 }
 
@@ -16,46 +16,57 @@ export interface AuthServer {
   authUrl: string;
 }
 
-
 // only for test
 export const mockAuthServerList: AuthServer[] = [
   { name: "SJMC 用户中心", authUrl: "https://skin.mc.sjtu.cn/api/yggdrasil" },
-  { name: "MUA 用户中心", authUrl: "https://skin.mualliance.ltd/api/yggdrasil" }
-]
+  {
+    name: "MUA 用户中心",
+    authUrl: "https://skin.mualliance.ltd/api/yggdrasil",
+  },
+];
 
 export const mockRoleList: Role[] = [
-  { 
-    id: 1, 
-    name: "Unicorn", 
-    uuid: "4ca3a46a-XXXX-XXXX-XXXX-XXXXXXXXXXXX", 
-    avatarUrl: "https://skin.mc.sjtu.cn/avatar/2?size=72&png=1", 
-    type: "3rdparty", 
-    authServer: { name: "SJMC 用户中心", authUrl: "https://skin.mc.sjtu.cn/api/yggdrasil" }, 
-    authAccount: "xxxxxx@sjtu.edu.cn" 
+  {
+    id: 1,
+    name: "Unicorn",
+    uuid: "4ca3a46a-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+    avatarUrl: "https://skin.mc.sjtu.cn/avatar/2?size=72&png=1",
+    type: "3rdparty",
+    authServer: {
+      name: "SJMC 用户中心",
+      authUrl: "https://skin.mc.sjtu.cn/api/yggdrasil",
+    },
+    authAccount: "xxxxxx@sjtu.edu.cn",
   },
-  { 
-    id: 2, 
-    name: "ynk", 
-    uuid: "176235f4-XXXX-XXXX-XXXX-XXXXXXXXXXXX", 
+  {
+    id: 2,
+    name: "ynk",
+    uuid: "176235f4-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
     avatarUrl: "https://skin.mc.sjtu.cn/avatar/308?size=72&png=1",
-    type: "3rdparty", 
-    authServer: { name: "SJMC 用户中心", authUrl: "https://skin.mc.sjtu.cn/api/yggdrasil" }, 
-    authAccount: "yyyyyy@sjtu.edu.cn" 
+    type: "3rdparty",
+    authServer: {
+      name: "SJMC 用户中心",
+      authUrl: "https://skin.mc.sjtu.cn/api/yggdrasil",
+    },
+    authAccount: "yyyyyy@sjtu.edu.cn",
   },
-  { 
-    id: 3, 
-    name: "Test_offline", 
-    uuid: "00000000-0000-0000-0000-000000000000", 
+  {
+    id: 3,
+    name: "Test_offline",
+    uuid: "00000000-0000-0000-0000-000000000000",
     avatarUrl: "https://skin.mc.sjtu.cn/avatar/310?size=72&png=1",
-    type: "offline"
+    type: "offline",
   },
-  { 
-    id: 4, 
-    name: "FF98sha_MUA", 
-    uuid: "3e80b70e-XXXX-XXXX-XXXX-XXXXXXXXXXXX", 
-    avatarUrl: "https://skin.mc.sjtu.cn/avatar/3?size=72&png=1", 
-    type: "3rdparty", 
-    authServer: { name: "MUA 用户中心", authUrl: "https://skin.mualliance.ltd/api/yggdrasil" }, 
-    authAccount: "xxxxxx@sjtu.edu.cn" 
+  {
+    id: 4,
+    name: "FF98sha_MUA",
+    uuid: "3e80b70e-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+    avatarUrl: "https://skin.mc.sjtu.cn/avatar/3?size=72&png=1",
+    type: "3rdparty",
+    authServer: {
+      name: "MUA 用户中心",
+      authUrl: "https://skin.mualliance.ltd/api/yggdrasil",
+    },
+    authAccount: "xxxxxx@sjtu.edu.cn",
   },
-]
+];

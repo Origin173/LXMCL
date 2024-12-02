@@ -1,22 +1,24 @@
 import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverBody,
-  IconButton,
   Box,
-  Text,
   Card,
+  IconButton,
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  Text,
   VStack,
   Wrap,
-  WrapItem
+  WrapItem,
 } from "@chakra-ui/react";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import { LuChevronDown } from "react-icons/lu";
-import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/option-item";
 import ChakraColorSelector from "@/components/common/chakra-color-selector";
+import {
+  OptionItemGroup,
+  OptionItemGroupProps,
+} from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
-
 
 const AppearanceSettingsPage = () => {
   const { t } = useTranslation();
@@ -28,8 +30,8 @@ const AppearanceSettingsPage = () => {
     return (
       <Popover>
         <PopoverTrigger>
-          <IconButton 
-            size="xs" 
+          <IconButton
+            size="xs"
             colorScheme={primaryColor}
             variant={primaryColor === "gray" ? "darkGray" : "solid"}
             aria-label="color"
@@ -38,8 +40,8 @@ const AppearanceSettingsPage = () => {
         </PopoverTrigger>
         <PopoverContent>
           <PopoverBody>
-            <ChakraColorSelector 
-              current={primaryColor} 
+            <ChakraColorSelector
+              current={primaryColor}
               onColorSelect={(color) => {
                 update("appearance.theme.primaryColor", color);
               }}
@@ -48,11 +50,11 @@ const AppearanceSettingsPage = () => {
           </PopoverBody>
         </PopoverContent>
       </Popover>
-    )
-  }
+    );
+  };
 
   const PresetBackgroundList = () => {
-    const presetBgList = [ "Jokull", "SJTU-eastgate" ]
+    const presetBgList = ["Jokull", "SJTU-eastgate"];
     const presetChoice = appearanceConfigs.background.presetChoice;
 
     return (
@@ -60,15 +62,17 @@ const AppearanceSettingsPage = () => {
         {presetBgList.map((bg) => (
           <WrapItem key={bg}>
             <VStack spacing={1}>
-              <Card 
-                w="6rem" h="3.375rem" 
+              <Card
+                w="6rem"
+                h="3.375rem"
                 borderWidth={presetChoice === bg ? 2 : 0}
                 borderColor={`${primaryColor}.500`}
                 variant={presetChoice === bg ? "outline" : "elevated"}
                 overflow="hidden"
               >
                 <Box
-                  w="100%" h="100%"
+                  w="100%"
+                  h="100%"
                   bgImage={`url('/images/${bg}.jpg')`}
                   bgSize="cover"
                   bgPosition="center"
@@ -78,10 +82,10 @@ const AppearanceSettingsPage = () => {
                   }}
                 />
               </Card>
-              <Text 
-                fontSize="xs" 
+              <Text
+                fontSize="xs"
                 className={`no-select ${presetChoice !== bg ? "secondary-text" : ""}`}
-                mt={presetChoice === bg ? '-1px' : 0}   // compensate for the offset caused by selected card's border
+                mt={presetChoice === bg ? "-1px" : 0} // compensate for the offset caused by selected card's border
               >
                 {t(`AppearanceSettingsPage.background.presetBgList.${bg}.name`)}
               </Text>
@@ -89,8 +93,8 @@ const AppearanceSettingsPage = () => {
           </WrapItem>
         ))}
       </Wrap>
-    )
-  }
+    );
+  };
 
   const appearanceSettingGroups: OptionItemGroupProps[] = [
     {
@@ -98,19 +102,19 @@ const AppearanceSettingsPage = () => {
       items: [
         {
           title: t("AppearanceSettingsPage.theme.settings.primaryColor.title"),
-          children: <ColorSelectPopover />
-        }
-      ]
+          children: <ColorSelectPopover />,
+        },
+      ],
     },
     {
       title: t("AppearanceSettingsPage.background.title"),
       items: [
         {
           title: t("AppearanceSettingsPage.background.settings.preset.title"),
-          children: <PresetBackgroundList />
-        }
-      ]
-    }
+          children: <PresetBackgroundList />,
+        },
+      ],
+    },
   ];
 
   return (
@@ -120,6 +124,6 @@ const AppearanceSettingsPage = () => {
       ))}
     </>
   );
-}
+};
 
 export default AppearanceSettingsPage;

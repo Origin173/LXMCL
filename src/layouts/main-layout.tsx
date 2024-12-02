@@ -1,9 +1,6 @@
-import { 
-  Card,
-  Flex
-} from "@chakra-ui/react";
+import { Card, Flex } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { BeatLoader } from 'react-spinners';
+import { BeatLoader } from "react-spinners";
 import HeadNavBar from "@/components/head-navbar";
 import { useLauncherConfig } from "@/contexts/config";
 
@@ -15,17 +12,20 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const router = useRouter();
   const { config } = useLauncherConfig();
 
-  if (config.mocked) return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      width: '100vw',
-    }}>
-      <BeatLoader size={16} color="gray" />
-    </div>
-  );
+  if (config.mocked)
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          width: "100vw",
+        }}
+      >
+        <BeatLoader size={16} color="gray" />
+      </div>
+    );
 
   return (
     <Flex
@@ -37,18 +37,20 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       bgRepeat="no-repeat"
     >
       <HeadNavBar />
-      {
-        router.pathname === '/launch'
-          ? <>{children}</>
-          : <Card 
-              className="content-blur-bg"
-              h="100%"
-              overflow="auto"
-              mt={1} mb={4} mx={4}
-            >
-              {children}
-            </Card>
-      }
+      {router.pathname === "/launch" ? (
+        <>{children}</>
+      ) : (
+        <Card
+          className="content-blur-bg"
+          h="100%"
+          overflow="auto"
+          mt={1}
+          mb={4}
+          mx={4}
+        >
+          {children}
+        </Card>
+      )}
     </Flex>
   );
 };

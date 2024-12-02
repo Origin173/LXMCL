@@ -1,29 +1,26 @@
 import {
-  Menu,
-  MenuList,
-  MenuItem,
-  MenuButton,
-  IconButton,
   HStack,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Text,
-  Tooltip
+  Tooltip,
 } from "@chakra-ui/react";
-import { 
-  LuTrash,
-  LuMoreHorizontal
-} from "react-icons/lu";
-import { TbHanger } from "react-icons/tb";
 import { useTranslation } from "react-i18next";
+import { LuMoreHorizontal, LuTrash } from "react-icons/lu";
+import { TbHanger } from "react-icons/tb";
 import { Role } from "@/models/account";
 
 interface RoleMenuProps {
-  role: Role,
+  role: Role;
 }
 
 const roleMenuOperations = [
   { key: "skin", icon: TbHanger },
-  { key: "delete", icon: LuTrash, danger: true }
-]
+  { key: "delete", icon: LuTrash, danger: true },
+];
 
 export const RoleMenu: React.FC<RoleMenuProps> = ({ role }) => {
   const { t } = useTranslation();
@@ -32,31 +29,40 @@ export const RoleMenu: React.FC<RoleMenuProps> = ({ role }) => {
     <Menu>
       <MenuButton
         as={IconButton}
-        size="xs" variant="ghost"
+        size="xs"
+        variant="ghost"
         aria-label="operations"
         icon={<LuMoreHorizontal />}
       />
       <MenuList>
-        {roleMenuOperations.map(item => (
-          <MenuItem key={item.key} fontSize="xs" color={item.danger ? "red.500" : "inherit"}>
+        {roleMenuOperations.map((item) => (
+          <MenuItem
+            key={item.key}
+            fontSize="xs"
+            color={item.danger ? "red.500" : "inherit"}
+          >
             <HStack>
-              <item.icon/>
+              <item.icon />
               <Text>{t(`RoleMenu.label.${item.key}`)}</Text>
             </HStack>
           </MenuItem>
         ))}
       </MenuList>
     </Menu>
-  )
-}
+  );
+};
 
 export const RoleMenuBtnGroup: React.FC<RoleMenuProps> = ({ role }) => {
   const { t } = useTranslation();
   return (
     <HStack spacing={0}>
-      {roleMenuOperations.map(item => (
-        <Tooltip label={t(`RoleMenu.label.${item.key}`)} fontSize="sm" key={item.key}>
-          <IconButton 
+      {roleMenuOperations.map((item) => (
+        <Tooltip
+          label={t(`RoleMenu.label.${item.key}`)}
+          fontSize="sm"
+          key={item.key}
+        >
+          <IconButton
             size="sm"
             aria-label={item.key}
             icon={<item.icon />}
@@ -66,7 +72,7 @@ export const RoleMenuBtnGroup: React.FC<RoleMenuProps> = ({ role }) => {
         </Tooltip>
       ))}
     </HStack>
-  )
-}
+  );
+};
 
 export default RoleMenu;

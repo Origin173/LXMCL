@@ -1,12 +1,12 @@
-import { 
-  Flex, 
-  VStack, 
-  HStack, 
-  Text,
-  Divider,
-  Card,
+import {
   Box,
-  BoxProps 
+  BoxProps,
+  Card,
+  Divider,
+  Flex,
+  HStack,
+  Text,
+  VStack,
 } from "@chakra-ui/react";
 import React from "react";
 
@@ -42,14 +42,20 @@ export const OptionItem: React.FC<OptionItemProps> = ({
             </Text>
             {titleExtra}
           </HStack>
-          {description && <Text fontSize="xs" className="secondary-text no-select">{description}</Text>}
+          {description && (
+            <Text fontSize="xs" className="secondary-text no-select">
+              {description}
+            </Text>
+          )}
         </VStack>
       </HStack>
-      {
-        typeof children === 'string' 
-        ? <Text fontSize="xs-sm" className="secondary-text">{children}</Text>
-        : children
-      }
+      {typeof children === "string" ? (
+        <Text fontSize="xs-sm" className="secondary-text">
+          {children}
+        </Text>
+      ) : (
+        children
+      )}
     </Flex>
   );
 };
@@ -59,17 +65,21 @@ export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
   items,
   ...boxProps
 }) => {
-
   function isOptionItemProps(item: any): item is OptionItemProps {
-    return (item as OptionItemProps)?.title != null && (item as OptionItemProps)?.children != null;
+    return (
+      (item as OptionItemProps)?.title != null &&
+      (item as OptionItemProps)?.children != null
+    );
   }
 
   return (
     <Box {...boxProps}>
-      {title && <Text fontWeight="bold" fontSize="sm" className="no-select">
-        {title}
-      </Text>}
-      {items.length > 0 && 
+      {title && (
+        <Text fontWeight="bold" fontSize="sm" className="no-select">
+          {title}
+        </Text>
+      )}
+      {items.length > 0 && (
         <Card mt={title ? 2.5 : 0} className="content-card">
           {items.map((item, index) => (
             <React.Fragment key={index}>
@@ -82,14 +92,14 @@ export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
                 >
                   {item.children}
                 </OptionItem>
-              ) : (item)}
-              {index !== items.length - 1 && (
-                <Divider my={2} />
+              ) : (
+                item
               )}
+              {index !== items.length - 1 && <Divider my={2} />}
             </React.Fragment>
           ))}
         </Card>
-      }
+      )}
     </Box>
   );
 };

@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 const IndexPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    router.push('/launch');
+    router.push("/launch");
   }, [router]);
 
   return null;

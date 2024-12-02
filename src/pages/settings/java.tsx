@@ -1,6 +1,9 @@
-import { VStack } from '@chakra-ui/react';
-import { useTranslation } from 'react-i18next';
-import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/option-item";
+import { VStack } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
+import {
+  OptionItemGroup,
+  OptionItemGroupProps,
+} from "@/components/common/option-item";
 
 const JavaSettingsPage = () => {
   const { t } = useTranslation();
@@ -8,8 +11,8 @@ const JavaSettingsPage = () => {
   const javaSettingGroups: OptionItemGroupProps[] = [
     {
       title: t("JavaSettingsPage.java.title"),
-      items: []
-    }
+      items: [],
+    },
   ];
 
   return (
@@ -19,6 +22,6 @@ const JavaSettingsPage = () => {
       ))}
     </>
   );
-}
+};
 
 export default JavaSettingsPage;

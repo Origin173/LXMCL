@@ -1,5 +1,8 @@
-import { useTranslation } from 'react-i18next';
-import { OptionItemGroupProps, OptionItemGroup } from "@/components/common/option-item";
+import { useTranslation } from "react-i18next";
+import {
+  OptionItemGroup,
+  OptionItemGroupProps,
+} from "@/components/common/option-item";
 
 const GlobalGameSettingsPage = () => {
   const { t } = useTranslation();
@@ -7,8 +10,8 @@ const GlobalGameSettingsPage = () => {
   const globalGameSettingGroups: OptionItemGroupProps[] = [
     {
       title: t("GlobalGameSettingsPage.game.title"),
-      items: []
-    }
+      items: [],
+    },
   ];
 
   return (
@@ -18,6 +21,6 @@ const GlobalGameSettingsPage = () => {
       ))}
     </>
   );
-}
+};
 
 export default GlobalGameSettingsPage;

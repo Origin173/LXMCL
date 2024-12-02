@@ -1,6 +1,6 @@
-import React from 'react';
-import { VStack, Tooltip } from '@chakra-ui/react';
-import SelectableButton from '@/components/common/selectable-button';
+import { Tooltip, VStack } from "@chakra-ui/react";
+import React from "react";
+import SelectableButton from "@/components/common/selectable-button";
 
 export interface MenuItem {
   label: React.ReactNode;
@@ -20,8 +20,8 @@ const NavMenu: React.FC<NavMenuProps> = ({
   items,
   selectedKeys = [],
   onClick,
-  size = 'sm',
-  spacing = 0.5
+  size = "sm",
+  spacing = 0.5,
 }) => {
   return (
     <VStack spacing={spacing} align="stretch">

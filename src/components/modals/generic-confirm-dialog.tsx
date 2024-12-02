@@ -1,14 +1,14 @@
-import { useRef } from "react";
 import {
   AlertDialog,
   AlertDialogBody,
+  AlertDialogCloseButton,
+  AlertDialogContent,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogContent,
   AlertDialogOverlay,
-  AlertDialogCloseButton,
   Button,
 } from "@chakra-ui/react";
+import { useRef } from "react";
 
 interface GenericConfirmDialogProps {
   isOpen: boolean;
@@ -18,7 +18,7 @@ interface GenericConfirmDialogProps {
   btnOK: string;
   btnCancel: string;
   onOKCallback?: () => void;
-  isAlert?: boolean; 
+  isAlert?: boolean;
 }
 
 const GenericConfirmDialog: React.FC<GenericConfirmDialogProps> = ({
@@ -42,21 +42,17 @@ const GenericConfirmDialog: React.FC<GenericConfirmDialogProps> = ({
     >
       <AlertDialogOverlay>
         <AlertDialogContent>
-          <AlertDialogHeader>
-            {title}
-          </AlertDialogHeader>
+          <AlertDialogHeader>{title}</AlertDialogHeader>
           <AlertDialogCloseButton />
-          <AlertDialogBody pb={5}>
-            {body}
-          </AlertDialogBody>
+          <AlertDialogBody pb={5}>{body}</AlertDialogBody>
           <AlertDialogFooter>
             <Button ref={cancelRef} onClick={onClose}>
               {btnCancel}
             </Button>
-            <Button 
-                colorScheme={isAlert ? "red" : "blue"} 
-                onClick={onOKCallback} 
-                ml={3} 
+            <Button
+              colorScheme={isAlert ? "red" : "blue"}
+              onClick={onOKCallback}
+              ml={3}
             >
               {btnOK}
             </Button>

@@ -1,4 +1,4 @@
-import { extendTheme } from '@chakra-ui/react';
+import { extendTheme } from "@chakra-ui/react";
 
 const subtleButtonVariant = (props: any) => ({
   bg: `${props.colorScheme}.100`,
@@ -10,12 +10,12 @@ const subtleButtonVariant = (props: any) => ({
     bg: `${props.colorScheme}.300`,
   },
   _focus: {
-    boxShadow: 'none',
+    boxShadow: "none",
   },
   _disabled: {
     bg: `${props.colorScheme}.100`,
     color: `${props.colorScheme}.500`,
-    cursor: 'not-allowed',
+    cursor: "not-allowed",
     opacity: 0.6,
     _hover: {
       bg: `${props.colorScheme}.100 !important`,
@@ -31,7 +31,7 @@ const darkGrayButtonVariant = (props: any) => ({
   color: "white",
   _hover: { bg: "gray.700" },
   _active: { bg: "gray.800" },
-  _focus: { boxShadow: "none" }
+  _focus: { boxShadow: "none" },
 });
 
 const chakraExtendTheme = extendTheme({
@@ -42,7 +42,7 @@ const chakraExtendTheme = extendTheme({
       },
       variants: {
         subtle: subtleButtonVariant,
-        darkGray: darkGrayButtonVariant
+        darkGray: darkGrayButtonVariant,
       },
     },
     Divider: {
@@ -54,14 +54,14 @@ const chakraExtendTheme = extendTheme({
       baseStyle: {
         list: {
           minWidth: "auto",
-          py: 1
+          py: 1,
         },
       },
     },
   },
   fontSizes: {
-    'xs-sm': '0.8rem'
-  }
+    "xs-sm": "0.8rem",
+  },
 });
 
 export default chakraExtendTheme;

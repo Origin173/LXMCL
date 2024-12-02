@@ -1,51 +1,53 @@
-import React, { useEffect } from 'react';
+import { ChakraProvider } from "@chakra-ui/react";
+import i18n from "i18next";
 import type { AppProps } from "next/app";
-import { useRouter } from 'next/router';
-import { ChakraProvider } from '@chakra-ui/react';
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
+import { useRouter } from "next/router";
+import React, { useEffect } from "react";
+import { initReactI18next } from "react-i18next";
+import chakraExtendTheme from "@/chakra-theme";
+import { Fade } from "@/components/common/transition";
+import { LauncherConfigProvider } from "@/contexts/config";
+import { ToastContextProvider } from "@/contexts/toast";
 import MainLayout from "@/layouts/main-layout";
-import SettingsLayout from '@/layouts/settings-layout';
-import { Fade } from '@/components/common/transition';
-import { ToastContextProvider } from '@/contexts/toast';
-import { LauncherConfigProvider } from '@/contexts/config';
-import { localeResources } from '@/locales';
-import { isProd } from '@/utils/env';
-import chakraExtendTheme from '@/chakra-theme';
-
+import SettingsLayout from "@/layouts/settings-layout";
+import { localeResources } from "@/locales";
 import "@/styles/globals.css";
+import { isProd } from "@/utils/env";
 
-i18n
-  .use(initReactI18next)
-  .init({
-    resources: localeResources,
-    fallbackLng: 'zh-Hans',
-    lng: 'zh-Hans',
-    interpolation: {
-      escapeValue: false,
-    },
+i18n.use(initReactI18next).init({
+  resources: localeResources,
+  fallbackLng: "zh-Hans",
+  lng: "zh-Hans",
+  interpolation: {
+    escapeValue: false,
+  },
 });
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  
+
   useEffect(() => {
     // forbid right mouse menu of webview
     if (isProd) {
-      document.addEventListener('contextmenu', (event) => {
+      document.addEventListener("contextmenu", (event) => {
         event.preventDefault();
       });
     }
   }, []);
 
-  const layoutMappings: { prefix: string; layout: React.ComponentType<{ children: React.ReactNode }> }[] = [
-    { prefix: '/settings/', layout: SettingsLayout },
-  ];
+  const layoutMappings: {
+    prefix: string;
+    layout: React.ComponentType<{ children: React.ReactNode }>;
+  }[] = [{ prefix: "/settings/", layout: SettingsLayout }];
 
-  let SpecLayout: React.ComponentType<{ children: React.ReactNode }> = React.Fragment;
+  let SpecLayout: React.ComponentType<{ children: React.ReactNode }> =
+    React.Fragment;
 
   for (const mapping of layoutMappings) {
-    if (router.pathname.startsWith(mapping.prefix)) { SpecLayout = mapping.layout; break; }
+    if (router.pathname.startsWith(mapping.prefix)) {
+      SpecLayout = mapping.layout;
+      break;
+    }
   }
 
   return (

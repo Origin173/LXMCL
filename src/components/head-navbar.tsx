@@ -1,23 +1,18 @@
-import { 
+import {
   Card,
-  Flex, 
+  Flex,
   HStack,
   Icon,
   Tab,
   TabList,
   Tabs,
-  Text
-} from '@chakra-ui/react';
-import { 
-  LuZap,
-  LuBox,
-  LuUserCircle2,
-  LuSettings
-} from "react-icons/lu";
-import { useRouter } from 'next/router';
-import { useTranslation } from 'react-i18next';
-import { TitleShort } from '@/components/logo-title';
-import { useLauncherConfig } from '@/contexts/config';
+  Text,
+} from "@chakra-ui/react";
+import { useRouter } from "next/router";
+import { useTranslation } from "react-i18next";
+import { LuBox, LuSettings, LuUserCircle2, LuZap } from "react-icons/lu";
+import { TitleShort } from "@/components/logo-title";
+import { useLauncherConfig } from "@/contexts/config";
 
 const HeadNavBar = () => {
   const router = useRouter();
@@ -26,11 +21,11 @@ const HeadNavBar = () => {
   const primaryColor = config.appearance.theme.primaryColor;
 
   const navList = [
-    { icon: LuZap, label: "launch", path: '/launch' },
-    { icon: LuBox, label: "games", path: '/games' },
-    { icon: LuUserCircle2, label: "accounts", path: '/accounts' },
-    { icon: LuSettings, label: "settings", path: '/settings' },
-  ]
+    { icon: LuZap, label: "launch", path: "/launch" },
+    { icon: LuBox, label: "games", path: "/games" },
+    { icon: LuUserCircle2, label: "accounts", path: "/accounts" },
+    { icon: LuSettings, label: "settings", path: "/settings" },
+  ];
 
   const selectedIndex = navList.findIndex((item) =>
     router.pathname.startsWith(item.path)
@@ -46,11 +41,16 @@ const HeadNavBar = () => {
             size="sm"
             colorScheme={primaryColor}
             index={selectedIndex}
-            onChange={(index) => { router.push(navList[index].path) }}
+            onChange={(index) => {
+              router.push(navList[index].path);
+            }}
           >
             <TabList>
               {navList.map((item, index) => (
-                <Tab key={item.path} fontWeight={selectedIndex === index ? '600' : 'normal'}>
+                <Tab
+                  key={item.path}
+                  fontWeight={selectedIndex === index ? "600" : "normal"}
+                >
                   <HStack spacing={2}>
                     <Icon as={item.icon} />
                     <Text>{t(`HeadNavBar.navList.${item.label}`)}</Text>
@@ -62,7 +62,7 @@ const HeadNavBar = () => {
         </HStack>
       </Card>
     </Flex>
-  )
-}
+  );
+};
 
 export default HeadNavBar;

@@ -4,32 +4,31 @@ export interface LauncherConfig {
   appearance: {
     theme: {
       primaryColor: string;
-    },
+    };
     background: {
       presetChoice: string;
-    }
-  },
+    };
+  };
   download: {
     source: {
       strategy: string;
-    },
+    };
     download: {
       autoConcurrent: boolean;
       concurrentCount?: number;
       enableSpeedLimit: boolean;
       speedLimitValue?: number;
-    },
+    };
     cache: {
       directory: string;
-    }
-  },
+    };
+  };
   general: {
     general: {
       language: string;
-    }
-  }
+    };
+  };
 }
-
 
 export const defaultConfig: LauncherConfig = {
   version: "dev",
@@ -39,20 +38,20 @@ export const defaultConfig: LauncherConfig = {
       primaryColor: "blue",
     },
     background: {
-      presetChoice: "Jokull"
-    }
+      presetChoice: "Jokull",
+    },
   },
   download: {
     source: {
-      strategy: "auto"
+      strategy: "auto",
     },
     download: {
       autoConcurrent: true,
-      enableSpeedLimit: false
+      enableSpeedLimit: false,
     },
     cache: {
-      directory: "/mock/path/to/cache/"
-    }
+      directory: "/mock/path/to/cache/",
+    },
   },
   general: {
     general: {
