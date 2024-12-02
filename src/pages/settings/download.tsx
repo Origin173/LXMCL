@@ -1,6 +1,5 @@
 import {
   Button,
-  FormControl,
   HStack,
   Menu,
   MenuButton,
@@ -182,7 +181,7 @@ const DownloadSettingsPage = () => {
                       min={1}
                       size="xs"
                       maxW={16}
-                      value={downloadConfigs.download.speedLimitValue || 0}
+                      value={downloadConfigs.download.speedLimitValue || 1024}
                       onChange={(value) => {
                         update(
                           "download.download.speedLimitValue",

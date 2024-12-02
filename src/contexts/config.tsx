@@ -1,7 +1,7 @@
+import { invoke } from "@tauri-apps/api/core";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { changeLanguage } from "@/locales";
 import { LauncherConfig, defaultConfig } from "@/models/config";
-import { invoke } from "@tauri-apps/api/core";
 
 interface LauncherConfigContextType {
   config: LauncherConfig;
@@ -18,7 +18,7 @@ export const LauncherConfigProvider: React.FC<{
   const [config, setConfig] = useState<LauncherConfig>(defaultConfig);
 
   useEffect(() => {
-    // @TODO: get from backend
+    // TODO: migrate raw invoke to services/, add error catch
     invoke("get_launcher_config").then((config) => {
       setConfig(config as LauncherConfig);
     });
@@ -42,14 +42,11 @@ export const LauncherConfigProvider: React.FC<{
   };
 
   const update = (path: string, value: any) => {
-    // TODO: save to backend
-
     setConfig((prevConfig) => {
       const newConfig = { ...prevConfig };
+      // TODO: migrate raw invoke to services/, add error catch
+      invoke("update_launcher_config", { launcherConfig: newConfig }); // save to backend
       updateByKeyPath(newConfig, path, value);
-      console.log("update_launcher_config");
-      console.log(newConfig);
-      invoke("update_launcher_config", { launcherConfig: newConfig });
       return newConfig;
     });
   };
