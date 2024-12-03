@@ -22,10 +22,10 @@ We use **ESLint** + **Prettier** for frontend code and **rustfmt** for backend c
 To manually check and fix formatting issues, you can run the following commands:
 
 ```bash
-# Fix frontend part
-npx eslint "src/**/*.{js,jsx,ts,tsx,json}" --no-fix # check
-npx eslint "src/**/*.{js,jsx,ts,tsx,json}" --fix    # fix
+# For frontend part
+npx eslint "src/**/*.{js,jsx,ts,tsx,json}" --no-fix     # check
+npx eslint "src/**/*.{js,jsx,ts,tsx,json}" --fix        # fix
 
-# Fix backend part
+# For backend part
 rustfmt --check src-tauri/src/**/*.rs
 ```
