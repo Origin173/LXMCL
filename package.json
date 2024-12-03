@@ -14,6 +14,9 @@
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx}": [
       "eslint --no-fix --max-warnings=0"
+    ],
+    "src-tauri/src/**/*.rs": [
+      "rustfmt --check"
     ]
   },
   "dependencies": {

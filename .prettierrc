@@ -12,5 +12,5 @@
   "plugins": [
     "@trivago/prettier-plugin-sort-imports"
   ],
-  "endOfLine": "lf"
+  "endOfLine": "auto"
 }
