@@ -16,26 +16,6 @@ pub fn update_launcher_config(
   let mut state = state.lock().unwrap();
   *state = launcher_config;
   save_config(&state);
-  // match &key_path as &str {
-  //   "version" => state.version = value,
-  //   "mocked" => state.mocked = value == "true",
-  //   "appearance.theme.primarColor" => state.appearance.theme.primary_color = value,
-  //   "appearance.background.presetChoice" => state.appearance.background.preset_choice = value,
-  //   "download.source.strategy" => state.download.source.strategy = value,
-  //   "download.download.autoConcurrent" => state.download.download.auto_concurrent = value == "true",
-  //   "download.download.concurrentCount" => {
-  //     state.download.download.concurrent_count = value.parse::<u32>().ok()
-  //   }
-  //   "download.download.enableSpeedLimit" => {
-  //     state.download.download.enable_speed_limit = value == "true"
-  //   }
-  //   "download.download.speedLimitValue" => {
-  //     state.download.download.speed_limit_value = value.parse::<u32>().ok()
-  //   }
-  //   "download.cache.directory" => state.download.cache.directory = value,
-  //   "general.general.language" => state.general.general.language = value,
-  //   _ => (),
-  // };
 }
 
 static CONFIG_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
@@ -79,9 +59,9 @@ structstruck::strike! {
       },
       pub download: struct {
         pub auto_concurrent: bool,
-        pub concurrent_count: Option<usize>,
+        pub concurrent_count: usize,
         pub enable_speed_limit: bool,
-        pub speed_limit_value: Option<usize>,
+        pub speed_limit_value: usize,
       },
       pub cache: struct {
         pub directory: String,
@@ -114,9 +94,9 @@ impl Default for LauncherConfig {
         },
         download: Download {
           auto_concurrent: true,
-          concurrent_count: None,
+          concurrent_count: 64,
           enable_speed_limit: false,
-          speed_limit_value: None,
+          speed_limit_value: 1024,
         },
         cache: Cache {
           directory: "/mock/path/to/cache/".to_string(),

@@ -107,14 +107,14 @@ const DownloadSettingsPage = () => {
                   "DownloadSettingPage.download.settings.concurrentCount.title"
                 ),
                 children: (
-                  <HStack>
+                  <HStack spacing={4}>
                     <Slider
                       min={1}
                       max={128}
                       step={1}
                       w={32}
                       colorScheme={primaryColor}
-                      value={downloadConfigs.download.concurrentCount || 64}
+                      value={downloadConfigs.download.concurrentCount}
                       onChange={(value) => {
                         update("download.download.concurrentCount", value);
                       }}
@@ -129,7 +129,7 @@ const DownloadSettingsPage = () => {
                       max={128}
                       size="xs"
                       maxW={16}
-                      value={downloadConfigs.download.concurrentCount || 64}
+                      value={downloadConfigs.download.concurrentCount}
                       onChange={(value) => {
                         update(
                           "download.download.concurrentCount",
@@ -181,7 +181,7 @@ const DownloadSettingsPage = () => {
                       min={1}
                       size="xs"
                       maxW={16}
-                      value={downloadConfigs.download.speedLimitValue || 1024}
+                      value={downloadConfigs.download.speedLimitValue}
                       onChange={(value) => {
                         update(
                           "download.download.speedLimitValue",

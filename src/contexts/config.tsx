@@ -1,7 +1,10 @@
 import { invoke } from "@tauri-apps/api/core";
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useToast } from "@/contexts/toast";
 import { changeLanguage } from "@/locales";
 import { LauncherConfig, defaultConfig } from "@/models/config";
+import { getLauncherConfig, updateLauncherConfig } from "@/services/config";
 
 interface LauncherConfigContextType {
   config: LauncherConfig;
@@ -16,13 +19,21 @@ export const LauncherConfigProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const [config, setConfig] = useState<LauncherConfig>(defaultConfig);
+  const { t } = useTranslation();
+  const toast = useToast();
 
   useEffect(() => {
-    // TODO: migrate raw invoke to services/, add error catch
-    invoke("get_launcher_config").then((config) => {
-      setConfig(config as LauncherConfig);
-    });
-  }, []);
+    getLauncherConfig()
+      .then((config) => {
+        setConfig(config);
+      })
+      .catch((error) => {
+        toast({
+          title: t("Services.config.getLauncherConfig.error"),
+          status: "error",
+        });
+      });
+  }, [toast, t]);
 
   useEffect(() => {
     changeLanguage(config.general.general.language);
@@ -42,13 +53,20 @@ export const LauncherConfigProvider: React.FC<{
   };
 
   const update = (path: string, value: any) => {
-    setConfig((prevConfig) => {
-      const newConfig = { ...prevConfig };
-      // TODO: migrate raw invoke to services/, add error catch
-      invoke("update_launcher_config", { launcherConfig: newConfig }); // save to backend
-      updateByKeyPath(newConfig, path, value);
-      return newConfig;
-    });
+    const newConfig = { ...config };
+    updateByKeyPath(newConfig, path, value);
+
+    // Save to the backend
+    updateLauncherConfig(newConfig)
+      .then(() => {
+        setConfig(newConfig); // update frontend state if successful
+      })
+      .catch((error) => {
+        toast({
+          title: t("Services.config.updateLauncherConfig.error"),
+          status: "error",
+        });
+      });
   };
 
   return (

@@ -217,6 +217,16 @@
             "delete": "删除此角色"
         }
     },
+    "Services": {
+        "config": {
+            "getLauncherConfig": {
+                "error": "获取启动器设置失败"
+            },
+            "updateLauncherConfig": {
+                "error": "更新启动器设置失败"
+            }
+        }
+    },
     "SettingsLayout": {
         "settingsDomainList": {
             "global-game": "全局游戏设置",

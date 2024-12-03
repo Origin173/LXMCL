@@ -217,6 +217,16 @@
             "delete": "Delete"
         }
     },
+    "Services": {
+        "config": {
+            "getLauncherConfig": {
+                "error": "Failed to get launcher configuration"
+            },
+            "updateLauncherConfig": {
+                "error": "Failed to update launcher configuration"
+            }
+        }
+    },
     "SettingsLayout": {
         "settingsDomainList": {
             "global-game": "Game Settings",

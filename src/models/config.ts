@@ -15,9 +15,9 @@ export interface LauncherConfig {
     };
     download: {
       autoConcurrent: boolean;
-      concurrentCount?: number;
+      concurrentCount: number;
       enableSpeedLimit: boolean;
-      speedLimitValue?: number;
+      speedLimitValue: number;
     };
     cache: {
       directory: string;
@@ -47,7 +47,9 @@ export const defaultConfig: LauncherConfig = {
     },
     download: {
       autoConcurrent: true,
+      concurrentCount: 64,
       enableSpeedLimit: false,
+      speedLimitValue: 1024,
     },
     cache: {
       directory: "/mock/path/to/cache/",
