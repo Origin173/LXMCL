@@ -15,7 +15,7 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
   const router = useRouter();
   const { t } = useTranslation();
 
-  const gamesDomainList: { key: string; icon: IconType }[][] = [
+  const gameInstanceTypeList: { key: string; icon: IconType }[][] = [
     [{ key: "all", icon: LuBoxes }],
   ];
 
@@ -23,7 +23,7 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
     <Grid templateColumns="1fr 3fr" gap={4} h="100%">
       <GridItem className="content-full-y">
         <VStack align="stretch" h="100%" spacing={4}>
-          {gamesDomainList.map((group, index) => (
+          {gameInstanceTypeList.map((group, index) => (
             <NavMenu
               key={index}
               selectedKeys={[router.asPath]}

@@ -1,0 +1,48 @@
+import { BoxProps, HStack, Image, Radio, RadioGroup } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
+import { OptionItemGroup } from "@/components/common/option-item";
+import { useLauncherConfig } from "@/contexts/config";
+import { GameInstanceSummary } from "@/models/game-instance-summary";
+import { GameMenuBtnGroup } from "./game-menu";
+
+interface GamesListProps extends BoxProps {
+  games: GameInstanceSummary[];
+  selectedGame: string;
+  setSelectedGame: (game: string) => void;
+}
+
+const GamesListView: React.FC<GamesListProps> = ({
+  games,
+  selectedGame,
+  setSelectedGame,
+  ...boxProps
+}) => {
+  const { t } = useTranslation();
+  const { config } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
+
+  const items = games.map((game) => ({
+    title: game.name,
+    description: game.description,
+    prefixElement: (
+      <HStack spacing={2.5}>
+        <Radio value={game.uuid} colorScheme={primaryColor} />
+        <Image
+          boxSize="32px"
+          objectFit="cover"
+          src={game.iconUrl}
+          alt={game.name}
+        />
+      </HStack>
+    ),
+    children: <GameMenuBtnGroup game={game} />,
+  }));
+
+  return (
+    <RadioGroup onChange={setSelectedGame} value={selectedGame}>
+      <OptionItemGroup items={items} {...boxProps} />
+    </RadioGroup>
+  );
+};
+
+export default GamesListView;

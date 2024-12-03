@@ -151,7 +151,18 @@
   "GamesPage": {
     "Button": {
       "addAndImport": "Add & Import",
-      "globalSettings": "Global Game Settings"
+      "globalSettings": "Global Game Settings",
+      "launch": "Launch Game"
+    },
+    "viewTypeList": {
+      "grid": "Grid View",
+      "list": "List View"
+    }
+  },
+  "GameMenu": {
+    "label": {
+      "settings": "Settings",
+      "delete": "Delete"
     }
   },
   "GeneralSettingsPage": {
