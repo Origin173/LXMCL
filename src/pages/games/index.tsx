@@ -50,7 +50,7 @@ const AllGames = () => {
     },
   ];
   return (
-    <GridItem className="content-full-y">
+    <GridItem>
       <Flex alignItems="flex-start">
         <VStack spacing={0} align="start">
           <Text fontWeight="bold" fontSize="sm" className="no-select">

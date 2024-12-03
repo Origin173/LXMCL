@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Flex,
   Grid,
@@ -92,21 +93,23 @@ const AccountsPage = () => {
     <Grid templateColumns="1fr 3fr" gap={4} h="100%">
       <GridItem className="content-full-y">
         <VStack align="stretch" h="100%">
-          <NavMenu
-            selectedKeys={[selectedRoleType]}
-            onClick={(value) => {
-              setSelectedRoleType(value);
-            }}
-            items={roleTypeList.map((item) => ({
-              label: (
-                <HStack spacing={2} overflow="hidden">
-                  <Icon as={item.icon} />
-                  <Text fontSize="sm">{item.label}</Text>
-                </HStack>
-              ),
-              value: item.key,
-            }))}
-          />
+          <Box flex="1" overflowY="auto">
+            <NavMenu
+              selectedKeys={[selectedRoleType]}
+              onClick={(value) => {
+                setSelectedRoleType(value);
+              }}
+              items={roleTypeList.map((item) => ({
+                label: (
+                  <HStack spacing={2} overflow="hidden">
+                    <Icon as={item.icon} />
+                    <Text fontSize="sm">{item.label}</Text>
+                  </HStack>
+                ),
+                value: item.key,
+              }))}
+            />
+          </Box>
           <SelectableButton mt="auto" size="sm">
             <HStack spacing={2}>
               <Icon as={LuPlusCircle} />

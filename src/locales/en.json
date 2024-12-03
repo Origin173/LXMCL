@@ -122,9 +122,9 @@
       }
     }
   },
-    "Empty": {
-        "nodata": "No Data"
-    },
+  "Empty": {
+    "nodata": "No Data"
+  },
   "Enums": {
     "chakraColors": {
       "gray": "Gray",
