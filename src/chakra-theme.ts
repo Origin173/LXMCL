@@ -1,4 +1,4 @@
-import { extendTheme } from "@chakra-ui/react";
+import { Container, Toast, baseTheme, extendTheme } from "@chakra-ui/react";
 
 const subtleButtonVariant = (props: any) => ({
   bg: `${props.colorScheme}.100`,
@@ -36,6 +36,21 @@ const darkGrayButtonVariant = (props: any) => ({
 
 const chakraExtendTheme = extendTheme({
   components: {
+    Alert: {
+      baseStyle: {
+        container: {
+          paddingY: 2,
+        },
+        title: {
+          fontSize: "sm",
+          marginBottom: -0.5,
+        },
+        description: {
+          fontSize: "xs",
+          lineHeight: 4,
+        },
+      },
+    },
     Button: {
       baseStyle: {
         fontWeight: "normal",

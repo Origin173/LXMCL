@@ -60,11 +60,28 @@ body {
 
 .content-card {
   background-color: var(--chakra-colors-gray-50) !important;
-  padding: var(--chakra-sizes-3);
+  padding: var(--chakra-space-3);
 }
 
 .content-full-y {
   height: 100%;
   overflow-y: auto;
-  padding: var(--chakra-sizes-3-5);
+  padding: var(--chakra-space-3-5);
 }
+
+
+/* alert and toast */
+/* .chakra-alert__title {
+  font-size: var(--chakra-fontSizes-sm) !important;
+}
+
+.chakra-alert__desc {
+  font-size: var(--chakra-fontSizes-xs-sm) !important;
+  line-height: var(--chakra-lineHeights-4) !important;
+}
+
+.chakra-alert {
+  padding-left: var(--chakra-space-3) !important;
+  padding-top: var(--chakra-space-2) !important;
+  padding-bottom: var(--chakra-space-2) !important;
+} */

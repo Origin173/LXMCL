@@ -1,7 +1,5 @@
-import { UseToastOptions, createStandaloneToast } from "@chakra-ui/react";
+import { UseToastOptions, useToast as chakraUseToast } from "@chakra-ui/react";
 import React, { ReactNode, createContext, useContext } from "react";
-
-const { ToastContainer, toast } = createStandaloneToast();
 
 interface ToastContextProviderProps {
   children: ReactNode;
@@ -11,25 +9,29 @@ interface ToastContextType {
   (options: UseToastOptions): void;
 }
 
-const customToast = (options: UseToastOptions) => {
-  toast({
-    position: "bottom-left",
-    duration: 3000,
-    variant: "left-accent",
-    isClosable: true,
-    ...options,
-  });
-};
-
 const ToastContext = createContext<ToastContextType | null>(null);
 
 export const ToastContextProvider: React.FC<ToastContextProviderProps> = ({
   children,
 }) => {
+  const chakraToast = chakraUseToast();
+
+  const customToast: ToastContextType = (options) => {
+    chakraToast({
+      position: "bottom-left",
+      duration: 3000,
+      variant: "left-accent",
+      isClosable: true,
+      containerStyle: {
+        minWidth: "2xs",
+      },
+      ...options,
+    });
+  };
+
   return (
     <ToastContext.Provider value={customToast}>
       {children}
-      <ToastContainer />
     </ToastContext.Provider>
   );
 };
