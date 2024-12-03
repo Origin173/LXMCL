@@ -1,4 +1,4 @@
-import { IconButton, IconButtonProps } from "@chakra-ui/react";
+import { IconButton, IconButtonProps, Tooltip } from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-shell";
 import { useRouter } from "next/router";
 import React from "react";
@@ -8,16 +8,20 @@ interface LinkIconButtonProps extends IconButtonProps {
   url: string;
   ariaLabel?: string;
   isExternal?: boolean;
+  size?: string;
+  showTooltip?: boolean;
 }
 
 const LinkIconButton: React.FC<LinkIconButtonProps> = ({
   url,
   isExternal = false,
+  showTooltip = false,
+  size = "xs",
   ...buttonProps
 }) => {
   const router = useRouter();
 
-  return (
+  const iconButton = (
     <IconButton
       onClick={() => {
         isExternal ? open(url) : router.push(url);
@@ -27,6 +31,17 @@ const LinkIconButton: React.FC<LinkIconButtonProps> = ({
       icon={isExternal ? <LuExternalLink /> : <LuArrowRight />}
       {...buttonProps}
     />
+  );
+
+  return (
+    <Tooltip
+      label={url}
+      fontSize={size}
+      isDisabled={!showTooltip}
+      aria-label={url}
+    >
+      {iconButton}
+    </Tooltip>
   );
 };
 
