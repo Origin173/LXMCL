@@ -1,245 +1,256 @@
 {
-    "AboutSettingsPage": {
-        "about": {
-            "title": "About",
-            "settings": {
-                "version": {
-                    "title": "Version"
-                },
-                "contributors": {
-                    "title": "Contributors"
-                },
-                "reportIssue": {
-                    "title": "Report Issue"
-                },
-                "aboutSJMC": {
-                    "title": "About SJTU Minecraft Club (SJMC)"
-                }
-            }
+  "AboutSettingsPage": {
+    "about": {
+      "title": "About",
+      "settings": {
+        "version": {
+          "title": "Version"
         },
-        "ack": {
-            "title": "Acknowledgement",
-            "settings": {
-                "bmclapi": {
-                    "title": "BMCLAPI",
-                    "description": "Thanks to @bangbang93 for providing the high-speed download source mirror"
-                }
-            }
+        "contributors": {
+          "title": "Contributors"
         },
-        "legalInfo": {
-            "title": "Legal Notices",
-            "settings": {
-                "copyright": {
-                    "title": "Copyright",
-                    "description": "Copyright © 2024 SJMCL Team."
-                },
-                "userAgreement": {
-                    "title": "User Agreement"
-                },
-                "openSourceLicense": {
-                    "title": "Open Source License",
-                    "description": "Licensed under the GNU General Public License v3.0"
-                }
-            }
+        "reportIssue": {
+          "title": "Report Issue"
+        },
+        "aboutSJMC": {
+          "title": "About SJTU Minecraft Club (SJMC)"
         }
+      }
     },
-    "AccountsPage": {
-        "Button": {
-            "addRole": "Add Role",
-            "add3rdPartySource": "Add 3rd-party Auth"
-        },
-        "roleTypeList": {
-            "all": "All Source"
-        },
-        "viewTypeList": {
-            "grid": "Grid View",
-            "list": "List View"
+    "ack": {
+      "title": "Acknowledgement",
+      "settings": {
+        "bmclapi": {
+          "title": "BMCLAPI",
+          "description": "Thanks to @bangbang93 for providing the high-speed download source mirror"
         }
+      }
     },
-    "AppearanceSettingsPage": {
-        "theme": {
-            "title": "Theme",
-            "settings": {
-                "primaryColor": {
-                    "title": "Launcher Primary Color"
-                }
-            }
+    "legalInfo": {
+      "title": "Legal Notices",
+      "settings": {
+        "copyright": {
+          "title": "Copyright",
+          "description": "Copyright © 2024 SJMCL Team."
         },
-        "background": {
-            "title": "Background",
-            "settings": {
-                "preset": {
-                    "title": "Preset Images"
-                }
-            },
-            "presetBgList": {
-                "Jokull": {
-                    "name": "Jǫkull Village"
-                },
-                "SJTU-eastgate": {
-                    "name": "Jokull"
-                }
-            }
+        "userAgreement": {
+          "title": "User Agreement"
+        },
+        "openSourceLicense": {
+          "title": "Open Source License",
+          "description": "Licensed under the GNU General Public License v3.0"
         }
+      }
+    }
+  },
+  "AccountsPage": {
+    "Button": {
+      "addRole": "Add Role",
+      "add3rdPartySource": "Add 3rd-party Auth"
     },
-    "DownloadSettingPage": {
-        "source": {
-            "title": "Source",
-            "settings": {
-                "strategy": {
-                    "title": "Download Source Selection Strategy",
-                    "auto": "Auto Select",
-                    "official": "Official Source Priority",
-                    "mirror": "Mirror Source Priority"
-                }
-            }
-        },
-        "download": {
-            "title": "Download",
-            "settings": {
-                "autoConcurrent": {
-                    "title": "Auto Select Concurrent Downloads"
-                },
-                "concurrentCount": {
-                    "title": "Concurrent Count"
-                },
-                "enableSpeedLimit": {
-                    "title": "Limit Download Speed"
-                },
-                "speedLimitValue": {
-                    "title": "Speed Limit Settings"
-                }
-            }
-        },
-        "cache": {
-            "title": "Cache",
-            "settings": {
-                "directory": {
-                    "title": "Download Cache Diretory",
-                    "select": "Change",
-                    "open": "Open"
-                }
-            }
+    "roleTypeList": {
+      "all": "All Source"
+    },
+    "viewTypeList": {
+      "grid": "Grid View",
+      "list": "List View"
+    }
+  },
+  "AppearanceSettingsPage": {
+    "theme": {
+      "title": "Theme",
+      "settings": {
+        "primaryColor": {
+          "title": "Launcher Primary Color"
         }
+      }
     },
+    "background": {
+      "title": "Background",
+      "settings": {
+        "preset": {
+          "title": "Preset Images"
+        }
+      },
+      "presetBgList": {
+        "Jokull": {
+          "name": "Jǫkull Village"
+        },
+        "SJTU-eastgate": {
+          "name": "Jokull"
+        }
+      }
+    }
+  },
+  "DownloadSettingPage": {
+    "source": {
+      "title": "Source",
+      "settings": {
+        "strategy": {
+          "title": "Download Source Selection Strategy",
+          "auto": "Auto Select",
+          "official": "Official Source Priority",
+          "mirror": "Mirror Source Priority"
+        }
+      }
+    },
+    "download": {
+      "title": "Download",
+      "settings": {
+        "autoConcurrent": {
+          "title": "Auto Select Concurrent Downloads"
+        },
+        "concurrentCount": {
+          "title": "Concurrent Count"
+        },
+        "enableSpeedLimit": {
+          "title": "Limit Download Speed"
+        },
+        "speedLimitValue": {
+          "title": "Speed Limit Settings"
+        }
+      }
+    },
+    "cache": {
+      "title": "Cache",
+      "settings": {
+        "directory": {
+          "title": "Download Cache Diretory",
+          "select": "Change",
+          "open": "Open"
+        }
+      }
+    }
+  },
     "Empty": {
         "nodata": "No Data"
     },
-    "Enums": {
-        "chakraColors": {
-            "gray": "Gray",
-            "red": "Red",
-            "orange": "Orange",
-            "yellow": "Yellow",
-            "green": "Green",
-            "teal": "Teal",
-            "blue": "Blue",
-            "cyan": "Cyan",
-            "purple": "Purple",
-            "pink": "Pink"
-        },
-        "roleTypes": {
-            "offline": "Offline Mode",
-            "3rdparty": "The 3rd-party Authentication"
-        }
+  "Enums": {
+    "chakraColors": {
+      "gray": "Gray",
+      "red": "Red",
+      "orange": "Orange",
+      "yellow": "Yellow",
+      "green": "Green",
+      "teal": "Teal",
+      "blue": "Blue",
+      "cyan": "Cyan",
+      "purple": "Purple",
+      "pink": "Pink"
     },
-    "GeneralSettingsPage": {
-        "general": {
-            "title": "General Settings",
-            "settings": {
-                "language": {
-                    "title": "Language"
-                }
-            }
-        }
-    },
-    "HeadNavBar": {
-        "navList": {
-            "launch": "Launch",
-            "games": "Games",
-            "accounts": "Accounts",
-            "settings": "Settings"
-        }
-    },
-    "HelpSettingsPage": {
-        "community": {
-            "title": "University Player Community",
-            "settings": {
-                "MUA": {
-                    "title": "Minecraft University Alliance (MUA)",
-                    "description": "Play with university players across China"
-                },
-                "SJMC": {
-                    "title": "SJTU Minecraft Club (SJMC)"
-                }
-            }
-        },
-        "minecraft": {
-            "title": "Minecraft",
-            "settings": {
-                "mcWiki": {
-                    "title": "Minecraft Wiki",
-                    "description": "The most detailed Minecraft encyclopedia",
-                    "url": "https://minecraft.wiki/"
-                },
-                "mcMod": {
-                    "title": "MCMod",
-                    "description": "A Chinese mod encyclopedia for Minecraft"
-                },
-                "curseforge": {
-                    "title": "CurseForge",
-                    "description": "Discover the world's largest Minecraft mod repository"
-                }
-            }
-        },
-        "top": {
-            "settings": {
-                "LauncherDocs": {
-                    "title": "SJMC Launcher Documentation"
-                }
-            }
-        }
-    },
-    "LaunchPage": {
-        "Button": {
-            "launch": "Launch Game"
-        },
-        "SwitchButton": {
-            "tooltip": {
-                "switchRole": "Switch Role",
-                "switchGame": "Switch Game"
-            }
-        }
-    },
-    "NotFoundPage": {
-        "text": "Page not found, redirecting to launch page in {{seconds}} seconds..."
-    },
-    "RoleMenu": {
-        "label": {
-            "skin": "Manage Skin",
-            "delete": "Delete"
-        }
-    },
-    "Services": {
-        "config": {
-            "getLauncherConfig": {
-                "error": "Failed to get launcher configuration"
-            },
-            "updateLauncherConfig": {
-                "error": "Failed to update launcher configuration"
-            }
-        }
-    },
-    "SettingsLayout": {
-        "settingsDomainList": {
-            "global-game": "Game Settings",
-            "java": "Java",
-            "general": "General",
-            "appearance": "Appearance",
-            "download": "Download",
-            "help": "Docs and Help",
-            "about": "About",
-            "dev-test": "Dev - Test Page"
-        }
+    "roleTypes": {
+      "offline": "Offline Mode",
+      "3rdparty": "The 3rd-party Authentication"
     }
+  },
+  "GamesLayout": {
+    "gamesDomainList": {
+      "all": "All Instances"
+    }
+  },
+  "GamesPage": {
+    "Button": {
+      "addAndImport": "Add & Import",
+      "globalSettings": "Global Game Settings"
+    }
+  },
+  "GeneralSettingsPage": {
+    "general": {
+      "title": "General Settings",
+      "settings": {
+        "language": {
+          "title": "Language"
+        }
+      }
+    }
+  },
+  "HeadNavBar": {
+    "navList": {
+      "launch": "Launch",
+      "games": "Games",
+      "accounts": "Accounts",
+      "settings": "Settings"
+    }
+  },
+  "HelpSettingsPage": {
+    "community": {
+      "title": "University Player Community",
+      "settings": {
+        "MUA": {
+          "title": "Minecraft University Alliance (MUA)",
+          "description": "Play with university players across China"
+        },
+        "SJMC": {
+          "title": "SJTU Minecraft Club (SJMC)"
+        }
+      }
+    },
+    "minecraft": {
+      "title": "Minecraft",
+      "settings": {
+        "mcWiki": {
+          "title": "Minecraft Wiki",
+          "description": "The most detailed Minecraft encyclopedia",
+          "url": "https://minecraft.wiki/"
+        },
+        "mcMod": {
+          "title": "MCMod",
+          "description": "A Chinese mod encyclopedia for Minecraft"
+        },
+        "curseforge": {
+          "title": "CurseForge",
+          "description": "Discover the world's largest Minecraft mod repository"
+        }
+      }
+    },
+    "top": {
+      "settings": {
+        "LauncherDocs": {
+          "title": "SJMC Launcher Documentation"
+        }
+      }
+    }
+  },
+  "LaunchPage": {
+    "Button": {
+      "launch": "Launch Game"
+    },
+    "SwitchButton": {
+      "tooltip": {
+        "switchRole": "Switch Role",
+        "switchGame": "Switch Game"
+      }
+    }
+  },
+  "NotFoundPage": {
+    "text": "Page not found, redirecting to launch page in {{seconds}} seconds..."
+  },
+  "RoleMenu": {
+    "label": {
+      "skin": "Manage Skin",
+      "delete": "Delete"
+    }
+  },
+  "Services": {
+    "config": {
+      "getLauncherConfig": {
+        "error": "Failed to get launcher configuration"
+      },
+      "updateLauncherConfig": {
+        "error": "Failed to update launcher configuration"
+      }
+    }
+  },
+  "SettingsLayout": {
+    "settingsDomainList": {
+      "global-game": "Game Settings",
+      "java": "Java",
+      "general": "General",
+      "appearance": "Appearance",
+      "download": "Download",
+      "help": "Docs and Help",
+      "about": "About",
+      "dev-test": "Dev - Test Page"
+    }
+  }
 }

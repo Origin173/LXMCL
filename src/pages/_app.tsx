@@ -8,6 +8,7 @@ import chakraExtendTheme from "@/chakra-theme";
 import { Fade } from "@/components/common/transition";
 import { LauncherConfigProvider } from "@/contexts/config";
 import { ToastContextProvider } from "@/contexts/toast";
+import GamesLayout from "@/layouts/games-layout";
 import MainLayout from "@/layouts/main-layout";
 import SettingsLayout from "@/layouts/settings-layout";
 import { localeResources } from "@/locales";
@@ -38,7 +39,10 @@ export default function App({ Component, pageProps }: AppProps) {
   const layoutMappings: {
     prefix: string;
     layout: React.ComponentType<{ children: React.ReactNode }>;
-  }[] = [{ prefix: "/settings/", layout: SettingsLayout }];
+  }[] = [
+    { prefix: "/settings/", layout: SettingsLayout },
+    { prefix: "/games", layout: GamesLayout },
+  ];
 
   let SpecLayout: React.ComponentType<{ children: React.ReactNode }> =
     React.Fragment;

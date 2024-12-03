@@ -1,245 +1,256 @@
 {
-    "AboutSettingsPage": {
-        "about": {
-            "title": "关于",
-            "settings": {
-                "version": {
-                    "title": "版本"
-                },
-                "contributors": {
-                    "title": "开发者名单"
-                },
-                "reportIssue": {
-                    "title": "报告问题"
-                },
-                "aboutSJMC": {
-                    "title": "关于上海交通大学 Minecraft 社（SJMC）"
-                }
-            }
+  "AboutSettingsPage": {
+    "about": {
+      "title": "关于",
+      "settings": {
+        "version": {
+          "title": "版本"
         },
-        "ack": {
-            "title": "致谢",
-            "settings": {
-                "bmclapi": {
-                    "title": "BMCLAPI",
-                    "description": "感谢 @bangbang93 提供的高速下载源"
-                }
-            }
+        "contributors": {
+          "title": "开发者名单"
         },
-        "legalInfo": {
-            "title": "法律信息",
-            "settings": {
-                "copyright": {
-                    "title": "版权",
-                    "description": "版权所有 © 2024 SJMCL 开发团队."
-                },
-                "userAgreement": {
-                    "title": "用户协议"
-                },
-                "openSourceLicense": {
-                    "title": "开源许可",
-                    "description": "本项目遵循 GNU General Public License v3.0 协议"
-                }
-            }
+        "reportIssue": {
+          "title": "报告问题"
+        },
+        "aboutSJMC": {
+          "title": "关于上海交通大学 Minecraft 社（SJMC）"
         }
+      }
     },
-    "AccountsPage": {
-        "Button": {
-            "addRole": "添加角色",
-            "add3rdPartySource": "添加第三方认证源"
-        },
-        "roleTypeList": {
-            "all": "全部来源"
-        },
-        "viewTypeList": {
-            "grid": "网格视图",
-            "list": "列表视图"
+    "ack": {
+      "title": "致谢",
+      "settings": {
+        "bmclapi": {
+          "title": "BMCLAPI",
+          "description": "感谢 @bangbang93 提供的高速下载源"
         }
+      }
     },
-    "AppearanceSettingsPage": {
-        "theme": {
-            "title": "主题",
-            "settings": {
-                "primaryColor": {
-                    "title": "启动器强调色"
-                }
-            }
+    "legalInfo": {
+      "title": "法律信息",
+      "settings": {
+        "copyright": {
+          "title": "版权",
+          "description": "版权所有 © 2024 SJMCL 开发团队."
         },
-        "background": {
-            "title": "背景",
-            "settings": {
-                "preset": {
-                    "title": "选择预设"
-                }
-            },
-            "presetBgList": {
-                "Jokull": {
-                    "name": "银淞雪镇"
-                },
-                "SJTU-eastgate": {
-                    "name": "SJTU 紫气东来门"
-                }
-            }
+        "userAgreement": {
+          "title": "用户协议"
+        },
+        "openSourceLicense": {
+          "title": "开源许可",
+          "description": "本项目遵循 GNU General Public License v3.0 协议"
         }
+      }
+    }
+  },
+  "AccountsPage": {
+    "Button": {
+      "addRole": "添加角色",
+      "add3rdPartySource": "添加第三方认证源"
     },
-    "DownloadSettingPage": {
-        "source": {
-            "title": "源",
-            "settings": {
-                "strategy": {
-                "title": "下载源选择策略",
-                "auto": "自动选择",
-                "official": "官方源优先",
-                "mirror": "镜像源优先"
-                }
-            }
-        },
-        "download": {
-            "title": "下载",
-            "settings": {
-                "autoConcurrent": {
-                    "title": "自动选择并发数"
-            },
-                "concurrentCount": {
-                    "title": "并发数"
-                },
-                "enableSpeedLimit": {
-                    "title": "限制下载速度"
-                },
-                "speedLimitValue": {
-                    "title": "限速设置"
-                }
-            }
-        },
-        "cache": {
-            "title": "缓存",
-            "settings": {
-                "directory": {
-                    "title": "下载缓存目录",
-                    "select": "修改",
-                    "open": "打开"
-                }
-            }
+    "roleTypeList": {
+      "all": "全部来源"
+    },
+    "viewTypeList": {
+      "grid": "网格视图",
+      "list": "列表视图"
+    }
+  },
+  "AppearanceSettingsPage": {
+    "theme": {
+      "title": "主题",
+      "settings": {
+        "primaryColor": {
+          "title": "启动器强调色"
         }
+      }
     },
+    "background": {
+      "title": "背景",
+      "settings": {
+        "preset": {
+          "title": "选择预设"
+        }
+      },
+      "presetBgList": {
+        "Jokull": {
+          "name": "银淞雪镇"
+        },
+        "SJTU-eastgate": {
+          "name": "SJTU 紫气东来门"
+        }
+      }
+    }
+  },
+  "DownloadSettingPage": {
+    "source": {
+      "title": "源",
+      "settings": {
+        "strategy": {
+          "title": "下载源选择策略",
+          "auto": "自动选择",
+          "official": "官方源优先",
+          "mirror": "镜像源优先"
+        }
+      }
+    },
+    "download": {
+      "title": "下载",
+      "settings": {
+        "autoConcurrent": {
+          "title": "自动选择并发数"
+        },
+        "concurrentCount": {
+          "title": "并发数"
+        },
+        "enableSpeedLimit": {
+          "title": "限制下载速度"
+        },
+        "speedLimitValue": {
+          "title": "限速设置"
+        }
+      }
+    },
+    "cache": {
+      "title": "缓存",
+      "settings": {
+        "directory": {
+          "title": "下载缓存目录",
+          "select": "修改",
+          "open": "打开"
+        }
+      }
+    }
+  },
     "Empty": {
         "nodata": "暂无数据"
     },
-    "Enums": {
-        "chakraColors": {
-            "gray": "灰色",
-            "red": "红色",
-            "orange": "橙色",
-            "yellow": "黄色",
-            "green": "绿色",
-            "teal": "蓝绿色",
-            "blue": "蓝色",
-            "cyan": "青色",
-            "purple": "紫色",
-            "pink": "粉色"
-        },
-        "roleTypes": {
-            "offline": "离线模式",
-            "3rdparty": "第三方认证"
-        }
+  "Enums": {
+    "chakraColors": {
+      "gray": "灰色",
+      "red": "红色",
+      "orange": "橙色",
+      "yellow": "黄色",
+      "green": "绿色",
+      "teal": "蓝绿色",
+      "blue": "蓝色",
+      "cyan": "青色",
+      "purple": "紫色",
+      "pink": "粉色"
     },
-    "GeneralSettingsPage": {
-        "general": {
-            "title": "通用设置",
-            "settings": {
-                "language": {
-                    "title": "语言"
-                }
-            }
-        }
-    },
-    "HeadNavBar": {
-        "navList": {
-            "launch": "启动",
-            "games": "游戏",
-            "accounts": "账户",
-            "settings": "设置"
-        }
-    },
-    "HelpSettingsPage": {
-        "community": {
-            "title": "高校玩家社区",
-            "settings": {
-                "MUA": {
-                    "title": "Minecraft 高校联盟 (MUA)",
-                    "description": "和全国的高校玩家一起游玩"
-                },
-                "SJMC": {
-                    "title": "上海交通大学 Minecraft 社 (SJMC)"
-                }
-            }
-        },
-        "minecraft": {
-            "title": "Minecraft",
-            "settings": {
-                "mcWiki": {
-                    "title": "中文 Minecraft Wiki",
-                    "description": "最详细的 Minecraft 百科全书",
-                    "url": "https://zh.minecraft.wiki/"
-                },
-                "mcMod": {
-                    "title": "MCMod",
-                    "description": "Minecraft 模组中文百科"
-                },
-                "curseforge": {
-                    "title": "CurseForge",
-                    "description": "探索世界上最大的 Minecraft Mod 存储库"
-                }
-            }
-        },
-        "top": {
-            "settings": {
-                "LauncherDocs": {
-                    "title": "SJMC Launcher 文档"
-                }
-            }
-        }
-    },
-    "LaunchPage": {
-        "Button": {
-            "launch": "启动游戏"
-        },
-        "SwitchButton": {
-            "tooltip": {
-                "switchRole": "切换角色",
-                "switchGame": "切换游戏实例"
-            }
-        }
-    },
-    "NotFoundPage": {
-        "text": "页面不存在，即将在 {{seconds}} 秒后跳转"
-    },
-    "RoleMenu": {
-        "label": {
-            "skin": "管理皮肤",
-            "delete": "删除此角色"
-        }
-    },
-    "Services": {
-        "config": {
-            "getLauncherConfig": {
-                "error": "获取启动器设置失败"
-            },
-            "updateLauncherConfig": {
-                "error": "更新启动器设置失败"
-            }
-        }
-    },
-    "SettingsLayout": {
-        "settingsDomainList": {
-            "global-game": "全局游戏设置",
-            "java": "Java",
-            "general": "通用",
-            "appearance": "外观",
-            "download": "下载资源",
-            "help": "文档与帮助",
-            "about": "关于",
-            "dev-test": "开发 - 测试页"
-        }
+    "roleTypes": {
+      "offline": "离线模式",
+      "3rdparty": "第三方认证"
     }
+  },
+  "GamesLayout": {
+    "gamesDomainList": {
+      "all": "全部实例"
+    }
+  },
+  "GamesPage": {
+    "Button": {
+      "addAndImport": "添加与导入",
+      "globalSettings": "全局游戏设置"
+    }
+  },
+  "GeneralSettingsPage": {
+    "general": {
+      "title": "通用设置",
+      "settings": {
+        "language": {
+          "title": "语言"
+        }
+      }
+    }
+  },
+  "HeadNavBar": {
+    "navList": {
+      "launch": "启动",
+      "games": "游戏",
+      "accounts": "账户",
+      "settings": "设置"
+    }
+  },
+  "HelpSettingsPage": {
+    "community": {
+      "title": "高校玩家社区",
+      "settings": {
+        "MUA": {
+          "title": "Minecraft 高校联盟 (MUA)",
+          "description": "和全国的高校玩家一起游玩"
+        },
+        "SJMC": {
+          "title": "上海交通大学 Minecraft 社 (SJMC)"
+        }
+      }
+    },
+    "minecraft": {
+      "title": "Minecraft",
+      "settings": {
+        "mcWiki": {
+          "title": "中文 Minecraft Wiki",
+          "description": "最详细的 Minecraft 百科全书",
+          "url": "https://zh.minecraft.wiki/"
+        },
+        "mcMod": {
+          "title": "MCMod",
+          "description": "Minecraft 模组中文百科"
+        },
+        "curseforge": {
+          "title": "CurseForge",
+          "description": "探索世界上最大的 Minecraft Mod 存储库"
+        }
+      }
+    },
+    "top": {
+      "settings": {
+        "LauncherDocs": {
+          "title": "SJMC Launcher 文档"
+        }
+      }
+    }
+  },
+  "LaunchPage": {
+    "Button": {
+      "launch": "启动游戏"
+    },
+    "SwitchButton": {
+      "tooltip": {
+        "switchRole": "切换角色",
+        "switchGame": "切换游戏实例"
+      }
+    }
+  },
+  "NotFoundPage": {
+    "text": "页面不存在，即将在 {{seconds}} 秒后跳转"
+  },
+  "RoleMenu": {
+    "label": {
+      "skin": "管理皮肤",
+      "delete": "删除此角色"
+    }
+  },
+  "Services": {
+    "config": {
+      "getLauncherConfig": {
+        "error": "获取启动器设置失败"
+      },
+      "updateLauncherConfig": {
+        "error": "更新启动器设置失败"
+      }
+    }
+  },
+  "SettingsLayout": {
+    "settingsDomainList": {
+      "global-game": "全局游戏设置",
+      "java": "Java",
+      "general": "通用",
+      "appearance": "外观",
+      "download": "下载资源",
+      "help": "文档与帮助",
+      "about": "关于",
+      "dev-test": "开发 - 测试页"
+    }
+  }
 }
