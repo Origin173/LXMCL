@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { LuMoreHorizontal, LuSettings, LuTrash } from "react-icons/lu";
-import { GameInstanceSummary } from "@/models/game-instance-summary";
+import { GameInstanceSummary } from "@/models/game-instance";
 
 interface GameMenuProps {
   game: GameInstanceSummary;

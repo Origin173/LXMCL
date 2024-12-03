@@ -11,9 +11,9 @@ import {
   WrapItem,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
+import GameMenu from "@/components/game-menu";
 import { useLauncherConfig } from "@/contexts/config";
-import { GameInstanceSummary } from "@/models/game-instance-summary";
-import GameMenu from "./game-menu";
+import { GameInstanceSummary } from "@/models/game-instance";
 
 interface GameCardProps {
   game: GameInstanceSummary;

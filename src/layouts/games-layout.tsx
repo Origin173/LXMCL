@@ -53,7 +53,7 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
               />
             ))}
           </Box>
-          <VStack mt="auto" align="flex-start">
+          <VStack mt="auto" align="strench" spacing={0.5}>
             <SelectableButton size="sm">
               <HStack spacing={2}>
                 <Icon as={LuPlusCircle} />

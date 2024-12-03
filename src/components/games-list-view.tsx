@@ -1,9 +1,9 @@
 import { BoxProps, HStack, Image, Radio, RadioGroup } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { OptionItemGroup } from "@/components/common/option-item";
+import { GameMenuBtnGroup } from "@/components/game-menu";
 import { useLauncherConfig } from "@/contexts/config";
-import { GameInstanceSummary } from "@/models/game-instance-summary";
-import { GameMenuBtnGroup } from "./game-menu";
+import { GameInstanceSummary } from "@/models/game-instance";
 
 interface GamesListProps extends BoxProps {
   games: GameInstanceSummary[];

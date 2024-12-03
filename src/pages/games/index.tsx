@@ -10,7 +10,7 @@ import {
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuLayoutGrid, LuLayoutList, LuPlus } from "react-icons/lu";
+import { LuLayoutGrid, LuLayoutList, LuPlay, LuPlus } from "react-icons/lu";
 import SegmentedControl from "@/components/common/segmented";
 import GamesGridView from "@/components/games-grid-view";
 import GamesListView from "@/components/games-list-view";
@@ -18,7 +18,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import {
   GameInstanceSummary,
   mockGameInstanceSummaryList,
-} from "@/models/game-instance-summary";
+} from "@/models/game-instance";
 
 const AllGames = () => {
   const router = useRouter();
@@ -75,12 +75,13 @@ const AllGames = () => {
             leftIcon={<LuPlus />}
             size="xs"
             colorScheme={primaryColor}
-            variant={primaryColor === "gray" ? "darkGray" : "solid"}
+            variant="outline"
             onClick={() => {}} // todo
           >
             {t("GamesPage.Button.addAndImport")}
           </Button>
           <Button
+            leftIcon={<LuPlay />}
             size="xs"
             colorScheme={primaryColor}
             variant={primaryColor === "gray" ? "darkGray" : "solid"}
