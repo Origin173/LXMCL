@@ -1,14 +1,14 @@
 import {
+  Box,
   Button,
   Flex,
-  GridItem,
   HStack,
   Icon,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuLayoutGrid, LuLayoutList, LuPlay, LuPlus } from "react-icons/lu";
 import SegmentedControl from "@/components/common/segmented";
@@ -25,12 +25,38 @@ const AllGames = () => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const viewRef = useRef<HTMLDivElement | null>(null);
 
-  const [selectedView, setSelectedView] = useState<string>("grid");
+  const [selectedView, setSelectedView] = useState<string>("list");
   const [selectedGame, setSelectedGame] = useState<string>("");
+  const [viewHeight, setViewHeight] = useState<string>("70vh");
   const [gameInstanceList, setGameInstanceList] = useState<
     GameInstanceSummary[]
   >([]);
+
+  useEffect(() => {
+    const updateListHeight = () => {
+      if (viewRef.current) {
+        const topOffset = viewRef.current.getBoundingClientRect().top;
+        const newHeight = `calc(100vh - ${topOffset}px - 30px)`;
+        setViewHeight(newHeight);
+      }
+    };
+
+    setTimeout(() => {
+      updateListHeight();
+    }, 200);
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateListHeight();
+    });
+    if (viewRef.current) {
+      resizeObserver.observe(document.body);
+    }
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     // TBD: only use mock data now
@@ -39,18 +65,18 @@ const AllGames = () => {
 
   const viewTypeList = [
     {
-      key: "grid",
-      icon: LuLayoutGrid,
-      tooltip: t("GamesPage.viewTypeList.grid"),
-    },
-    {
       key: "list",
       icon: LuLayoutList,
       tooltip: t("GamesPage.viewTypeList.list"),
     },
+    {
+      key: "grid",
+      icon: LuLayoutGrid,
+      tooltip: t("GamesPage.viewTypeList.grid"),
+    },
   ];
   return (
-    <GridItem>
+    <>
       <Flex alignItems="flex-start">
         <VStack spacing={0} align="start">
           <Text fontWeight="bold" fontSize="sm" className="no-select">
@@ -92,23 +118,25 @@ const AllGames = () => {
           </Button>
         </HStack>
       </Flex>
-      {selectedView === "grid" && (
-        <GamesGridView
-          games={gameInstanceList}
-          selectedGame={selectedGame}
-          setSelectedGame={setSelectedGame}
-          mt={2.5}
-        />
-      )}
-      {selectedView === "list" && (
-        <GamesListView
-          games={gameInstanceList}
-          selectedGame={selectedGame}
-          setSelectedGame={setSelectedGame}
-          mt={2.5}
-        />
-      )}
-    </GridItem>
+      <Box ref={viewRef} overflow="auto" height={viewHeight} mt="0.6rem">
+        {selectedView === "grid" && (
+          <GamesGridView
+            games={gameInstanceList}
+            selectedGame={selectedGame}
+            setSelectedGame={setSelectedGame}
+            mt={2.5}
+          />
+        )}
+        {selectedView === "list" && (
+          <GamesListView
+            games={gameInstanceList}
+            selectedGame={selectedGame}
+            setSelectedGame={setSelectedGame}
+            mt={2.5}
+          />
+        )}
+      </Box>
+    </>
   );
 };
 

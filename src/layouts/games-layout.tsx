@@ -76,11 +76,7 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
           </VStack>
         </VStack>
       </GridItem>
-      <GridItem className="content-full-y">
-        <VStack align="stretch" spacing={4}>
-          {children}
-        </VStack>
-      </GridItem>
+      <GridItem className="content-full-y">{children}</GridItem>
     </Grid>
   );
 };

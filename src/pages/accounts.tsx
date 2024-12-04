@@ -10,7 +10,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuLayoutGrid,
@@ -39,11 +39,37 @@ const AccountsPage = () => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const viewRef = useRef<HTMLDivElement | null>(null);
 
   const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
   const [selectedRoleType, setSelectedRoleType] = useState<string>("all");
+  const [viewHeight, setViewHeight] = useState<string>("70vh");
   const [roleList, setRoleList] = useState<Role[]>([]);
   const [selectedView, setSelectedView] = useState<string>("grid");
+
+  useEffect(() => {
+    const updateListHeight = () => {
+      if (viewRef.current) {
+        const topOffset = viewRef.current.getBoundingClientRect().top;
+        const newHeight = `calc(100vh - ${topOffset}px - 30px)`;
+        setViewHeight(newHeight);
+      }
+    };
+
+    setTimeout(() => {
+      updateListHeight();
+    }, 200);
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateListHeight();
+    });
+    if (viewRef.current) {
+      resizeObserver.observe(document.body);
+    }
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     // TBD: only use mock data now
@@ -160,12 +186,20 @@ const AccountsPage = () => {
             </Button>
           </HStack>
         </Flex>
-        {selectedView === "grid" && (
-          <RolesGridView roles={filterRolesByType(selectedRoleType)} mt={2.5} />
-        )}
-        {selectedView === "list" && (
-          <RolesListView roles={filterRolesByType(selectedRoleType)} mt={2.5} />
-        )}
+        <Box ref={viewRef} overflow="auto" height={viewHeight} mt="0.6rem">
+          {selectedView === "grid" && (
+            <RolesGridView
+              roles={filterRolesByType(selectedRoleType)}
+              mt={2.5}
+            />
+          )}
+          {selectedView === "list" && (
+            <RolesListView
+              roles={filterRolesByType(selectedRoleType)}
+              mt={2.5}
+            />
+          )}
+        </Box>
       </GridItem>
     </Grid>
   );
