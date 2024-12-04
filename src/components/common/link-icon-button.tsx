@@ -6,7 +6,6 @@ import { LuArrowRight, LuExternalLink } from "react-icons/lu";
 
 interface LinkIconButtonProps extends IconButtonProps {
   url: string;
-  ariaLabel?: string;
   isExternal?: boolean;
   size?: string;
   showTooltip?: boolean;
@@ -21,18 +20,6 @@ const LinkIconButton: React.FC<LinkIconButtonProps> = ({
 }) => {
   const router = useRouter();
 
-  const iconButton = (
-    <IconButton
-      onClick={() => {
-        isExternal ? open(url) : router.push(url);
-      }}
-      variant="ghost"
-      size="xs"
-      icon={isExternal ? <LuExternalLink /> : <LuArrowRight />}
-      {...buttonProps}
-    />
-  );
-
   return (
     <Tooltip
       label={url}
@@ -40,7 +27,15 @@ const LinkIconButton: React.FC<LinkIconButtonProps> = ({
       isDisabled={!showTooltip}
       aria-label={url}
     >
-      {iconButton}
+      <IconButton
+        onClick={() => {
+          isExternal ? open(url) : router.push(url);
+        }}
+        variant="ghost"
+        size="xs"
+        icon={isExternal ? <LuExternalLink /> : <LuArrowRight />}
+        {...buttonProps}
+      />
     </Tooltip>
   );
 };
