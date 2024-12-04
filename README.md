@@ -23,8 +23,8 @@ To manually check and fix formatting issues, you can run the following commands:
 
 ```bash
 # For frontend part
-npx eslint "src/**/*.{js,jsx,ts,tsx,json}" --no-fix     # check
-npx eslint "src/**/*.{js,jsx,ts,tsx,json}" --fix        # fix
+npx eslint "src/**/*.{js,jsx,ts,tsx}" --no-fix     # check
+npx eslint "src/**/*.{js,jsx,ts,tsx}" --fix        # fix
 
 # For backend part
 rustfmt --check src-tauri/src/**/*.rs
