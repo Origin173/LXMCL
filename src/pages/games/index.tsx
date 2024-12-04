@@ -8,7 +8,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuLayoutGrid, LuLayoutList, LuPlay, LuPlus } from "react-icons/lu";
 import SegmentedControl from "@/components/common/segmented";
@@ -25,38 +25,12 @@ const AllGames = () => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const viewRef = useRef<HTMLDivElement | null>(null);
 
   const [selectedView, setSelectedView] = useState<string>("list");
   const [selectedGame, setSelectedGame] = useState<string>("");
-  const [viewHeight, setViewHeight] = useState<string>("70vh");
   const [gameInstanceList, setGameInstanceList] = useState<
     GameInstanceSummary[]
   >([]);
-
-  useEffect(() => {
-    const updateListHeight = () => {
-      if (viewRef.current) {
-        const topOffset = viewRef.current.getBoundingClientRect().top;
-        const newHeight = `calc(100vh - ${topOffset}px - 30px)`;
-        setViewHeight(newHeight);
-      }
-    };
-
-    setTimeout(() => {
-      updateListHeight();
-    }, 200);
-
-    const resizeObserver = new ResizeObserver(() => {
-      updateListHeight();
-    });
-    if (viewRef.current) {
-      resizeObserver.observe(document.body);
-    }
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, []);
 
   useEffect(() => {
     // TBD: only use mock data now
@@ -65,19 +39,19 @@ const AllGames = () => {
 
   const viewTypeList = [
     {
-      key: "list",
-      icon: LuLayoutList,
-      tooltip: t("GamesPage.viewTypeList.list"),
-    },
-    {
       key: "grid",
       icon: LuLayoutGrid,
       tooltip: t("GamesPage.viewTypeList.grid"),
     },
+    {
+      key: "list",
+      icon: LuLayoutList,
+      tooltip: t("GamesPage.viewTypeList.list"),
+    },
   ];
   return (
-    <>
-      <Flex alignItems="flex-start">
+    <Box display="flex" flexDirection="column" height="100%">
+      <Flex alignItems="flex-start" flexShrink={0}>
         <VStack spacing={0} align="start">
           <Text fontWeight="bold" fontSize="sm" className="no-select">
             {t("GamesLayout.gamesDomainList.all")}
@@ -117,13 +91,12 @@ const AllGames = () => {
           </Button>
         </HStack>
       </Flex>
-      <Box ref={viewRef} overflow="auto" height={viewHeight} mt="0.6rem">
+      <Box overflow="auto" flexGrow={1} mt={2.5}>
         {selectedView === "grid" && (
           <GamesGridView
             games={gameInstanceList}
             selectedGame={selectedGame}
             setSelectedGame={setSelectedGame}
-            mt={2.5}
           />
         )}
         {selectedView === "list" && (
@@ -131,11 +104,10 @@ const AllGames = () => {
             games={gameInstanceList}
             selectedGame={selectedGame}
             setSelectedGame={setSelectedGame}
-            mt={2.5}
           />
         )}
       </Box>
-    </>
+    </Box>
   );
 };
 

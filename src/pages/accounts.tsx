@@ -10,7 +10,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuLayoutGrid,
@@ -39,37 +39,11 @@ const AccountsPage = () => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const viewRef = useRef<HTMLDivElement | null>(null);
 
   const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
   const [selectedRoleType, setSelectedRoleType] = useState<string>("all");
-  const [viewHeight, setViewHeight] = useState<string>("70vh");
   const [roleList, setRoleList] = useState<Role[]>([]);
   const [selectedView, setSelectedView] = useState<string>("grid");
-
-  useEffect(() => {
-    const updateListHeight = () => {
-      if (viewRef.current) {
-        const topOffset = viewRef.current.getBoundingClientRect().top;
-        const newHeight = `calc(100vh - ${topOffset}px - 30px)`;
-        setViewHeight(newHeight);
-      }
-    };
-
-    setTimeout(() => {
-      updateListHeight();
-    }, 200);
-
-    const resizeObserver = new ResizeObserver(() => {
-      updateListHeight();
-    });
-    if (viewRef.current) {
-      resizeObserver.observe(document.body);
-    }
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, []);
 
   useEffect(() => {
     // TBD: only use mock data now
@@ -147,57 +121,53 @@ const AccountsPage = () => {
         </VStack>
       </GridItem>
       <GridItem className="content-full-y">
-        <Flex alignItems="flex-start">
-          <VStack spacing={0} align="start">
-            <Text fontWeight="bold" fontSize="sm" className="no-select">
-              {
-                roleTypeList.find((item) => item.key === selectedRoleType)
-                  ?.label
-              }
-            </Text>
-            {!["all", "offline"].includes(selectedRoleType) && (
-              <Text fontSize="xs" className="secondary-text no-select">
-                {selectedRoleType}
+        <Box display="flex" flexDirection="column" height="100%">
+          <Flex alignItems="flex-start" flexShrink={0}>
+            <VStack spacing={0} align="start">
+              <Text fontWeight="bold" fontSize="sm" className="no-select">
+                {
+                  roleTypeList.find((item) => item.key === selectedRoleType)
+                    ?.label
+                }
               </Text>
+              {!["all", "offline"].includes(selectedRoleType) && (
+                <Text fontSize="xs" className="secondary-text no-select">
+                  {selectedRoleType}
+                </Text>
+              )}
+            </VStack>
+            <HStack spacing={2} ml="auto" alignItems="flex-start">
+              <SegmentedControl
+                selected={selectedView}
+                onSelectItem={(s) => {
+                  setSelectedView(s);
+                }}
+                size="2xs"
+                items={viewTypeList.map((item) => ({
+                  ...item,
+                  label: item.key,
+                  value: <Icon as={item.icon} />,
+                }))}
+                withTooltip={true}
+              />
+              <Button
+                leftIcon={<LuPlus />}
+                size="xs"
+                colorScheme={primaryColor}
+                onClick={() => {}} // todo
+              >
+                {t("AccountsPage.Button.addRole")}
+              </Button>
+            </HStack>
+          </Flex>
+          <Box overflow="auto" flexGrow={1} mt={2.5}>
+            {selectedView === "grid" && (
+              <RolesGridView roles={filterRolesByType(selectedRoleType)} />
             )}
-          </VStack>
-          <HStack spacing={2} ml="auto" alignItems="flex-start">
-            <SegmentedControl
-              selected={selectedView}
-              onSelectItem={(s) => {
-                setSelectedView(s);
-              }}
-              size="2xs"
-              items={viewTypeList.map((item) => ({
-                ...item,
-                label: item.key,
-                value: <Icon as={item.icon} />,
-              }))}
-              withTooltip={true}
-            />
-            <Button
-              leftIcon={<LuPlus />}
-              size="xs"
-              colorScheme={primaryColor}
-              onClick={() => {}} // todo
-            >
-              {t("AccountsPage.Button.addRole")}
-            </Button>
-          </HStack>
-        </Flex>
-        <Box ref={viewRef} overflow="auto" height={viewHeight} mt="0.6rem">
-          {selectedView === "grid" && (
-            <RolesGridView
-              roles={filterRolesByType(selectedRoleType)}
-              mt={2.5}
-            />
-          )}
-          {selectedView === "list" && (
-            <RolesListView
-              roles={filterRolesByType(selectedRoleType)}
-              mt={2.5}
-            />
-          )}
+            {selectedView === "list" && (
+              <RolesListView roles={filterRolesByType(selectedRoleType)} />
+            )}
+          </Box>
         </Box>
       </GridItem>
     </Grid>
