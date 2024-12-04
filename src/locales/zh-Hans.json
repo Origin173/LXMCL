@@ -140,7 +140,8 @@
     },
     "roleTypes": {
       "offline": "离线模式",
-      "3rdparty": "第三方认证"
+      "3rdparty": "第三方认证",
+      "3rdpartyShort": "第三方认证"
     }
   },
   "GameMenu": {
