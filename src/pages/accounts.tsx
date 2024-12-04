@@ -179,7 +179,6 @@ const AccountsPage = () => {
               leftIcon={<LuPlus />}
               size="xs"
               colorScheme={primaryColor}
-              variant={primaryColor === "gray" ? "darkGray" : "solid"}
               onClick={() => {}} // todo
             >
               {t("AccountsPage.Button.addRole")}

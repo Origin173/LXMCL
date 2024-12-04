@@ -33,13 +33,7 @@ const ChakraColorSelector: React.FC<ChakraColorSelectorProps> = ({
               <IconButton
                 key={color}
                 size={size}
-                variant={
-                  current === color
-                    ? color === "gray"
-                      ? "darkGray"
-                      : "solid"
-                    : "subtle"
-                }
+                variant={current === color ? "solid" : "subtle"}
                 colorScheme={color}
                 aria-label={color}
                 icon={

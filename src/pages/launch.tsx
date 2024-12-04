@@ -26,8 +26,8 @@ const SwitchButton: React.FC<SwitchButtonProps> = ({ tooltip, ...props }) => {
       <IconButton
         size="xs"
         position="absolute"
-        top={2}
-        right={2}
+        top={1}
+        right={1}
         icon={<LuArrowLeftRight />}
         {...props}
       />
@@ -47,6 +47,7 @@ const LaunchPage = () => {
         <SwitchButton
           tooltip={t("LaunchPage.SwitchButton.tooltip.switchRole")}
           aria-label="switch-role"
+          variant="subtle"
           onClick={() => router.push("/accounts")}
         />
         <HStack spacing={2.5} h="100%" w="100%">
@@ -87,9 +88,6 @@ const LaunchPage = () => {
           aria-label="switch-game"
           colorScheme="blackAlpha"
           onClick={() => router.push("/games")}
-          position="absolute"
-          top={1}
-          right={1}
         />
       </Box>
     </HStack>

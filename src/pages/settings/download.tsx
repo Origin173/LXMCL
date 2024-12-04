@@ -208,10 +208,10 @@ const DownloadSettingsPage = () => {
           description: downloadConfigs.cache.directory,
           children: (
             <HStack>
-              <Button colorScheme="gray" size="xs">
+              <Button variant="subtle" size="xs">
                 {t("DownloadSettingPage.cache.settings.directory.select")}
               </Button>
-              <Button colorScheme="gray" size="xs">
+              <Button variant="subtle" size="xs">
                 {t("DownloadSettingPage.cache.settings.directory.open")}
               </Button>
             </HStack>

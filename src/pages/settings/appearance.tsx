@@ -33,7 +33,6 @@ const AppearanceSettingsPage = () => {
           <IconButton
             size="xs"
             colorScheme={primaryColor}
-            variant={primaryColor === "gray" ? "darkGray" : "solid"}
             aria-label="color"
             icon={<LuChevronDown />}
           />

@@ -101,7 +101,7 @@ const AllGames = () => {
             leftIcon={<LuPlus />}
             size="xs"
             colorScheme={primaryColor}
-            variant="outline"
+            variant={primaryColor === "gray" ? "subtle" : "outline"}
             onClick={() => {}} // todo
           >
             {t("GamesPage.Button.addAndImport")}
@@ -110,7 +110,6 @@ const AllGames = () => {
             leftIcon={<LuPlay />}
             size="xs"
             colorScheme={primaryColor}
-            variant={primaryColor === "gray" ? "darkGray" : "solid"}
             isDisabled={selectedGame === ""}
             onClick={() => {}} // todo
           >
