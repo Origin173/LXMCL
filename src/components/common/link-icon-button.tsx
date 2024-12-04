@@ -24,8 +24,9 @@ const LinkIconButton: React.FC<LinkIconButtonProps> = ({
     <Tooltip
       label={url}
       fontSize={size}
-      isDisabled={!showTooltip}
+      isDisabled={!showTooltip || buttonProps.isDisabled}
       aria-label={url}
+      placement="bottom-end"
     >
       <IconButton
         onClick={() => {

@@ -28,8 +28,8 @@ const AboutSettingsPage = () => {
               url="https://github.com/UNIkeEN/SJMCL/graphs/contributors"
               aria-label="contributors"
               isExternal
+              showTooltip
               h={18}
-              showTooltip={true}
             />
           ),
         },
@@ -40,8 +40,8 @@ const AboutSettingsPage = () => {
               url="https://github.com/UNIkeEN/SJMCL/issues/new"
               aria-label="issue"
               isExternal
+              showTooltip
               h={18}
-              showTooltip={true}
             />
           ),
         },
@@ -52,8 +52,8 @@ const AboutSettingsPage = () => {
               url="https://mc.sjtu.cn/welcome/content/3/"
               aria-label="aboutSJMC"
               isExternal
+              showTooltip
               h={18}
-              showTooltip={true}
             />
           ),
         },
@@ -70,7 +70,7 @@ const AboutSettingsPage = () => {
               url="https://bmclapidoc.bangbang93.com/"
               aria-label="bmclapi"
               isExternal
-              showTooltip={true}
+              showTooltip
             />
           ),
         },
@@ -93,9 +93,9 @@ const AboutSettingsPage = () => {
               url="about:blank"
               aria-label="userAgreement"
               isExternal
+              showTooltip
               h={18}
               isDisabled
-              showTooltip={true}
             />
           ), // TBD
         },
@@ -111,7 +111,7 @@ const AboutSettingsPage = () => {
               url="https://github.com/UNIkeEN/SJMCL?tab=GPL-3.0-1-ov-file#readme"
               aria-label="openSourceLicense"
               isExternal
-              showTooltip={true}
+              showTooltip
             />
           ),
         },
