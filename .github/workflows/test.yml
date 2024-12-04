@@ -1,0 +1,36 @@
+name: Test
+
+on: [push, pull_request]
+
+# Cancel prev CI if new commit come (learned from ant-design repo)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  Lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - run: npm install
+      
+      - name: Lint JavaScript/TypeScript Frontend
+        run: npx eslint "src/**/*.{js,jsx,ts,tsx}" --no-fix --max-warnings=0 
+      
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Lint Rust Backend
+        run: |
+          find src-tauri/src -name "*.rs" | xargs rustfmt --check
