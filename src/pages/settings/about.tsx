@@ -29,6 +29,7 @@ const AboutSettingsPage = () => {
               aria-label="contributors"
               isExternal
               h={18}
+              showTooltip={true}
             />
           ),
         },
@@ -40,6 +41,7 @@ const AboutSettingsPage = () => {
               aria-label="issue"
               isExternal
               h={18}
+              showTooltip={true}
             />
           ),
         },
@@ -51,6 +53,7 @@ const AboutSettingsPage = () => {
               aria-label="aboutSJMC"
               isExternal
               h={18}
+              showTooltip={true}
             />
           ),
         },
@@ -67,6 +70,7 @@ const AboutSettingsPage = () => {
               url="https://bmclapidoc.bangbang93.com/"
               aria-label="bmclapi"
               isExternal
+              showTooltip={true}
             />
           ),
         },
@@ -91,6 +95,7 @@ const AboutSettingsPage = () => {
               isExternal
               h={18}
               isDisabled
+              showTooltip={true}
             />
           ), // TBD
         },
@@ -106,6 +111,7 @@ const AboutSettingsPage = () => {
               url="https://github.com/UNIkeEN/SJMCL?tab=GPL-3.0-1-ov-file#readme"
               aria-label="openSourceLicense"
               isExternal
+              showTooltip={true}
             />
           ),
         },
