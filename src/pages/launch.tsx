@@ -61,7 +61,9 @@ const LaunchPage = () => {
               {role.name}
             </Text>
             <Text fontSize="2xs" className="secondary-text no-select">
-              {t(`Enums.roleTypes.${role.type}`)}
+              {t(
+                `Enums.roleTypes.${role.type === "3rdparty" ? "3rdpartyShort" : role.type}`
+              )}
             </Text>
             <Text fontSize="2xs" className="secondary-text no-select">
               {role.type === "3rdparty" && role.authServer?.name}
@@ -73,9 +75,10 @@ const LaunchPage = () => {
         <Button colorScheme="blackAlpha" className={styles["launch-button"]}>
           <VStack spacing={1.5}>
             <Text fontSize="lg" fontWeight="bold">
-              启动游戏
+              {t("LaunchPage.Button.launch")}
             </Text>
-            <Text fontSize="sm">尚未选择游戏实例</Text>
+            <Text fontSize="sm">尚未选择游戏实例</Text>{" "}
+            {/* TODO: use locales text after finish instance select logic */}
           </VStack>
         </Button>
 

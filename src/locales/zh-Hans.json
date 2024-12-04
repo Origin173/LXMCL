@@ -143,6 +143,12 @@
       "3rdparty": "第三方认证"
     }
   },
+  "GameMenu": {
+    "label": {
+      "settings": "实例设置",
+      "delete": "删除实例"
+    }
+  },
   "GamesLayout": {
     "gamesDomainList": {
       "all": "全部实例"
@@ -157,12 +163,6 @@
     "viewTypeList": {
       "grid": "网格视图",
       "list": "列表视图"
-    }
-  },
-  "GameMenu": {
-    "label": {
-      "settings": "实例设置",
-      "delete": "删除实例"
     }
   },
   "GeneralSettingsPage": {
@@ -189,7 +189,7 @@
       "settings": {
         "MUA": {
           "title": "Minecraft 高校联盟 (MUA)",
-          "description": "和全国的高校玩家一起游玩"
+          "description": "和全国各高校的玩家一起游玩"
         },
         "SJMC": {
           "title": "上海交通大学 Minecraft 社 (SJMC)"
@@ -210,7 +210,7 @@
         },
         "curseforge": {
           "title": "CurseForge",
-          "description": "探索世界上最大的 Minecraft Mod 存储库"
+          "description": "探索世界上最大的 Minecraft 模组存储库"
         }
       }
     },

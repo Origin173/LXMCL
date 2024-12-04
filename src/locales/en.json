@@ -140,7 +140,14 @@
     },
     "roleTypes": {
       "offline": "Offline Mode",
-      "3rdparty": "The 3rd-party Authentication"
+      "3rdparty": "The 3rd-party Authentication",
+      "3rdpartyShort": "3rd-party Auth"
+    }
+  },
+  "GameMenu": {
+    "label": {
+      "settings": "Settings",
+      "delete": "Delete"
     }
   },
   "GamesLayout": {
@@ -157,12 +164,6 @@
     "viewTypeList": {
       "grid": "Grid View",
       "list": "List View"
-    }
-  },
-  "GameMenu": {
-    "label": {
-      "settings": "Settings",
-      "delete": "Delete"
     }
   },
   "GeneralSettingsPage": {
@@ -259,7 +260,7 @@
       "general": "General",
       "appearance": "Appearance",
       "download": "Download",
-      "help": "Docs and Help",
+      "help": "Docs & Help",
       "about": "About",
       "dev-test": "Dev - Test Page"
     }
