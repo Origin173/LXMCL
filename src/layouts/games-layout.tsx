@@ -11,7 +11,7 @@ import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { IconType } from "react-icons";
-import { LuBoxes, LuPlusCircle, LuSettings } from "react-icons/lu";
+import { LuBoxes, LuCirclePlus, LuSettings } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import SelectableButton from "@/components/common/selectable-button";
 
@@ -56,7 +56,7 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
           <VStack mt="auto" align="strench" spacing={0.5}>
             <SelectableButton size="sm">
               <HStack spacing={2}>
-                <Icon as={LuPlusCircle} />
+                <Icon as={LuCirclePlus} />
                 <Text fontSize="sm">{t("GamesPage.Button.addAndImport")}</Text>
               </HStack>
             </SelectableButton>

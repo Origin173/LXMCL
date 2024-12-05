@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { LuMoreHorizontal, LuTrash } from "react-icons/lu";
+import { LuEllipsis, LuTrash } from "react-icons/lu";
 import { TbHanger } from "react-icons/tb";
 import { Role } from "@/models/account";
 
@@ -32,7 +32,7 @@ export const RoleMenu: React.FC<RoleMenuProps> = ({ role }) => {
         size="xs"
         variant="ghost"
         aria-label="operations"
-        icon={<LuMoreHorizontal />}
+        icon={<LuEllipsis />}
       />
       <MenuList>
         {roleMenuOperations.map((item) => (

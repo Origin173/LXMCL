@@ -13,13 +13,13 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  LuCirclePlus,
   LuLayoutGrid,
   LuLayoutList,
   LuLink2Off,
   LuPlus,
-  LuPlusCircle,
   LuServer,
-  LuUsers2,
+  LuUsersRound,
 } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import SegmentedControl from "@/components/common/segmented";
@@ -52,7 +52,11 @@ const AccountsPage = () => {
   }, []);
 
   const roleTypeList = [
-    { key: "all", icon: LuUsers2, label: t("AccountsPage.roleTypeList.all") },
+    {
+      key: "all",
+      icon: LuUsersRound,
+      label: t("AccountsPage.roleTypeList.all"),
+    },
     { key: "offline", icon: LuLink2Off, label: t("Enums.roleTypes.offline") },
     ...authServerList.map((server) => ({
       key: server.authUrl,
@@ -112,7 +116,7 @@ const AccountsPage = () => {
           </Box>
           <SelectableButton mt="auto" size="sm">
             <HStack spacing={2}>
-              <Icon as={LuPlusCircle} />
+              <Icon as={LuCirclePlus} />
               <Text fontSize="sm">
                 {t("AccountsPage.Button.add3rdPartySource")}
               </Text>

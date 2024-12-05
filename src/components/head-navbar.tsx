@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
-import { LuBox, LuSettings, LuUserCircle2, LuZap } from "react-icons/lu";
+import { LuBox, LuCircleUserRound, LuSettings, LuZap } from "react-icons/lu";
 import { TitleShort } from "@/components/logo-title";
 import { useLauncherConfig } from "@/contexts/config";
 
@@ -23,7 +23,7 @@ const HeadNavBar = () => {
   const navList = [
     { icon: LuZap, label: "launch", path: "/launch" },
     { icon: LuBox, label: "games", path: "/games" },
-    { icon: LuUserCircle2, label: "accounts", path: "/accounts" },
+    { icon: LuCircleUserRound, label: "accounts", path: "/accounts" },
     { icon: LuSettings, label: "settings", path: "/settings" },
   ];
 

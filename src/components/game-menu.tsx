@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { LuMoreHorizontal, LuSettings, LuTrash } from "react-icons/lu";
+import { LuEllipsis, LuSettings, LuTrash } from "react-icons/lu";
 import { GameInstanceSummary } from "@/models/game-instance";
 
 interface GameMenuProps {
@@ -31,7 +31,7 @@ export const GameMenu: React.FC<GameMenuProps> = ({ game }) => {
         size="xs"
         variant="ghost"
         aria-label="operations"
-        icon={<LuMoreHorizontal />}
+        icon={<LuEllipsis />}
       />
       <MenuList>
         {gameMenuOperations.map((item) => (

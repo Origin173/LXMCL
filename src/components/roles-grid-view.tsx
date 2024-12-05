@@ -12,7 +12,7 @@ import {
   WrapItem,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { LuMoreHorizontal } from "react-icons/lu";
+import { LuEllipsis } from "react-icons/lu";
 import RoleMenu from "@/components/role-menu";
 import { useLauncherConfig } from "@/contexts/config";
 import { Role } from "@/models/account";

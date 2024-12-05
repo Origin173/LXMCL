@@ -4,11 +4,11 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { IconType } from "react-icons";
 import {
+  LuCircleHelp,
+  LuCloudDownload,
   LuCoffee,
-  LuDownloadCloud,
   LuFlaskConical,
   LuGamepad2,
-  LuHelpCircle,
   LuInfo,
   LuPalette,
   LuSettings,
@@ -32,8 +32,8 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
     [
       { key: "general", icon: LuSettings },
       { key: "appearance", icon: LuPalette },
-      { key: "download", icon: LuDownloadCloud },
-      { key: "help", icon: LuHelpCircle },
+      { key: "download", icon: LuCloudDownload },
+      { key: "help", icon: LuCircleHelp },
       { key: "about", icon: LuInfo },
     ],
     ...(isDev ? [[{ key: "dev-test", icon: LuFlaskConical }]] : []),
