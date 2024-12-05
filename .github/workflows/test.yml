@@ -23,7 +23,7 @@ jobs:
       - run: npm install
       
       - name: Lint JavaScript/TypeScript Frontend
-        run: npx eslint "src/**/*.{js,jsx,ts,tsx}" --no-fix --max-warnings=0 
+        run: npx eslint 'src/**/*.{js,jsx,ts,tsx}' --no-fix --max-warnings=0 
       
       - uses: actions-rs/toolchain@v1
         with:
@@ -33,4 +33,40 @@ jobs:
 
       - name: Lint Rust Backend
         run: |
-          find src-tauri/src -name "*.rs" | xargs rustfmt --check
+          find src-tauri/src -name '*.rs' | xargs rustfmt --check
+
+  Build:
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            args: '--target aarch64-apple-darwin'
+          - platform: 'ubuntu-latest'
+            args: ''
+          - platform: 'windows-latest'
+            args: ''
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies (Ubuntu only)
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - run: npm install
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin' || '' }}
+
+      - name: Test Build
+        run: npx tauri build ${{ matrix.args }}
