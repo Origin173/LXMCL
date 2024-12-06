@@ -183,6 +183,66 @@
       }
     }
   },
+  "GlobalGameSettingsPage": {
+    "properties": {
+      "title": "Performance",
+      "settings": {
+        "gameWindowResolution": {
+          "title": "Game Window Resolution",
+          "radio": "Fullscreen"
+        },
+        "allocateMemoryAutomatically": {
+          "title": "Allocate Memory Automatically"
+        },
+        "minimunMemoryAllocation": {
+          "title": "Minimum Memory Allocation"
+        },
+        "memoryUsage": {
+          "title": "Memory Usage",
+          "description": "Used memory {{usedMemory}}GB; Game allocated {{allocatedMemory}}GB; Total memory {{totalMemory}}GB"
+        },
+        "processPriority": {
+          "title": "Process Priority",
+          "low": "Low",
+          "middle": "Medium",
+          "high": "High"
+        }
+      }
+    },
+    "versionIsolation": {
+      "title": "Version Isolation",
+      "settings": {
+        "enableVersionIsolation": {
+          "title": "Enable Version Isolation"
+        },
+        "isolationStrategy": {
+          "title": "Isolation Strategy",
+          "strategy1": "Off",
+          "strategy2": "Full Isolation",
+          "strategy3": "Isolate Installable Mod Versions",
+          "strategy4": "Isolate Unofficial Versions",
+          "strategy5": "Isolate Mod Versions and Unofficial Versions"
+        }
+      }
+    },
+    "moreOptions": {
+      "title": "More Options",
+      "settings": {
+        "launcherVisibility": {
+          "title": "Launcher Visibility",
+          "strategy1": "Close Launcher after Game Starts",
+          "strategy2": "Hide Launcher while Game is Running",
+          "strategy3": "Launcher Always Visible"
+        },
+        "displayGameLog": {
+          "title": "Display Game Log"
+        },
+        "enableAdvancedOptions": {
+          "title": "Enable Advanced Options"
+        }
+      }
+    }
+  },
   "HeadNavBar": {
     "navList": {
       "launch": "Launch",
