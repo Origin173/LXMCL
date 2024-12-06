@@ -191,10 +191,10 @@
           "title": "Game Window Resolution",
           "switch": "Fullscreen"
         },
-        "autoMenAllocation": {
+        "autoMemAllocation": {
           "title": "Allocate Memory Automatically"
         },
-        "minMenAllocation": {
+        "minMemAllocation": {
           "title": "Minimum Memory Allocation"
         },
         "memoryUsage": {
@@ -212,7 +212,7 @@
     "versionIsolation": {
       "title": "Version Isolation",
       "settings": {
-        "enableVersionIsolation": {
+        "enabled": {
           "title": "Enable Version Isolation"
         },
         "isolationStrategy": {

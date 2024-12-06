@@ -26,9 +26,10 @@ import { useLauncherConfig } from "@/contexts/config";
 
 const GlobalGameSettingsPage = () => {
   const { t } = useTranslation();
-  const { config } = useLauncherConfig();
+  const { config, update } = useLauncherConfig();
 
   const primaryColor = config.appearance.theme.primaryColor;
+
   const isolationStrategy = [
     "off",
     "full",
@@ -42,9 +43,9 @@ const GlobalGameSettingsPage = () => {
     "always",
   ];
   const processPriority = ["low", "middle", "high"];
-  const usedMemory = 50;
-  const allocatedMemory = 10;
-  const totalMemory = 100;
+  // const usedMemory = 50;
+  // const allocatedMemory = 10;
+  // const totalMemory = 100;
 
   const globalGameSettingGroups: OptionItemGroupProps[] = [
     {
@@ -56,11 +57,11 @@ const GlobalGameSettingsPage = () => {
           ),
           children: (
             <HStack>
-              <NumberInput min={1} size="xs" maxW={16}>
+              <NumberInput min={400} size="xs" maxW={16}>
                 <NumberInputField pr={0} />
               </NumberInput>
-              <Text fontSize="xs">×</Text>
-              <NumberInput min={1} size="xs" maxW={16}>
+              <Text fontSize="sm">×</Text>
+              <NumberInput min={300} size="xs" maxW={16}>
                 <NumberInputField pr={0} />
               </NumberInput>
               <Switch size="sm" colorScheme={primaryColor} />
@@ -74,19 +75,19 @@ const GlobalGameSettingsPage = () => {
         },
         {
           title: t(
-            "GlobalGameSettingsPage.performance.settings.autoMenAllocation.title"
+            "GlobalGameSettingsPage.performance.settings.autoMemAllocation.title"
           ),
           children: <Switch size="sm" colorScheme={primaryColor} />,
         },
         {
           title: t(
-            "GlobalGameSettingsPage.performance.settings.minMenAllocation.title"
+            "GlobalGameSettingsPage.performance.settings.minMemAllocation.title"
           ),
           children: (
-            <HStack spacing={4}>
+            <HStack spacing={2}>
               <Slider
                 min={2048}
-                max={8192}
+                max={8192} // TODO: change to device max memory
                 step={16}
                 w={32}
                 colorScheme={primaryColor}
@@ -96,36 +97,37 @@ const GlobalGameSettingsPage = () => {
                 </SliderTrack>
                 <SliderThumb />
               </Slider>
-              <NumberInput min={2048} max={8192} size="xs" maxW={20}>
-                <NumberInputField />
+              <NumberInput min={2048} max={8192} size="xs" maxW={16}>
+                <NumberInputField pr={0} />
               </NumberInput>
               <Text fontSize="xs">MB</Text>
             </HStack>
           ),
         },
-        {
-          title: t(
-            "GlobalGameSettingsPage.performance.settings.memoryUsage.title"
-          ),
-          description: t(
-            "GlobalGameSettingsPage.performance.settings.memoryUsage.description",
-            {
-              usedMemory,
-              allocatedMemory,
-              totalMemory,
-            }
-          ),
-          children: (
-            <Progress
-              value={((usedMemory + allocatedMemory) / totalMemory) * 100}
-              max={100}
-              size="sm"
-              colorScheme="teal"
-              width="100%"
-              mt={2}
-            />
-          ),
-        },
+        // TODO: adjust memory usage display style
+        // {
+        //   title: t(
+        //     "GlobalGameSettingsPage.performance.settings.memoryUsage.title"
+        //   ),
+        //   description: t(
+        //     "GlobalGameSettingsPage.performance.settings.memoryUsage.description",
+        //     {
+        //       usedMemory,
+        //       allocatedMemory,
+        //       totalMemory,
+        //     }
+        //   ),
+        //   children: (
+        //     <Progress
+        //       value={((usedMemory + allocatedMemory) / totalMemory) * 100}
+        //       max={100}
+        //       size="sm"
+        //       colorScheme={primaryColor}
+        //       width="100%"
+        //       mt={2}
+        //     />
+        //   ),
+        // },
         {
           title: t(
             "GlobalGameSettingsPage.performance.settings.processPriority.title"
@@ -165,7 +167,7 @@ const GlobalGameSettingsPage = () => {
       items: [
         {
           title: t(
-            "GlobalGameSettingsPage.versionIsolation.settings.enableVersionIsolation.title"
+            "GlobalGameSettingsPage.versionIsolation.settings.enabled.title"
           ),
           children: <Switch size="sm" colorScheme={primaryColor} />,
         },

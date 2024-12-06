@@ -191,10 +191,10 @@
           "title": "游戏窗口分辨率",
           "switch": "全屏"
         },
-        "autoMenAllocation": {
+        "autoMemAllocation": {
           "title": "自动分配内存"
         },
-        "minMenAllocation": {
+        "minMemAllocation": {
           "title": "最小内存分配"
         },
         "memoryUsage": {
@@ -212,16 +212,16 @@
     "versionIsolation": {
       "title": "版本隔离",
       "settings": {
-        "enableVersionIsolation": {
+        "enabled": {
           "title": "启用版本隔离"
         },
         "isolationStrategy": {
           "title": "隔离策略",
           "off": "关闭",
           "full": "全部隔离",
-          "modable": "隔离可安装mod版本",
+          "modable": "隔离可安装 Mod 版本",
           "informal": "隔离非正式版",
-          "modable-and-informal": "隔离mod版与非正式版"
+          "modable-and-informal": "隔离可安装 Mod 版本与非正式版"
         }
       }
     },
@@ -231,7 +231,7 @@
         "launcherVisibility": {
           "title": "启动器可见性",
           "start-close": "游戏启动后结束启动器",
-          "running-hidden": "保游戏运行时隐藏启动器",
+          "running-hidden": "游戏运行时隐藏启动器",
           "always": "启动器始终可见"
         },
         "displayGameLog": {
