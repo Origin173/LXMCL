@@ -183,6 +183,66 @@
       }
     }
   },
+  "GlobalGameSettingsPage": {
+    "performance": {
+      "title": "性能",
+      "settings": {
+        "gameWindowResolution": {
+          "title": "游戏窗口分辨率",
+          "switch": "全屏"
+        },
+        "autoMenAllocation": {
+          "title": "自动分配内存"
+        },
+        "minMenAllocation": {
+          "title": "最小内存分配"
+        },
+        "memoryUsage": {
+          "title": "内存占用情况",
+          "description": "已用内存{{usedMemory}}GB；游戏分配{{allocatedMemory}}GB；总内存{{totalMemory}}GB"
+        },
+        "processPriority": {
+          "title": "进程优先级",
+          "low": "低",
+          "middle": "中",
+          "high": "高"
+        }
+      }
+    },
+    "versionIsolation": {
+      "title": "版本隔离",
+      "settings": {
+        "enableVersionIsolation": {
+          "title": "启用版本隔离"
+        },
+        "isolationStrategy": {
+          "title": "隔离策略",
+          "off": "关闭",
+          "full": "全部隔离",
+          "modable": "隔离可安装mod版本",
+          "informal": "隔离非正式版",
+          "modable-and-informal": "隔离mod版与非正式版"
+        }
+      }
+    },
+    "moreOptions": {
+      "title": "更多选项",
+      "settings": {
+        "launcherVisibility": {
+          "title": "启动器可见性",
+          "start-close": "游戏启动后结束启动器",
+          "running-hidden": "保游戏运行时隐藏启动器",
+          "always": "启动器始终可见"
+        },
+        "displayGameLog": {
+          "title": "显示游戏日志"
+        },
+        "enableAdvancedOptions": {
+          "title": "启用高级选项"
+        }
+      }
+    }
+  },
   "HeadNavBar": {
     "navList": {
       "launch": "启动",
