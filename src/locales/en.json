@@ -184,17 +184,17 @@
     }
   },
   "GlobalGameSettingsPage": {
-    "properties": {
+    "performance": {
       "title": "Performance",
       "settings": {
         "gameWindowResolution": {
           "title": "Game Window Resolution",
-          "radio": "Fullscreen"
+          "switch": "Fullscreen"
         },
-        "allocateMemoryAutomatically": {
+        "autoMenAllocation": {
           "title": "Allocate Memory Automatically"
         },
-        "minimunMemoryAllocation": {
+        "minMenAllocation": {
           "title": "Minimum Memory Allocation"
         },
         "memoryUsage": {
@@ -217,11 +217,11 @@
         },
         "isolationStrategy": {
           "title": "Isolation Strategy",
-          "strategy1": "Off",
-          "strategy2": "Full Isolation",
-          "strategy3": "Isolate Installable Mod Versions",
-          "strategy4": "Isolate Unofficial Versions",
-          "strategy5": "Isolate Mod Versions and Unofficial Versions"
+          "off": "Off",
+          "full": "Full Isolation",
+          "modable": "Isolate Installable Mod Versions",
+          "informal": "Isolate Informal Versions",
+          "modable-and-informal": "Isolate Mod Versions and Informal Versions"
         }
       }
     },
@@ -230,9 +230,9 @@
       "settings": {
         "launcherVisibility": {
           "title": "Launcher Visibility",
-          "strategy1": "Close Launcher after Game Starts",
-          "strategy2": "Hide Launcher while Game is Running",
-          "strategy3": "Launcher Always Visible"
+          "start-close": "Close Launcher after Game Starts",
+          "running-hidden": "Hide Launcher while Game is Running",
+          "always": "Launcher Always Visible"
         },
         "displayGameLog": {
           "title": "Display Game Log"

@@ -184,17 +184,17 @@
     }
   },
   "GlobalGameSettingsPage": {
-    "properties": {
+    "performance": {
       "title": "性能",
       "settings": {
         "gameWindowResolution": {
           "title": "游戏窗口分辨率",
-          "radio": "全屏"
+          "switch": "全屏"
         },
-        "allocateMemoryAutomatically": {
+        "autoMenAllocation": {
           "title": "自动分配内存"
         },
-        "minimunMemoryAllocation": {
+        "minMenAllocation": {
           "title": "最小内存分配"
         },
         "memoryUsage": {
@@ -217,11 +217,11 @@
         },
         "isolationStrategy": {
           "title": "隔离策略",
-          "strategy1": "关闭",
-          "strategy2": "全部隔离",
-          "strategy3": "隔离可安装mod版本",
-          "strategy4": "隔离非正式版",
-          "strategy5": "隔离mod版与非正式版"
+          "off": "关闭",
+          "full": "全部隔离",
+          "modable": "隔离可安装mod版本",
+          "informal": "隔离非正式版",
+          "modable-and-informal": "隔离mod版与非正式版"
         }
       }
     },
@@ -230,9 +230,9 @@
       "settings": {
         "launcherVisibility": {
           "title": "启动器可见性",
-          "strategy1": "游戏启动后结束启动器",
-          "strategy2": "保游戏运行时隐藏启动器",
-          "strategy3": "启动器始终可见"
+          "start-close": "游戏启动后结束启动器",
+          "running-hidden": "保游戏运行时隐藏启动器",
+          "always": "启动器始终可见"
         },
         "displayGameLog": {
           "title": "显示游戏日志"

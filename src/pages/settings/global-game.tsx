@@ -30,13 +30,17 @@ const GlobalGameSettingsPage = () => {
 
   const primaryColor = config.appearance.theme.primaryColor;
   const isolationStrategy = [
-    "strategy1",
-    "strategy2",
-    "strategy3",
-    "strategy4",
-    "strategy5",
+    "off",
+    "full",
+    "modable",
+    "informal",
+    "modable-and-informal",
   ];
-  const launcherVisibilityStrategy = ["strategy1", "strategy2", "strategy3"];
+  const launcherVisibilityStrategy = [
+    "start-close",
+    "running-hidden",
+    "always",
+  ];
   const processPriority = ["low", "middle", "high"];
   const usedMemory = 50;
   const allocatedMemory = 10;
@@ -44,25 +48,25 @@ const GlobalGameSettingsPage = () => {
 
   const globalGameSettingGroups: OptionItemGroupProps[] = [
     {
-      title: t("GlobalGameSettingsPage.properties.title"),
+      title: t("GlobalGameSettingsPage.performance.title"),
       items: [
         {
           title: t(
-            "GlobalGameSettingsPage.properties.settings.gameWindowResolution.title"
+            "GlobalGameSettingsPage.performance.settings.gameWindowResolution.title"
           ),
           children: (
             <HStack>
               <NumberInput min={1} size="xs" maxW={16}>
                 <NumberInputField pr={0} />
               </NumberInput>
-              <Text fontSize="xs">*</Text>
+              <Text fontSize="xs">×</Text>
               <NumberInput min={1} size="xs" maxW={16}>
                 <NumberInputField pr={0} />
               </NumberInput>
               <Switch size="sm" colorScheme={primaryColor} />
               <Text fontSize="xs">
                 {t(
-                  "GlobalGameSettingsPage.properties.settings.gameWindowResolution.radio"
+                  "GlobalGameSettingsPage.performance.settings.gameWindowResolution.switch"
                 )}
               </Text>
             </HStack>
@@ -70,13 +74,13 @@ const GlobalGameSettingsPage = () => {
         },
         {
           title: t(
-            "GlobalGameSettingsPage.properties.settings.allocateMemoryAutomatically.title"
+            "GlobalGameSettingsPage.performance.settings.autoMenAllocation.title"
           ),
           children: <Switch size="sm" colorScheme={primaryColor} />,
         },
         {
           title: t(
-            "GlobalGameSettingsPage.properties.settings.minimunMemoryAllocation.title"
+            "GlobalGameSettingsPage.performance.settings.minMenAllocation.title"
           ),
           children: (
             <HStack spacing={4}>
@@ -101,10 +105,10 @@ const GlobalGameSettingsPage = () => {
         },
         {
           title: t(
-            "GlobalGameSettingsPage.properties.settings.memoryUsage.title"
+            "GlobalGameSettingsPage.performance.settings.memoryUsage.title"
           ),
           description: t(
-            "GlobalGameSettingsPage.properties.settings.memoryUsage.description",
+            "GlobalGameSettingsPage.performance.settings.memoryUsage.description",
             {
               usedMemory,
               allocatedMemory,
@@ -124,7 +128,7 @@ const GlobalGameSettingsPage = () => {
         },
         {
           title: t(
-            "GlobalGameSettingsPage.properties.settings.processPriority.title"
+            "GlobalGameSettingsPage.performance.settings.processPriority.title"
           ),
           children: (
             <Menu>
@@ -137,7 +141,7 @@ const GlobalGameSettingsPage = () => {
                 textAlign="left"
               >
                 {t(
-                  "GlobalGameSettingsPage.properties.settings.processPriority.low"
+                  "GlobalGameSettingsPage.performance.settings.processPriority.low"
                 )}
               </MenuButton>
               <MenuList>
@@ -145,7 +149,7 @@ const GlobalGameSettingsPage = () => {
                   {processPriority.map((type) => (
                     <MenuItemOption value={type} fontSize="xs" key={type}>
                       {t(
-                        `GlobalGameSettingsPage.properties.settings.processPriority.${type}`
+                        `GlobalGameSettingsPage.performance.settings.processPriority.${type}`
                       )}
                     </MenuItemOption>
                   ))}
@@ -180,7 +184,7 @@ const GlobalGameSettingsPage = () => {
                 textAlign="left"
               >
                 {t(
-                  "GlobalGameSettingsPage.versionIsolation.settings.isolationStrategy.strategy1"
+                  "GlobalGameSettingsPage.versionIsolation.settings.isolationStrategy.full"
                 )}
               </MenuButton>
               <MenuList>
@@ -217,7 +221,7 @@ const GlobalGameSettingsPage = () => {
                 textAlign="left"
               >
                 {t(
-                  "GlobalGameSettingsPage.moreOptions.settings.launcherVisibility.strategy1"
+                  "GlobalGameSettingsPage.moreOptions.settings.launcherVisibility.always"
                 )}
               </MenuButton>
               <MenuList>
