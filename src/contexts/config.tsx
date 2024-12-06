@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/contexts/toast";
@@ -15,7 +14,7 @@ const LauncherConfigContext = createContext<
   LauncherConfigContextType | undefined
 >(undefined);
 
-export const LauncherConfigProvider: React.FC<{
+export const LauncherConfigContextProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const [config, setConfig] = useState<LauncherConfig>(defaultConfig);
@@ -79,7 +78,9 @@ export const LauncherConfigProvider: React.FC<{
 export const useLauncherConfig = (): LauncherConfigContextType => {
   const context = useContext(LauncherConfigContext);
   if (!context) {
-    throw new Error("useLauncherConfig must be used within a ConfigProvider");
+    throw new Error(
+      "useLauncherConfig must be used within a LauncherConfigContextProvider"
+    );
   }
   return context;
 };

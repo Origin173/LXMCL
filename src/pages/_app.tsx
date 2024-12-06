@@ -6,7 +6,8 @@ import React, { useEffect } from "react";
 import { initReactI18next } from "react-i18next";
 import chakraExtendTheme from "@/chakra-theme";
 import { Fade } from "@/components/common/transition";
-import { LauncherConfigProvider } from "@/contexts/config";
+import { LauncherConfigContextProvider } from "@/contexts/config";
+import { RoutingHistoryContextProvider } from "@/contexts/routing-history";
 import { ToastContextProvider } from "@/contexts/toast";
 import GamesLayout from "@/layouts/games-layout";
 import MainLayout from "@/layouts/main-layout";
@@ -57,15 +58,17 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <ChakraProvider theme={chakraExtendTheme}>
       <ToastContextProvider>
-        <LauncherConfigProvider>
-          <MainLayout>
-            <Fade key={router.pathname.split("/")[1] || ""} in>
-              <SpecLayout>
-                <Component {...pageProps} />
-              </SpecLayout>
-            </Fade>
-          </MainLayout>
-        </LauncherConfigProvider>
+        <RoutingHistoryContextProvider>
+          <LauncherConfigContextProvider>
+            <MainLayout>
+              <Fade key={router.pathname.split("/")[1] || ""} in>
+                <SpecLayout>
+                  <Component {...pageProps} />
+                </SpecLayout>
+              </Fade>
+            </MainLayout>
+          </LauncherConfigContextProvider>
+        </RoutingHistoryContextProvider>
       </ToastContextProvider>
     </ChakraProvider>
   );
