@@ -62,6 +62,13 @@
       "settings": {
         "primaryColor": {
           "title": "启动器强调色"
+        },
+        "headNavStyle": {
+          "title": "顶部导航栏样式",
+          "type": {
+            "standard": "标准",
+            "simplified": "简约"
+          }
         }
       }
     },

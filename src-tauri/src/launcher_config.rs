@@ -48,6 +48,7 @@ structstruck::strike! {
     pub appearance: struct {
       pub theme: struct {
         pub primary_color: String,
+        pub head_nav_style: String,
       },
       pub background: struct {
         pub preset_choice: String,
@@ -83,6 +84,7 @@ impl Default for LauncherConfig {
       appearance: Appearance {
         theme: Theme {
           primary_color: "blue".to_string(),
+          head_nav_style: "standard".to_string(),
         },
         background: Background {
           preset_choice: "Jokull".to_string(),

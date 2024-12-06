@@ -1,7 +1,13 @@
 import {
   Box,
+  Button,
   Card,
   IconButton,
+  Menu,
+  MenuButton,
+  MenuItemOption,
+  MenuList,
+  MenuOptionGroup,
   Popover,
   PopoverBody,
   PopoverContent,
@@ -52,6 +58,44 @@ const AppearanceSettingsPage = () => {
     );
   };
 
+  const HeadNavStyleMenu = () => {
+    const headNavStyleTypes = ["standard", "simplified"];
+
+    return (
+      <Menu>
+        <MenuButton
+          as={Button}
+          size="xs"
+          w="auto"
+          rightIcon={<LuChevronDown />}
+          variant="outline"
+          textAlign="left"
+        >
+          {t(
+            `AppearanceSettingsPage.theme.settings.headNavStyle.type.${appearanceConfigs.theme.headNavStyle}`
+          )}
+        </MenuButton>
+        <MenuList>
+          <MenuOptionGroup
+            value={appearanceConfigs.theme.headNavStyle}
+            type="radio"
+            onChange={(value) => {
+              update("appearance.theme.headNavStyle", value);
+            }}
+          >
+            {headNavStyleTypes.map((type) => (
+              <MenuItemOption value={type} fontSize="xs" key={type}>
+                {t(
+                  `AppearanceSettingsPage.theme.settings.headNavStyle.type.${type}`
+                )}
+              </MenuItemOption>
+            ))}
+          </MenuOptionGroup>
+        </MenuList>
+      </Menu>
+    );
+  };
+
   const PresetBackgroundList = () => {
     const presetBgList = ["Jokull", "SJTU-eastgate"];
     const presetChoice = appearanceConfigs.background.presetChoice;
@@ -68,6 +112,7 @@ const AppearanceSettingsPage = () => {
                 borderColor={`${primaryColor}.500`}
                 variant={presetChoice === bg ? "outline" : "elevated"}
                 overflow="hidden"
+                cursor="pointer"
               >
                 <Box
                   w="100%"
@@ -102,6 +147,10 @@ const AppearanceSettingsPage = () => {
         {
           title: t("AppearanceSettingsPage.theme.settings.primaryColor.title"),
           children: <ColorSelectPopover />,
+        },
+        {
+          title: t("AppearanceSettingsPage.theme.settings.headNavStyle.title"),
+          children: <HeadNavStyleMenu />,
         },
       ],
     },

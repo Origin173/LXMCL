@@ -41,39 +41,37 @@ const DownloadSettingsPage = () => {
         {
           title: t("DownloadSettingPage.source.settings.strategy.title"),
           children: (
-            <HStack spacing={4}>
-              <Menu>
-                <MenuButton
-                  as={Button}
-                  size="xs"
-                  w="auto"
-                  rightIcon={<LuChevronDown />}
-                  variant="outline"
-                  textAlign="left"
+            <Menu>
+              <MenuButton
+                as={Button}
+                size="xs"
+                w="auto"
+                rightIcon={<LuChevronDown />}
+                variant="outline"
+                textAlign="left"
+              >
+                {t(
+                  `DownloadSettingPage.source.settings.strategy.${downloadConfigs.source.strategy}`
+                )}
+              </MenuButton>
+              <MenuList>
+                <MenuOptionGroup
+                  value={downloadConfigs.source.strategy}
+                  type="radio"
+                  onChange={(value) => {
+                    update("download.source.strategy", value);
+                  }}
                 >
-                  {t(
-                    `DownloadSettingPage.source.settings.strategy.${downloadConfigs.source.strategy}`
-                  )}
-                </MenuButton>
-                <MenuList>
-                  <MenuOptionGroup
-                    value={downloadConfigs.source.strategy}
-                    type="radio"
-                    onChange={(value) => {
-                      update("download.source.strategy", value);
-                    }}
-                  >
-                    {sourceStrategyTypes.map((type) => (
-                      <MenuItemOption value={type} fontSize="xs" key={type}>
-                        {t(
-                          `DownloadSettingPage.source.settings.strategy.${type}`
-                        )}
-                      </MenuItemOption>
-                    ))}
-                  </MenuOptionGroup>
-                </MenuList>
-              </Menu>
-            </HStack>
+                  {sourceStrategyTypes.map((type) => (
+                    <MenuItemOption value={type} fontSize="xs" key={type}>
+                      {t(
+                        `DownloadSettingPage.source.settings.strategy.${type}`
+                      )}
+                    </MenuItemOption>
+                  ))}
+                </MenuOptionGroup>
+              </MenuList>
+            </Menu>
           ),
         },
       ],

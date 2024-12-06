@@ -19,6 +19,7 @@ const HeadNavBar = () => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const isSimplified = config.appearance.theme.headNavStyle === "simplified";
 
   const navList = [
     { icon: LuZap, label: "launch", path: "/launch" },
@@ -53,7 +54,9 @@ const HeadNavBar = () => {
                 >
                   <HStack spacing={2}>
                     <Icon as={item.icon} />
-                    <Text>{t(`HeadNavBar.navList.${item.label}`)}</Text>
+                    {(!isSimplified || selectedIndex === index) && (
+                      <Text>{t(`HeadNavBar.navList.${item.label}`)}</Text>
+                    )}
                   </HStack>
                 </Tab>
               ))}

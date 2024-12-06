@@ -4,6 +4,7 @@ export interface LauncherConfig {
   appearance: {
     theme: {
       primaryColor: string;
+      headNavStyle: string;
     };
     background: {
       presetChoice: string;
@@ -36,6 +37,7 @@ export const defaultConfig: LauncherConfig = {
   appearance: {
     theme: {
       primaryColor: "blue",
+      headNavStyle: "standard",
     },
     background: {
       presetChoice: "Jokull",

@@ -62,6 +62,13 @@
       "settings": {
         "primaryColor": {
           "title": "Launcher Primary Color"
+        },
+        "headNavStyle": {
+          "title": "Navigation Bar Style",
+          "type": {
+            "standard": "Standard",
+            "simplified": "Simplified"
+          }
         }
       }
     },
