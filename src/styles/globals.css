@@ -41,7 +41,7 @@ body {
 
 .no-select {
   cursor: default;
-  user-select: none;
+  user-select: none !important;
 }
 
 .ellipsis-text {
@@ -67,6 +67,11 @@ body {
   height: 100%;
   overflow-y: auto;
   padding: var(--chakra-space-3-5);
+  user-select: none;
+
+  & * {
+    user-select: initial;
+  }
 }
 
 
