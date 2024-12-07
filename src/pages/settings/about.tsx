@@ -6,7 +6,6 @@ import {
 } from "@/components/common/option-item";
 import { TitleFull } from "@/components/logo-title";
 import { useLauncherConfig } from "@/contexts/config";
-import { isDev } from "@/utils/env";
 
 const AboutSettingsPage = () => {
   const { t } = useTranslation();
@@ -19,7 +18,7 @@ const AboutSettingsPage = () => {
         <TitleFull my={1} key={0} />,
         {
           title: t("AboutSettingsPage.about.settings.version.title"),
-          children: `${isDev ? "[Dev Mode] " : ""}${config.version}`,
+          children: config.version,
         },
         {
           title: t("AboutSettingsPage.about.settings.contributors.title"),
