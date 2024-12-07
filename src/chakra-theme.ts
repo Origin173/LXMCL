@@ -1,4 +1,4 @@
-import { Container, Toast, baseTheme, extendTheme } from "@chakra-ui/react";
+import { extendTheme } from "@chakra-ui/react";
 
 const subtleButtonVariant = (props: any) => ({
   bg: `${props.colorScheme}.100`,
@@ -42,36 +42,6 @@ const customGraySolidButtonTheme = {
     },
     _active: {
       bg: "gray.500 !important",
-    },
-  },
-};
-
-const customGrayOutlineButtonTheme = {
-  borderColor: "gray.600",
-  color: "gray.600",
-  bg: "transparent",
-  _hover: {
-    borderColor: "gray.700",
-    bg: "gray.100",
-  },
-  _active: {
-    borderColor: "gray.800",
-    bg: "gray.200",
-  },
-  _focus: {
-    boxShadow: "none",
-  },
-  _disabled: {
-    borderColor: "gray.500",
-    color: "gray.300",
-    bg: "transparent",
-    cursor: "not-allowed",
-    opacity: 0.6,
-    _hover: {
-      bg: "transparent !important",
-    },
-    _active: {
-      bg: "transparent !important",
     },
   },
 };

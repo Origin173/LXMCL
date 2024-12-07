@@ -379,7 +379,7 @@ const GlobalGameSettingsPage = () => {
               isChecked={globalGameConfigs.advancedOptions.enabled}
               onChange={(event) => {
                 update(
-                  "globalGameConfigs.advancedOptions.enabled",
+                  "globalGameConfig.advancedOptions.enabled",
                   event.target.checked
                 );
               }}
