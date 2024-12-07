@@ -6,6 +6,7 @@ import {
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
+  Switch,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -21,6 +22,7 @@ const GeneralSettingsPage = () => {
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
   const generalConfigs = config.general;
+  const primaryColor = config.appearance.theme.primaryColor;
 
   const LocaleMenu = () => {
     const currentLanguage = generalConfigs.general.language;
@@ -63,6 +65,24 @@ const GeneralSettingsPage = () => {
         {
           title: t("GeneralSettingsPage.general.settings.language.title"),
           children: <LocaleMenu />,
+        },
+      ],
+    },
+    {
+      title: t("GeneralSettingsPage.functions.title"),
+      items: [
+        {
+          title: t("GeneralSettingsPage.functions.settings.discover.title"),
+          children: (
+            <Switch
+              size="sm"
+              colorScheme={primaryColor}
+              isChecked={generalConfigs.optionalFunctions.discover}
+              onChange={(e) => {
+                update("general.optionalFunctions.discover", e.target.checked);
+              }}
+            />
+          ),
         },
       ],
     },

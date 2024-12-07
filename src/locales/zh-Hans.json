@@ -181,6 +181,14 @@
           "title": "语言"
         }
       }
+    },
+    "functions": {
+      "title": "功能",
+      "settings": {
+        "discover": {
+          "title": "发现页"
+        }
+      }
     }
   },
   "GlobalGameSettingsPage": {
@@ -248,6 +256,7 @@
       "launch": "启动",
       "games": "游戏",
       "accounts": "账户",
+      "discover": "发现",
       "settings": "设置"
     }
   },

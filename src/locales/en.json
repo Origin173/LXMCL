@@ -181,6 +181,14 @@
           "title": "Language"
         }
       }
+    },
+    "functions": {
+      "title": "Functions",
+      "settings": {
+        "discover": {
+          "title": "Discover Page"
+        }
+      }
     }
   },
   "GlobalGameSettingsPage": {
@@ -248,6 +256,7 @@
       "launch": "Launch",
       "games": "Games",
       "accounts": "Accounts",
+      "discover": "Discover",
       "settings": "Settings"
     }
   },

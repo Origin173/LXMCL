@@ -50,6 +50,9 @@ export interface LauncherConfig {
     general: {
       language: string;
     };
+    optionalFunctions: {
+      discover: boolean;
+    };
   };
   globalGameConfig: GameConfig;
 }
@@ -105,6 +108,9 @@ export const defaultConfig: LauncherConfig = {
   general: {
     general: {
       language: "zh-Hans",
+    },
+    optionalFunctions: {
+      discover: false,
     },
   },
   globalGameConfig: defaultGameConfig,

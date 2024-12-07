@@ -97,6 +97,9 @@ structstruck::strike! {
     pub general: struct GeneralConfig {
       pub general: struct {
         pub language: String,
+      },
+      pub optional_functions: struct {
+        pub discover: bool,
       }
     },
     pub global_game_config: GameConfig
@@ -159,6 +162,7 @@ impl Default for LauncherConfig {
         general: General {
           language: "zh-Hans".to_string(),
         },
+        optional_functions: OptionalFunctions { discover: false },
       },
       global_game_config: GameConfig::default(),
     }
