@@ -44,15 +44,15 @@ const GenericConfirmDialog: React.FC<GenericConfirmDialogProps> = ({
         <AlertDialogContent>
           <AlertDialogHeader>{title}</AlertDialogHeader>
           <AlertDialogCloseButton />
-          <AlertDialogBody pb={5}>{body}</AlertDialogBody>
+          <AlertDialogBody>{body}</AlertDialogBody>
           <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={onClose}>
+            <Button ref={cancelRef} onClick={onClose} variant="ghost">
               {btnCancel}
             </Button>
             <Button
               colorScheme={isAlert ? "red" : "blue"}
               onClick={onOKCallback}
-              ml={3}
+              ml={2}
             >
               {btnOK}
             </Button>

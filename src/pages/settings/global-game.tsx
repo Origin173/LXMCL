@@ -89,7 +89,6 @@ const GlobalGameSettingsPage = () => {
                 <NumberInputField pr={0} />
               </NumberInput>
               <Switch
-                size="sm"
                 colorScheme={primaryColor}
                 isChecked={
                   globalGameConfigs.performance.gameWindowResolution.fullscreen
@@ -115,7 +114,6 @@ const GlobalGameSettingsPage = () => {
           ),
           children: (
             <Switch
-              size="sm"
               colorScheme={primaryColor}
               isChecked={globalGameConfigs.performance.autoMemAllocation}
               onChange={(event) => {
@@ -251,7 +249,6 @@ const GlobalGameSettingsPage = () => {
           ),
           children: (
             <Switch
-              size="sm"
               colorScheme={primaryColor}
               isChecked={globalGameConfigs.versionIsolation.enabled}
               onChange={(event) => {
@@ -359,7 +356,6 @@ const GlobalGameSettingsPage = () => {
           ),
           children: (
             <Switch
-              size="sm"
               colorScheme={primaryColor}
               isChecked={globalGameConfigs.displayGameLog}
               onChange={(event) => {
@@ -374,7 +370,6 @@ const GlobalGameSettingsPage = () => {
           ),
           children: (
             <Switch
-              size="sm"
               colorScheme={primaryColor}
               isChecked={globalGameConfigs.advancedOptions.enabled}
               onChange={(event) => {

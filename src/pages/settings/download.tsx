@@ -85,7 +85,6 @@ const DownloadSettingsPage = () => {
           ),
           children: (
             <Switch
-              size="sm"
               colorScheme={primaryColor}
               isChecked={downloadConfigs.download.autoConcurrent}
               onChange={(event) => {
@@ -155,7 +154,6 @@ const DownloadSettingsPage = () => {
           ),
           children: (
             <Switch
-              size="sm"
               colorScheme={primaryColor}
               isChecked={downloadConfigs.download.enableSpeedLimit}
               onChange={(event) => {

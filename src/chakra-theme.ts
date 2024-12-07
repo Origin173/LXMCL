@@ -1,4 +1,4 @@
-import { extendTheme } from "@chakra-ui/react";
+import { CloseButton, extendTheme } from "@chakra-ui/react";
 
 const subtleButtonVariant = (props: any) => ({
   bg: `${props.colorScheme}.100`,
@@ -67,6 +67,9 @@ const chakraExtendTheme = extendTheme({
       baseStyle: {
         fontWeight: "normal",
       },
+      defaultProps: {
+        size: "sm",
+      },
       variants: {
         subtle: subtleButtonVariant,
         solid: (props: any) => {
@@ -79,12 +82,56 @@ const chakraExtendTheme = extendTheme({
         borderColor: "gray.300",
       },
     },
+    FormLabel: {
+      baseStyle: {
+        fontSize: "sm",
+      },
+    },
+    Input: {
+      defaultProps: {
+        size: "sm",
+      },
+    },
     Menu: {
       baseStyle: {
         list: {
           minWidth: "auto",
           py: 1,
         },
+      },
+    },
+    Modal: {
+      baseStyle: {
+        dialog: {
+          header: {
+            fontSize: "md",
+            paddingX: 4,
+            paddingTop: 3,
+            paddingBottom: 2,
+          },
+          footer: {
+            fontSize: "sm",
+            paddingX: 4,
+            paddingTop: 2,
+            paddingBottom: 4,
+          },
+        },
+        closeButton: {
+          top: 2,
+          right: 2,
+          width: 6,
+          height: 6,
+          fontSize: "2xs",
+        },
+        body: {
+          fontSize: "sm",
+          paddingX: 4,
+        },
+      },
+    },
+    Switch: {
+      defaultProps: {
+        size: "sm",
       },
     },
   },

@@ -75,7 +75,6 @@ const GeneralSettingsPage = () => {
           title: t("GeneralSettingsPage.functions.settings.discover.title"),
           children: (
             <Switch
-              size="sm"
               colorScheme={primaryColor}
               isChecked={generalConfigs.optionalFunctions.discover}
               onChange={(e) => {
