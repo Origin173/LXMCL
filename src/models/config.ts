@@ -1,3 +1,25 @@
+export interface GameConfig {
+  performance: {
+    gameWindowResolution: {
+      width: number;
+      height: number;
+      fullscreen: boolean;
+    };
+    autoMemAllocation: boolean;
+    minMemAllocation: number;
+    processPriority: string;
+  };
+  versionIsolation: {
+    enabled: boolean;
+    isolationStrategy: string;
+  };
+  launcherVisibility: string;
+  displayGameLog: boolean;
+  advancedOptions: {
+    enabled: boolean;
+  };
+}
+
 export interface LauncherConfig {
   version: string;
   mocked: boolean;
@@ -29,7 +51,30 @@ export interface LauncherConfig {
       language: string;
     };
   };
+  globalGameConfig: GameConfig;
 }
+
+export const defaultGameConfig: GameConfig = {
+  performance: {
+    gameWindowResolution: {
+      width: 1280,
+      height: 720,
+      fullscreen: false,
+    },
+    autoMemAllocation: true,
+    minMemAllocation: 1024,
+    processPriority: "middle",
+  },
+  versionIsolation: {
+    enabled: true,
+    isolationStrategy: "full",
+  },
+  launcherVisibility: "start-close",
+  displayGameLog: false,
+  advancedOptions: {
+    enabled: false,
+  },
+};
 
 export const defaultConfig: LauncherConfig = {
   version: "dev",
@@ -62,4 +107,5 @@ export const defaultConfig: LauncherConfig = {
       language: "zh-Hans",
     },
   },
+  globalGameConfig: defaultGameConfig,
 };

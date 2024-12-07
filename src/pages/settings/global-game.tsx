@@ -27,8 +27,8 @@ import { useLauncherConfig } from "@/contexts/config";
 const GlobalGameSettingsPage = () => {
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
-
   const primaryColor = config.appearance.theme.primaryColor;
+  const globalGameConfigs = config.globalGameConfig;
 
   const isolationStrategy = [
     "off",
@@ -43,9 +43,6 @@ const GlobalGameSettingsPage = () => {
     "always",
   ];
   const processPriority = ["low", "middle", "high"];
-  // const usedMemory = 50;
-  // const allocatedMemory = 10;
-  // const totalMemory = 100;
 
   const globalGameSettingGroups: OptionItemGroupProps[] = [
     {
@@ -57,14 +54,53 @@ const GlobalGameSettingsPage = () => {
           ),
           children: (
             <HStack>
-              <NumberInput min={400} size="xs" maxW={16}>
+              <NumberInput
+                min={400}
+                size="xs"
+                maxW={16}
+                value={globalGameConfigs.performance.gameWindowResolution.width}
+                onChange={(value) => {
+                  update(
+                    "globalGameConfig.performance.gameWindowResolution.width",
+                    Number(value)
+                  );
+                }}
+              >
+                {/* no stepper NumberInput, use pr={0} */}
                 <NumberInputField pr={0} />
               </NumberInput>
-              <Text fontSize="sm">×</Text>
-              <NumberInput min={300} size="xs" maxW={16}>
+              <Text fontSize="sm" mt={-1}>
+                ×
+              </Text>
+              <NumberInput
+                min={300}
+                size="xs"
+                maxW={16}
+                value={
+                  globalGameConfigs.performance.gameWindowResolution.height
+                }
+                onChange={(value) => {
+                  update(
+                    "globalGameConfig.performance.gameWindowResolution.height",
+                    Number(value)
+                  );
+                }}
+              >
                 <NumberInputField pr={0} />
               </NumberInput>
-              <Switch size="sm" colorScheme={primaryColor} />
+              <Switch
+                size="sm"
+                colorScheme={primaryColor}
+                isChecked={
+                  globalGameConfigs.performance.gameWindowResolution.fullscreen
+                }
+                onChange={(event) => {
+                  update(
+                    "globalGameConfig.performance.gameWindowResolution.fullscreen",
+                    event.target.checked
+                  );
+                }}
+              />
               <Text fontSize="xs">
                 {t(
                   "GlobalGameSettingsPage.performance.settings.gameWindowResolution.switch"
@@ -77,33 +113,68 @@ const GlobalGameSettingsPage = () => {
           title: t(
             "GlobalGameSettingsPage.performance.settings.autoMemAllocation.title"
           ),
-          children: <Switch size="sm" colorScheme={primaryColor} />,
-        },
-        {
-          title: t(
-            "GlobalGameSettingsPage.performance.settings.minMemAllocation.title"
-          ),
           children: (
-            <HStack spacing={2}>
-              <Slider
-                min={2048}
-                max={8192} // TODO: change to device max memory
-                step={16}
-                w={32}
-                colorScheme={primaryColor}
-              >
-                <SliderTrack>
-                  <SliderFilledTrack />
-                </SliderTrack>
-                <SliderThumb />
-              </Slider>
-              <NumberInput min={2048} max={8192} size="xs" maxW={16}>
-                <NumberInputField pr={0} />
-              </NumberInput>
-              <Text fontSize="xs">MB</Text>
-            </HStack>
+            <Switch
+              size="sm"
+              colorScheme={primaryColor}
+              isChecked={globalGameConfigs.performance.autoMemAllocation}
+              onChange={(event) => {
+                update(
+                  "globalGameConfig.performance.autoMemAllocation",
+                  event.target.checked
+                );
+              }}
+            />
           ),
         },
+        ...(globalGameConfigs.performance.autoMemAllocation
+          ? []
+          : [
+              {
+                title: t(
+                  "GlobalGameSettingsPage.performance.settings.minMemAllocation.title"
+                ),
+                children: (
+                  <HStack spacing={2}>
+                    <Slider
+                      min={1024}
+                      max={8192}
+                      step={16}
+                      w={32}
+                      colorScheme={primaryColor}
+                      value={globalGameConfigs.performance.minMemAllocation}
+                      onChange={(value) => {
+                        update(
+                          "globalGameConfig.performance.minMemAllocation",
+                          value
+                        );
+                      }}
+                    >
+                      <SliderTrack>
+                        <SliderFilledTrack />
+                      </SliderTrack>
+                      <SliderThumb />
+                    </Slider>
+                    <NumberInput
+                      min={1024}
+                      max={8192}
+                      size="xs"
+                      maxW={16}
+                      value={globalGameConfigs.performance.minMemAllocation}
+                      onChange={(value) => {
+                        update(
+                          "globalGameConfig.performance.minMemAllocation",
+                          Number(value)
+                        );
+                      }}
+                    >
+                      <NumberInputField pr={0} />
+                    </NumberInput>
+                    <Text fontSize="xs">MB</Text>
+                  </HStack>
+                ),
+              },
+            ]),
         // TODO: adjust memory usage display style
         // {
         //   title: t(
@@ -143,11 +214,20 @@ const GlobalGameSettingsPage = () => {
                 textAlign="left"
               >
                 {t(
-                  "GlobalGameSettingsPage.performance.settings.processPriority.low"
+                  `GlobalGameSettingsPage.performance.settings.processPriority.${globalGameConfigs.performance.processPriority}`
                 )}
               </MenuButton>
               <MenuList>
-                <MenuOptionGroup type="radio">
+                <MenuOptionGroup
+                  value={globalGameConfigs.performance.processPriority}
+                  type="radio"
+                  onChange={(value) => {
+                    update(
+                      "globalGameConfig.performance.processPriority",
+                      value
+                    );
+                  }}
+                >
                   {processPriority.map((type) => (
                     <MenuItemOption value={type} fontSize="xs" key={type}>
                       {t(
@@ -169,40 +249,67 @@ const GlobalGameSettingsPage = () => {
           title: t(
             "GlobalGameSettingsPage.versionIsolation.settings.enabled.title"
           ),
-          children: <Switch size="sm" colorScheme={primaryColor} />,
-        },
-        {
-          title: t(
-            "GlobalGameSettingsPage.versionIsolation.settings.isolationStrategy.title"
-          ),
           children: (
-            <Menu>
-              <MenuButton
-                as={Button}
-                size="xs"
-                w="auto"
-                rightIcon={<LuChevronDown />}
-                variant="outline"
-                textAlign="left"
-              >
-                {t(
-                  "GlobalGameSettingsPage.versionIsolation.settings.isolationStrategy.full"
-                )}
-              </MenuButton>
-              <MenuList>
-                <MenuOptionGroup type="radio">
-                  {isolationStrategy.map((type) => (
-                    <MenuItemOption value={type} fontSize="xs" key={type}>
-                      {t(
-                        `GlobalGameSettingsPage.versionIsolation.settings.isolationStrategy.${type}`
-                      )}
-                    </MenuItemOption>
-                  ))}
-                </MenuOptionGroup>
-              </MenuList>
-            </Menu>
+            <Switch
+              size="sm"
+              colorScheme={primaryColor}
+              isChecked={globalGameConfigs.versionIsolation.enabled}
+              onChange={(event) => {
+                update(
+                  "globalGameConfig.versionIsolation.enabled",
+                  event.target.checked
+                );
+              }}
+            />
           ),
         },
+        ...(globalGameConfigs.versionIsolation.enabled
+          ? [
+              {
+                title: t(
+                  "GlobalGameSettingsPage.versionIsolation.settings.isolationStrategy.title"
+                ),
+                children: (
+                  <Menu>
+                    <MenuButton
+                      as={Button}
+                      size="xs"
+                      w="auto"
+                      rightIcon={<LuChevronDown />}
+                      variant="outline"
+                      textAlign="left"
+                    >
+                      {t(
+                        `GlobalGameSettingsPage.versionIsolation.settings.isolationStrategy.${globalGameConfigs.versionIsolation.isolationStrategy}`
+                      )}
+                    </MenuButton>
+                    <MenuList>
+                      <MenuOptionGroup
+                        type="radio"
+                        value={
+                          globalGameConfigs.versionIsolation.isolationStrategy
+                        }
+                        onChange={(value) => {
+                          update(
+                            "globalGameConfig.versionIsolation.isolationStrategy",
+                            value
+                          );
+                        }}
+                      >
+                        {isolationStrategy.map((type) => (
+                          <MenuItemOption value={type} fontSize="xs" key={type}>
+                            {t(
+                              `GlobalGameSettingsPage.versionIsolation.settings.isolationStrategy.${type}`
+                            )}
+                          </MenuItemOption>
+                        ))}
+                      </MenuOptionGroup>
+                    </MenuList>
+                  </Menu>
+                ),
+              },
+            ]
+          : []),
       ],
     },
     {
@@ -223,11 +330,17 @@ const GlobalGameSettingsPage = () => {
                 textAlign="left"
               >
                 {t(
-                  "GlobalGameSettingsPage.moreOptions.settings.launcherVisibility.always"
+                  `GlobalGameSettingsPage.moreOptions.settings.launcherVisibility.${globalGameConfigs.launcherVisibility}`
                 )}
               </MenuButton>
               <MenuList>
-                <MenuOptionGroup type="radio">
+                <MenuOptionGroup
+                  type="radio"
+                  value={globalGameConfigs.launcherVisibility}
+                  onChange={(value) => {
+                    update("globalGameConfig.launcherVisibility", value);
+                  }}
+                >
                   {launcherVisibilityStrategy.map((type) => (
                     <MenuItemOption value={type} fontSize="xs" key={type}>
                       {t(
@@ -244,13 +357,34 @@ const GlobalGameSettingsPage = () => {
           title: t(
             "GlobalGameSettingsPage.moreOptions.settings.displayGameLog.title"
           ),
-          children: <Switch size="sm" colorScheme={primaryColor} />,
+          children: (
+            <Switch
+              size="sm"
+              colorScheme={primaryColor}
+              isChecked={globalGameConfigs.displayGameLog}
+              onChange={(event) => {
+                update("globalGameConfig.displayGameLog", event.target.checked);
+              }}
+            />
+          ),
         },
         {
           title: t(
             "GlobalGameSettingsPage.moreOptions.settings.enableAdvancedOptions.title"
           ),
-          children: <Switch size="sm" colorScheme={primaryColor} />,
+          children: (
+            <Switch
+              size="sm"
+              colorScheme={primaryColor}
+              isChecked={globalGameConfigs.advancedOptions.enabled}
+              onChange={(event) => {
+                update(
+                  "globalGameConfigs.advancedOptions.enabled",
+                  event.target.checked
+                );
+              }}
+            />
+          ),
         },
       ],
     },
