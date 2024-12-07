@@ -68,5 +68,10 @@ jobs:
           override: true
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin' || '' }}
 
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+          key: ${{ matrix.platform }}-${{ matrix.args }}
+
       - name: Test Build
         run: npx tauri build ${{ matrix.args }}
