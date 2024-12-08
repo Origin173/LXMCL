@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { LauncherConfig } from "@/models/config";
+import { LauncherConfig, MemoryInfo } from "@/models/config";
 
 /**
  * Fetches the launcher configs.
@@ -28,6 +28,20 @@ export const updateLauncherConfig = async (
     await invoke("update_launcher_config", { launcherConfig });
   } catch (error) {
     console.error("Error in update_launcher_config:", error);
+    throw error;
+  }
+};
+
+/**
+ * Fetches the memory info of the system.
+ * @returns {Promise<MemoryInfo>} Memory info, in bytes
+ * @throws {Error} If the backend call fails.
+ */
+export const getMemoryInfo = async (): Promise<MemoryInfo> => {
+  try {
+    return await invoke("get_memory_info");
+  } catch (error) {
+    console.error("Error in get_memory_info:", error);
     throw error;
   }
 };

@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::sync::LazyLock;
 use std::{path::PathBuf, sync::Mutex};
+use systemstat::{saturating_sub_bytes, Platform};
 use tauri::State;
 
 #[tauri::command]
@@ -16,6 +17,25 @@ pub fn update_launcher_config(
   let mut state = state.lock().unwrap();
   *state = launcher_config;
   save_config(&state);
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct MemoryInfo {
+  pub total: u64,
+  pub used: u64,
+}
+
+#[tauri::command]
+pub fn get_memory_info() -> Result<MemoryInfo, String> {
+  let sys = systemstat::System::new();
+  match sys.memory() {
+    Ok(mem) => Ok(MemoryInfo {
+      total: mem.total.as_u64(),
+      used: saturating_sub_bytes(mem.total, mem.free).as_u64(),
+    }),
+    Err(e) => Err(e.to_string()),
+  }
 }
 
 static CONFIG_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
