@@ -36,7 +36,7 @@ pub async fn run() {
 
       app.manage(Mutex::new(launcher_config));
 
-      // 异步发送统计数据
+      // send statistics
       tokio::spawn(async move {
         let _ = send_statistics(version, os).await;
       });

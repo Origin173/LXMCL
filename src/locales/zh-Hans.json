@@ -178,7 +178,7 @@
       "title": "通用设置",
       "settings": {
         "language": {
-          "title": "语言"
+          "title": "语言（Language）"
         }
       }
     },
@@ -308,6 +308,10 @@
         "switchRole": "切换角色",
         "switchGame": "切换游戏实例"
       }
+    },
+    "Text": {
+      "noSelectedRole": "尚未选择角色",
+      "noSelectedGame": "尚未选择游戏实例"
     }
   },
   "NotFoundPage": {

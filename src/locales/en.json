@@ -308,6 +308,10 @@
         "switchRole": "Switch Role",
         "switchGame": "Switch Game"
       }
+    },
+    "Text": {
+      "noSelectedRole": "No role selected",
+      "noSelectedGame": "No game instance selected"
     }
   },
   "NotFoundPage": {

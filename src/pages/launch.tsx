@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Card,
+  Center,
   HStack,
   IconButton,
   IconButtonProps,
@@ -63,9 +64,10 @@ const LaunchPage = () => {
               />
               <VStack spacing={0} align="left" mt={-2}>
                 <Text
-                  fontSize="sm"
-                  className="no-select"
+                  fontSize="xs-sm"
+                  className="no-select ellipsis-text"
                   fontWeight="bold"
+                  w="90%"
                   mt={2}
                 >
                   {selectedRole.name}
@@ -82,25 +84,25 @@ const LaunchPage = () => {
               </VStack>
             </>
           ) : (
-            <Text fontSize="sm">尚未登录</Text>
+            <Center w="100%" h="100%">
+              <Text fontSize="sm" className="secondary-text no-select">
+                {t("LaunchPage.Text.noSelectedRole")}
+              </Text>
+            </Center>
           )}
         </HStack>
       </Card>
       <Box position="relative">
-        <Button
-          colorScheme={selectedGameInstance ? primaryColor : "blackAlpha"}
-          className={styles["launch-button"]}
-        >
-          <VStack spacing={1.5}>
+        <Button colorScheme="blackAlpha" className={styles["launch-button"]}>
+          <VStack spacing={1.5} w="100%">
             <Text fontSize="lg" fontWeight="bold">
               {t("LaunchPage.Button.launch")}
             </Text>
-            <Text fontSize="sm">
+            <Text fontSize="sm" className="ellipsis-text">
               {selectedGameInstance
                 ? selectedGameInstance.name
-                : "尚未选择游戏实例"}
-            </Text>{" "}
-            {/* TODO: use locales text after finish instance select logic */}
+                : t("LaunchPage.Text.noSelectedGame")}
+            </Text>
           </VStack>
         </Button>
 
