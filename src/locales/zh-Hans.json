@@ -135,6 +135,12 @@
       "content": "确定要删除游戏实例 “{{gameName}}” 吗？"
     }
   },
+  "DeleteRoleAlertDialog": {
+    "dialog": {
+      "title": "删除角色",
+      "content": "确定要删除角色 “{{name}}” 吗？"
+    }
+  },
   "Empty": {
     "nodata": "暂无数据"
   },

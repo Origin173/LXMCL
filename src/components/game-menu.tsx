@@ -7,8 +7,9 @@ import {
   MenuList,
   Text,
   Tooltip,
+  useDisclosure,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { LuEllipsis, LuSettings, LuTrash } from "react-icons/lu";
 import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
@@ -24,9 +25,13 @@ export const GameMenu: React.FC<GameMenuProps> = ({
   variant = "menu",
 }) => {
   const { t } = useTranslation();
-  const [isDeleteOpen, setDeleteOpen] = useState(false);
-  const onDeleteOpen = () => setDeleteOpen(true);
-  const onDeleteClose = () => setDeleteOpen(false);
+
+  const {
+    isOpen: isDeleteOpen,
+    onOpen: onDeleteOpen,
+    onClose: onDeleteClose,
+  } = useDisclosure();
+
   const handleDeleteConfirm = () => {
     console.log(`${game.name}`);
     onDeleteClose();

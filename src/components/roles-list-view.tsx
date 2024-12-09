@@ -1,7 +1,7 @@
 import { BoxProps, HStack, Image, Radio, RadioGroup } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { OptionItemGroup } from "@/components/common/option-item";
-import { RoleMenuBtnGroup } from "@/components/role-menu";
+import RoleMenu from "@/components/role-menu";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData, useDataDispatch } from "@/contexts/data";
 import { Role } from "@/models/account";
@@ -38,7 +38,7 @@ const RolesListView: React.FC<RolesListProps> = ({ roles, ...boxProps }) => {
         />
       </HStack>
     ),
-    children: <RoleMenuBtnGroup role={role} />,
+    children: <RoleMenu role={role} />,
   }));
 
   return (
