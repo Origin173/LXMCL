@@ -8,7 +8,6 @@ import {
   MenuOptionGroup,
   NumberInput,
   NumberInputField,
-  Progress,
   Slider,
   SliderFilledTrack,
   SliderThumb,
@@ -16,13 +15,17 @@ import {
   Switch,
   Text,
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuChevronDown } from "react-icons/lu";
 import {
   OptionItemGroup,
   OptionItemGroupProps,
 } from "@/components/common/option-item";
+import MemoryStatusProgress from "@/components/memory-status-progress";
 import { useLauncherConfig } from "@/contexts/config";
+import { MemoryInfo } from "@/models/misc";
+import { getMemoryInfo } from "@/services/utils";
 
 const GlobalGameSettingsPage = () => {
   const { t } = useTranslation();
@@ -43,6 +46,26 @@ const GlobalGameSettingsPage = () => {
     "always",
   ];
   const processPriority = ["low", "middle", "high"];
+
+  const [memoryInfo, setMemoryInfo] = useState<MemoryInfo>({
+    total: 0,
+    used: 0,
+  });
+  const maxMemCanAllocated = memoryInfo.total / 1024 / 1024;
+
+  const fetchMemoryInfo = async () => {
+    getMemoryInfo()
+      .then((info) => {
+        setMemoryInfo(info);
+      })
+      .catch((error) => {});
+  };
+
+  useEffect(() => {
+    fetchMemoryInfo();
+    const interval = setInterval(fetchMemoryInfo, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   const globalGameSettingGroups: OptionItemGroupProps[] = [
     {
@@ -135,8 +158,8 @@ const GlobalGameSettingsPage = () => {
                 children: (
                   <HStack spacing={2}>
                     <Slider
-                      min={1024}
-                      max={8192}
+                      min={256}
+                      max={maxMemCanAllocated || 8192}
                       step={16}
                       w={32}
                       colorScheme={primaryColor}
@@ -154,8 +177,8 @@ const GlobalGameSettingsPage = () => {
                       <SliderThumb />
                     </Slider>
                     <NumberInput
-                      min={1024}
-                      max={8192}
+                      min={256}
+                      max={maxMemCanAllocated || 8192}
                       size="xs"
                       maxW={16}
                       value={globalGameConfigs.performance.minMemAllocation}
@@ -173,30 +196,11 @@ const GlobalGameSettingsPage = () => {
                 ),
               },
             ]),
-        // TODO: adjust memory usage display style
-        // {
-        //   title: t(
-        //     "GlobalGameSettingsPage.performance.settings.memoryUsage.title"
-        //   ),
-        //   description: t(
-        //     "GlobalGameSettingsPage.performance.settings.memoryUsage.description",
-        //     {
-        //       usedMemory,
-        //       allocatedMemory,
-        //       totalMemory,
-        //     }
-        //   ),
-        //   children: (
-        //     <Progress
-        //       value={((usedMemory + allocatedMemory) / totalMemory) * 100}
-        //       max={100}
-        //       size="sm"
-        //       colorScheme={primaryColor}
-        //       width="100%"
-        //       mt={2}
-        //     />
-        //   ),
-        // },
+        <MemoryStatusProgress
+          key="mem"
+          memoryInfo={memoryInfo}
+          allocatedMemory={globalGameConfigs.performance.minMemAllocation}
+        />,
         {
           title: t(
             "GlobalGameSettingsPage.performance.settings.processPriority.title"
