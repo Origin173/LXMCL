@@ -24,8 +24,7 @@ import {
 import NavMenu from "@/components/common/nav-menu";
 import SegmentedControl from "@/components/common/segmented";
 import SelectableButton from "@/components/common/selectable-button";
-import RolesGridView from "@/components/roles-grid-view";
-import RolesListView from "@/components/roles-list-view";
+import RolesView from "@/components/roles-view";
 import { useLauncherConfig } from "@/contexts/config";
 import {
   AuthServer,
@@ -165,12 +164,10 @@ const AccountsPage = () => {
             </HStack>
           </Flex>
           <Box overflow="auto" flexGrow={1} mt={2.5}>
-            {selectedView === "grid" && (
-              <RolesGridView roles={filterRolesByType(selectedRoleType)} />
-            )}
-            {selectedView === "list" && (
-              <RolesListView roles={filterRolesByType(selectedRoleType)} />
-            )}
+            <RolesView
+              roles={filterRolesByType(selectedRoleType)}
+              viewType={selectedView}
+            />
           </Box>
         </Box>
       </GridItem>

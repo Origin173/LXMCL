@@ -8,18 +8,13 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuLayoutGrid, LuLayoutList, LuPlay, LuPlus } from "react-icons/lu";
 import SegmentedControl from "@/components/common/segmented";
-import GamesGridView from "@/components/games-grid-view";
-import GamesListView from "@/components/games-list-view";
+import GamesView from "@/components/games-view";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData, useDataDispatch } from "@/contexts/data";
-import {
-  GameInstanceSummary,
-  mockGameInstanceSummaryList,
-} from "@/models/game-instance";
 
 const AllGames = () => {
   const router = useRouter();
@@ -31,11 +26,6 @@ const AllGames = () => {
   const { selectedGameInstance, gameInstanceSummaryList } = useData();
   const { setSelectedGameInstance, setGameInstanceSummaryList } =
     useDataDispatch();
-
-  // useEffect(() => {
-  //   // TBD: only use mock data now
-  //   setGameInstanceSummaryList(mockGameInstanceSummaryList);
-  // }, []);
 
   const viewTypeList = [
     {
@@ -92,20 +82,7 @@ const AllGames = () => {
         </HStack>
       </Flex>
       <Box overflow="auto" flexGrow={1} mt={2.5}>
-        {selectedView === "grid" && (
-          <GamesGridView
-            games={gameInstanceSummaryList}
-            selectedGame={selectedGameInstance}
-            setSelectedGame={setSelectedGameInstance}
-          />
-        )}
-        {selectedView === "list" && (
-          <GamesListView
-            games={gameInstanceSummaryList}
-            selectedGame={selectedGameInstance}
-            setSelectedGame={setSelectedGameInstance}
-          />
-        )}
+        <GamesView games={gameInstanceSummaryList} viewType={selectedView} />
       </Box>
     </Box>
   );
