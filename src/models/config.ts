@@ -57,11 +57,6 @@ export interface LauncherConfig {
   globalGameConfig: GameConfig;
 }
 
-export interface MemoryInfo {
-  total: number;
-  used: number;
-}
-
 export const defaultGameConfig: GameConfig = {
   performance: {
     gameWindowResolution: {

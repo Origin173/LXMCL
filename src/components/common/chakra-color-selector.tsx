@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { FaCircleCheck, FaRegCircle } from "react-icons/fa6";
-import { ChakraColorEnums, ColorSelectorType } from "@/models/enums";
+import { ChakraColorEnums, ColorSelectorType } from "@/models/misc";
 
 interface ChakraColorSelectorProps extends BoxProps {
   current: string;
