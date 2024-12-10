@@ -11,9 +11,10 @@ import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { IconType } from "react-icons";
-import { LuBoxes, LuCirclePlus, LuSettings } from "react-icons/lu";
+import { LuBox, LuBoxes, LuCirclePlus, LuSettings } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import SelectableButton from "@/components/common/selectable-button";
+import { useData } from "@/contexts/data";
 
 interface GamesLayoutProps {
   children: React.ReactNode;
@@ -22,9 +23,15 @@ interface GamesLayoutProps {
 const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
   const router = useRouter();
   const { t } = useTranslation();
+  const { gameInstanceSummaryList } = useData();
 
-  const gameInstanceTypeList: { key: string; icon: IconType }[][] = [
-    [{ key: "game", icon: LuBoxes }],
+  const gameInstanceList: { key: string; icon: IconType; label: string }[] = [
+    { key: "all", icon: LuBoxes, label: t("AllGamesPage.title") },
+    ...gameInstanceSummaryList.map((item) => ({
+      key: `instance?id=${item.id}`,
+      icon: LuBox,
+      label: item.name,
+    })),
   ];
 
   return (
@@ -32,32 +39,32 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
       <GridItem className="content-full-y">
         <VStack align="stretch" h="100%" spacing={4}>
           <Box flex="1" overflowY="auto">
-            {gameInstanceTypeList.map((group, index) => (
-              <NavMenu
-                key={index}
-                selectedKeys={[router.asPath]}
-                onClick={(value) => {
-                  router.push(value);
-                }}
-                items={group.map((item) => ({
-                  label: (
-                    <HStack spacing={2} overflow="hidden">
-                      <Icon as={item.icon} />
-                      <Text fontSize="sm">
-                        {t(`GamesLayout.gamesDomainList.${item.key}`)}
-                      </Text>
-                    </HStack>
-                  ),
-                  value: `/games/${item.key}`,
-                }))}
-              />
-            ))}
+            <NavMenu
+              selectedKeys={[router.asPath]}
+              onClick={(value) => {
+                router.push(value);
+              }}
+              items={gameInstanceList.map((item) => ({
+                label: (
+                  <HStack spacing={2} overflow="hidden">
+                    <Icon as={item.icon} />
+                    <Text fontSize="sm" className="ellipsis-text">
+                      {item.label}
+                    </Text>
+                  </HStack>
+                ),
+                value: `/games/${item.key}`,
+                tooltip: item.key === "all" ? "" : item.label,
+              }))}
+            />
           </Box>
           <VStack mt="auto" align="strench" spacing={0.5}>
             <SelectableButton size="sm">
               <HStack spacing={2}>
                 <Icon as={LuCirclePlus} />
-                <Text fontSize="sm">{t("GamesPage.Button.addAndImport")}</Text>
+                <Text fontSize="sm">
+                  {t("AllGamesPage.Button.addAndImport")}
+                </Text>
               </HStack>
             </SelectableButton>
             <SelectableButton
@@ -69,7 +76,7 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
               <HStack spacing={2}>
                 <Icon as={LuSettings} />
                 <Text fontSize="sm">
-                  {t("GamesPage.Button.globalSettings")}
+                  {t("SettingsLayout.settingsDomainList.global-game")}
                 </Text>
               </HStack>
             </SelectableButton>

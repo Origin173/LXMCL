@@ -15,7 +15,7 @@ import GamesView from "@/components/games-view";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 
-const AllGames = () => {
+const AllGamesPage = () => {
   const router = useRouter();
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
@@ -28,12 +28,12 @@ const AllGames = () => {
     {
       key: "grid",
       icon: LuLayoutGrid,
-      tooltip: t("GamesPage.viewTypeList.grid"),
+      tooltip: t("AllGamesPage.viewTypeList.grid"),
     },
     {
       key: "list",
       icon: LuLayoutList,
-      tooltip: t("GamesPage.viewTypeList.list"),
+      tooltip: t("AllGamesPage.viewTypeList.list"),
     },
   ];
   return (
@@ -41,7 +41,7 @@ const AllGames = () => {
       <Flex alignItems="flex-start" flexShrink={0}>
         <VStack spacing={0} align="start">
           <Text fontWeight="bold" fontSize="sm" className="no-select">
-            {t("GamesLayout.gamesDomainList.game")}
+            {t("AllGamesPage.title")}
           </Text>
         </VStack>
         <HStack spacing={2} ml="auto" alignItems="flex-start">
@@ -65,7 +65,7 @@ const AllGames = () => {
             variant={primaryColor === "gray" ? "subtle" : "outline"}
             onClick={() => {}} // todo
           >
-            {t("GamesPage.Button.addAndImport")}
+            {t("AllGamesPage.Button.addAndImport")}
           </Button>
           <Button
             leftIcon={<LuPlay />}
@@ -74,7 +74,7 @@ const AllGames = () => {
             isDisabled={!selectedGameInstance}
             onClick={() => {}} // todo
           >
-            {t("GamesPage.Button.launch")}
+            {t("AllGamesPage.Button.launch")}
           </Button>
         </HStack>
       </Flex>
@@ -88,4 +88,4 @@ const AllGames = () => {
   );
 };
 
-export default AllGames;
+export default AllGamesPage;
