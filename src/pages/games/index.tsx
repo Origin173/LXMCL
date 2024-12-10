@@ -8,7 +8,7 @@ const GamesPage = () => {
 
   useEffect(() => {
     router.replace(
-      history.reverse().find((route) => route.startsWith("/games/")) ||
+      [...history].reverse().find((route) => route.startsWith("/games/")) ||
         "/games/all"
     );
   }, [history, router]);

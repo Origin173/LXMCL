@@ -8,7 +8,7 @@ const SettingsPage = () => {
 
   useEffect(() => {
     router.replace(
-      history.reverse().find((route) => route.startsWith("/settings/")) ||
+      [...history].reverse().find((route) => route.startsWith("/settings/")) ||
         "/settings/general"
     );
   }, [history, router]);
