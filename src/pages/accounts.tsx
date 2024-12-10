@@ -151,7 +151,7 @@ const AccountsPage = () => {
               </Button>
             </HStack>
           </Flex>
-          <Box overflow="auto" flexGrow={1} mt={2.5}>
+          <Box overflow="auto" flexGrow={1} mt={2.5} rounded="md">
             <RolesView
               roles={filterRolesByType(selectedRoleType)}
               viewType={selectedViewType}
