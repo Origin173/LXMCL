@@ -10,7 +10,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuCirclePlus,
@@ -26,29 +26,17 @@ import SegmentedControl from "@/components/common/segmented";
 import SelectableButton from "@/components/common/selectable-button";
 import RolesView from "@/components/roles-view";
 import { useLauncherConfig } from "@/contexts/config";
-import {
-  AuthServer,
-  Role,
-  mockAuthServerList,
-  mockRoleList,
-} from "@/models/account";
+import { useData } from "@/contexts/data";
 
 const AccountsPage = () => {
   const router = useRouter();
   const { t } = useTranslation();
-  const { config } = useLauncherConfig();
+  const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const selectedViewType = config.page.accounts.viewType;
 
-  const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
   const [selectedRoleType, setSelectedRoleType] = useState<string>("all");
-  const [roleList, setRoleList] = useState<Role[]>([]);
-  const [selectedView, setSelectedView] = useState<string>("grid");
-
-  useEffect(() => {
-    // TBD: only use mock data now
-    setAuthServerList(mockAuthServerList);
-    setRoleList(mockRoleList);
-  }, []);
+  const { roleList, authServerList } = useData();
 
   const roleTypeList = [
     {
@@ -141,9 +129,9 @@ const AccountsPage = () => {
             </VStack>
             <HStack spacing={2} ml="auto" alignItems="flex-start">
               <SegmentedControl
-                selected={selectedView}
+                selected={selectedViewType}
                 onSelectItem={(s) => {
-                  setSelectedView(s);
+                  update("page.accounts.viewType", s as string);
                 }}
                 size="2xs"
                 items={viewTypeList.map((item) => ({
@@ -166,7 +154,7 @@ const AccountsPage = () => {
           <Box overflow="auto" flexGrow={1} mt={2.5}>
             <RolesView
               roles={filterRolesByType(selectedRoleType)}
-              viewType={selectedView}
+              viewType={selectedViewType}
             />
           </Box>
         </Box>

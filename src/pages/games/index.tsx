@@ -8,24 +8,21 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuLayoutGrid, LuLayoutList, LuPlay, LuPlus } from "react-icons/lu";
 import SegmentedControl from "@/components/common/segmented";
 import GamesView from "@/components/games-view";
 import { useLauncherConfig } from "@/contexts/config";
-import { useData, useDataDispatch } from "@/contexts/data";
+import { useData } from "@/contexts/data";
 
 const AllGames = () => {
   const router = useRouter();
   const { t } = useTranslation();
-  const { config } = useLauncherConfig();
+  const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const selectedViewType = config.page.games.viewType;
 
-  const [selectedView, setSelectedView] = useState<string>("list");
   const { selectedGameInstance, gameInstanceSummaryList } = useData();
-  const { setSelectedGameInstance, setGameInstanceSummaryList } =
-    useDataDispatch();
 
   const viewTypeList = [
     {
@@ -49,9 +46,9 @@ const AllGames = () => {
         </VStack>
         <HStack spacing={2} ml="auto" alignItems="flex-start">
           <SegmentedControl
-            selected={selectedView}
+            selected={selectedViewType}
             onSelectItem={(s) => {
-              setSelectedView(s);
+              update("page.games.viewType", s as string);
             }}
             size="2xs"
             items={viewTypeList.map((item) => ({
@@ -82,7 +79,10 @@ const AllGames = () => {
         </HStack>
       </Flex>
       <Box overflow="auto" flexGrow={1} mt={2.5}>
-        <GamesView games={gameInstanceSummaryList} viewType={selectedView} />
+        <GamesView
+          games={gameInstanceSummaryList}
+          viewType={selectedViewType}
+        />
       </Box>
     </Box>
   );

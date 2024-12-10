@@ -122,7 +122,15 @@ structstruck::strike! {
         pub discover: bool,
       }
     },
-    pub global_game_config: GameConfig
+    pub global_game_config: GameConfig,
+    pub page: struct Page {
+      pub accounts: struct {
+        pub view_type: String
+      },
+      pub games: struct {
+        pub view_type: String
+      },
+    }
   }
 }
 
@@ -185,6 +193,14 @@ impl Default for LauncherConfig {
         optional_functions: OptionalFunctions { discover: false },
       },
       global_game_config: GameConfig::default(),
+      page: Page {
+        accounts: Accounts {
+          view_type: "grid".to_string(),
+        },
+        games: Games {
+          view_type: "list".to_string(),
+        },
+      },
     }
   }
 }

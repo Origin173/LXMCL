@@ -55,6 +55,14 @@ export interface LauncherConfig {
     };
   };
   globalGameConfig: GameConfig;
+  page: {
+    accounts: {
+      viewType: string;
+    };
+    games: {
+      viewType: string;
+    };
+  };
 }
 
 export const defaultGameConfig: GameConfig = {
@@ -114,4 +122,12 @@ export const defaultConfig: LauncherConfig = {
     },
   },
   globalGameConfig: defaultGameConfig,
+  page: {
+    accounts: {
+      viewType: "grid",
+    },
+    games: {
+      viewType: "list",
+    },
+  },
 };
