@@ -1,7 +1,7 @@
 import { BoxProps, HStack, Image, Radio, RadioGroup } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { OptionItemGroup } from "@/components/common/option-item";
-import { GameMenuBtnGroup } from "@/components/game-menu";
+import GameMenu from "@/components/game-menu";
 import { useLauncherConfig } from "@/contexts/config";
 import { GameInstanceSummary } from "@/models/game-instance";
 
@@ -39,7 +39,7 @@ const GamesListView: React.FC<GamesListProps> = ({
         />
       </HStack>
     ),
-    children: <GameMenuBtnGroup game={game} />,
+    children: <GameMenu game={game} />,
   }));
 
   return (

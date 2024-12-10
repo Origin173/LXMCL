@@ -129,6 +129,18 @@
       }
     }
   },
+  "DeleteGameAlertDialog": {
+    "dialog": {
+      "title": "删除游戏实例",
+      "content": "确定要删除游戏实例 “{{gameName}}” 吗？"
+    }
+  },
+  "DeleteRoleAlertDialog": {
+    "dialog": {
+      "title": "删除角色",
+      "content": "确定要删除角色 “{{name}}” 吗？"
+    }
+  },
   "Empty": {
     "nodata": "暂无数据"
   },
@@ -189,6 +201,12 @@
           "title": "发现页"
         }
       }
+    }
+  },
+  "GenericConfirmModal":{
+    "Button": {
+      "delete": "删除",
+      "cancel": "取消"
     }
   },
   "GlobalGameSettingsPage": {

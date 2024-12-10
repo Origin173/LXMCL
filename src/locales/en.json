@@ -129,6 +129,18 @@
       }
     }
   },
+  "DeleteGameAlertDialog": {
+    "dialog": {
+      "title": "Delete Game Instance",
+      "content": "Are you sure you want to delete the game instance \"{{gameName}}\" ?"
+    }
+  },
+  "DeleteRoleAlertDialog": {
+    "dialog": {
+      "title": "Delete Role",
+      "content": "Are you sure you want to delete the role \"{{name}}\" ?"
+    }
+  },
   "Empty": {
     "nodata": "No Data"
   },
@@ -189,6 +201,12 @@
           "title": "Discover Page"
         }
       }
+    }
+  },
+  "GenericConfirmModal":{
+    "Button": {
+      "delete": "Delete",
+      "cancel": "Cancel"
     }
   },
   "GlobalGameSettingsPage": {
