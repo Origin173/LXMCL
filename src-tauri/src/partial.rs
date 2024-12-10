@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub enum PartialError {
   NotFound,
   InvalidType,
