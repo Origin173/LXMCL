@@ -4,7 +4,7 @@ import { LuTrash } from "react-icons/lu";
 import { TbHanger } from "react-icons/tb";
 import { OptionItemGroup } from "@/components/common/option-item";
 import { RadioCardGroup } from "@/components/common/radio-card";
-import RoleMenu, { RoleMenuBtnGroup } from "@/components/role-menu";
+import RoleMenu from "@/components/role-menu";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData, useDataDispatch } from "@/contexts/data";
 import { Role } from "@/models/account";
@@ -51,7 +51,7 @@ const RolesView: React.FC<RolesViewProps> = ({
         />
       </HStack>
     ),
-    children: <RoleMenuBtnGroup role={role} />,
+    children: <RoleMenu role={role} variant="buttonGroup" />,
   }));
 
   const gridItems = roles.map((role) => ({
@@ -59,7 +59,7 @@ const RolesView: React.FC<RolesViewProps> = ({
     description:
       role.type === "offline"
         ? t("Enums.roleTypes.offline")
-        : `${t("Enums.roleTypes.3rdparty")} - ${role.authServer?.name} (${role.authAccount})`,
+        : role.authServer?.name || "",
     imageUrl: role.avatarUrl,
     isSelected: selectedRole?.uuid === role.uuid,
     prefixElement: (

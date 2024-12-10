@@ -30,9 +30,9 @@ export const RoleMenu: React.FC<RoleMenuProps> = ({
     onOpen: onDeleteOpen,
     onClose: onDeleteClose,
   } = useDisclosure();
-  const selectedRole = role;
+
   const handleDelete = () => {
-    console.log(`Deleting role with id: ${selectedRole.id}`);
+    console.log(`Deleting role with id: ${role.id}`);
     onDeleteClose();
   };
 
@@ -107,14 +107,14 @@ export const RoleMenu: React.FC<RoleMenuProps> = ({
         onClose={onDeleteClose}
         title={t("DeleteRoleAlertDialog.dialog.title")}
         body={t("DeleteRoleAlertDialog.dialog.content", {
-          name: selectedRole.name,
+          name: role.name,
         })}
         btnOK={t("GenericConfirmModal.Button.delete")}
         btnCancel={t("GenericConfirmModal.Button.cancel")}
         onOKCallback={() => {
           handleDelete();
         }}
-        isAlert={true}
+        isAlert
       />
     </>
   );

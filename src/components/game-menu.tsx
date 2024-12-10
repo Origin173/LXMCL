@@ -17,12 +17,12 @@ import { GameInstanceSummary } from "@/models/game-instance";
 
 interface GameMenuProps {
   game: GameInstanceSummary;
-  variant?: "menu" | "buttonGroup";
+  variant?: "dropdown" | "buttonGroup";
 }
 
 export const GameMenu: React.FC<GameMenuProps> = ({
   game,
-  variant = "menu",
+  variant = "dropdown",
 }) => {
   const { t } = useTranslation();
 
@@ -32,8 +32,8 @@ export const GameMenu: React.FC<GameMenuProps> = ({
     onClose: onDeleteClose,
   } = useDisclosure();
 
-  const handleDeleteConfirm = () => {
-    console.log(`${game.name}`);
+  const handleDelete = () => {
+    console.log(`${game.id}`);
     onDeleteClose();
   };
 
@@ -57,7 +57,7 @@ export const GameMenu: React.FC<GameMenuProps> = ({
 
   return (
     <>
-      {variant === "menu" ? (
+      {variant === "dropdown" ? (
         <Menu>
           <MenuButton
             as={IconButton}
@@ -111,8 +111,8 @@ export const GameMenu: React.FC<GameMenuProps> = ({
         })}
         btnOK={t("GenericConfirmModal.Button.delete")}
         btnCancel={t("GenericConfirmModal.Button.cancel")}
-        onOKCallback={handleDeleteConfirm}
-        isAlert={true}
+        onOKCallback={handleDelete}
+        isAlert
       />
     </>
   );
