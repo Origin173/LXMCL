@@ -29,3 +29,4 @@ tauri-plugin-http = "2"
 tauri-plugin-os = "2"
 tokio = { version = "1", features = ["full"] }
 systemstat = "0.2.3"
+partial_derive = { path = "./libs/partial_derive" }
