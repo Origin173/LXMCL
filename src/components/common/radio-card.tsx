@@ -7,10 +7,13 @@ import {
   VStack,
   Wrap,
   WrapItem,
+  useTheme,
 } from "@chakra-ui/react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { useLauncherConfig } from "@/contexts/config";
 
 export interface RadioCardProps extends BoxProps {
+  width?: string;
   title: string;
   description: string;
   imageUrl: string;
@@ -21,10 +24,13 @@ export interface RadioCardProps extends BoxProps {
 
 export interface RadioCardGroupProps extends BoxProps {
   title?: string;
+  minWidth: number;
+  spacing: number;
   items: (RadioCardProps | React.ReactNode)[];
 }
 
 export const RadioCard: React.FC<RadioCardProps> = ({
+  width = "10.45rem",
   title,
   description,
   imageUrl,
@@ -39,7 +45,7 @@ export const RadioCard: React.FC<RadioCardProps> = ({
   return (
     <Card
       className="content-card"
-      w="10.55rem"
+      w={width}
       borderColor={`${primaryColor}.500`}
       variant={isSelected ? "outline" : "elevated"}
       {...boxProps}
@@ -70,6 +76,8 @@ export const RadioCard: React.FC<RadioCardProps> = ({
 
 export const RadioCardGroup: React.FC<RadioCardGroupProps> = ({
   title,
+  minWidth,
+  spacing,
   items,
   ...boxProps
 }) => {
@@ -79,14 +87,43 @@ export const RadioCardGroup: React.FC<RadioCardGroupProps> = ({
       (item as RadioCardProps)?.children != null
     );
   }
+
+  const boxRef = useRef<HTMLDivElement>(null);
+  const theme = useTheme();
+  const spacingScale = theme.space[1] || "0.25rem";
+  const baseFontSize = theme.fontSizes.base || "16px";
+  const numberToPx = parseFloat(spacingScale) * parseInt(baseFontSize);
+  const [cardWidth, setCardWidth] = useState<string>(
+    `${minWidth * numberToPx}px`
+  );
+
+  const resizeCard = useCallback(() => {
+    if (boxRef.current) {
+      const boxWidth = boxRef.current.offsetWidth;
+      const cardPerRow = Math.floor(
+        (boxWidth + spacing * numberToPx) /
+          (minWidth * numberToPx + spacing * numberToPx)
+      );
+      const cardWidth = `${(boxWidth - spacing * numberToPx * cardPerRow) / cardPerRow}px`;
+      setCardWidth(cardWidth);
+    }
+  }, [boxRef, numberToPx, minWidth, spacing]);
+
+  useLayoutEffect(() => {
+    resizeCard();
+    window.addEventListener("resize", resizeCard);
+    return () => window.removeEventListener("resize", resizeCard);
+  }, [resizeCard]);
+
   return (
-    <Box {...boxProps}>
+    <Box {...boxProps} overflow="hidden" ref={boxRef}>
       {items.length > 0 && (
-        <Wrap spacing={3.5} {...boxProps}>
+        <Wrap spacing={spacing} {...boxProps}>
           {items.map((item, index) => (
             <WrapItem key={index}>
               {isRadioCardProps(item) ? (
                 <RadioCard
+                  width={cardWidth}
                   title={item.title}
                   description={item.description}
                   imageUrl={item.imageUrl}

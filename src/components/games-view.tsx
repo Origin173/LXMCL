@@ -66,7 +66,12 @@ const GamesView: React.FC<GamesViewProps> = ({
       {viewType === "list" ? (
         <OptionItemGroup items={listItems} {...boxProps} />
       ) : (
-        <RadioCardGroup items={gridItems} {...boxProps} />
+        <RadioCardGroup
+          items={gridItems}
+          {...boxProps}
+          minWidth={41.8}
+          spacing={3.5}
+        />
       )}
     </RadioGroup>
   );

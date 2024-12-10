@@ -127,7 +127,7 @@ const AccountsPage = () => {
                 </Text>
               )}
             </VStack>
-            <HStack spacing={2} ml="auto" alignItems="flex-start">
+            <HStack spacing={2} ml="auto" pr={3} alignItems="flex-start">
               <SegmentedControl
                 selected={selectedViewType}
                 onSelectItem={(s) => {
