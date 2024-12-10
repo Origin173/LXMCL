@@ -332,6 +332,14 @@
       "noSelectedGame": "No game instance selected"
     }
   },
+  "MemoryStatusProgress": {
+    "title": "Memory Status",
+    "info": "{{used}} / {{total}} GB used",
+    "label": {
+      "now": "In use",
+      "minAllocation": "Minimum allocated for Minecraft"
+    }
+  },
   "NotFoundPage": {
     "text": "Page not found, redirecting to launch page in {{seconds}} seconds..."
   },
