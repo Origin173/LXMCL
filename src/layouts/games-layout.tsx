@@ -24,7 +24,7 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
   const { t } = useTranslation();
 
   const gameInstanceTypeList: { key: string; icon: IconType }[][] = [
-    [{ key: "all", icon: LuBoxes }],
+    [{ key: "game", icon: LuBoxes }],
   ];
 
   return (
@@ -48,7 +48,7 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
                       </Text>
                     </HStack>
                   ),
-                  value: item.key === "all" ? "/games" : `/games/${item.key}`,
+                  value: `/games/${item.key}`,
                 }))}
               />
             ))}

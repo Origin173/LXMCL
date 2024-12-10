@@ -43,7 +43,7 @@ export default function App({ Component, pageProps }: AppProps) {
     layout: React.ComponentType<{ children: React.ReactNode }>;
   }[] = [
     { prefix: "/settings/", layout: SettingsLayout },
-    { prefix: "/games", layout: GamesLayout },
+    { prefix: "/games/", layout: GamesLayout },
   ];
 
   let SpecLayout: React.ComponentType<{ children: React.ReactNode }> =

@@ -171,7 +171,7 @@
   },
   "GamesLayout": {
     "gamesDomainList": {
-      "all": "All Instances"
+      "game": "All Instances"
     }
   },
   "GamesPage": {
