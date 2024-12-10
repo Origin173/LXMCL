@@ -9,6 +9,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { useRef } from "react";
+import { useLauncherConfig } from "@/contexts/config";
 
 interface GenericConfirmDialogProps {
   isOpen: boolean;
@@ -29,9 +30,11 @@ const GenericConfirmDialog: React.FC<GenericConfirmDialogProps> = ({
   btnOK,
   btnCancel,
   onOKCallback,
-  isAlert = true,
+  isAlert = false,
 }) => {
   const cancelRef = useRef<HTMLButtonElement>(null);
+  const { config } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
 
   return (
     <AlertDialog
@@ -50,7 +53,7 @@ const GenericConfirmDialog: React.FC<GenericConfirmDialogProps> = ({
               {btnCancel}
             </Button>
             <Button
-              colorScheme={isAlert ? "red" : "blue"}
+              colorScheme={isAlert ? "red" : primaryColor}
               onClick={onOKCallback}
               ml={2}
             >
