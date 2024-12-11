@@ -1,7 +1,13 @@
-import { BoxProps, HStack, Image, Radio, RadioGroup } from "@chakra-ui/react";
-import { LuSettings, LuTrash } from "react-icons/lu";
+import {
+  Box,
+  BoxProps,
+  HStack,
+  Image,
+  Radio,
+  RadioGroup,
+} from "@chakra-ui/react";
 import { OptionItemGroup } from "@/components/common/option-item";
-import { RadioCardGroup } from "@/components/common/radio-card";
+import { WrapCardGroup } from "@/components/common/wrap-card";
 import GameMenu from "@/components/game-menu";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData, useDataDispatch } from "@/contexts/data";
@@ -45,20 +51,19 @@ const GamesView: React.FC<GamesViewProps> = ({
   }));
 
   const gridItems = games.map((game) => ({
-    title: game.name,
-    description: game.description,
-    imageUrl: game.iconUrl,
+    cardContent: {
+      title: game.name,
+      description: game.description,
+      image: game.iconUrl,
+      extraContent: (
+        <Box position="absolute" top={0.5} right={1}>
+          <GameMenu game={game} />
+        </Box>
+      ),
+    },
     isSelected: selectedGameInstance?.uuid === game.uuid,
-    prefixElement: (
-      <Radio
-        value={game.uuid}
-        onClick={() => {
-          setSelectedGameInstance(game);
-        }}
-        colorScheme={primaryColor}
-      />
-    ),
-    children: <GameMenu game={game} />,
+    radioValue: game.uuid,
+    onSelect: () => setSelectedGameInstance(game),
   }));
 
   return (
@@ -66,12 +71,7 @@ const GamesView: React.FC<GamesViewProps> = ({
       {viewType === "list" ? (
         <OptionItemGroup items={listItems} {...boxProps} />
       ) : (
-        <RadioCardGroup
-          items={gridItems}
-          {...boxProps}
-          minWidth={41.8}
-          spacing={3.5}
-        />
+        <WrapCardGroup items={gridItems} variant="radio" {...boxProps} />
       )}
     </RadioGroup>
   );

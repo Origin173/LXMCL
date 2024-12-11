@@ -1,9 +1,14 @@
-import { BoxProps, HStack, Image, Radio, RadioGroup } from "@chakra-ui/react";
+import {
+  Box,
+  BoxProps,
+  HStack,
+  Image,
+  Radio,
+  RadioGroup,
+} from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { LuTrash } from "react-icons/lu";
-import { TbHanger } from "react-icons/tb";
 import { OptionItemGroup } from "@/components/common/option-item";
-import { RadioCardGroup } from "@/components/common/radio-card";
+import { WrapCardGroup } from "@/components/common/wrap-card";
 import RoleMenu from "@/components/role-menu";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData, useDataDispatch } from "@/contexts/data";
@@ -24,11 +29,6 @@ const RolesView: React.FC<RolesViewProps> = ({
   const primaryColor = config.appearance.theme.primaryColor;
   const { selectedRole } = useData();
   const { setSelectedRole } = useDataDispatch();
-
-  const menuOperations = [
-    { key: "skin", icon: TbHanger, onClick: () => {} },
-    { key: "delete", icon: LuTrash, danger: true, onClick: () => {} },
-  ];
 
   const listItems = roles.map((role) => ({
     title: role.name,
@@ -55,23 +55,22 @@ const RolesView: React.FC<RolesViewProps> = ({
   }));
 
   const gridItems = roles.map((role) => ({
-    title: role.name,
-    description:
-      role.type === "offline"
-        ? t("Enums.roleTypes.offline")
-        : role.authServer?.name || "",
-    imageUrl: role.avatarUrl,
+    cardContent: {
+      title: role.name,
+      description:
+        role.type === "offline"
+          ? t("Enums.roleTypes.offline")
+          : role.authServer?.name || "",
+      image: role.avatarUrl,
+      extraContent: (
+        <Box position="absolute" top={0.5} right={1}>
+          <RoleMenu role={role} />
+        </Box>
+      ),
+    },
     isSelected: selectedRole?.uuid === role.uuid,
-    prefixElement: (
-      <Radio
-        value={role.uuid}
-        onClick={() => {
-          setSelectedRole(role);
-        }}
-        colorScheme={primaryColor}
-      />
-    ),
-    children: <RoleMenu role={role} />,
+    onSelect: () => setSelectedRole(role),
+    radioValue: role.uuid,
   }));
 
   return (
@@ -79,12 +78,7 @@ const RolesView: React.FC<RolesViewProps> = ({
       {viewType === "list" ? (
         <OptionItemGroup items={listItems} {...boxProps} />
       ) : (
-        <RadioCardGroup
-          items={gridItems}
-          {...boxProps}
-          minWidth={41.8}
-          spacing={3.5}
-        />
+        <WrapCardGroup items={gridItems} variant="radio" {...boxProps} />
       )}
     </RadioGroup>
   );
