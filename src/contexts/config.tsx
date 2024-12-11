@@ -56,7 +56,7 @@ export const LauncherConfigContextProvider: React.FC<{
     updateByKeyPath(newConfig, path, value);
 
     // Save to the backend
-    updateLauncherConfig(newConfig)
+    updateLauncherConfig(path, value)
       .then(() => {
         setConfig(newConfig); // update frontend state if successful
       })

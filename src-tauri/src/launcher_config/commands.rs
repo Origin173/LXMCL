@@ -1,5 +1,6 @@
 use super::helpers::save_config;
 use super::models::{LauncherConfig, MemoryInfo};
+use crate::partial::{PartialError, PartialUpdate};
 use std::sync::Mutex;
 use systemstat::{saturating_sub_bytes, Platform};
 use tauri::State;
@@ -11,12 +12,21 @@ pub fn get_launcher_config(state: State<'_, Mutex<LauncherConfig>>) -> LauncherC
 
 #[tauri::command]
 pub fn update_launcher_config(
-  launcher_config: LauncherConfig,
+  key_path: String,
+  value: String,
   state: State<'_, Mutex<LauncherConfig>>,
-) {
+) -> Result<(), PartialError> {
+  let mut snake = String::new();
+  for (i, ch) in key_path.char_indices() {
+    if i > 0 && ch.is_uppercase() {
+      snake.push('_');
+    }
+    snake.push(ch.to_ascii_lowercase());
+  }
   let mut state = state.lock().unwrap();
-  *state = launcher_config;
+  state.update(&snake, &value)?;
   save_config(&state);
+  Ok(())
 }
 
 #[tauri::command]

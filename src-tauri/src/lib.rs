@@ -1,4 +1,5 @@
 mod launcher_config;
+mod partial;
 mod utils;
 
 use std::sync::Mutex;

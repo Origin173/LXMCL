@@ -1,3 +1,4 @@
+use partial_derive::Partial;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize)]
@@ -7,8 +8,17 @@ pub struct MemoryInfo {
   pub used: u64,
 }
 
+// Partial Derive is used for these structs and we can use it for key value storage.
+// And partially update some fields for better performance and hygiene.
+//
+// let mut config = GameConfig::new();
+// assert!(config.access("game_window_resolution.width").is_ok());
+// let result_game = config.update("game_window_resolution.width", 1920);
+// assert_eq!(result_game, Ok(()));
+// assert!(config.access("114514").is_err())
+//
 structstruck::strike! {
-  #[strikethrough[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]]
+  #[strikethrough[derive(Partial, Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]]
   #[strikethrough[serde(rename_all = "camelCase", deny_unknown_fields)]]
   pub struct GameConfig {
     pub performance: struct {
@@ -34,7 +44,7 @@ structstruck::strike! {
 }
 
 structstruck::strike! {
-  #[strikethrough[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]]
+  #[strikethrough[derive(Partial, Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]]
   #[strikethrough[serde(rename_all = "camelCase", deny_unknown_fields)]]
   pub struct LauncherConfig {
     pub version: String,

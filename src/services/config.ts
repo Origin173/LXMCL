@@ -17,15 +17,20 @@ export const getLauncherConfig = async (): Promise<LauncherConfig> => {
 
 /**
  * Updates the launcher configs.
- * @param {LauncherConfig} launcherConfig New config to update
+ * @param {string} keyPath The key path to update.
+ * @param {any} value The new value.
  * @returns {Promise<void>}
  * @throws {Error} If the backend call fails.
  */
 export const updateLauncherConfig = async (
-  launcherConfig: LauncherConfig
+  keyPath: string,
+  value: any
 ): Promise<void> => {
   try {
-    await invoke("update_launcher_config", { launcherConfig });
+    await invoke("update_launcher_config", {
+      keyPath,
+      value: JSON.stringify(value),
+    });
   } catch (error) {
     console.error("Error in update_launcher_config:", error);
     throw error;
