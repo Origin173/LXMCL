@@ -24,7 +24,7 @@ import {
 import NavMenu from "@/components/common/nav-menu";
 import SegmentedControl from "@/components/common/segmented";
 import SelectableButton from "@/components/common/selectable-button";
-import RolesView from "@/components/roles-view";
+import PlayersView from "@/components/players-view";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 
@@ -35,16 +35,16 @@ const AccountsPage = () => {
   const primaryColor = config.appearance.theme.primaryColor;
   const selectedViewType = config.page.accounts.viewType;
 
-  const [selectedRoleType, setSelectedRoleType] = useState<string>("all");
-  const { roleList, authServerList } = useData();
+  const [selectedPlayerType, setSelectedPlayerType] = useState<string>("all");
+  const { playerList, authServerList } = useData();
 
-  const roleTypeList = [
+  const playerTypeList = [
     {
       key: "all",
       icon: LuUsersRound,
-      label: t("AccountsPage.roleTypeList.all"),
+      label: t("AccountsPage.playerTypeList.all"),
     },
-    { key: "offline", icon: LuLink2Off, label: t("Enums.roleTypes.offline") },
+    { key: "offline", icon: LuLink2Off, label: t("Enums.playerTypes.offline") },
     ...authServerList.map((server) => ({
       key: server.authUrl,
       icon: LuServer,
@@ -65,17 +65,17 @@ const AccountsPage = () => {
     },
   ];
 
-  const filterRolesByType = (type: string) => {
+  const filterPlayersByType = (type: string) => {
     if (type === "all") {
-      return roleList;
+      return playerList;
     } else if (type === "offline") {
-      return roleList.filter((role) => role.type === "offline");
+      return playerList.filter((player) => player.type === "offline");
     } else {
-      return roleList.filter(
-        (role) =>
-          role.type === "3rdparty" &&
+      return playerList.filter(
+        (player) =>
+          player.type === "3rdparty" &&
           authServerList.find((server) => server.authUrl === type)?.authUrl ===
-            role.authServer?.authUrl
+            player.authServer?.authUrl
       );
     }
   };
@@ -86,11 +86,11 @@ const AccountsPage = () => {
         <VStack align="stretch" h="100%">
           <Box flex="1" overflowY="auto">
             <NavMenu
-              selectedKeys={[selectedRoleType]}
+              selectedKeys={[selectedPlayerType]}
               onClick={(value) => {
-                setSelectedRoleType(value);
+                setSelectedPlayerType(value);
               }}
-              items={roleTypeList.map((item) => ({
+              items={playerTypeList.map((item) => ({
                 label: (
                   <HStack spacing={2} overflow="hidden">
                     <Icon as={item.icon} />
@@ -117,13 +117,13 @@ const AccountsPage = () => {
             <VStack spacing={0} align="start">
               <Text fontWeight="bold" fontSize="sm" className="no-select">
                 {
-                  roleTypeList.find((item) => item.key === selectedRoleType)
+                  playerTypeList.find((item) => item.key === selectedPlayerType)
                     ?.label
                 }
               </Text>
-              {!["all", "offline"].includes(selectedRoleType) && (
+              {!["all", "offline"].includes(selectedPlayerType) && (
                 <Text fontSize="xs" className="secondary-text no-select">
-                  {selectedRoleType}
+                  {selectedPlayerType}
                 </Text>
               )}
             </VStack>
@@ -147,13 +147,13 @@ const AccountsPage = () => {
                 colorScheme={primaryColor}
                 onClick={() => {}} // todo
               >
-                {t("AccountsPage.Button.addRole")}
+                {t("AccountsPage.Button.addPlayer")}
               </Button>
             </HStack>
           </Flex>
           <Box overflow="auto" flexGrow={1} mt={2.5} rounded="md">
-            <RolesView
-              roles={filterRolesByType(selectedRoleType)}
+            <PlayersView
+              players={filterPlayersByType(selectedPlayerType)}
               viewType={selectedViewType}
             />
           </Box>

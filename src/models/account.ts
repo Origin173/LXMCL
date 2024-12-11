@@ -1,5 +1,5 @@
-// user role
-export interface Role {
+// player
+export interface Player {
   id: number;
   name: string;
   uuid: string;
@@ -25,7 +25,7 @@ export const mockAuthServerList: AuthServer[] = [
   },
 ];
 
-export const mockRoleList: Role[] = [
+export const mockPlayerList: Player[] = [
   {
     id: 1,
     name: "Unicorn",

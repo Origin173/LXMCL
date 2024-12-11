@@ -45,10 +45,10 @@
   },
   "AccountsPage": {
     "Button": {
-      "addRole": "Add Role",
+      "addPlayer": "Add Player",
       "add3rdPartySource": "Add 3rd-party Auth"
     },
-    "roleTypeList": {
+    "playerTypeList": {
       "all": "All Source"
     },
     "viewTypeList": {
@@ -159,10 +159,10 @@
       "content": "Are you sure you want to delete the game instance \"{{gameName}}\" ?"
     }
   },
-  "DeleteRoleAlertDialog": {
+  "DeletePlayerAlertDialog": {
     "dialog": {
-      "title": "Delete Role",
-      "content": "Are you sure you want to delete the role \"{{name}}\" ?"
+      "title": "Delete Player",
+      "content": "Are you sure you want to delete the player \"{{name}}\" ?"
     }
   },
   "Empty": {
@@ -181,7 +181,7 @@
       "purple": "Purple",
       "pink": "Pink"
     },
-    "roleTypes": {
+    "playerTypes": {
       "offline": "Offline Mode",
       "3rdparty": "The 3rd-party Authentication",
       "3rdpartyShort": "3rd-party Auth"
@@ -331,12 +331,12 @@
     },
     "SwitchButton": {
       "tooltip": {
-        "switchRole": "Switch Role",
+        "switchPlayer": "Switch Player",
         "switchGame": "Switch Game"
       }
     },
     "Text": {
-      "noSelectedRole": "No role selected",
+      "noSelectedPlayer": "No player selected",
       "noSelectedGame": "No game instance selected"
     }
   },
@@ -351,7 +351,7 @@
   "NotFoundPage": {
     "text": "Page not found, redirecting to launch page in {{seconds}} seconds..."
   },
-  "RoleMenu": {
+  "PlayerMenu": {
     "label": {
       "skin": "Manage Skin",
       "delete": "Delete"

@@ -40,7 +40,7 @@ const SwitchButton: React.FC<SwitchButtonProps> = ({ tooltip, ...props }) => {
 const LaunchPage = () => {
   const { t } = useTranslation();
   const router = useRouter();
-  const { selectedRole, selectedGameInstance } = useData();
+  const { selectedPlayer, selectedGameInstance } = useData();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 
@@ -48,19 +48,19 @@ const LaunchPage = () => {
     <HStack position="absolute" bottom={7} right={7} spacing={4}>
       <Card className={styles["selected-user-card"]}>
         <SwitchButton
-          tooltip={t("LaunchPage.SwitchButton.tooltip.switchRole")}
-          aria-label="switch-role"
+          tooltip={t("LaunchPage.SwitchButton.tooltip.switchPlayer")}
+          aria-label="switch-player"
           variant="subtle"
           onClick={() => router.push("/accounts")}
         />
         <HStack spacing={2.5} h="100%" w="100%">
-          {selectedRole ? (
+          {selectedPlayer ? (
             <>
               <Image
                 boxSize="32px"
                 objectFit="cover"
-                src={selectedRole.avatarUrl}
-                alt={selectedRole.name}
+                src={selectedPlayer.avatarUrl}
+                alt={selectedPlayer.name}
               />
               <VStack spacing={0} align="left" mt={-2}>
                 <Text
@@ -70,23 +70,23 @@ const LaunchPage = () => {
                   w="90%"
                   mt={2}
                 >
-                  {selectedRole.name}
+                  {selectedPlayer.name}
                 </Text>
                 <Text fontSize="2xs" className="secondary-text no-select">
                   {t(
-                    `Enums.roleTypes.${selectedRole.type === "3rdparty" ? "3rdpartyShort" : selectedRole.type}`
+                    `Enums.playerTypes.${selectedPlayer.type === "3rdparty" ? "3rdpartyShort" : selectedPlayer.type}`
                   )}
                 </Text>
                 <Text fontSize="2xs" className="secondary-text no-select">
-                  {selectedRole.type === "3rdparty" &&
-                    selectedRole.authServer?.name}
+                  {selectedPlayer.type === "3rdparty" &&
+                    selectedPlayer.authServer?.name}
                 </Text>
               </VStack>
             </>
           ) : (
             <Center w="100%" h="100%">
               <Text fontSize="sm" className="secondary-text no-select">
-                {t("LaunchPage.Text.noSelectedRole")}
+                {t("LaunchPage.Text.noSelectedPlayer")}
               </Text>
             </Center>
           )}

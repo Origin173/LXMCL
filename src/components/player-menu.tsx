@@ -13,15 +13,15 @@ import { useTranslation } from "react-i18next";
 import { LuEllipsis, LuTrash } from "react-icons/lu";
 import { TbHanger } from "react-icons/tb";
 import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
-import { Role } from "@/models/account";
+import { Player } from "@/models/account";
 
-interface RoleMenuProps {
-  role: Role;
+interface PlayerMenuProps {
+  player: Player;
   variant?: "dropdown" | "buttonGroup";
 }
 
-export const RoleMenu: React.FC<RoleMenuProps> = ({
-  role,
+export const PlayerMenu: React.FC<PlayerMenuProps> = ({
+  player,
   variant = "dropdown",
 }) => {
   const { t } = useTranslation();
@@ -32,11 +32,11 @@ export const RoleMenu: React.FC<RoleMenuProps> = ({
   } = useDisclosure();
 
   const handleDelete = () => {
-    console.log(`Deleting role with id: ${role.id}`);
+    console.log(`Deleting player with id: ${player.id}`);
     onDeleteClose();
   };
 
-  const roleMenuOperations = [
+  const playerMenuOperations = [
     {
       key: "skin",
       icon: TbHanger,
@@ -66,7 +66,7 @@ export const RoleMenu: React.FC<RoleMenuProps> = ({
             icon={<LuEllipsis />}
           />
           <MenuList>
-            {roleMenuOperations.map((item) => (
+            {playerMenuOperations.map((item) => (
               <MenuItem
                 key={item.key}
                 fontSize="xs"
@@ -75,7 +75,7 @@ export const RoleMenu: React.FC<RoleMenuProps> = ({
               >
                 <HStack>
                   <item.icon />
-                  <Text>{t(`RoleMenu.label.${item.key}`)}</Text>
+                  <Text>{t(`PlayerMenu.label.${item.key}`)}</Text>
                 </HStack>
               </MenuItem>
             ))}
@@ -83,9 +83,9 @@ export const RoleMenu: React.FC<RoleMenuProps> = ({
         </Menu>
       ) : (
         <HStack spacing={0}>
-          {roleMenuOperations.map((item) => (
+          {playerMenuOperations.map((item) => (
             <Tooltip
-              label={t(`RoleMenu.label.${item.key}`)}
+              label={t(`PlayerMenu.label.${item.key}`)}
               fontSize="sm"
               key={item.key}
             >
@@ -105,9 +105,9 @@ export const RoleMenu: React.FC<RoleMenuProps> = ({
       <GenericConfirmDialog
         isOpen={isDeleteOpen}
         onClose={onDeleteClose}
-        title={t("DeleteRoleAlertDialog.dialog.title")}
-        body={t("DeleteRoleAlertDialog.dialog.content", {
-          name: role.name,
+        title={t("DeletePlayerAlertDialog.dialog.title")}
+        body={t("DeletePlayerAlertDialog.dialog.content", {
+          name: player.name,
         })}
         btnOK={t("GenericConfirmModal.Button.delete")}
         btnCancel={t("GenericConfirmModal.Button.cancel")}
@@ -120,4 +120,4 @@ export const RoleMenu: React.FC<RoleMenuProps> = ({
   );
 };
 
-export default RoleMenu;
+export default PlayerMenu;

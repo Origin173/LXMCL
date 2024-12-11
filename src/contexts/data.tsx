@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   AuthServer,
-  Role,
+  Player,
   mockAuthServerList,
-  mockRoleList,
+  mockPlayerList,
 } from "@/models/account";
 import {
   GameInstanceSummary,
@@ -11,16 +11,16 @@ import {
 } from "@/models/game-instance";
 
 interface DataContextType {
-  roleList: Role[];
-  selectedRole: Role | undefined;
+  playerList: Player[];
+  selectedPlayer: Player | undefined;
   gameInstanceSummaryList: GameInstanceSummary[];
   selectedGameInstance: GameInstanceSummary | undefined;
   authServerList: AuthServer[];
 }
 
 interface DataDispatchContextType {
-  setRoleList: React.Dispatch<Role[]>;
-  setSelectedRole: React.Dispatch<Role | undefined>;
+  setPlayerList: React.Dispatch<Player[]>;
+  setSelectedPlayer: React.Dispatch<Player | undefined>;
   setGameInstanceSummaryList: React.Dispatch<GameInstanceSummary[]>;
   setSelectedGameInstance: React.Dispatch<GameInstanceSummary | undefined>;
   setAuthServerList: React.Dispatch<AuthServer[]>;
@@ -35,8 +35,8 @@ const DataDispatchContext = createContext<DataDispatchContextType | undefined>(
 export const DataContextProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const [roleList, setRoleList] = useState<Role[]>([]);
-  const [selectedRole, setSelectedRole] = useState<Role>();
+  const [playerList, setPlayerList] = useState<Player[]>([]);
+  const [selectedPlayer, setSelectedPlayer] = useState<Player>();
   const [gameInstanceSummaryList, setGameInstanceSummaryList] = useState<
     GameInstanceSummary[]
   >([]);
@@ -45,8 +45,8 @@ export const DataContextProvider: React.FC<{
   const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
 
   useEffect(() => {
-    setRoleList(mockRoleList);
-    setSelectedRole(mockRoleList[0]);
+    setPlayerList(mockPlayerList);
+    setSelectedPlayer(mockPlayerList[0]);
     setGameInstanceSummaryList(mockGameInstanceSummaryList);
     setSelectedGameInstance(mockGameInstanceSummaryList[0]);
     setAuthServerList(mockAuthServerList);
@@ -55,8 +55,8 @@ export const DataContextProvider: React.FC<{
   return (
     <DataContext.Provider
       value={{
-        roleList,
-        selectedRole,
+        playerList: playerList,
+        selectedPlayer: selectedPlayer,
         gameInstanceSummaryList,
         selectedGameInstance,
         authServerList,
@@ -64,8 +64,8 @@ export const DataContextProvider: React.FC<{
     >
       <DataDispatchContext.Provider
         value={{
-          setRoleList,
-          setSelectedRole,
+          setPlayerList: setPlayerList,
+          setSelectedPlayer: setSelectedPlayer,
           setGameInstanceSummaryList,
           setSelectedGameInstance,
           setAuthServerList,
