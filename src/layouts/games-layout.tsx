@@ -28,7 +28,7 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
   const gameInstanceList: { key: string; icon: IconType; label: string }[] = [
     { key: "all", icon: LuBoxes, label: t("AllGamesPage.title") },
     ...gameInstanceSummaryList.map((item) => ({
-      key: `instance?id=${item.id}`,
+      key: `instance/${item.id}`,
       icon: LuBox,
       label: item.name,
     })),

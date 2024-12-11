@@ -1,15 +1,15 @@
 import { useRouter } from "next/router";
 
-const GameInstanceDetailPage = () => {
+const InstanceDetailHomePage = () => {
   const router = useRouter();
 
   return (
     <div>
-      Game Instance Detail Page
+      Game Instance Home Page
       <br />
       ID: {router.query.id}
     </div>
   );
 };
 
-export default GameInstanceDetailPage;
+export default InstanceDetailHomePage;

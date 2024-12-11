@@ -1,4 +1,4 @@
-import { Tooltip, VStack } from "@chakra-ui/react";
+import { Stack, Tooltip } from "@chakra-ui/react";
 import React from "react";
 import SelectableButton from "@/components/common/selectable-button";
 
@@ -14,6 +14,7 @@ export interface NavMenuProps {
   onClick?: (value: any) => void;
   size?: string;
   spacing?: number;
+  direction?: "row" | "column";
 }
 
 const NavMenu: React.FC<NavMenuProps> = ({
@@ -22,12 +23,13 @@ const NavMenu: React.FC<NavMenuProps> = ({
   onClick,
   size = "sm",
   spacing = 0.5,
+  direction = "column",
 }) => {
   return (
-    <VStack spacing={spacing} align="stretch">
+    <Stack spacing={spacing} align="stretch" direction={direction}>
       {items.map((item) => (
         <Tooltip label={item.tooltip} placement="right" key={item.value}>
-          <VStack align="stretch">
+          <Stack align="stretch" direction="column">
             <SelectableButton
               key={item.value}
               size={size}
@@ -36,10 +38,10 @@ const NavMenu: React.FC<NavMenuProps> = ({
             >
               {item.label}
             </SelectableButton>
-          </VStack>
+          </Stack>
         </Tooltip>
       ))}
-    </VStack>
+    </Stack>
   );
 };
 
