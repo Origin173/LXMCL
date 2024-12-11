@@ -38,7 +38,6 @@ const AboutSettingsPage = () => {
               <LinkIconButton
                 url="/settings/contributors"
                 aria-label="contributors"
-                showTooltip
               />
             </HStack>
           ),

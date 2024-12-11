@@ -109,7 +109,8 @@
       "frontendDev": "Frontend Dev",
       "backendDev": "Backend Dev",
       "doc": "Documentation",
-      "ci": "CI / CD"
+      "cicd": "CI / CD",
+      "design": "Visual Design"
     }
   },
   "DownloadSettingPage": {

@@ -49,7 +49,15 @@ export const CoreContributorsList = [
   },
   {
     username: "pangbo13",
-    contribution: "ci",
+    contribution: "cicd",
+  },
+  {
+    username: "Neuteria",
+    contribution: "design",
+  },
+  {
+    username: "Stya-hr",
+    contribution: "design",
   },
 ];
 
