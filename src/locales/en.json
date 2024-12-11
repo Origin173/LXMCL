@@ -101,6 +101,17 @@
       }
     }
   },
+  "ContributorsPage": {
+    "all": "All Contributors List",
+    "core": "Main Contributors",
+    "contribution": {
+      "fullStackDev": "Full Stack Dev",
+      "frontendDev": "Frontend Dev",
+      "backendDev": "Backend Dev",
+      "doc": "Documentation",
+      "ci": "CI / CD"
+    }
+  },
   "DownloadSettingPage": {
     "source": {
       "title": "Source",

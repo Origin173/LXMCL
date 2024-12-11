@@ -1,3 +1,4 @@
+import { Avatar, AvatarGroup, HStack } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import LinkIconButton from "@/components/common/link-icon-button";
 import {
@@ -6,6 +7,7 @@ import {
 } from "@/components/common/option-item";
 import { TitleFull } from "@/components/logo-title";
 import { useLauncherConfig } from "@/contexts/config";
+import { CoreContributorsList } from "./contributors";
 
 const AboutSettingsPage = () => {
   const { t } = useTranslation();
@@ -23,13 +25,22 @@ const AboutSettingsPage = () => {
         {
           title: t("AboutSettingsPage.about.settings.contributors.title"),
           children: (
-            <LinkIconButton
-              url="https://github.com/UNIkeEN/SJMCL/graphs/contributors"
-              aria-label="contributors"
-              isExternal
-              showTooltip
-              h={18}
-            />
+            <HStack spacing={0.5}>
+              <AvatarGroup size="xs" spacing={-2}>
+                {CoreContributorsList.slice(0, 3).map((item) => (
+                  <Avatar
+                    key={item.username}
+                    name={item.username}
+                    src={`https://avatars.githubusercontent.com/${item.username}`}
+                  />
+                ))}
+              </AvatarGroup>
+              <LinkIconButton
+                url="/settings/contributors"
+                aria-label="contributors"
+                showTooltip
+              />
+            </HStack>
           ),
         },
         {

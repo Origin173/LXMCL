@@ -101,6 +101,17 @@
       }
     }
   },
+  "ContributorsPage": {
+    "all": "全部开发者名单",
+    "core": "主要开发者",
+    "contribution": {
+      "fullStackDev": "全栈开发",
+      "frontendDev": "前端开发",
+      "backendDev": "后端开发",
+      "doc": "文档",
+      "ci": "CI / CD"
+    }
+  },
   "DownloadSettingPage": {
     "source": {
       "title": "源",
