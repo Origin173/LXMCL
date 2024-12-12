@@ -66,14 +66,16 @@
     "header": {
       "title": "Add Authentication Server"
     },
+    "placeholder": {
+      "inputServerUrl": "Please enter the server address"
+    },
     "page1": {
       "serverUrl": "Server Address",
-      "inputServerUrl": "Please enter the server address",
       "serverUrlRequired": "Server address is required"
     },
     "page2": {
-      "name": "Name:",
-      "serverUrl": "Server Address:"
+      "name": "Name",
+      "serverUrl": "Server Address"
     },
     "button": {
       "cancel": "Cancel",

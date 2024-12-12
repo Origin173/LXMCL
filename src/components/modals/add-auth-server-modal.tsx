@@ -20,7 +20,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData, useDataDispatch } from "@/contexts/data";
-import { useToast as useCustomToast } from "@/contexts/toast";
+import { useToast } from "@/contexts/toast";
 import { AuthServer } from "@/models/account";
 
 interface AddAuthServerModalProps extends Omit<ModalProps, "children"> {}
@@ -33,12 +33,12 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   const { t } = useTranslation();
   const { authServerList } = useData();
   const { setAuthServerList } = useDataDispatch();
-  const toast = useCustomToast();
+  const toast = useToast();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 
   const [serverUrl, setServerUrl] = useState<string>("");
-  const [serverName] = useState<string>("XXXXXXXX");
+  const [serverName] = useState<string>("Mock Server Name");
   const [isNextStep, setIsNextStep] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -58,8 +58,6 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
       toast({
         title: t("AddAuthServerModal.toast.invalidServerUrl"),
         status: "error",
-        duration: 2000,
-        isClosable: true,
       });
       return;
     }
@@ -71,8 +69,6 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
       toast({
         title: t("AddAuthServerModal.toast.duplicateServer"),
         status: "error",
-        duration: 2000,
-        isClosable: true,
       });
       return;
     }
@@ -85,8 +81,6 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
       toast({
         title: t("AddAuthServerModal.toast.fillServer"),
         status: "error",
-        duration: 2000,
-        isClosable: true,
       });
       return;
     }
@@ -101,8 +95,6 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
       toast({
         title: t("AddAuthServerModal.toast.success"),
         status: "success",
-        duration: 2000,
-        isClosable: true,
       });
       onClose?.();
     }, 1000);
@@ -126,7 +118,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
               <Input
                 id="serverUrl"
                 type="url"
-                placeholder={t("AddAuthServerModal.page1.inputServerUrl")}
+                placeholder={t("AddAuthServerModal.placeholder.inputServerUrl")}
                 value={serverUrl}
                 onChange={(e) => setServerUrl(e.target.value)}
                 onBlur={() => setIsServerUrlTouched(true)}
