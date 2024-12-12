@@ -25,6 +25,7 @@ import {
 import NavMenu from "@/components/common/nav-menu";
 import SegmentedControl from "@/components/common/segmented";
 import SelectableButton from "@/components/common/selectable-button";
+import AddAuthServerModal from "@/components/modals/add-auth-server-modal";
 import AddPlayerModal from "@/components/modals/add-player-modal";
 import PlayersView from "@/components/players-view";
 import { useLauncherConfig } from "@/contexts/config";
@@ -39,6 +40,12 @@ const AccountsPage = () => {
 
   const [selectedPlayerType, setSelectedPlayerType] = useState<string>("all");
   const { playerList, authServerList } = useData();
+
+  const {
+    isOpen: isAddAuthServerModalOpen,
+    onOpen: onAddAuthServerModalOpen,
+    onClose: onAddAuthServerModalClose,
+  } = useDisclosure();
 
   const {
     isOpen: isAddPlayerModalOpen,
@@ -110,7 +117,11 @@ const AccountsPage = () => {
                 }))}
               />
             </Box>
-            <SelectableButton mt="auto" size="sm">
+            <SelectableButton
+              mt="auto"
+              size="sm"
+              onClick={onAddAuthServerModalOpen}
+            >
               <HStack spacing={2}>
                 <Icon as={LuCirclePlus} />
                 <Text fontSize="sm">
@@ -170,6 +181,11 @@ const AccountsPage = () => {
           </Box>
         </GridItem>
       </Grid>
+      <AddAuthServerModal
+        isOpen={isAddAuthServerModalOpen}
+        onClose={onAddAuthServerModalClose}
+        isCentered
+      />
       <AddPlayerModal
         isOpen={isAddPlayerModalOpen}
         onClose={onAddPlayerModalClose}
