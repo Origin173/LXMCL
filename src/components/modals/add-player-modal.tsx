@@ -58,22 +58,18 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
 
   useEffect(() => {
     setPlayerType(initialPlayerType);
+  }, [initialPlayerType]);
+
+  useEffect(() => {
     setAuthServerUrl(
       initialAuthServerUrl ||
         (authServerList.length > 0 ? authServerList[0].authUrl : "")
     );
-  }, [initialAuthServerUrl, initialPlayerType, authServerList]);
+  }, [initialAuthServerUrl, authServerList]);
 
   useEffect(() => {
     setPassword("");
   }, [playerType]);
-
-  useEffect(() => {
-    if (!isAddAuthServerModalOpen && authServerList.length > 0) {
-      setAuthServerUrl(authServerList[0].authUrl); // successfully add auth server, select it
-      setPlayerType("3rdparty");
-    }
-  }, [authServerList, isAddAuthServerModalOpen]);
 
   const playerTypeList = [
     {
