@@ -1,0 +1,431 @@
+{
+  "AboutSettingsPage": {
+    "about": {
+      "title": "關於",
+      "settings": {
+        "version": {
+          "title": "版本"
+        },
+        "contributors": {
+          "title": "開發者名單"
+        },
+        "reportIssue": {
+          "title": "報告問題"
+        },
+        "aboutSJMC": {
+          "title": "關於上海交通大學 Minecraft 社（SJMC）"
+        }
+      }
+    },
+    "ack": {
+      "title": "致謝",
+      "settings": {
+        "bmclapi": {
+          "title": "BMCLAPI",
+          "description": "感謝 @bangbang93 提供的高速下載源"
+        }
+      }
+    },
+    "legalInfo": {
+      "title": "法律信息",
+      "settings": {
+        "copyright": {
+          "title": "版權",
+          "description": "版權所有 © 2024 SJMCL 開發團隊."
+        },
+        "userAgreement": {
+          "title": "用戶協議"
+        },
+        "openSourceLicense": {
+          "title": "開源許可",
+          "description": "本項目遵循 GNU General Public License v3.0 協議"
+        }
+      }
+    }
+  },
+  "AccountsPage": {
+    "Button": {
+      "addPlayer": "添加角色",
+      "add3rdPartySource": "添加第三方認證源"
+    },
+    "playerTypeList": {
+      "all": "全部來源"
+    },
+    "viewTypeList": {
+      "grid": "網格視圖",
+      "list": "列表視圖"
+    }
+  },
+  "AddAuthServerModal": {
+    "toast": {
+      "duplicateServer": "伺服器已存在",
+      "success": "伺服器添加成功",
+      "invalidServerUrl": "無效的伺服器地址"
+    },
+    "header": {
+      "title": "添加認證伺服器"
+    },
+    "placeholder": {
+      "inputServerUrl": "請輸入伺服器地址"
+    },
+    "page1": {
+      "serverUrl": "伺服器地址",
+      "serverUrlRequired": "未輸入伺服器地址"
+    },
+    "page2": {
+      "name": "名稱",
+      "serverUrl": "伺服器地址"
+    },
+    "button": {
+      "cancel": "取消",
+      "previous": "上一步",
+      "finish": "完成",
+      "next": "下一步"
+    }
+  },
+  "AddPlayerModal": {
+    "modal": {
+      "header": "添加角色",
+      "confirm": "確定",
+      "cancel": "取消"
+    },
+    "label": {
+      "playerType": "角色類型",
+      "playerName": "角色名稱",
+      "authServer": "認證源",
+      "password": "密碼"
+    },
+    "authServer": {
+      "selectSource": "請選擇認證源",
+      "noSource": "未添加可用認證源伺服器",
+      "addSource": "添加認證源"
+    },
+    "placeholder": {
+      "playerName": "請輸入",
+      "password": "請輸入"
+    }
+  },
+  "AllGamesPage": {
+    "Button": {
+      "addAndImport": "添加與導入",
+      "globalSettings": "全局遊戲設置",
+      "launch": "啟動遊戲"
+    },
+    "viewTypeList": {
+      "grid": "網格視圖",
+      "list": "列表視圖"
+    },
+    "title": "全部實例"
+  },
+  "AppearanceSettingsPage": {
+    "theme": {
+      "title": "主題",
+      "settings": {
+        "primaryColor": {
+          "title": "啟動器強調色"
+        },
+        "headNavStyle": {
+          "title": "頂部導航欄樣式",
+          "type": {
+            "standard": "標準",
+            "simplified": "簡約"
+          }
+        }
+      }
+    },
+    "background": {
+      "title": "背景",
+      "settings": {
+        "preset": {
+          "title": "選擇預設"
+        }
+      },
+      "presetBgList": {
+        "Jokull": {
+          "name": "銀淞雪鎮"
+        },
+        "SJTU-eastgate": {
+          "name": "SJTU 紫氣東來門"
+        }
+      }
+    }
+  },
+  "ContributorsPage": {
+    "all": "全部開發者名單",
+    "core": "主要開發者",
+    "contribution": {
+      "fullStackDev": "全棧開發",
+      "frontendDev": "前端開發",
+      "backendDev": "後端開發",
+      "doc": "文檔",
+      "cicd": "CI / CD",
+      "design": "視覺設計"
+    }
+  },
+  "DownloadSettingPage": {
+    "source": {
+      "title": "源",
+      "settings": {
+        "strategy": {
+          "title": "下載源選擇策略",
+          "auto": "自動選擇",
+          "official": "官方源優先",
+          "mirror": "鏡像源優先"
+        }
+      }
+    },
+    "download": {
+      "title": "下載",
+      "settings": {
+        "autoConcurrent": {
+          "title": "自動選擇並發數"
+        },
+        "concurrentCount": {
+          "title": "並發數"
+        },
+        "enableSpeedLimit": {
+          "title": "限制下載速度"
+        },
+        "speedLimitValue": {
+          "title": "限速設置"
+        }
+      }
+    },
+    "cache": {
+      "title": "緩存",
+      "settings": {
+        "directory": {
+          "title": "下載緩存目錄",
+          "select": "修改",
+          "open": "打開"
+        }
+      }
+    }
+  },
+  "DeleteGameAlertDialog": {
+    "dialog": {
+      "title": "刪除遊戲實例",
+      "content": "確定要刪除遊戲實例 “{{gameName}}” 嗎？"
+    }
+  },
+  "DeletePlayerAlertDialog": {
+    "dialog": {
+      "title": "刪除角色",
+      "content": "確定要刪除角色 “{{name}}” 嗎？"
+    }
+  },
+  "Empty": {
+    "nodata": "暫無數據"
+  },
+  "Enums": {
+    "chakraColors": {
+      "gray": "灰色",
+      "red": "紅色",
+      "orange": "橙色",
+      "yellow": "黃色",
+      "green": "綠色",
+      "teal": "藍綠色",
+      "blue": "藍色",
+      "cyan": "青色",
+      "purple": "紫色",
+      "pink": "粉色"
+    },
+    "playerTypes": {
+      "offline": "離線模式",
+      "3rdparty": "第三方認證",
+      "3rdpartyShort": "第三方認證"
+    }
+  },
+  "GameMenu": {
+    "label": {
+      "settings": "實例設置",
+      "delete": "刪除實例"
+    }
+  },
+  "GeneralSettingsPage": {
+    "general": {
+      "title": "通用設置",
+      "settings": {
+        "language": {
+          "title": "語言（Language）"
+        }
+      }
+    },
+    "functions": {
+      "title": "功能",
+      "settings": {
+        "discover": {
+          "title": "發現頁"
+        }
+      }
+    }
+  },
+  "GenericConfirmModal":{
+    "Button": {
+      "delete": "刪除",
+      "cancel": "取消"
+    }
+  },
+  "GlobalGameSettingsPage": {
+    "performance": {
+      "title": "性能",
+      "settings": {
+        "gameWindowResolution": {
+          "title": "遊戲窗口分辨率",
+          "switch": "全屏"
+        },
+        "autoMemAllocation": {
+          "title": "自動分配內存"
+        },
+        "minMemAllocation": {
+          "title": "最小內存分配"
+        },
+        "memoryUsage": {
+          "title": "內存佔用情況",
+          "description": "已用內存{{usedMemory}}GB；遊戲分配{{allocatedMemory}}GB；總內存{{totalMemory}}GB"
+        },
+        "processPriority": {
+          "title": "進程優先級",
+          "low": "低",
+          "middle": "中",
+          "high": "高"
+        }
+      }
+    },
+    "versionIsolation": {
+      "title": "版本隔離",
+      "settings": {
+        "enabled": {
+          "title": "啟用版本隔離"
+        },
+        "isolationStrategy": {
+          "title": "隔離策略",
+          "off": "關閉",
+          "full": "全部隔離",
+          "modable": "隔離可安裝 Mod 版本",
+          "informal": "隔離非正式版",
+          "modable-and-informal": "隔離可安裝 Mod 版本與非正式版"
+        }
+      }
+    },
+    "moreOptions": {
+      "title": "更多選項",
+      "settings": {
+        "launcherVisibility": {
+          "title": "啟動器可見性",
+          "start-close": "遊戲啟動後結束啟動器",
+          "running-hidden": "遊戲運行時隱藏啟動器",
+          "always": "啟動器始終可見"
+        },
+        "displayGameLog": {
+          "title": "顯示遊戲日誌"
+        },
+        "enableAdvancedOptions": {
+          "title": "啟用高級選項"
+        }
+      }
+    }
+  },
+  "HeadNavBar": {
+    "navList": {
+      "launch": "啟動",
+      "games": "遊戲",
+      "accounts": "賬戶",
+      "discover": "發現",
+      "settings": "設置"
+    }
+  },
+  "HelpSettingsPage": {
+    "community": {
+      "title": "高校玩家社區",
+      "settings": {
+        "MUA": {
+          "title": "Minecraft 高校聯盟 (MUA)",
+          "description": "和全國各高校的玩家一起遊玩"
+        },
+        "SJMC": {
+          "title": "上海交通大學 Minecraft 社 (SJMC)"
+        }
+      }
+    },
+    "minecraft": {
+      "title": "Minecraft",
+      "settings": {
+        "mcWiki": {
+          "title": "中文 Minecraft Wiki",
+          "description": "最詳細的 Minecraft 百科全書",
+          "url": "https://zh.minecraft.wiki/"
+        },
+        "mcMod": {
+          "title": "MCMod",
+          "description": "Minecraft 模組中文百科"
+        },
+        "curseforge": {
+          "title": "CurseForge",
+          "description": "探索世界上最大的 Minecraft 模組存儲庫"
+        }
+      }
+    },
+    "top": {
+      "settings": {
+        "LauncherDocs": {
+          "title": "SJMC Launcher 文檔"
+        }
+      }
+    }
+  },
+  "LaunchPage": {
+    "Button": {
+      "launch": "啟動遊戲"
+    },
+    "SwitchButton": {
+      "tooltip": {
+        "switchPlayer": "切換角色",
+        "switchGame": "切換遊戲實例"
+      }
+    },
+    "Text": {
+      "noSelectedPlayer": "尚未選擇角色",
+      "noSelectedGame": "尚未選擇遊戲實例"
+    }
+  },
+  "MemoryStatusProgress": {
+    "title": "內存狀態",
+    "info": "{{used}} / {{total}} GB 已使用",
+    "label": {
+      "now": "正在使用",
+      "minAllocation": "為 Minecraft 分配的最小值"
+    }
+  },
+  "NotFoundPage": {
+    "text": "頁面不存在，即將在 {{seconds}} 秒後跳轉"
+  },
+  "PlayerMenu": {
+    "label": {
+      "skin": "管理皮膚",
+      "delete": "刪除此角色"
+    }
+  },
+  "Services": {
+    "config": {
+      "getLauncherConfig": {
+        "error": "獲取啟動器設置失敗"
+      },
+      "updateLauncherConfig": {
+        "error": "更新啟動器設置失敗"
+      }
+    }
+  },
+  "SettingsLayout": {
+    "settingsDomainList": {
+      "global-game": "全局遊戲設置",
+      "java": "Java",
+      "general": "通用",
+      "appearance": "外觀",
+      "download": "下載資源",
+      "help": "文檔與幫助",
+      "about": "關於",
+      "dev-test": "開發 - 測試頁"
+    }
+  }
+}
