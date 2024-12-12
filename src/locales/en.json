@@ -56,6 +56,34 @@
       "list": "List View"
     }
   },
+  "AddAuthServerModal": {
+    "toast": {
+      "duplicateServer": "Server already exists",
+      "fillServer": "Please enter the server address",
+      "success": "Successfully added new server",
+      "invalidServerUrl": "Invalid server address"
+    },
+    "header": {
+      "title": "Add Authentication Server"
+    },
+    "placeholder": {
+      "inputServerUrl": "Please enter the server address"
+    },
+    "page1": {
+      "serverUrl": "Server Address",
+      "serverUrlRequired": "Server address is required"
+    },
+    "page2": {
+      "name": "Name",
+      "serverUrl": "Server Address"
+    },
+    "button": {
+      "cancel": "Cancel",
+      "previous": "Previous",
+      "finish": "Finish",
+      "next": "Next"
+    }
+  },
   "AddPlayerModal": {
     "modal": {
       "header": "Add Player",
