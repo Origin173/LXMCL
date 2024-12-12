@@ -54,14 +54,6 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   }, [isOpen]);
 
   const handleNextStep = () => {
-    if (!serverUrl) {
-      toast({
-        title: t("AddAuthServerModal.toast.invalidServerUrl"),
-        status: "error",
-      });
-      return;
-    }
-
     const isDuplicate = authServerList.some(
       (server) => server.authUrl === serverUrl
     );
@@ -73,31 +65,22 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
       return;
     }
 
-    setIsNextStep(true);
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      setIsNextStep(true);
+    }, 1000);
   };
 
   const handleFinish = () => {
-    if (!serverUrl) {
-      toast({
-        title: t("AddAuthServerModal.toast.fillServer"),
-        status: "error",
-      });
-      return;
-    }
-
     const newServer: AuthServer = { name: serverName, authUrl: serverUrl };
 
-    setIsLoading(true);
     setAuthServerList([...authServerList, newServer]);
-
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: t("AddAuthServerModal.toast.success"),
-        status: "success",
-      });
-      onClose?.();
-    }, 1000);
+    toast({
+      title: t("AddAuthServerModal.toast.success"),
+      status: "success",
+    });
+    onClose?.();
   };
 
   return (
@@ -106,7 +89,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
       <ModalContent>
         <ModalHeader>{t("AddAuthServerModal.header.title")}</ModalHeader>
         <ModalCloseButton />
-        <ModalBody p={6}>
+        <ModalBody>
           {!isNextStep ? (
             <FormControl isInvalid={isServerUrlInvalid}>
               <FormLabel htmlFor="serverUrl">
@@ -130,21 +113,25 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
               )}
             </FormControl>
           ) : (
-            <VStack spacing={4} align="flex-start">
+            <VStack spacing={3.5} align="flex-start">
               <HStack spacing={2}>
-                <Text>{t("AddAuthServerModal.page2.name")}</Text>
-                <Text fontWeight="bold">{serverName}</Text>
+                <Text fontWeight={500}>
+                  {t("AddAuthServerModal.page2.name")}
+                </Text>
+                <Text>{serverName}</Text>
               </HStack>
               <HStack spacing={2}>
-                <Text>{t("AddAuthServerModal.page2.serverUrl")}</Text>
-                <Text fontWeight="bold">{serverUrl}</Text>
+                <Text fontWeight={500}>
+                  {t("AddAuthServerModal.page2.serverUrl")}
+                </Text>
+                <Text>{serverUrl}</Text>
               </HStack>
             </VStack>
           )}
         </ModalBody>
 
         <ModalFooter>
-          <HStack spacing={3.5} ml="auto">
+          <HStack spacing={3} ml="auto">
             <Button variant="ghost" onClick={onClose}>
               {t("AddAuthServerModal.button.cancel")}
             </Button>
@@ -153,11 +140,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
                 <Button variant="ghost" onClick={() => setIsNextStep(false)}>
                   {t("AddAuthServerModal.button.previous")}
                 </Button>
-                <Button
-                  colorScheme={primaryColor}
-                  onClick={handleFinish}
-                  isLoading={isLoading}
-                >
+                <Button colorScheme={primaryColor} onClick={handleFinish}>
                   {t("AddAuthServerModal.button.finish")}
                 </Button>
               </>
@@ -165,6 +148,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
               <Button
                 colorScheme={primaryColor}
                 onClick={handleNextStep}
+                isLoading={isLoading}
                 isDisabled={!serverUrl}
               >
                 {t("AddAuthServerModal.button.next")}

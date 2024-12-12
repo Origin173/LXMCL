@@ -59,7 +59,6 @@
   "AddAuthServerModal": {
     "toast": {
       "duplicateServer": "服务器已存在",
-      "fillServer": "请输入服务器地址",
       "success": "服务器添加成功",
       "invalidServerUrl": "无效的服务器地址"
     },
@@ -71,7 +70,7 @@
     },
     "page1": {
       "serverUrl": "服务器地址",
-      "serverUrlRequired": "未输入服务器地址"
+      "serverUrlRequired": "必填字段"
     },
     "page2": {
       "name": "名称",
@@ -102,8 +101,8 @@
       "addSource": "添加认证源"
     },
     "placeholder": {
-      "playerName": "请输入",
-      "password": "请输入"
+      "playerName": "请输入用户名",
+      "password": "请输入密码"
     }
   },
   "AllGamesPage": {

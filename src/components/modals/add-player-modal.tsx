@@ -20,11 +20,13 @@ import {
   ModalProps,
   Stack,
   Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuChevronDown, LuLink2Off, LuPlus, LuServer } from "react-icons/lu";
 import SegmentedControl from "@/components/common/segmented";
+import AddAuthServerModal from "@/components/modals/add-auth-server-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { AuthServer } from "@/models/account";
@@ -48,6 +50,12 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 
+  const {
+    isOpen: isAddAuthServerModalOpen,
+    onOpen: onAddAuthServerModalOpen,
+    onClose: onAddAuthServerModalClose,
+  } = useDisclosure();
+
   useEffect(() => {
     setPlayerType(initialPlayerType);
     setAuthServerUrl(
@@ -59,6 +67,13 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   useEffect(() => {
     setPassword("");
   }, [playerType]);
+
+  useEffect(() => {
+    if (!isAddAuthServerModalOpen && authServerList.length > 0) {
+      setAuthServerUrl(authServerList[0].authUrl); // successfully add auth server, select it
+      setPlayerType("3rdparty");
+    }
+  }, [authServerList, isAddAuthServerModalOpen]);
 
   const playerTypeList = [
     {
@@ -116,7 +131,11 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                 {authServerList.length === 0 ? (
                   <Stack direction="row" align="center">
                     <Text>{t("AddPlayerModal.authServer.noSource")}</Text>
-                    <Button variant="ghost" colorScheme={primaryColor}>
+                    <Button
+                      variant="ghost"
+                      colorScheme={primaryColor}
+                      onClick={onAddAuthServerModalOpen}
+                    >
                       <LuPlus />
                       <Text ml={1}>
                         {t("AddPlayerModal.authServer.addSource")}
@@ -214,6 +233,11 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
           </Button>
         </ModalFooter>
       </ModalContent>
+      <AddAuthServerModal
+        isOpen={isAddAuthServerModalOpen}
+        onClose={onAddAuthServerModalClose}
+        isCentered
+      />
     </Modal>
   );
 };
