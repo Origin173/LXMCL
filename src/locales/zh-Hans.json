@@ -431,5 +431,21 @@
       "about": "关于",
       "dev-test": "开发 - 测试页"
     }
+  },
+  "SyncAndRestoreSettingsPage": {
+    "launcherConfig": {
+      "title": "启动器设置",
+      "settings": {
+        "internetSync": {
+          "title": "联网同步",
+          "begin": "开始"
+        },
+        "resetAllSettings": {
+          "title": "还原所有设置",
+          "description": "将所有启动器设置还原为默认值",
+          "reset": "还原"
+        }
+      }
+    }
   }
 }

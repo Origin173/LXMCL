@@ -427,5 +427,21 @@
       "about": "關於",
       "dev-test": "開發 - 測試頁"
     }
+  },
+  "SyncAndRestoreSettingsPage": {
+    "launcherConfig": {
+      "title": "啟動器設定",
+      "settings": {
+        "internetSync": {
+          "title": "網路同步",
+          "begin": "開始"
+        },
+        "resetAllSettings": {
+          "title": "還原所有設定",
+          "description": "將所有啟動器設定還原為預設值",
+          "reset": "還原"
+        }
+      }
+    }
   }
 }

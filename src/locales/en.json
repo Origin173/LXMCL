@@ -431,5 +431,21 @@
       "about": "About",
       "dev-test": "Dev - Test Page"
     }
+  },
+  "SyncAndRestoreSettingsPage": {
+    "launcherConfig": {
+      "title": "Launcher Settings",
+      "settings": {
+        "internetSync": {
+          "title": "Internet Sync",
+          "begin": "Start"
+        },
+        "resetAllSettings": {
+          "title": "Reset All Settings",
+          "description": "Restore all launcher settings to their default values",
+          "reset": "Reset"
+        }
+      }
+    }
   }
 }
