@@ -150,6 +150,9 @@
       }
     }
   },
+  "ComingSoonSign": {
+    "text": "This page is not available yet, coming soon!"
+  },
   "ContributorsPage": {
     "all": "All Contributors List",
     "core": "Main Contributors",
@@ -423,6 +426,7 @@
       "general": "General",
       "appearance": "Appearance",
       "download": "Download",
+      "sync-restore": "Sync & Restore",
       "help": "Docs & Help",
       "about": "About",
       "dev-test": "Dev - Test Page"

@@ -1,5 +1,7 @@
+import ComingSoonSign from "@/components/common/coming-soon";
+
 export const DiscoverPage = () => {
-  return <div>Discover Page</div>;
+  return <ComingSoonSign />;
 };
 
 export default DiscoverPage;

@@ -19,7 +19,7 @@ import { isProd } from "@/utils/env";
 
 i18n.use(initReactI18next).init({
   resources: localeResources,
-  fallbackLng: "zh-Hans",
+  fallbackLng: "en",
   lng: "zh-Hans",
   interpolation: {
     escapeValue: false,

@@ -5,19 +5,19 @@ import {
   OptionItemGroupProps,
 } from "@/components/common/option-item";
 
-const JavaSettingsPage = () => {
+const SyncAndRestoreSettingsPage = () => {
   const { t } = useTranslation();
 
-  const javaSettingGroups: OptionItemGroupProps[] = [
+  const syncAndRestoreSettingGroups: OptionItemGroupProps[] = [
     {
-      title: t("JavaSettingsPage.java.title"),
+      title: t("SyncAndRestoreSettingsPage.launcherConfig.title"),
       items: [],
     },
   ];
 
   return (
     <>
-      {javaSettingGroups.map((group, index) => (
+      {syncAndRestoreSettingGroups.map((group, index) => (
         <OptionItemGroup title={group.title} items={group.items} key={index} />
       ))}
       <ComingSoonSign />
@@ -25,4 +25,4 @@ const JavaSettingsPage = () => {
   );
 };
 
-export default JavaSettingsPage;
+export default SyncAndRestoreSettingsPage;

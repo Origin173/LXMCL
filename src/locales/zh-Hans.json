@@ -150,6 +150,9 @@
       }
     }
   },
+  "ComingSoonSign": {
+    "text": "该页面暂未开放，敬请期待"
+  },
   "ContributorsPage": {
     "all": "全部开发者名单",
     "core": "主要开发者",
@@ -423,6 +426,7 @@
       "general": "通用",
       "appearance": "外观",
       "download": "下载资源",
+      "sync-restore": "同步与还原",
       "help": "文档与帮助",
       "about": "关于",
       "dev-test": "开发 - 测试页"

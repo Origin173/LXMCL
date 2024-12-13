@@ -11,6 +11,7 @@ import {
   LuGamepad2,
   LuInfo,
   LuPalette,
+  LuRefreshCcw,
   LuSettings,
 } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
@@ -33,6 +34,7 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
       { key: "general", icon: LuSettings },
       { key: "appearance", icon: LuPalette },
       { key: "download", icon: LuCloudDownload },
+      { key: "sync-restore", icon: LuRefreshCcw },
       { key: "help", icon: LuCircleHelp },
       { key: "about", icon: LuInfo },
     ],
