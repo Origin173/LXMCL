@@ -150,6 +150,9 @@
       }
     }
   },
+  "ComingSoonSign": {
+    "text": "該頁面暫未開放，敬請期待"
+  },
   "ContributorsPage": {
     "all": "全部開發者名單",
     "core": "主要開發者",
@@ -374,9 +377,18 @@
       }
     }
   },
-  "InstancePage": {
-    "tabs": {
-      "home": "主頁"
+  "InstanceLayout": {
+    "instanceTabList": {
+      "overview": "概覽",
+      "worlds": "世界",
+      "mods": "模組",
+      "resourcepacks": "資源包",
+      "shaderpacks": "光影",
+      "screenshots": "截圖",
+      "settings": "設置"
+    },
+    "Button": {
+      "launch": "启动实例"
     }
   },
   "LaunchPage": {
@@ -412,19 +424,21 @@
     }
   },
   "RestoreConfigConfirmDialog": {
-    "success": "設定已成功還原。",
-    "failure": "還原設定失敗，請重試。",
     "title": "確認還原設定",
     "body": "此操作將重置所有啟動器設定為預設值。確定要繼續嗎？",
-    "ok": "確認"
+    "btnOk": "确定"
   },
   "Services": {
     "config": {
       "getLauncherConfig": {
-        "error": "獲取啟動器設置失敗"
+        "error": "获取启动器设置失败"
       },
       "updateLauncherConfig": {
-        "error": "更新啟動器設置失敗"
+        "error": "更新启动器设置失败"
+      },
+      "restoreLauncherConfig": {
+        "success": "设置已成功还原",
+        "error": "还原设置失败，请重试"
       }
     }
   },
@@ -435,6 +449,7 @@
       "general": "通用",
       "appearance": "外觀",
       "download": "下載資源",
+      "sync-restore": "同步与还原",
       "help": "文檔與幫助",
       "about": "關於",
       "dev-test": "開發 - 測試頁"
@@ -448,10 +463,10 @@
           "title": "網路同步",
           "begin": "開始"
         },
-        "resetAllSettings": {
-          "title": "還原所有設定",
-          "description": "將所有啟動器設定還原為預設值",
-          "reset": "還原"
+        "restoreAll": {
+          "title": "还原所有设置",
+          "description": "将所有启动器设置还原为默认值",
+          "restore": "还原"
         }
       }
     }
