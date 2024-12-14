@@ -27,6 +27,7 @@ tauri-plugin-shell = "2"
 structstruck = "0.4.1"
 tauri-plugin-http = "2"
 tauri-plugin-os = "2"
+termcolor = "1.2"
 tokio = { version = "1", features = ["full"] }
 systemstat = "0.2.3"
 partial_derive = { path = "./libs/partial_derive" }
