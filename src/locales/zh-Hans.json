@@ -409,6 +409,13 @@
       "delete": "删除此角色"
     }
   },
+  "RestoreConfigConfirmDialog": {
+    "success": "设置已成功还原。",
+    "failure": "还原设置失败，请重试。",
+    "title": "确认还原设置",
+    "body": "此操作将会还原启动器的所有设置为默认值，您确定要继续吗？",
+    "ok": "确定"
+  },
   "Services": {
     "config": {
       "getLauncherConfig": {
@@ -430,6 +437,22 @@
       "help": "文档与帮助",
       "about": "关于",
       "dev-test": "开发 - 测试页"
+    }
+  },
+  "SyncAndRestoreSettingsPage": {
+    "launcherConfig": {
+      "title": "启动器设置",
+      "settings": {
+        "internetSync": {
+          "title": "联网同步",
+          "begin": "开始"
+        },
+        "resetAllSettings": {
+          "title": "还原所有设置",
+          "description": "将所有启动器设置还原为默认值",
+          "reset": "还原"
+        }
+      }
     }
   }
 }

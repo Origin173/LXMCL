@@ -17,6 +17,7 @@ pub async fn run() {
       launcher_config::commands::get_launcher_config,
       launcher_config::commands::update_launcher_config,
       launcher_config::commands::get_memory_info,
+      launcher_config::commands::restore_launcher_config,
     ])
     .setup(|app| {
       let is_dev = cfg!(debug_assertions);

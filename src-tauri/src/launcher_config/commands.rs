@@ -30,6 +30,14 @@ pub fn update_launcher_config(
 }
 
 #[tauri::command]
+pub fn restore_launcher_config(state: State<'_, Mutex<LauncherConfig>>) -> Result<(), String> {
+  let mut state = state.lock().unwrap();
+  *state = LauncherConfig::default();
+  save_config(&state);
+  Ok(())
+}
+
+#[tauri::command]
 pub fn get_memory_info() -> Result<MemoryInfo, String> {
   let sys = systemstat::System::new();
   match sys.memory() {
