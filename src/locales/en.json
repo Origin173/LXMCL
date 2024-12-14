@@ -377,9 +377,18 @@
       }
     }
   },
-  "instanceTabList": {
-    "tabs": {
-      "overview": "Overview"
+  "InstanceLayout": {
+    "instanceTabList": {
+      "overview": "Overview",
+      "worlds": "Worlds",
+      "mods": "Mods",
+      "resourcepacks": "Resourcepacks",
+      "shaderpacks": "Shaderpacks",
+      "screenshots": "Screenshots",
+      "settings": "Settings"
+    },
+    "Button": {
+      "launch": "Launch Instance"
     }
   },
   "LaunchPage": {

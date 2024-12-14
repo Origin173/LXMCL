@@ -1,12 +1,4 @@
-import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Icon,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, Button, Flex, HStack, Icon, Text } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { LuLayoutGrid, LuLayoutList, LuPlay, LuPlus } from "react-icons/lu";
@@ -39,11 +31,9 @@ const AllGamesPage = () => {
   return (
     <Box display="flex" flexDirection="column" height="100%">
       <Flex alignItems="flex-start" flexShrink={0}>
-        <VStack spacing={0} align="start">
-          <Text fontWeight="bold" fontSize="sm" className="no-select">
-            {t("AllGamesPage.title")}
-          </Text>
-        </VStack>
+        <Text fontWeight="bold" fontSize="sm" className="no-select">
+          {t("AllGamesPage.title")}
+        </Text>
         <HStack spacing={2} ml="auto" alignItems="flex-start">
           <SegmentedControl
             selected={selectedViewType}
