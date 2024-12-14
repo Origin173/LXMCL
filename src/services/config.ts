@@ -38,14 +38,13 @@ export const updateLauncherConfig = async (
 };
 
 /**
- * Restores the launcher configs to their default state.
- * @returns {Promise<void>}
+ * Restores the launcher configs to their default state and returns the new configuration.
+ * @returns {Promise<LauncherConfig>} The restored configuration.
  * @throws {Error} If the backend call fails.
  */
-export const restoreLauncherConfig = async (): Promise<void> => {
+export const restoreLauncherConfig = async (): Promise<LauncherConfig> => {
   try {
-    await invoke("restore_launcher_config");
-    console.log("Launcher config restored to default!");
+    return await invoke<LauncherConfig>("restore_launcher_config");
   } catch (error) {
     console.error("Error in restore_launcher_config:", error);
     throw error;

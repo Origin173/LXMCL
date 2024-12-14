@@ -30,11 +30,11 @@ pub fn update_launcher_config(
 }
 
 #[tauri::command]
-pub fn restore_launcher_config(state: State<'_, Mutex<LauncherConfig>>) -> Result<(), String> {
+pub fn restore_launcher_config(state: State<'_, Mutex<LauncherConfig>>) -> LauncherConfig {
   let mut state = state.lock().unwrap();
   *state = LauncherConfig::default();
   save_config(&state);
-  Ok(())
+  state.clone()
 }
 
 #[tauri::command]

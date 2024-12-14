@@ -3,11 +3,16 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/contexts/toast";
 import { LauncherConfig, defaultConfig } from "@/models/config";
-import { getLauncherConfig, updateLauncherConfig } from "@/services/config";
+import {
+  getLauncherConfig,
+  restoreLauncherConfig,
+  updateLauncherConfig,
+} from "@/services/config";
 
 interface LauncherConfigContextType {
   config: LauncherConfig;
   update: (path: string, value: any) => void;
+  restoreAll: () => void;
 }
 
 const LauncherConfigContext = createContext<
@@ -68,8 +73,25 @@ export const LauncherConfigContextProvider: React.FC<{
       });
   };
 
+  const restoreAll = () => {
+    restoreLauncherConfig()
+      .then((cfg) => {
+        setConfig(cfg);
+        toast({
+          title: t("Services.config.restoreLauncherConfig.success"),
+          status: "success",
+        });
+      })
+      .catch((error) => {
+        toast({
+          title: t("Services.config.restoreLauncherConfig.error"),
+          status: "error",
+        });
+      });
+  };
+
   return (
-    <LauncherConfigContext.Provider value={{ config, update }}>
+    <LauncherConfigContext.Provider value={{ config, update, restoreAll }}>
       {children}
     </LauncherConfigContext.Provider>
   );

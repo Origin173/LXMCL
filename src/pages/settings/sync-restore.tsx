@@ -1,42 +1,22 @@
-import { Button } from "@chakra-ui/react";
-import { useState } from "react";
+import { Button, useDisclosure } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import {
   OptionItemGroup,
   OptionItemGroupProps,
 } from "@/components/common/option-item";
 import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
+import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
-import { restoreLauncherConfig } from "@/services/config";
 
 const SyncAndRestoreSettingsPage = () => {
-  const toast = useToast();
   const { t } = useTranslation();
-  const [isConfirmOpen, setConfirmOpen] = useState(false);
-  const [isResetting, setResetting] = useState(false);
+  const { restoreAll } = useLauncherConfig();
 
-  const handleOpenConfirm = () => setConfirmOpen(true);
-  const handleCloseConfirm = () => setConfirmOpen(false);
-
-  const handleRestoreConfig = async () => {
-    setResetting(true);
-    try {
-      await restoreLauncherConfig();
-      toast({
-        title: t("RestoreConfigConfirmDialog.success"),
-        status: "success",
-      });
-    } catch (error) {
-      console.error("Error restoring launcher config:", error);
-      toast({
-        title: t("RestoreConfigConfirmDialog.failure"),
-        status: "error",
-      });
-    } finally {
-      setResetting(false);
-      handleCloseConfirm();
-    }
-  };
+  const {
+    isOpen: isConfirmOpen,
+    onOpen: onOpenConfirm,
+    onClose: onCloseConfirm,
+  } = useDisclosure();
 
   const syncAndRestoreSettingGroups: OptionItemGroupProps[] = [
     {
@@ -56,21 +36,20 @@ const SyncAndRestoreSettingsPage = () => {
         },
         {
           title: t(
-            "SyncAndRestoreSettingsPage.launcherConfig.settings.resetAllSettings.title"
+            "SyncAndRestoreSettingsPage.launcherConfig.settings.restoreAll.title"
           ),
           description: t(
-            "SyncAndRestoreSettingsPage.launcherConfig.settings.resetAllSettings.description"
+            "SyncAndRestoreSettingsPage.launcherConfig.settings.restoreAll.description"
           ),
           children: (
             <Button
               colorScheme="red"
               variant="subtle"
               size="xs"
-              onClick={handleOpenConfirm}
-              isLoading={isResetting}
+              onClick={onOpenConfirm}
             >
               {t(
-                "SyncAndRestoreSettingsPage.launcherConfig.settings.resetAllSettings.reset"
+                "SyncAndRestoreSettingsPage.launcherConfig.settings.restoreAll.restore"
               )}
             </Button>
           ),
@@ -87,12 +66,15 @@ const SyncAndRestoreSettingsPage = () => {
 
       <GenericConfirmDialog
         isOpen={isConfirmOpen}
-        onClose={handleCloseConfirm}
+        onClose={onCloseConfirm}
         title={t("RestoreConfigConfirmDialog.title")}
         body={t("RestoreConfigConfirmDialog.body")}
-        btnOK={t("RestoreConfigConfirmDialog.ok")}
+        btnOK={t("RestoreConfigConfirmDialog.btnOk")}
         btnCancel={t("GenericConfirmModal.Button.cancel")}
-        onOKCallback={handleRestoreConfig}
+        onOKCallback={() => {
+          restoreAll();
+          onCloseConfirm();
+        }}
         isAlert
       />
     </>

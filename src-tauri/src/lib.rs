@@ -16,8 +16,8 @@ pub async fn run() {
     .invoke_handler(tauri::generate_handler![
       launcher_config::commands::get_launcher_config,
       launcher_config::commands::update_launcher_config,
-      launcher_config::commands::get_memory_info,
       launcher_config::commands::restore_launcher_config,
+      launcher_config::commands::get_memory_info,
     ])
     .setup(|app| {
       let is_dev = cfg!(debug_assertions);

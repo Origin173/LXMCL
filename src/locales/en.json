@@ -410,19 +410,21 @@
     }
   },
   "RestoreConfigConfirmDialog": {
-    "success": "Settings have been successfully restored.",
-    "failure": "Failed to restore settings. Please try again.",
     "title": "Confirm Restore Settings",
-    "body": "This action will reset all launcher settings to their default values. Are you sure you want to proceed?",
-    "ok": "Confirm"
+    "body": "This action will restore all launcher settings to their default values. Are you sure you want to proceed?",
+    "btnOk": "Confirm"
   },
   "Services": {
     "config": {
       "getLauncherConfig": {
-        "error": "Failed to get launcher configuration"
+        "error": "Failed to get launcher settings"
       },
       "updateLauncherConfig": {
-        "error": "Failed to update launcher configuration"
+        "error": "Failed to update launcher settings"
+      },
+      "restoreLauncherConfig": {
+        "success": "Successfully restored launcher settings",
+        "error": "Failed to restore launcher settings"
       }
     }
   },
@@ -444,13 +446,13 @@
       "title": "Launcher Settings",
       "settings": {
         "internetSync": {
-          "title": "Sync with Cloud",
+          "title": "Sync through the Internet",
           "begin": "Start"
         },
-        "resetAllSettings": {
-          "title": "Reset All Settings",
+        "restoreAll": {
+          "title": "Restore All Settings",
           "description": "Restore all launcher settings to their default values",
-          "reset": "Reset"
+          "restore": "Restore"
         }
       }
     }
