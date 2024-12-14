@@ -377,6 +377,11 @@
       }
     }
   },
+  "InstancePage": {
+    "navMenuList": {
+      "home": "Home"
+    }
+  },
   "LaunchPage": {
     "Button": {
       "launch": "Launch Game"

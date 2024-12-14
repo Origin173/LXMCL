@@ -377,6 +377,11 @@
       }
     }
   },
+  "InstancePage": {
+    "tabs": {
+      "home": "主页"
+    }
+  },
   "LaunchPage": {
     "Button": {
       "launch": "启动游戏"
