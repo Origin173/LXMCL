@@ -409,6 +409,13 @@
       "delete": "Delete"
     }
   },
+  "RestoreConfigConfirmDialog": {
+    "success": "Settings have been successfully restored.",
+    "failure": "Failed to restore settings. Please try again.",
+    "title": "Confirm Restore Settings",
+    "body": "This action will reset all launcher settings to their default values. Are you sure you want to proceed?",
+    "ok": "Confirm"
+  },
   "Services": {
     "config": {
       "getLauncherConfig": {
@@ -437,7 +444,7 @@
       "title": "Launcher Settings",
       "settings": {
         "internetSync": {
-          "title": "Internet Sync",
+          "title": "Sync with Cloud",
           "begin": "Start"
         },
         "resetAllSettings": {

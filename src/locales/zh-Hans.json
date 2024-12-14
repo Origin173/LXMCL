@@ -409,6 +409,13 @@
       "delete": "删除此角色"
     }
   },
+  "RestoreConfigConfirmDialog": {
+    "success": "设置已成功还原。",
+    "failure": "还原设置失败，请重试。",
+    "title": "确认还原设置",
+    "body": "此操作将会还原启动器的所有设置为默认值，您确定要继续吗？",
+    "ok": "确定"
+  },
   "Services": {
     "config": {
       "getLauncherConfig": {
