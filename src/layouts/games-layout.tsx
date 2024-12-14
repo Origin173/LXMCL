@@ -38,13 +38,16 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
   // Check if the route is for a specific game instance
   const isInstanceRoute = router.asPath.startsWith("/games/instance/");
 
+  // Truncate to the ID, excluding subpage routes
+  const prefixAsPathPart = router.asPath.split("/").slice(0, 4).join("/");
+
   return (
     <Grid templateColumns="1fr 3fr" gap={4} h="100%">
       <GridItem className="content-full-y">
         <VStack align="stretch" h="100%" spacing={4}>
           <Box flex="1" overflowY="auto">
             <NavMenu
-              selectedKeys={[router.asPath]}
+              selectedKeys={[prefixAsPathPart]}
               onClick={(value) => {
                 router.push(value);
               }}

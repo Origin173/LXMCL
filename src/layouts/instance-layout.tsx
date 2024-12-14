@@ -1,8 +1,8 @@
-import { Box, Grid, HStack, Icon, Text, VStack } from "@chakra-ui/react";
-import { GridItem } from "@chakra-ui/react";
+import { HStack, Icon, Text, VStack } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useContext } from "react";
 import { useTranslation } from "react-i18next";
+import { IconType } from "react-icons";
 import { LuHouse } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import { InstanceContext, InstanceContextProvider } from "@/contexts/instance";
@@ -20,46 +20,38 @@ const InstanceLayout: React.FC<{ children: React.ReactNode }> = ({
 const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { currentInstance } = useContext(InstanceContext);
+  const { currentInstanceSummary } = useContext(InstanceContext);
   const router = useRouter();
   const { t } = useTranslation();
 
-  if (!currentInstance) {
-    return (
-      <Box>
-        <Text>{t("InstancePage.error.instanceNotFound")}</Text>
-      </Box>
-    );
-  }
-
-  const navMenuItems = [
-    {
-      label: (
-        <HStack spacing={2}>
-          <Icon as={LuHouse} />
-          <Text>{t("InstancePage.navMenuList.home")}</Text>
-        </HStack>
-      ),
-      value: `/games/instance/${currentInstance.id}/home`,
-      tooltip: t("InstancePage.navMenuList.home"),
-    },
+  const instanceTabList: { key: string; icon: IconType }[] = [
+    { key: "overview", icon: LuHouse },
   ];
 
   return (
-    <HStack mt="auto" align="stretch" spacing={4} h="100%">
-      <Box flex="1" overflowY="auto">
-        <Text fontWeight="bold" fontSize="sm" mb={4}>
-          {currentInstance.name}
-        </Text>
-        <NavMenu
-          items={navMenuItems}
-          selectedKeys={[router.asPath]}
-          onClick={(value) => router.push(value)}
-          direction="row"
-        />
-        <Box p={4}>{children}</Box>
-      </Box>
-    </HStack>
+    <VStack align="strench" spacing={2.5}>
+      <Text fontWeight="bold" fontSize="sm">
+        {currentInstanceSummary?.name}
+      </Text>
+      <NavMenu
+        selectedKeys={[router.asPath]}
+        onClick={(value) => router.push(value)}
+        direction="row"
+        size="xs"
+        items={instanceTabList.map((item) => ({
+          value: `/games/instance/${router.query.id}/${item.key}`,
+          label: (
+            <HStack spacing={1.5}>
+              <Icon as={item.icon} />
+              <Text fontSize="sm">
+                {t(`InstanceLayout.instanceTabList.${item.key}`)}
+              </Text>
+            </HStack>
+          ),
+        }))}
+      />
+      {children}
+    </VStack>
   );
 };
 

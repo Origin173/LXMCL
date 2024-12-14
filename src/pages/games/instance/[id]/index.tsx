@@ -19,7 +19,7 @@ const InstanceDetailIndexPage = () => {
       [...history]
         .reverse()
         .find((route) => route.startsWith(`/games/instance/${instanceId}/`)) ||
-        `/games/instance/${instanceId}/home`
+        `/games/instance/${instanceId}/overview`
     );
   }, [history, router, id]);
 

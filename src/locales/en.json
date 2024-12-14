@@ -377,9 +377,9 @@
       }
     }
   },
-  "InstancePage": {
-    "navMenuList": {
-      "home": "Home"
+  "instanceTabList": {
+    "tabs": {
+      "overview": "Overview"
     }
   },
   "LaunchPage": {

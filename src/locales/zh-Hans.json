@@ -377,9 +377,9 @@
       }
     }
   },
-  "InstancePage": {
-    "tabs": {
-      "home": "主页"
+  "InstanceLayout": {
+    "instanceTabList": {
+      "overview": "概览"
     }
   },
   "LaunchPage": {
