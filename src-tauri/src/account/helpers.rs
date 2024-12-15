@@ -11,10 +11,18 @@ static ACCOUNT_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
 });
 
 pub fn read_or_empty() -> Vec<Player> {
-  if let Ok(accounts_str) = fs::read_to_string(ACCOUNT_PATH.as_path()) {
-    serde_json::from_str::<Vec<Player>>(&accounts_str).unwrap()
-  } else {
-    vec![]
+  match fs::read_to_string(ACCOUNT_PATH.as_path()) {
+    Ok(accounts_str) => match serde_json::from_str::<Vec<Player>>(&accounts_str) {
+      Ok(players) => players,
+      Err(e) => {
+        eprintln!("Failed to parse JSON: {}", e);
+        vec![]
+      }
+    },
+    Err(e) => {
+      eprintln!("Failed to read file: {}", e);
+      vec![]
+    }
   }
 }
 
