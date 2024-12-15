@@ -1,3 +1,4 @@
+mod account;
 mod launcher_config;
 mod partial;
 mod utils;
@@ -18,6 +19,8 @@ pub async fn run() {
       launcher_config::commands::update_launcher_config,
       launcher_config::commands::restore_launcher_config,
       launcher_config::commands::get_memory_info,
+      account::commands::add_account,
+      account::commands::delete_account
     ])
     .setup(|app| {
       let is_dev = cfg!(debug_assertions);
