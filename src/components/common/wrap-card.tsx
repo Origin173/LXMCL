@@ -35,6 +35,8 @@ export interface WrapCardGroupProps extends BoxProps {
   spacing?: number;
   items: WrapCardProps[];
   variant?: "normal" | "radio";
+  widthMode?: "fixed" | "dynamic";
+  cardAspectRatio?: number; // if not 0, calc height from width and aspect ratio
 }
 
 export const WrapCard: React.FC<WrapCardProps> = ({
@@ -112,6 +114,8 @@ export const WrapCardGroup: React.FC<WrapCardGroupProps> = ({
   spacing = 3.5,
   items,
   variant = "normal",
+  widthMode = "dynamic",
+  cardAspectRatio = 0,
   ...boxProps
 }) => {
   const boxRef = useRef<HTMLDivElement>(null);
@@ -119,21 +123,24 @@ export const WrapCardGroup: React.FC<WrapCardGroupProps> = ({
   const spacingScale = theme.space[1] || "0.25rem";
   const baseFontSize = theme.fontSizes.base || "16px";
   const numberToPx = parseFloat(spacingScale) * parseInt(baseFontSize);
-  const [cardWidth, setCardWidth] = useState<string>(
-    `${cardMinWidth * numberToPx}px`
-  );
+  const [cardWidth, setCardWidth] = useState<number>(cardMinWidth * numberToPx);
 
   const resizeCard = useCallback(() => {
-    if (boxRef.current) {
+    if (boxRef.current && widthMode === "dynamic") {
       const boxWidth = boxRef.current.offsetWidth;
       const cardPerRow = Math.floor(
         (boxWidth + spacing * numberToPx) /
           (cardMinWidth * numberToPx + spacing * numberToPx)
       );
-      const calculatedWidth = `${(boxWidth - spacing * numberToPx * (cardPerRow - 1) - 1) / cardPerRow}px`;
-      setCardWidth(calculatedWidth);
+      if (items.length >= cardPerRow) {
+        const calculatedWidth =
+          (boxWidth - spacing * numberToPx * (cardPerRow - 1) - 1) / cardPerRow;
+        setCardWidth(calculatedWidth);
+      } else {
+        setCardWidth(cardMinWidth * numberToPx);
+      }
     }
-  }, [boxRef, numberToPx, cardMinWidth, spacing]);
+  }, [boxRef, numberToPx, cardMinWidth, spacing, widthMode, items.length]);
 
   useLayoutEffect(() => {
     resizeCard();
@@ -150,11 +157,17 @@ export const WrapCardGroup: React.FC<WrapCardGroupProps> = ({
       )}
       {items.length > 0 && (
         <Wrap spacing={spacing} mb={0.5}>
-          {" "}
           {/* add mb to show last row cards' bottom shadow */}
           {items.map((item, index) => (
             <WrapItem key={index}>
-              <WrapCard {...item} width={cardWidth} variant={variant} />
+              <WrapCard
+                {...item}
+                width={`${cardWidth}px`}
+                variant={variant}
+                {...(cardAspectRatio !== 0 && {
+                  height: `${cardWidth / cardAspectRatio}px`,
+                })}
+              />
             </WrapItem>
           ))}
         </Wrap>

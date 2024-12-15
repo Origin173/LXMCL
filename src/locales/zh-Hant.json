@@ -241,7 +241,7 @@
   },
   "GameMenu": {
     "label": {
-      "settings": "實例設置",
+      "details": "實例詳情",
       "delete": "刪除實例"
     }
   },
@@ -424,7 +424,7 @@
     }
   },
   "RestoreConfigConfirmDialog": {
-    "title": "確認還原設定",
+    "title": "還原啟動器設定",
     "body": "此操作將重置所有啟動器設定為預設值。確定要繼續嗎？",
     "btnOk": "确定"
   },

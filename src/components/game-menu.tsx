@@ -9,9 +9,10 @@ import {
   Tooltip,
   useDisclosure,
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { LuEllipsis, LuSettings, LuTrash } from "react-icons/lu";
+import { LuEllipsis, LuLayoutList, LuTrash } from "react-icons/lu";
 import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
 import { GameInstanceSummary } from "@/models/game-instance";
 
@@ -25,6 +26,7 @@ export const GameMenu: React.FC<GameMenuProps> = ({
   variant = "dropdown",
 }) => {
   const { t } = useTranslation();
+  const router = useRouter();
 
   const {
     isOpen: isDeleteOpen,
@@ -39,10 +41,10 @@ export const GameMenu: React.FC<GameMenuProps> = ({
 
   const gameMenuOperations = [
     {
-      key: "settings",
-      icon: LuSettings,
+      key: "details",
+      icon: LuLayoutList,
       onClick: () => {
-        console.log(`${game.name}`);
+        router.push(`/games/instance/${game.id}`);
       },
     },
     {

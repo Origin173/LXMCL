@@ -241,7 +241,7 @@
   },
   "GameMenu": {
     "label": {
-      "settings": "Settings",
+      "details": "Instance Details",
       "delete": "Delete"
     }
   },
@@ -424,7 +424,7 @@
     }
   },
   "RestoreConfigConfirmDialog": {
-    "title": "Confirm Restore Settings",
+    "title": "Restore Launcher Settings",
     "body": "This action will restore all launcher settings to their default values. Are you sure you want to proceed?",
     "btnOk": "Confirm"
   },
