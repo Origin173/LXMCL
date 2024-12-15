@@ -1,5 +1,5 @@
 use super::helpers::{read_or_empty, save_accounts};
-use super::models::{Account, Player};
+use super::models::Player;
 use uuid::Uuid;
 
 #[tauri::command]
@@ -8,7 +8,7 @@ pub fn add_account(player: Player) -> Result<(), ()> {
 
   let uuid = Uuid::new_v4();
   if player.server_type == "offline" {
-    state.push(Account {
+    state.push(Player {
       name: player.name,
       uuid,
       avatar_url: "https://littleskin.cn/avatar/0?size=72&png=1".to_string(),
@@ -18,12 +18,12 @@ pub fn add_account(player: Player) -> Result<(), ()> {
     });
   } else {
     // todo: real login
-    state.push(Account {
+    state.push(Player {
       name: "Player".to_string(),
       uuid,
       avatar_url: "https://littleskin.cn/avatar/0?size=72&png=1".to_string(),
       server_type: player.server_type,
-      auth_account: player.name,
+      auth_account: player.auth_account,
       password: player.password,
     });
   }
