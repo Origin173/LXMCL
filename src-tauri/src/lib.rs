@@ -1,4 +1,5 @@
 mod account;
+mod error;
 mod launcher_config;
 mod partial;
 mod storage;

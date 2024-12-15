@@ -1,10 +1,23 @@
+use std::error::Error;
+
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub enum PartialError {
   NotFound,
   InvalidType,
 }
+
+impl std::fmt::Display for PartialError {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    match self {
+      PartialError::NotFound => write!(f, "Not found"),
+      PartialError::InvalidType => write!(f, "Invalid type"),
+    }
+  }
+}
+
+impl Error for PartialError {}
 
 pub type PartialResult<T> = Result<T, PartialError>;
 
