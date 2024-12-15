@@ -1,6 +1,6 @@
-use super::helpers::save_config;
 use super::models::{LauncherConfig, MemoryInfo};
 use crate::partial::{PartialError, PartialUpdate};
+use crate::storage::Storage;
 use std::sync::Mutex;
 use systemstat::{saturating_sub_bytes, Platform};
 use tauri::State;
@@ -25,7 +25,7 @@ pub fn update_launcher_config(
   }
   let mut state = state.lock().unwrap();
   state.update(&snake, &value)?;
-  save_config(&state);
+  state.save().unwrap();
   Ok(())
 }
 
@@ -33,7 +33,7 @@ pub fn update_launcher_config(
 pub fn restore_launcher_config(state: State<'_, Mutex<LauncherConfig>>) -> LauncherConfig {
   let mut state = state.lock().unwrap();
   *state = LauncherConfig::default();
-  save_config(&state);
+  state.save().unwrap();
   state.clone()
 }
 
