@@ -51,7 +51,7 @@ const GlobalGameSettingsPage = () => {
     total: 0,
     used: 0,
   });
-  const maxMemCanAllocated = memoryInfo.total / 1024 / 1024;
+  const maxMemCanAllocated = Math.floor(memoryInfo.total / 1024 / 1024);
 
   const fetchMemoryInfo = async () => {
     getMemoryInfo()
