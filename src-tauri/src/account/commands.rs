@@ -1,13 +1,16 @@
-use super::helpers::{read_or_empty, save_accounts};
 use super::models::Player;
+use crate::{
+  error::{SJMCLError, SJMCLResult},
+  storage::Storage,
+};
 use uuid::Uuid;
 
 #[tauri::command]
-pub fn add_account(player: Player) -> Result<(), String> {
+pub fn add_account(player: Player) -> SJMCLResult<()> {
   let uuid = Uuid::new_v4();
   match player.server_type.as_str() {
     "offline" => {
-      let mut state = read_or_empty();
+      let mut state: Vec<Player> = Storage::load().unwrap_or_default();
 
       state.push(Player {
         name: player.name,
@@ -18,12 +21,11 @@ pub fn add_account(player: Player) -> Result<(), String> {
         password: "".to_string(),
       });
 
-      save_accounts(state);
-
+      state.save()?;
       Ok(())
     }
     "3rdparty" => {
-      let mut state = read_or_empty();
+      let mut state: Vec<Player> = Storage::load().unwrap_or_default();
 
       // todo: real login
       state.push(Player {
@@ -35,24 +37,19 @@ pub fn add_account(player: Player) -> Result<(), String> {
         password: player.password,
       });
 
-      save_accounts(state);
-
+      state.save()?;
       Ok(())
     }
-    _ => Err("Unknown server type".to_string()),
+    _ => Err(SJMCLError("Unknown server type".to_string())),
   }
 }
 
 #[tauri::command]
-pub fn delete_account(uuid_str: &str) -> Result<(), String> {
-  let mut state = read_or_empty();
+pub fn delete_account(uuid_str: &str) -> SJMCLResult<()> {
+  let mut state: Vec<Player> = Storage::load().unwrap_or_default();
 
-  if let Ok(uuid) = Uuid::parse_str(uuid_str) {
-    state.retain(|s| s.uuid != uuid);
-    save_accounts(state);
-
-    Ok(())
-  } else {
-    Err("UUID format is wrong.".to_string())
-  }
+  let uuid = Uuid::parse_str(uuid_str)?;
+  state.retain(|s| s.uuid != uuid);
+  state.save()?;
+  Ok(())
 }

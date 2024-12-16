@@ -1,13 +1,27 @@
 mod account;
+mod error;
 mod launcher_config;
 mod partial;
+mod storage;
 mod utils;
 
-use std::sync::Mutex;
+use std::path::PathBuf;
+use std::sync::{LazyLock, Mutex};
+
+use launcher_config::models::LauncherConfig;
+use storage::Storage;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use tauri::menu::MenuBuilder;
 use tauri::Manager;
+
+static EXE_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
+  std::env::current_exe()
+    .unwrap()
+    .parent()
+    .unwrap()
+    .to_path_buf()
+});
 
 pub async fn run() {
   tauri::Builder::default()
@@ -36,9 +50,9 @@ pub async fn run() {
       let os = tauri_plugin_os::platform().to_string();
 
       // Set the launcher config
-      let mut launcher_config = launcher_config::helpers::read_or_default();
+      let mut launcher_config: LauncherConfig = LauncherConfig::load().unwrap_or_default();
       launcher_config.version = version.clone();
-      launcher_config::helpers::save_config(&launcher_config);
+      launcher_config.save().unwrap();
 
       app.manage(Mutex::new(launcher_config));
 
