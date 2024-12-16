@@ -12,6 +12,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const router = useRouter();
   const { config } = useLauncherConfig();
 
+  if (router.pathname.startsWith("/standalone")) return children;
+
   if (config.mocked)
     return (
       <Center h="100%">

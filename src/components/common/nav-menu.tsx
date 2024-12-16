@@ -22,7 +22,6 @@ const NavMenu: React.FC<NavMenuProps> = ({
   size = "sm",
   ...props
 }) => {
-  console.log(selectedKeys);
   return (
     <Stack align="stretch" spacing={0.5} {...props}>
       {items.map((item) => (

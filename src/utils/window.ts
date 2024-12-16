@@ -10,19 +10,19 @@ export const createWindow = (
 
   windowLabel = windowLabel.replaceAll(" ", "_");
 
-  const webview = new WebviewWindow(windowLabel, {
+  const newWindow = new WebviewWindow(windowLabel, {
     title: "",
     ...options,
     url: route || "/",
   });
 
-  webview.once("tauri://created", () => {
+  newWindow.once("tauri://created", () => {
     console.log(`Child window ${windowLabel} successfully created`);
   });
 
-  webview.once("tauri://error", (error) => {
+  newWindow.once("tauri://error", (error) => {
     console.error(`Failed to create child window ${windowLabel}:`, error);
   });
 
-  return webview;
+  return newWindow;
 };

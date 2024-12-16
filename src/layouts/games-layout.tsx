@@ -15,7 +15,6 @@ import { LuBox, LuBoxes, LuCirclePlus, LuSettings } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import SelectableButton from "@/components/common/selectable-button";
 import { useData } from "@/contexts/data";
-import InstanceLayout from "@/layouts/instance-layout";
 
 interface GamesLayoutProps {
   children: React.ReactNode;
@@ -34,9 +33,6 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
       label: item.name,
     })),
   ];
-
-  // Check if the route is for a specific game instance
-  const isInstanceRoute = router.asPath.startsWith("/games/instance/");
 
   // Truncate to the ID, excluding subpage routes
   const prefixAsPathPart = router.asPath.split("/").slice(0, 4).join("/");
@@ -90,13 +86,7 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
           </VStack>
         </VStack>
       </GridItem>
-      <GridItem className="content-full-y">
-        {isInstanceRoute ? (
-          <InstanceLayout>{children}</InstanceLayout>
-        ) : (
-          children // Render the default children
-        )}
-      </GridItem>
+      <GridItem className="content-full-y">{children}</GridItem>
     </Grid>
   );
 };
