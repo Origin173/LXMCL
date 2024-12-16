@@ -29,3 +29,11 @@ npx eslint "src/**/*.{js,jsx,ts,tsx}" --fix        # fix
 # For backend part
 rustfmt --check src-tauri/src/**/*.rs
 ```
+
+### Copyright
+
+Copyright © 2024 SJMCL Team.
+
+Licensed under the [GNU General Public License v3.0](/LICENSE.md).
+
+NOT AN OFFICIAL MINECRAFT SERVICE. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.
