@@ -2,6 +2,7 @@ import {
   Box,
   BoxProps,
   Card,
+  CardProps,
   Image,
   Radio,
   Text,
@@ -20,7 +21,7 @@ type WrapCardContentObject = {
   extraContent?: React.ReactNode;
 };
 
-export interface WrapCardProps extends BoxProps {
+export interface WrapCardProps extends CardProps {
   width?: string;
   cardContent?: React.ReactNode | WrapCardContentObject;
   variant?: "normal" | "radio";
@@ -46,7 +47,7 @@ export const WrapCard: React.FC<WrapCardProps> = ({
   isSelected = false,
   onSelect = () => {},
   cardContent,
-  ...boxProps
+  ...cardProps
 }) => {
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
@@ -92,7 +93,7 @@ export const WrapCard: React.FC<WrapCardProps> = ({
       borderColor={`${primaryColor}.500`}
       variant={isSelected ? "outline" : "elevated"}
       position="relative"
-      {...boxProps}
+      {...cardProps}
     >
       {variant === "radio" && (
         <Box position="absolute" top={2} left={2}>
