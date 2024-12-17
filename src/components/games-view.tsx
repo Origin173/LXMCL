@@ -25,9 +25,8 @@ const GamesView: React.FC<GamesViewProps> = ({
 }) => {
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const { selectedGameInstance, gameInstanceSummaryList } = useData();
-  const { setSelectedGameInstance, setGameInstanceSummaryList } =
-    useDataDispatch();
+  const { selectedGameInstance } = useData();
+  const { setSelectedGameInstance } = useDataDispatch();
 
   const listItems = games.map((game) => ({
     title: game.name,
@@ -42,7 +41,7 @@ const GamesView: React.FC<GamesViewProps> = ({
         <Image
           boxSize="32px"
           objectFit="cover"
-          src={game.iconUrl}
+          src={game.iconSrc}
           alt={game.name}
         />
       </HStack>
@@ -54,7 +53,7 @@ const GamesView: React.FC<GamesViewProps> = ({
     cardContent: {
       title: game.name,
       description: game.description,
-      image: game.iconUrl,
+      image: game.iconSrc,
       extraContent: (
         <Box position="absolute" top={0.5} right={1}>
           <GameMenu game={game} />

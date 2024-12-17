@@ -48,7 +48,7 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
   ];
 
   return (
-    <VStack align="strench" spacing={2.5}>
+    <VStack align="strench" spacing={4}>
       <Flex alignItems="flex-start">
         <Text fontWeight="bold" fontSize="sm">
           {currentInstanceSummary?.name}
@@ -71,6 +71,7 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
         direction="row"
         size="xs"
         spacing={1}
+        mt={-1.5}
         items={instanceTabList.map((item) => ({
           value: `/games/instance/${router.query.id}/${item.key}`,
           label: (

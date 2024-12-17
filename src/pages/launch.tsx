@@ -59,7 +59,7 @@ const LaunchPage = () => {
               <Image
                 boxSize="32px"
                 objectFit="cover"
-                src={selectedPlayer.avatarUrl}
+                src={selectedPlayer.avatarSrc}
                 alt={selectedPlayer.name}
               />
               <VStack spacing={0} align="left" mt={-2}>

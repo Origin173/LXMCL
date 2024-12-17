@@ -3,7 +3,7 @@ export interface Player {
   id: number;
   name: string;
   uuid: string;
-  avatarUrl: string;
+  avatarSrc: string;
   type: "offline" | "3rdparty";
   authServer?: AuthServer; // only from authlib-injector
   authAccount?: string; // only from authlib-injector
@@ -30,7 +30,7 @@ export const mockPlayerList: Player[] = [
     id: 1,
     name: "Unicorn",
     uuid: "4ca3a46a-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
-    avatarUrl: "https://skin.mc.sjtu.cn/avatar/2?size=72&png=1",
+    avatarSrc: "https://skin.mc.sjtu.cn/avatar/2?size=72&png=1",
     type: "3rdparty",
     authServer: {
       name: "SJMC 用户中心",
@@ -42,7 +42,7 @@ export const mockPlayerList: Player[] = [
     id: 2,
     name: "ynk",
     uuid: "176235f4-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
-    avatarUrl: "https://skin.mc.sjtu.cn/avatar/308?size=72&png=1",
+    avatarSrc: "https://skin.mc.sjtu.cn/avatar/308?size=72&png=1",
     type: "3rdparty",
     authServer: {
       name: "SJMC 用户中心",
@@ -54,14 +54,14 @@ export const mockPlayerList: Player[] = [
     id: 3,
     name: "Test_offline",
     uuid: "00000000-0000-0000-0000-000000000000",
-    avatarUrl: "https://skin.mc.sjtu.cn/avatar/310?size=72&png=1",
+    avatarSrc: "https://skin.mc.sjtu.cn/avatar/310?size=72&png=1",
     type: "offline",
   },
   {
     id: 4,
     name: "FF98sha_MUA",
     uuid: "3e80b70e-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
-    avatarUrl: "https://skin.mc.sjtu.cn/avatar/3?size=72&png=1",
+    avatarSrc: "https://skin.mc.sjtu.cn/avatar/3?size=72&png=1",
     type: "3rdparty",
     authServer: {
       name: "MUA 用户中心",

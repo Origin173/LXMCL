@@ -46,7 +46,7 @@ const PlayersView: React.FC<PlayersViewProps> = ({
         <Image
           boxSize="32px"
           objectFit="cover"
-          src={player.avatarUrl}
+          src={player.avatarSrc}
           alt={player.name}
         />
       </HStack>
@@ -61,7 +61,7 @@ const PlayersView: React.FC<PlayersViewProps> = ({
         player.type === "offline"
           ? t("Enums.playerTypes.offline")
           : player.authServer?.name || "",
-      image: player.avatarUrl,
+      image: player.avatarSrc,
       extraContent: (
         <Box position="absolute" top={0.5} right={1}>
           <PlayerMenu player={player} />

@@ -16,7 +16,7 @@ const InstanceScreenshotsPage: React.FC = () => {
           cardContent: (
             <>
               <Image
-                src={screenshot.imgUrl}
+                src={screenshot.imgSrc}
                 alt={screenshot.fileName}
                 objectFit="cover"
                 w="100%"
@@ -37,7 +37,7 @@ const InstanceScreenshotsPage: React.FC = () => {
                   top={1}
                   right={1}
                   onClick={() => {
-                    open(screenshot.path);
+                    open(screenshot.filePath);
                   }}
                 />
               </Tooltip>
