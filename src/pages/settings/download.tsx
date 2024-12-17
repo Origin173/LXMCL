@@ -49,10 +49,6 @@ const DownloadSettingsPage = () => {
     }
   };
 
-  const handleOpenDirectory = () => {
-    openFolder(downloadConfigs.cache.directory);
-  };
-
   const downloadSettingGroups: OptionItemGroupProps[] = [
     {
       title: t("DownloadSettingPage.source.title"),
@@ -230,7 +226,13 @@ const DownloadSettingsPage = () => {
               >
                 {t("DownloadSettingPage.cache.settings.directory.select")}
               </Button>
-              <Button variant="subtle" size="xs" onClick={handleOpenDirectory}>
+              <Button
+                variant="subtle"
+                size="xs"
+                onClick={() => {
+                  openFolder(downloadConfigs.cache.directory);
+                }}
+              >
                 {t("DownloadSettingPage.cache.settings.directory.open")}
               </Button>
             </HStack>

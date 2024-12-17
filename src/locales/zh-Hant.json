@@ -391,6 +391,9 @@
       "launch": "启动实例"
     }
   },
+  "InstanceScreenshotsPage": {
+    "openFolder": "打開"
+  },
   "LaunchPage": {
     "Button": {
       "launch": "啟動遊戲"
@@ -427,10 +430,6 @@
     "title": "還原啟動器設定",
     "body": "此操作將重置所有啟動器設定為預設值。確定要繼續嗎？",
     "btnOk": "确定"
-  },
-  "ScreenshotsPage": {
-    "title": "截圖一覽",
-    "openFolder": "打開"
   },
   "Services": {
     "config": {

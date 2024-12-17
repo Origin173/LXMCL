@@ -391,6 +391,9 @@
       "launch": "Launch Instance"
     }
   },
+  "InstanceScreenshotsPage": {
+    "open": "Open"
+  },
   "LaunchPage": {
     "Button": {
       "launch": "Launch Game"
@@ -441,10 +444,6 @@
         "error": "Failed to restore launcher settings"
       }
     }
-  },
-  "ScreenshotsPage": {
-    "title": "Screenshot Overview",
-    "openFolder": "Open"
   },
   "SettingsLayout": {
     "settingsDomainList": {
