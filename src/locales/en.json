@@ -473,5 +473,17 @@
         }
       }
     }
+  },
+  "Utils": {
+    "datetime": {
+      "formatRelativeTime": {
+        "now": "now",
+        "minutes-ago": "{{count}} minutes ago",
+        "last-hour": "last hour",
+        "hours-ago": "{{count}} hours ago",
+        "yesterday": "yesterday",
+        "others": "on {{time}}"
+      }
+    }
   }
 }
