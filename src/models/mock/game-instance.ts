@@ -49,6 +49,7 @@ export const mockGameserver = [
     name: "SJMC-SMP2.6",
   },
 ];
+
 export const mockWorlds = [
   {
     name: "Dev-SJMC",
