@@ -218,7 +218,7 @@
     }
   },
   "Empty": {
-    "nodata": "暂无数据"
+    "noData": "暂无数据"
   },
   "Enums": {
     "chakraColors": {
@@ -394,6 +394,15 @@
   "InstanceScreenshotsPage": {
     "open": "打开"
   },
+  "InstanceWorldsPage": {
+    "worldList": {
+      "title": "本地世界",
+      "lastPlayedAt": "上次游玩于"
+    },
+    "serverList": {
+      "title": "服务器"
+    }
+  },
   "LaunchPage": {
     "Button": {
       "launch": "启动游戏"
@@ -484,17 +493,6 @@
         "yesterday": "昨天",
         "others": "{{time}}"
       }
-    }
-  },
-  "WorldsPage": {
-    "worldList": {
-      "title": "本地存档列表",
-      "lastPlayedAt": "上次游玩时间",
-      "null": "暂无存档"
-    },
-    "serverList": {
-      "title": "服务器列表",
-      "null": "暂无服务器"
     }
   }
 }

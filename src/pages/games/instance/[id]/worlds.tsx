@@ -1,25 +1,13 @@
-import { IconButton, Image } from "@chakra-ui/react";
+import { IconButton, Image, VStack } from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-shell";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { LuFolderOpen } from "react-icons/lu";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
+import { GameServer, World } from "@/models/game-instance";
 import { mockGameserver, mockWorlds } from "@/models/mock/game-instance";
 import { formatRelativeTime } from "@/utils/datetime";
-
-interface World {
-  name: string;
-  lastPlayedAt: string;
-  iconUrl: string;
-  fileDir: string;
-}
-
-interface GameServer {
-  icon: string;
-  ip: string;
-  name: string;
-}
 
 const InstanceWorldsPage = () => {
   const localWorlds: World[] = mockWorlds;
@@ -27,16 +15,16 @@ const InstanceWorldsPage = () => {
   const { t } = useTranslation();
 
   return (
-    <>
+    <VStack align="stretch" spacing={4}>
       <OptionItemGroup
-        title={t("WorldsPage.worldList.title")}
+        title={t("InstanceWorldsPage.worldList.title")}
         items={
           localWorlds.length > 0
             ? localWorlds.map((world) => (
                 <OptionItem
                   key={world.name}
                   title={world.name}
-                  description={`${t("WorldsPage.worldList.lastPlayedAt")}: ${formatRelativeTime(world.lastPlayedAt, t)}`}
+                  description={`${t("InstanceWorldsPage.worldList.lastPlayedAt")}: ${formatRelativeTime(world.lastPlayedAt, t)}`}
                   prefixElement={
                     <Image
                       src={world.iconUrl}
@@ -48,9 +36,9 @@ const InstanceWorldsPage = () => {
                   }
                 >
                   <IconButton
-                    aria-label={t("WorldsPage.worldList.openFolder")}
+                    aria-label={"null"}
                     icon={<LuFolderOpen />}
-                    variant="subtle"
+                    variant="ghost"
                     size="sm"
                     onClick={() => {
                       open(world.fileDir);
@@ -58,17 +46,15 @@ const InstanceWorldsPage = () => {
                   />
                 </OptionItem>
               ))
-            : [
-                <Empty
-                  key="no-worlds"
-                  description={t("WorldsPage.worldList.null")}
-                  withIcon={false}
-                />,
-              ]
+            : []
         }
       />
+      {localWorlds.length === 0 && (
+        <Empty description={t("Empty.noData")} withIcon={false} />
+      )}
+
       <OptionItemGroup
-        title={t("WorldsPage.serverList.title")}
+        title={t("InstanceWorldsPage.serverList.title")}
         items={
           gameServers.length > 0
             ? gameServers.map((server) => (
@@ -89,16 +75,13 @@ const InstanceWorldsPage = () => {
                   <></>
                 </OptionItem>
               ))
-            : [
-                <Empty
-                  key="no-servers"
-                  description={t("WorldsPage.serverList.null")}
-                  withIcon={false}
-                />,
-              ]
+            : []
         }
       />
-    </>
+      {gameServers.length === 0 && (
+        <Empty description={t("Empty.noData")} withIcon={false} />
+      )}
+    </VStack>
   );
 };
 

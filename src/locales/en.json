@@ -218,7 +218,7 @@
     }
   },
   "Empty": {
-    "nodata": "No Data"
+    "noData": "No Data"
   },
   "Enums": {
     "chakraColors": {
@@ -394,6 +394,15 @@
   "InstanceScreenshotsPage": {
     "open": "Open"
   },
+  "InstanceWorldsPage": {
+    "worldList": {
+      "title": "Worlds",
+      "lastPlayedAt": "Last played"
+    },
+    "serverList": {
+      "title": "Servers"
+    }
+  },
   "LaunchPage": {
     "Button": {
       "launch": "Launch Game"
@@ -484,17 +493,6 @@
         "yesterday": "yesterday",
         "others": "on {{time}}"
       }
-    }
-  },
-  "WorldsPage": {
-    "worldList": {
-      "title": "Worlds",
-      "lastPlayedAt": "Last Played At",
-      "empty": "No Worlds"
-    },
-    "serverList": {
-      "title": "Servers",
-      "empty": "No Server"
     }
   }
 }
