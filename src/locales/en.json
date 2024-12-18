@@ -239,6 +239,13 @@
       "3rdpartyShort": "3rd-party Auth"
     }
   },
+  "GameLogPage": {
+    "title": "Game Logs",
+    "placeholder": "Enter search term",
+    "clearLogs": "Clear All Logs",
+    "showingLogs": "Showing {{count}} log{{count === 1 ? '' : 's'}} (out of {{total}})",
+    "noLogs": "No logs of this type found"
+  },
   "GameMenu": {
     "label": {
       "details": "Instance Details",

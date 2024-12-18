@@ -239,6 +239,13 @@
       "3rdpartyShort": "第三方認證"
     }
   },
+  "GameLogPage": {
+    "title": "遊戲日誌",
+    "placeholder": "請輸入查詢內容",
+    "clearLogs": "清除所有日誌",
+    "showingLogs": "顯示 {{count}} 條日誌（共 {{total}} 條）",
+    "noLogs": "不存在該類型的日誌"
+  },
   "GameMenu": {
     "label": {
       "details": "實例詳情",
