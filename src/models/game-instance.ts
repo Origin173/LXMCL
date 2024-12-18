@@ -11,3 +11,16 @@ export interface Screenshot {
   filePath: string;
   imgSrc: string;
 }
+
+export interface World {
+  name: string;
+  lastPlayedAt: string;
+  iconUrl: string;
+  fileDir: string;
+}
+
+export interface GameServer {
+  icon: string;
+  ip: string;
+  name: string;
+}
