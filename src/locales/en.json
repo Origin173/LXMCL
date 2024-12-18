@@ -485,5 +485,16 @@
         "others": "on {{time}}"
       }
     }
+  },
+  "WorldsPage": {
+    "worldList": {
+      "title": "Worlds",
+      "lastPlayedAt": "Last Played At",
+      "empty": "No Worlds"
+    },
+    "serverList": {
+      "title": "Servers",
+      "empty": "No Server"
+    }
   }
 }

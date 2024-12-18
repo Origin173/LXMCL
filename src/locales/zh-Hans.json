@@ -485,5 +485,16 @@
         "others": "{{time}}"
       }
     }
+  },
+  "WorldsPage": {
+    "worldList": {
+      "title": "本地存档列表",
+      "lastPlayedAt": "上次游玩时间",
+      "null": "暂无存档"
+    },
+    "serverList": {
+      "title": "服务器列表",
+      "null": "暂无服务器"
+    }
   }
 }
