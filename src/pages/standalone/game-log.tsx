@@ -60,11 +60,14 @@ const GameLogPage: React.FC = () => {
     DEBUG: { colorScheme: "gray", color: "blue.600" },
   };
 
-  const logCounts = logs.reduce<{ [key: string]: number }>((acc, log) => {
-    const level = log.split(" ")[1].slice(1, -1);
-    acc[level] = (acc[level] || 0) + 1;
-    return acc;
-  }, {});
+  const logCounts = filteredLogs.reduce<{ [key: string]: number }>(
+    (acc, log) => {
+      const level = log.split(" ")[1].slice(1, -1);
+      acc[level] = (acc[level] || 0) + 1;
+      return acc;
+    },
+    {}
+  );
 
   return (
     <Box p={4} minH="100vh" display="flex" flexDirection="column">
@@ -121,13 +124,13 @@ const GameLogPage: React.FC = () => {
       <Box
         borderWidth="1px"
         borderRadius="md"
-        p={4}
+        p={2}
         flex="1"
         overflowY="auto"
         bg="white"
       >
         {filteredLogs.length > 0 ? (
-          <VStack align="start" spacing={1}>
+          <VStack align="start" spacing={0.5}>
             {filteredLogs.map((log, index) => {
               const level = log.split(" ")[1].slice(1, -1);
               return (

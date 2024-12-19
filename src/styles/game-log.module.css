@@ -1,5 +1,5 @@
 .log-text {
   font-family: 'Courier New', monospace;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
+  font-size: var(--chakra-fontSizes-xs-sm);
+  line-height: var(--chakra-lineHeights-5);
 }
