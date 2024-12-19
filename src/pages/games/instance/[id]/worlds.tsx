@@ -1,25 +1,32 @@
-import { Box, IconButton, Image, Text } from "@chakra-ui/react";
+import { IconButton, Image, Text, VStack } from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-shell";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuFolderOpen } from "react-icons/lu";
 import Empty from "@/components/common/empty";
-import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
+import { OptionItem } from "@/components/common/option-item";
 import { GameServerInfo, WorldInfo } from "@/models/game-instance";
 import { mockGameserver, mockWorlds } from "@/models/mock/game-instance";
 import { formatRelativeTime } from "@/utils/datetime";
 
 const InstanceWorldsPage = () => {
-  const localWorlds: WorldInfo[] = mockWorlds;
-  const gameServers: GameServerInfo[] = mockGameserver;
+  const [worlds, setWorlds] = useState<WorldInfo[]>([]);
+  const [gameServers, setGameServers] = useState<GameServerInfo[]>([]);
   const { t } = useTranslation();
 
+  useEffect(() => {
+    setWorlds(mockWorlds);
+    setGameServers(mockGameserver);
+  }, []);
+
   return (
-    <>
-      {localWorlds.length > 0 ? (
-        <OptionItemGroup
-          title={t("InstanceWorldsPage.worldList.title")}
-          items={localWorlds.map((world) => (
+    <VStack spacing={6} align="stretch">
+      <Text fontWeight="bold" fontSize="md">
+        {t("InstanceWorldsPage.worldList.title")}
+      </Text>
+      {worlds.length > 0 ? (
+        <VStack spacing={4} align="stretch">
+          {worlds.map((world) => (
             <OptionItem
               key={world.name}
               title={world.name}
@@ -35,30 +42,25 @@ const InstanceWorldsPage = () => {
               }
             >
               <IconButton
-                aria-label={"null"}
+                aria-label={"open"}
                 icon={<LuFolderOpen />}
                 variant="ghost"
                 size="sm"
-                onClick={() => {
-                  open(world.fileDir);
-                }}
+                onClick={() => open(world.fileDir)}
               />
             </OptionItem>
           ))}
-        />
+        </VStack>
       ) : (
-        <Box>
-          <Text fontWeight="bold" fontSize="sm">
-            {t("InstanceWorldsPage.worldList.title")}
-          </Text>
-          <Empty withIcon={false} size="sm" />
-        </Box>
+        <Empty withIcon={false} size="sm" />
       )}
 
+      <Text fontWeight="bold" fontSize="md">
+        {t("InstanceWorldsPage.serverList.title")}
+      </Text>
       {gameServers.length > 0 ? (
-        <OptionItemGroup
-          title={t("InstanceWorldsPage.serverList.title")}
-          items={gameServers.map((server) => (
+        <VStack spacing={4} align="stretch">
+          {gameServers.map((server) => (
             <OptionItem
               key={server.name}
               title={server.name}
@@ -76,16 +78,11 @@ const InstanceWorldsPage = () => {
               <></>
             </OptionItem>
           ))}
-        />
+        </VStack>
       ) : (
-        <Box>
-          <Text fontWeight="bold" fontSize="sm">
-            {t("InstanceWorldsPage.serverList.title")}
-          </Text>
-          <Empty withIcon={false} size="sm" />
-        </Box>
+        <Empty withIcon={false} size="sm" />
       )}
-    </>
+    </VStack>
   );
 };
 
