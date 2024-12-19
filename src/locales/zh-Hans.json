@@ -240,10 +240,9 @@
     }
   },
   "GameLogPage": {
-    "title": "游戏日志",
-    "placeholder": "请输入查询内容",
+    "placeholder": "输入关键词筛选",
+    "exportLogs": "导出日志",
     "clearLogs": "清除所有日志",
-    "showingLogs": "显示 {{count}} 条日志（共 {{total}} 条）",
     "noLogs": "不存在该类型的日志"
   },
   "GameMenu": {

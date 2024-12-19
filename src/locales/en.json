@@ -240,11 +240,10 @@
     }
   },
   "GameLogPage": {
-    "title": "Game Logs",
-    "placeholder": "Enter search term",
-    "clearLogs": "Clear All Logs",
-    "showingLogs": "Showing {{count}} log{{count === 1 ? '' : 's'}} (out of {{total}})",
-    "noLogs": "No logs of this type found"
+    "placeholder": "Filter by Text",
+    "exportLogs": "Export logs",
+    "clearLogs": "Clear all logs",
+    "noLogs": "No logs of this type exist"
   },
   "GameMenu": {
     "label": {
