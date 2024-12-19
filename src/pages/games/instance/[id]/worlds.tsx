@@ -5,13 +5,13 @@ import { useTranslation } from "react-i18next";
 import { LuFolderOpen } from "react-icons/lu";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
-import { GameServer, World } from "@/models/game-instance";
+import { GameServerInfo, WorldInfo } from "@/models/game-instance";
 import { mockGameserver, mockWorlds } from "@/models/mock/game-instance";
 import { formatRelativeTime } from "@/utils/datetime";
 
 const InstanceWorldsPage = () => {
-  const localWorlds: World[] = mockWorlds;
-  const gameServers: GameServer[] = mockGameserver;
+  const localWorlds: WorldInfo[] = mockWorlds;
+  const gameServers: GameServerInfo[] = mockGameserver;
   const { t } = useTranslation();
 
   return (

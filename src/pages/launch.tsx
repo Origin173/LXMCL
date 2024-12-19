@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 import { LuArrowLeftRight } from "react-icons/lu";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
-import styles from "./launch.module.css";
+import styles from "@/styles/launch.module.css";
 
 interface SwitchButtonProps extends IconButtonProps {
   tooltip: string;

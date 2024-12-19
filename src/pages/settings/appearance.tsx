@@ -117,7 +117,7 @@ const AppearanceSettingsPage = () => {
                 <Box
                   w="100%"
                   h="100%"
-                  bgImage={`url('/images/${bg}.jpg')`}
+                  bgImage={`url('/images/backgrounds/${bg}.jpg')`}
                   bgSize="cover"
                   bgPosition="center"
                   bgRepeat="no-repeat"

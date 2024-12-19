@@ -12,14 +12,14 @@ export interface Screenshot {
   imgSrc: string;
 }
 
-export interface World {
+export interface WorldInfo {
   name: string;
   lastPlayedAt: string;
   iconUrl: string;
   fileDir: string;
 }
 
-export interface GameServer {
+export interface GameServerInfo {
   icon: string;
   ip: string;
   name: string;

@@ -4,7 +4,6 @@ import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { initReactI18next } from "react-i18next";
-import chakraExtendTheme from "@/chakra-theme";
 import { Fade } from "@/components/common/transition";
 import { LauncherConfigContextProvider } from "@/contexts/config";
 import { DataContextProvider } from "@/contexts/data";
@@ -15,6 +14,7 @@ import InstanceLayout from "@/layouts/instance-layout";
 import MainLayout from "@/layouts/main-layout";
 import SettingsLayout from "@/layouts/settings-layout";
 import { localeResources } from "@/locales";
+import chakraExtendTheme from "@/styles/chakra-theme";
 import "@/styles/globals.css";
 import { isProd } from "@/utils/env";
 
