@@ -1,25 +1,5 @@
-.logText {
+.log-text {
   font-family: 'Courier New', monospace;
   font-size: 0.875rem;
   line-height: 1.25rem;
-}
-
-.fatal {
-  color: #9b2c2c;
-}
-
-.error {
-  color: #c05621;
-}
-
-.warn {
-  color: #b7791f;
-}
-
-.info {
-  color: #2d3748;
-}
-
-.debug {
-  color: #2d3748;
 }

@@ -242,8 +242,7 @@
   "GameLogPage": {
     "placeholder": "Filter by Text",
     "exportLogs": "Export logs",
-    "clearLogs": "Clear all logs",
-    "noLogs": "No logs of this type exist"
+    "clearLogs": "Clear all logs"
   },
   "GameMenu": {
     "label": {

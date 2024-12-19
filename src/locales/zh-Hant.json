@@ -242,8 +242,7 @@
   "GameLogPage": {
     "placeholder": "輸入關鍵字篩選",
     "exportLogs": "導出日誌",
-    "clearLogs": "清除所有日誌",
-    "noLogs": "不存在該類型的日誌"
+    "clearLogs": "清除所有日誌"
   },
   "GameMenu": {
     "label": {

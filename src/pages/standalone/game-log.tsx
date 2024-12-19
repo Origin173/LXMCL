@@ -8,12 +8,12 @@ import {
   Text,
   Tooltip,
   VStack,
-  useColorModeValue,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuFileInput, LuTrash } from "react-icons/lu";
-import styles from "../../styles/game-log.module.css";
+import Empty from "@/components/common/empty";
+import styles from "@/styles/game-log.module.css";
 
 const GameLogPage: React.FC = () => {
   const { t } = useTranslation();
@@ -50,25 +50,15 @@ const GameLogPage: React.FC = () => {
     );
   });
 
-  const getLogLevelClass = (level: string) => {
-    switch (level) {
-      case "FATAL":
-        return `${styles.logText} ${styles.fatal}`;
-      case "ERROR":
-        return `${styles.logText} ${styles.error}`;
-      case "WARN":
-        return `${styles.logText} ${styles.warn}`;
-      case "INFO":
-        return `${styles.logText} ${styles.info}`;
-      case "DEBUG":
-        return `${styles.logText} ${styles.debug}`;
-      default:
-        return styles.logText;
-    }
+  const logLevelMap: {
+    [key: string]: { colorScheme: string; color: string };
+  } = {
+    FATAL: { colorScheme: "red", color: "red.600" },
+    ERROR: { colorScheme: "orange", color: "orange.600" },
+    WARN: { colorScheme: "yellow", color: "yellow.600" },
+    INFO: { colorScheme: "gray", color: "gray.600" },
+    DEBUG: { colorScheme: "gray", color: "blue.600" },
   };
-
-  const toggleFilter = (level: string) =>
-    setFilterStates({ ...filterStates, [level]: !filterStates[level] });
 
   const logCounts = logs.reduce<{ [key: string]: number }>((acc, log) => {
     const level = log.split(" ")[1].slice(1, -1);
@@ -77,13 +67,7 @@ const GameLogPage: React.FC = () => {
   }, {});
 
   return (
-    <Box
-      p={4}
-      bg={useColorModeValue("gray.50", "gray.800")}
-      minH="100vh"
-      display="flex"
-      flexDirection="column"
-    >
+    <Box p={4} minH="100vh" display="flex" flexDirection="column">
       <Flex alignItems="center" mb={4}>
         <Input
           type="text"
@@ -95,22 +79,19 @@ const GameLogPage: React.FC = () => {
           mr={4}
         />
         <Spacer />
-        {["FATAL", "ERROR", "WARN", "INFO", "DEBUG"].map((level) => (
+        {Object.keys(logLevelMap).map((level) => (
           <Button
             key={level}
             size="xs"
             variant={filterStates[level] ? "solid" : "subtle"}
-            onClick={() => toggleFilter(level)}
-            mr={2}
-            colorScheme={
-              level === "FATAL"
-                ? "red"
-                : level === "ERROR"
-                  ? "orange"
-                  : level === "WARN"
-                    ? "yellow"
-                    : "gray"
+            onClick={() =>
+              setFilterStates({
+                ...filterStates,
+                [level]: !filterStates[level],
+              })
             }
+            mr={2}
+            colorScheme={logLevelMap[level].colorScheme}
           >
             {level} ({logCounts[level] || 0})
           </Button>
@@ -143,23 +124,26 @@ const GameLogPage: React.FC = () => {
         p={4}
         flex="1"
         overflowY="auto"
-        bg={useColorModeValue("white", "gray.700")}
+        bg="white"
       >
         {filteredLogs.length > 0 ? (
           <VStack align="start" spacing={1}>
             {filteredLogs.map((log, index) => {
               const level = log.split(" ")[1].slice(1, -1);
               return (
-                <Text key={index} className={getLogLevelClass(level)}>
+                <Text
+                  key={index}
+                  className={`${styles["log-text"]}`}
+                  color={logLevelMap[level].color}
+                  fontSize="xs"
+                >
                   {log}
                 </Text>
               );
             })}
           </VStack>
         ) : (
-          <Text color="gray.500" fontSize="xs">
-            {t("GameLogPage.noLogs")}
-          </Text>
+          <Empty colorScheme="gray" withIcon={false} />
         )}
       </Box>
     </Box>
