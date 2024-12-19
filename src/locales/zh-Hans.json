@@ -239,6 +239,11 @@
       "3rdpartyShort": "第三方认证"
     }
   },
+  "GameLogPage": {
+    "placeholder": "输入关键词筛选",
+    "exportLogs": "导出日志",
+    "clearLogs": "清除所有日志"
+  },
   "GameMenu": {
     "label": {
       "details": "实例详情",

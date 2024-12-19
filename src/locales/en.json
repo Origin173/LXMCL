@@ -239,6 +239,11 @@
       "3rdpartyShort": "3rd-party Auth"
     }
   },
+  "GameLogPage": {
+    "placeholder": "Filter by Text",
+    "exportLogs": "Export logs",
+    "clearLogs": "Clear all logs"
+  },
   "GameMenu": {
     "label": {
       "details": "Instance Details",
