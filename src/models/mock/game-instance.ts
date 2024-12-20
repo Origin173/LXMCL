@@ -1,6 +1,7 @@
 import {
   GameInstanceSummary,
   GameServerInfo,
+  ResourcePacksInfo,
   Screenshot,
   WorldInfo,
 } from "@/models/game-instance";
@@ -67,5 +68,21 @@ export const mockWorlds: WorldInfo[] = [
     lastPlayedAt: "2024-12-18T10:00:00Z",
     iconUrl: "/images/icons/Anvil.webp",
     fileDir: "/.minecraft/saves",
+  },
+];
+
+export const mockResourcePacks: ResourcePacksInfo[] = [
+  {
+    name: "Faithful 32x32",
+    description: "The go-to 32x resource pack.\n§8November 2024 Pre-release",
+    iconUrl:
+      "https://media.forgecdn.net/avatars/546/645/637882030837320187.png",
+    fileDir: "/.minecraft/resourcepacks",
+  },
+  {
+    name: "空白资源包",
+    description: "测试空白资源包",
+    iconUrl: "",
+    fileDir: "/.minecraft/resourcepacks",
   },
 ];

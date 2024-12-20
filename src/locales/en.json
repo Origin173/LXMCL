@@ -250,6 +250,9 @@
       "delete": "Delete"
     }
   },
+  "General":{
+    "openFolder": "Open folder"
+  },
   "GeneralSettingsPage": {
     "general": {
       "title": "General Settings",
@@ -406,6 +409,12 @@
     },
     "serverList": {
       "title": "Servers"
+    }
+  },
+  "InstanceResourcePacksPage":{
+    "resourcePackList": {
+      "title": "Resource Packs",
+      "description": "Description of the resource pack"
     }
   },
   "LaunchPage": {

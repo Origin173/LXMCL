@@ -24,3 +24,10 @@ export interface GameServerInfo {
   ip: string;
   name: string;
 }
+
+export interface ResourcePacksInfo {
+  name: string;
+  description?: string;
+  iconUrl?: string;
+  fileDir: string;
+}
