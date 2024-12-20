@@ -245,6 +245,9 @@
       "delete": "删除实例"
     }
   },
+  "General":{
+    "openFolder": "打开"
+  },
   "GeneralSettingsPage": {
     "general": {
       "title": "通用设置",
@@ -401,6 +404,12 @@
     },
     "serverList": {
       "title": "服务器"
+    }
+  },
+  "InstanceResourcePacksPage":{
+    "resourcePackList": {
+      "title": "资源包",
+      "description": "资源包描述"
     }
   },
   "LaunchPage": {
