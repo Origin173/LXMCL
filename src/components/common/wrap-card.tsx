@@ -1,6 +1,5 @@
 import {
   Box,
-  BoxProps,
   Card,
   CardProps,
   Image,
@@ -12,6 +11,7 @@ import {
   useTheme,
 } from "@chakra-ui/react";
 import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { Section, SectionProps } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 
 type WrapCardContentObject = {
@@ -30,8 +30,7 @@ export interface WrapCardProps extends CardProps {
   onSelect?: () => void;
 }
 
-export interface WrapCardGroupProps extends BoxProps {
-  title?: string;
+export interface WrapCardGroupProps extends SectionProps {
   cardMinWidth?: number;
   spacing?: number;
   items: WrapCardProps[];
@@ -110,14 +109,13 @@ export const WrapCard: React.FC<WrapCardProps> = ({
 };
 
 export const WrapCardGroup: React.FC<WrapCardGroupProps> = ({
-  title,
   cardMinWidth = 41.8,
   spacing = 3.5,
   items,
   variant = "normal",
   widthMode = "dynamic",
   cardAspectRatio = 0,
-  ...boxProps
+  ...props
 }) => {
   const boxRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
@@ -150,29 +148,32 @@ export const WrapCardGroup: React.FC<WrapCardGroupProps> = ({
   }, [resizeCard]);
 
   return (
-    <Box {...boxProps} overflow="hidden" ref={boxRef}>
-      {title && (
-        <Text fontWeight="bold" fontSize="sm" className="no-select" mb={2.5}>
-          {title}
-        </Text>
-      )}
-      {items.length > 0 && (
-        <Wrap spacing={spacing} mb={0.5}>
-          {/* add mb to show last row cards' bottom shadow */}
-          {items.map((item, index) => (
-            <WrapItem key={index}>
-              <WrapCard
-                {...item}
-                width={`${cardWidth}px`}
-                variant={variant}
-                {...(cardAspectRatio !== 0 && {
-                  height: `${cardWidth / cardAspectRatio}px`,
-                })}
-              />
-            </WrapItem>
-          ))}
-        </Wrap>
-      )}
+    <Box {...props} overflow="hidden" ref={boxRef}>
+      <Section
+        title={props.title}
+        headExtra={props.headExtra}
+        description={props.description}
+        isAccordion={props.isAccordion}
+        initialIsOpen={props.initialIsOpen}
+      >
+        {items.length > 0 && (
+          <Wrap spacing={spacing} mb={0.5}>
+            {/* add mb to show last row cards' bottom shadow */}
+            {items.map((item, index) => (
+              <WrapItem key={index}>
+                <WrapCard
+                  {...item}
+                  width={`${cardWidth}px`}
+                  variant={variant}
+                  {...(cardAspectRatio !== 0 && {
+                    height: `${cardWidth / cardAspectRatio}px`,
+                  })}
+                />
+              </WrapItem>
+            ))}
+          </Wrap>
+        )}
+      </Section>
     </Box>
   );
 };

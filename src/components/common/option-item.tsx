@@ -1,5 +1,4 @@
 import {
-  Box,
   BoxProps,
   Card,
   Divider,
@@ -9,6 +8,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import React from "react";
+import { Section, SectionProps } from "@/components/common/section";
 
 export interface OptionItemProps extends BoxProps {
   prefixElement?: React.ReactNode;
@@ -18,8 +18,7 @@ export interface OptionItemProps extends BoxProps {
   children: React.ReactNode;
 }
 
-export interface OptionItemGroupProps extends BoxProps {
-  title?: string;
+export interface OptionItemGroupProps extends SectionProps {
   items: (OptionItemProps | React.ReactNode)[];
 }
 
@@ -61,9 +60,8 @@ export const OptionItem: React.FC<OptionItemProps> = ({
 };
 
 export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
-  title,
   items,
-  ...boxProps
+  ...props
 }) => {
   function isOptionItemProps(item: any): item is OptionItemProps {
     return (
@@ -73,14 +71,9 @@ export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
   }
 
   return (
-    <Box {...boxProps}>
-      {title && (
-        <Text fontWeight="bold" fontSize="sm" className="no-select">
-          {title}
-        </Text>
-      )}
+    <Section {...props}>
       {items.length > 0 && (
-        <Card mt={title ? 2.5 : 0} className="content-card">
+        <Card className="content-card">
           {items.map((item, index) => (
             <React.Fragment key={index}>
               {isOptionItemProps(item) ? (
@@ -100,6 +93,6 @@ export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
           ))}
         </Card>
       )}
-    </Box>
+    </Section>
   );
 };
