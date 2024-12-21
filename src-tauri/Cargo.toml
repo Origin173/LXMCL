@@ -8,14 +8,18 @@ repository = ""
 edition = "2021"
 rust-version = "1.80.0"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [lib]
 name = "app_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
 tauri-build = { version = "2.0.2", features = [] }
+
+[profile.release]
+opt-level = 3    # as default
+strip = true
+lto = true
+panic = "abort"
 
 [dependencies]
 serde_json = "1.0"
@@ -33,5 +37,5 @@ systemstat = "0.2.3"
 partial_derive = { path = "./libs/partial_derive" }
 uuid = { version = "1.11.0", features = ["v4", "fast-rng",  "macro-diagnostics"] }
 
-[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+[target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
 tauri-plugin-window-state = "2"
