@@ -24,10 +24,7 @@ const InstanceScreenshotsPage: React.FC = () => {
                 position="relative"
                 borderRadius="md"
               />
-              <Tooltip
-                label={t("InstanceScreenshotsPage.open")}
-                placement="auto"
-              >
+              <Tooltip label={t("General.open")} placement="auto">
                 <IconButton
                   icon={<Icon as={LuFolderOpen} />}
                   aria-label="open"

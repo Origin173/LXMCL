@@ -251,7 +251,9 @@
     }
   },
   "General":{
-    "openFolder": "打开"
+    "open": "打开",
+    "openFolder": "打开文件夹",
+    "openInFolder": "打开文件位置"
   },
   "GeneralSettingsPage": {
     "general": {
@@ -399,9 +401,6 @@
       "launch": "启动实例"
     }
   },
-  "InstanceScreenshotsPage": {
-    "open": "打开"
-  },
   "InstanceWorldsPage": {
     "worldList": {
       "title": "本地世界",
@@ -413,8 +412,10 @@
   },
   "InstanceResourcePacksPage":{
     "resourcePackList": {
-      "title": "资源包",
-      "description": "资源包描述"
+      "title": "全局资源包"
+    },
+    "serverResPackList": {
+      "title": "服务器资源包"
     }
   },
   "LaunchPage": {

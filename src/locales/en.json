@@ -241,8 +241,8 @@
   },
   "GameLogPage": {
     "placeholder": "Filter by Text",
-    "exportLogs": "Export logs",
-    "clearLogs": "Clear all logs"
+    "exportLogs": "Export Logs",
+    "clearLogs": "Clear All Logs"
   },
   "GameMenu": {
     "label": {
@@ -251,7 +251,9 @@
     }
   },
   "General":{
-    "openFolder": "Open folder"
+    "open": "Open",
+    "openFolder": "Open Folder",
+    "openInFolder": "Open in Folder"
   },
   "GeneralSettingsPage": {
     "general": {
@@ -263,7 +265,7 @@
       }
     },
     "functions": {
-      "title": "Functions",
+      "title": "Functionality",
       "settings": {
         "discover": {
           "title": "Discover Page"
@@ -399,9 +401,6 @@
       "launch": "Launch Instance"
     }
   },
-  "InstanceScreenshotsPage": {
-    "open": "Open"
-  },
   "InstanceWorldsPage": {
     "worldList": {
       "title": "Worlds",
@@ -413,8 +412,10 @@
   },
   "InstanceResourcePacksPage":{
     "resourcePackList": {
-      "title": "Resource Packs",
-      "description": "Description of the resource pack"
+      "title": "Global Resource Packs"
+    },
+    "serverResPackList": {
+      "title": "Server Resource Packs"
     }
   },
   "LaunchPage": {

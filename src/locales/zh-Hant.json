@@ -396,9 +396,6 @@
       "launch": "启动实例"
     }
   },
-  "InstanceScreenshotsPage": {
-    "openFolder": "打開"
-  },
   "LaunchPage": {
     "Button": {
       "launch": "啟動遊戲"

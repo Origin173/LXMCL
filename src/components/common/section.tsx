@@ -39,7 +39,13 @@ export const Section: React.FC<SectionProps> = ({
             {isAccordion && (
               <IconButton
                 aria-label="accordion-control"
-                icon={isOpen ? <LuChevronUp /> : <LuChevronRight />}
+                icon={
+                  isOpen ? (
+                    <LuChevronUp size={14} />
+                  ) : (
+                    <LuChevronRight size={14} />
+                  )
+                }
                 size="xs"
                 variant="ghost"
                 colorScheme="gray"
