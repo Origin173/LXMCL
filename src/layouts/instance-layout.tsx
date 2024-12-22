@@ -48,7 +48,7 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
   ];
 
   return (
-    <VStack align="strench" spacing={4}>
+    <VStack align="strench" height="100%" spacing={4}>
       <Flex alignItems="flex-start">
         <Text fontWeight="bold" fontSize="sm">
           {currentInstanceSummary?.name}
@@ -65,7 +65,6 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
       </Flex>
       <NavMenu
         className="no-scrollbar"
-        overflow="auto"
         selectedKeys={[router.asPath]}
         onClick={(value) => router.push(value)}
         direction="row"
@@ -84,7 +83,7 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
           ),
         }))}
       />
-      {children}
+      <Flex overflow="auto">{children}</Flex>
     </VStack>
   );
 };
