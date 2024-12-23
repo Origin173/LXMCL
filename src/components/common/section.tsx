@@ -13,6 +13,7 @@ import { LuChevronRight, LuChevronUp } from "react-icons/lu";
 
 export interface SectionProps extends Omit<BoxProps, "children"> {
   title?: string;
+  titleExtra?: React.ReactNode;
   headExtra?: React.ReactNode;
   description?: string;
   isAccordion?: boolean;
@@ -22,6 +23,7 @@ export interface SectionProps extends Omit<BoxProps, "children"> {
 
 export const Section: React.FC<SectionProps> = ({
   title,
+  titleExtra,
   headExtra,
   description,
   isAccordion = false,
@@ -64,6 +66,7 @@ export const Section: React.FC<SectionProps> = ({
                 </Text>
               )}
             </VStack>
+            {titleExtra}
           </HStack>
           <Box ml="auto">{headExtra}</Box>
         </Flex>

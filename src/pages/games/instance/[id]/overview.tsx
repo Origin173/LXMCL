@@ -1,5 +1,5 @@
-const InstanceDetailOverviewPage = () => {
+const InstanceOverviewPage = () => {
   return null;
 };
 
-export default InstanceDetailOverviewPage;
+export default InstanceOverviewPage;
