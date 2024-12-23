@@ -131,7 +131,7 @@ export const WrapCardGroup: React.FC<WrapCardGroupProps> = ({
         (boxWidth + spacing * numberToPx) /
           (cardMinWidth * numberToPx + spacing * numberToPx)
       );
-      if (items.length >= cardPerRow) {
+      if (items.length > cardPerRow) {
         const calculatedWidth =
           (boxWidth - spacing * numberToPx * (cardPerRow - 1) - 1) / cardPerRow;
         setCardWidth(calculatedWidth);
