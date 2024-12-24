@@ -16,4 +16,9 @@ const nextConfig = {
   assetPrefix: isProd ? null : `http://${internalHost}:3000`,
 };
 
-export default nextConfig;
+// Now can run `ANALYZE=true npm run build` to analyze frontend bundle size
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+})
+
+export default withBundleAnalyzer(nextConfig);
