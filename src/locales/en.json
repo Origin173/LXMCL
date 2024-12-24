@@ -508,6 +508,13 @@
         "yesterday": "yesterday",
         "others": "on {{time}}"
       }
+    },
+    "env": {
+      "checkFrontendCompatibility": {
+        "warning": {
+          "title": "System's webview version is outdated. Some UI elements may not display correctly."
+        }
+      }
     }
   }
 }

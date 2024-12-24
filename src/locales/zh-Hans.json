@@ -508,6 +508,13 @@
         "yesterday": "昨天",
         "others": "{{time}}"
       }
+    },
+    "env": {
+      "checkFrontendCompatibility": {
+        "warning": {
+          "title": "系统 WebView 版本低，部分界面元素可能无法正常显示"
+        }
+      }
     }
   }
 }
