@@ -9,7 +9,7 @@ import {
   VStack,
   useDisclosure,
 } from "@chakra-ui/react";
-import { LuChevronRight, LuChevronUp } from "react-icons/lu";
+import { LuChevronDown, LuChevronRight } from "react-icons/lu";
 
 export interface SectionProps extends Omit<BoxProps, "children"> {
   title?: string;
@@ -43,7 +43,7 @@ export const Section: React.FC<SectionProps> = ({
                 aria-label="accordion-control"
                 icon={
                   isOpen ? (
-                    <LuChevronUp size={14} />
+                    <LuChevronDown size={14} />
                   ) : (
                     <LuChevronRight size={14} />
                   )
