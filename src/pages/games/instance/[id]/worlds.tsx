@@ -1,10 +1,11 @@
-import { IconButton, Image, Text, Tooltip, VStack } from "@chakra-ui/react";
+import { IconButton, Image, Tooltip, VStack } from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-shell";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuFolderOpen } from "react-icons/lu";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
+import { Section } from "@/components/common/section";
 import { GameServerInfo, WorldInfo } from "@/models/game-instance";
 import { mockGameserver, mockWorlds } from "@/models/mock/game-instance";
 import { formatRelativeTime } from "@/utils/datetime";
@@ -20,12 +21,9 @@ const InstanceWorldsPage = () => {
   }, []);
 
   return (
-    <VStack spacing={2.5} align="stretch">
-      <Text fontWeight="bold" fontSize="sm">
-        {t("InstanceWorldsPage.worldList.title")}
-      </Text>
-      {worlds.length > 0 ? (
-        <VStack spacing={4} align="stretch">
+    <>
+      <Section isAccordion title={t("InstanceWorldsPage.worldList.title")}>
+        {worlds.length > 0 ? (
           <OptionItemGroup
             items={worlds.map((world) => (
               <OptionItem
@@ -54,16 +52,13 @@ const InstanceWorldsPage = () => {
               </OptionItem>
             ))}
           />
-        </VStack>
-      ) : (
-        <Empty withIcon={false} size="sm" />
-      )}
+        ) : (
+          <Empty withIcon={false} size="sm" />
+        )}
+      </Section>
 
-      <Text fontWeight="bold" fontSize="sm">
-        {t("InstanceWorldsPage.serverList.title")}
-      </Text>
-      {gameServers.length > 0 ? (
-        <VStack spacing={2.5} align="stretch">
+      <Section isAccordion title={t("InstanceWorldsPage.serverList.title")}>
+        {gameServers.length > 0 ? (
           <OptionItemGroup
             items={gameServers.map((server) => (
               <OptionItem
@@ -84,11 +79,11 @@ const InstanceWorldsPage = () => {
               </OptionItem>
             ))}
           />
-        </VStack>
-      ) : (
-        <Empty withIcon={false} size="sm" />
-      )}
-    </VStack>
+        ) : (
+          <Empty withIcon={false} size="sm" />
+        )}
+      </Section>
+    </>
   );
 };
 
