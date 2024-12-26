@@ -4,12 +4,13 @@ import {
   Collapse,
   Flex,
   HStack,
+  Icon,
   IconButton,
   Text,
   VStack,
   useDisclosure,
 } from "@chakra-ui/react";
-import { LuChevronDown, LuChevronRight } from "react-icons/lu";
+import { LuChevronRight } from "react-icons/lu";
 
 export interface SectionProps extends Omit<BoxProps, "children"> {
   title?: string;
@@ -42,13 +43,17 @@ export const Section: React.FC<SectionProps> = ({
               <IconButton
                 aria-label="accordion-control"
                 icon={
-                  isOpen ? (
-                    <LuChevronDown size={14} />
-                  ) : (
-                    <LuChevronRight size={14} />
-                  )
+                  <Icon
+                    as={LuChevronRight}
+                    boxSize={3.5}
+                    sx={{
+                      transition: "transform 0.2s ease-in-out",
+                      transform: isOpen ? "rotate(90deg)" : "rotate(0deg)",
+                    }}
+                  />
                 }
                 size="xs"
+                h={21}
                 variant="ghost"
                 colorScheme="gray"
                 onClick={onToggle}
