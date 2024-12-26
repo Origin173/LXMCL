@@ -1,4 +1,4 @@
-import { IconButton, Image, Tooltip, VStack } from "@chakra-ui/react";
+import { IconButton, Image, Tooltip } from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-shell";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -29,7 +29,9 @@ const InstanceWorldsPage = () => {
               <OptionItem
                 key={world.name}
                 title={world.name}
-                description={`${t("InstanceWorldsPage.worldList.lastPlayedAt")} ${formatRelativeTime(world.lastPlayedAt, t)}`}
+                description={`${t(
+                  "InstanceWorldsPage.worldList.lastPlayedAt"
+                )} ${formatRelativeTime(world.lastPlayedAt, t)}`}
                 prefixElement={
                   <Image
                     src={world.iconUrl}
