@@ -32,6 +32,7 @@
     "@tauri-apps/plugin-shell": "^2.0.1",
     "@tauri-apps/plugin-window-state": "^2.2.0",
     "i18next": "^24.0.0",
+    "masonic": "^4.0.1",
     "next": "15.0.3",
     "react": "^18",
     "react-dom": "^18",
