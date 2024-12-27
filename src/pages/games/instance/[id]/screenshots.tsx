@@ -1,7 +1,8 @@
-import { HStack, Icon, IconButton, Image, Tooltip } from "@chakra-ui/react";
+import { Icon, IconButton, Image, Tooltip } from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-shell";
 import { useTranslation } from "react-i18next";
 import { LuFolderOpen } from "react-icons/lu";
+import { Section } from "@/components/common/section";
 import { WrapCardGroup } from "@/components/common/wrap-card";
 import { mockScreenshots } from "@/models/mock/game-instance";
 
@@ -9,7 +10,7 @@ const InstanceScreenshotsPage: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <HStack w="100%" h="100%" align="start" justify="space-between">
+    <Section>
       <WrapCardGroup
         cardAspectRatio={16 / 9}
         items={mockScreenshots.map((screenshot) => ({
@@ -43,7 +44,7 @@ const InstanceScreenshotsPage: React.FC = () => {
           p: 0,
         }))}
       />
-    </HStack>
+    </Section>
   );
 };
 

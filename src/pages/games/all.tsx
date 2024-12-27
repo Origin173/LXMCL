@@ -1,7 +1,8 @@
-import { Box, Button, Flex, HStack, Icon, Text } from "@chakra-ui/react";
+import { Box, Button, HStack, Icon } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { LuLayoutGrid, LuLayoutList, LuPlay, LuPlus } from "react-icons/lu";
+import { Section } from "@/components/common/section";
 import SegmentedControl from "@/components/common/segmented";
 import GamesView from "@/components/games-view";
 import { useLauncherConfig } from "@/contexts/config";
@@ -28,13 +29,15 @@ const AllGamesPage = () => {
       tooltip: t("AllGamesPage.viewTypeList.list"),
     },
   ];
+
   return (
-    <Box display="flex" flexDirection="column" height="100%">
-      <Flex alignItems="flex-start" flexShrink={0}>
-        <Text fontWeight="bold" fontSize="sm" className="no-select">
-          {t("AllGamesPage.title")}
-        </Text>
-        <HStack spacing={2} ml="auto" alignItems="flex-start">
+    <Section
+      display="flex"
+      flexDirection="column"
+      height="100%"
+      title={t("AllGamesPage.title")}
+      headExtra={
+        <HStack spacing={2}>
           <SegmentedControl
             selected={selectedViewType}
             onSelectItem={(s) => {
@@ -46,14 +49,14 @@ const AllGamesPage = () => {
               label: item.key,
               value: <Icon as={item.icon} />,
             }))}
-            withTooltip={true}
+            withTooltip
           />
           <Button
             leftIcon={<LuPlus />}
             size="xs"
             colorScheme={primaryColor}
             variant={primaryColor === "gray" ? "subtle" : "outline"}
-            onClick={() => {}} // todo
+            onClick={() => {}} // TODO
           >
             {t("AllGamesPage.Button.addAndImport")}
           </Button>
@@ -62,19 +65,20 @@ const AllGamesPage = () => {
             size="xs"
             colorScheme={primaryColor}
             isDisabled={!selectedGameInstance}
-            onClick={() => {}} // todo
+            onClick={() => {}} // TODO
           >
             {t("AllGamesPage.Button.launch")}
           </Button>
         </HStack>
-      </Flex>
-      <Box overflow="auto" flexGrow={1} mt={2.5} rounded="md">
+      }
+    >
+      <Box overflow="auto" flexGrow={1} rounded="md">
         <GamesView
           games={gameInstanceSummaryList}
           viewType={selectedViewType}
         />
       </Box>
-    </Box>
+    </Section>
   );
 };
 

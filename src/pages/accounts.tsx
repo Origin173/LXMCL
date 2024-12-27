@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Flex,
   Grid,
   GridItem,
   HStack,
@@ -23,6 +22,7 @@ import {
   LuUsersRound,
 } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
+import { Section } from "@/components/common/section";
 import SegmentedControl from "@/components/common/segmented";
 import SelectableButton from "@/components/common/selectable-button";
 import AddAuthServerModal from "@/components/modals/add-auth-server-modal";
@@ -132,23 +132,21 @@ const AccountsPage = () => {
           </VStack>
         </GridItem>
         <GridItem className="content-full-y">
-          <Box display="flex" flexDirection="column" height="100%">
-            <Flex alignItems="flex-start" flexShrink={0}>
-              <VStack spacing={0} align="start">
-                <Text fontWeight="bold" fontSize="sm" className="no-select">
-                  {
-                    playerTypeList.find(
-                      (item) => item.key === selectedPlayerType
-                    )?.label
-                  }
-                </Text>
-                {!["all", "offline"].includes(selectedPlayerType) && (
-                  <Text fontSize="xs" className="secondary-text no-select">
-                    {selectedPlayerType}
-                  </Text>
-                )}
-              </VStack>
-              <HStack spacing={2} ml="auto" alignItems="flex-start">
+          <Section
+            display="flex"
+            flexDirection="column"
+            height="100%"
+            title={
+              playerTypeList.find((item) => item.key === selectedPlayerType)
+                ?.label
+            }
+            description={
+              !["all", "offline"].includes(selectedPlayerType)
+                ? selectedPlayerType
+                : undefined
+            }
+            headExtra={
+              <HStack spacing={2} alignItems="flex-start">
                 <SegmentedControl
                   selected={selectedViewType}
                   onSelectItem={(s) => {
@@ -160,7 +158,7 @@ const AccountsPage = () => {
                     label: item.key,
                     value: <Icon as={item.icon} />,
                   }))}
-                  withTooltip={true}
+                  withTooltip
                 />
                 <Button
                   leftIcon={<LuPlus />}
@@ -171,14 +169,15 @@ const AccountsPage = () => {
                   {t("AccountsPage.Button.addPlayer")}
                 </Button>
               </HStack>
-            </Flex>
-            <Box overflow="auto" flexGrow={1} mt={2.5} rounded="md">
+            }
+          >
+            <Box overflow="auto" flexGrow={1} rounded="md">
               <PlayersView
                 players={filterPlayersByType(selectedPlayerType)}
                 viewType={selectedViewType}
               />
             </Box>
-          </Box>
+          </Section>
         </GridItem>
       </Grid>
       <AddAuthServerModal
