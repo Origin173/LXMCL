@@ -72,7 +72,6 @@ const AllGamesPage = () => {
         </HStack>
       }
     >
-      {/* 去掉了原先的 mt={2.5} */}
       <Box overflow="auto" flexGrow={1} rounded="md">
         <GamesView
           games={gameInstanceSummaryList}

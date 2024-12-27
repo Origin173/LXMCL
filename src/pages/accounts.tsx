@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Flex,
   Grid,
   GridItem,
   HStack,
@@ -133,51 +132,52 @@ const AccountsPage = () => {
           </VStack>
         </GridItem>
         <GridItem className="content-full-y">
-          <Box display="flex" flexDirection="column" height="100%">
-            <Section
-              title={
-                playerTypeList.find((item) => item.key === selectedPlayerType)
-                  ?.label
-              }
-              description={
-                !["all", "offline"].includes(selectedPlayerType)
-                  ? selectedPlayerType
-                  : undefined
-              }
-              headExtra={
-                <HStack spacing={2} alignItems="flex-start">
-                  <SegmentedControl
-                    selected={selectedViewType}
-                    onSelectItem={(s) => {
-                      update("page.accounts.viewType", s as string);
-                    }}
-                    size="2xs"
-                    items={viewTypeList.map((item) => ({
-                      ...item,
-                      label: item.key,
-                      value: <Icon as={item.icon} />,
-                    }))}
-                    withTooltip={true}
-                  />
-                  <Button
-                    leftIcon={<LuPlus />}
-                    size="xs"
-                    colorScheme={primaryColor}
-                    onClick={onAddPlayerModalOpen}
-                  >
-                    {t("AccountsPage.Button.addPlayer")}
-                  </Button>
-                </HStack>
-              }
-            >
-              <Box overflow="auto" flexGrow={1} mt={2.5} rounded="md">
-                <PlayersView
-                  players={filterPlayersByType(selectedPlayerType)}
-                  viewType={selectedViewType}
+          <Section
+            display="flex"
+            flexDirection="column"
+            height="100%"
+            title={
+              playerTypeList.find((item) => item.key === selectedPlayerType)
+                ?.label
+            }
+            description={
+              !["all", "offline"].includes(selectedPlayerType)
+                ? selectedPlayerType
+                : undefined
+            }
+            headExtra={
+              <HStack spacing={2} alignItems="flex-start">
+                <SegmentedControl
+                  selected={selectedViewType}
+                  onSelectItem={(s) => {
+                    update("page.accounts.viewType", s as string);
+                  }}
+                  size="2xs"
+                  items={viewTypeList.map((item) => ({
+                    ...item,
+                    label: item.key,
+                    value: <Icon as={item.icon} />,
+                  }))}
+                  withTooltip
                 />
-              </Box>
-            </Section>
-          </Box>
+                <Button
+                  leftIcon={<LuPlus />}
+                  size="xs"
+                  colorScheme={primaryColor}
+                  onClick={onAddPlayerModalOpen}
+                >
+                  {t("AccountsPage.Button.addPlayer")}
+                </Button>
+              </HStack>
+            }
+          >
+            <Box overflow="auto" flexGrow={1} rounded="md">
+              <PlayersView
+                players={filterPlayersByType(selectedPlayerType)}
+                viewType={selectedViewType}
+              />
+            </Box>
+          </Section>
         </GridItem>
       </Grid>
       <AddAuthServerModal
