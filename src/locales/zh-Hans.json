@@ -165,6 +165,25 @@
       "design": "视觉设计"
     }
   },
+  "DeleteGameAlertDialog": {
+    "dialog": {
+      "title": "删除游戏实例",
+      "content": "确定要删除游戏实例 “{{gameName}}” 吗？"
+    }
+  },
+  "DeletePlayerAlertDialog": {
+    "dialog": {
+      "title": "删除角色",
+      "content": "确定要删除角色 “{{name}}” 吗？"
+    }
+  },
+  "DiscoverPage": {
+    "title": "发现",
+    "Button": {
+      "sources": "管理数据源",
+      "refresh": "刷新"
+    }
+  },
   "DownloadSettingPage": {
     "source": {
       "title": "源",
@@ -203,18 +222,6 @@
           "open": "打开"
         }
       }
-    }
-  },
-  "DeleteGameAlertDialog": {
-    "dialog": {
-      "title": "删除游戏实例",
-      "content": "确定要删除游戏实例 “{{gameName}}” 吗？"
-    }
-  },
-  "DeletePlayerAlertDialog": {
-    "dialog": {
-      "title": "删除角色",
-      "content": "确定要删除角色 “{{name}}” 吗？"
     }
   },
   "Empty": {

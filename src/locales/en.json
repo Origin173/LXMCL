@@ -165,6 +165,25 @@
       "design": "Visual Design"
     }
   },
+  "DeleteGameAlertDialog": {
+    "dialog": {
+      "title": "Delete Game Instance",
+      "content": "Are you sure you want to delete the game instance \"{{gameName}}\" ?"
+    }
+  },
+  "DeletePlayerAlertDialog": {
+    "dialog": {
+      "title": "Delete Player",
+      "content": "Are you sure you want to delete the player \"{{name}}\" ?"
+    }
+  },
+  "DiscoverPage": {
+    "title": "Discover",
+    "Button": {
+      "sources": "Manage Sources",
+      "refresh": "Refresh"
+    }
+  },
   "DownloadSettingPage": {
     "source": {
       "title": "Source",
@@ -203,18 +222,6 @@
           "open": "Open"
         }
       }
-    }
-  },
-  "DeleteGameAlertDialog": {
-    "dialog": {
-      "title": "Delete Game Instance",
-      "content": "Are you sure you want to delete the game instance \"{{gameName}}\" ?"
-    }
-  },
-  "DeletePlayerAlertDialog": {
-    "dialog": {
-      "title": "Delete Player",
-      "content": "Are you sure you want to delete the player \"{{name}}\" ?"
     }
   },
   "Empty": {
