@@ -9,7 +9,9 @@
     "lint": "next lint",
     "tauri": "tauri",
     "lint-staged": "lint-staged",
-    "prepare": "husky"
+    "prepare": "husky",
+    "check-version": "node scripts/check-version.js",
+    "bump-version": "node scripts/bump-version.js"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx}": [
