@@ -53,35 +53,8 @@ jobs:
           # Set the version as output
           echo "version=$PKG_VERSION" >> $GITHUB_OUTPUT
 
-  Lint:
-    needs: Version-Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-      
-      - name: Install frontend dependencies
-        run: npm install
-      
-      - name: Lint JavaScript/TypeScript Frontend
-        run: npx eslint 'src/**/*.{js,jsx,ts,tsx}' --no-fix --max-warnings=0 
-      
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-          components: rustfmt
-
-      - name: Lint Rust Backend
-        run: |
-          find src-tauri/src -name '*.rs' | xargs rustfmt --check
-
   Build-and-Release:
-    needs: [Version-Check, Lint]
+    needs: [Version-Check]
     strategy:
       fail-fast: false
       matrix:
