@@ -10,7 +10,7 @@
           "title": "開發者名單"
         },
         "reportIssue": {
-          "title": "報告問題"
+          "title": "回報問題"
         },
         "aboutSJMC": {
           "title": "關於上海交通大學 Minecraft 社（SJMC）"
@@ -27,54 +27,54 @@
       }
     },
     "legalInfo": {
-      "title": "法律信息",
+      "title": "法律資訊",
       "settings": {
         "copyright": {
           "title": "版權",
           "description": "版權所有 © 2024 SJMCL 開發團隊."
         },
         "userAgreement": {
-          "title": "用戶協議"
+          "title": "使用者協議"
         },
         "openSourceLicense": {
-          "title": "開源許可",
-          "description": "本項目遵循 GNU General Public License v3.0 協議"
+          "title": "開源授權",
+          "description": "本專案遵循 GNU General Public License v3.0 授權"
         }
       }
     }
   },
   "AccountsPage": {
     "Button": {
-      "addPlayer": "添加角色",
-      "add3rdPartySource": "添加第三方認證源"
+      "addPlayer": "新增角色",
+      "add3rdPartySource": "新增第三方認證源"
     },
     "playerTypeList": {
       "all": "全部來源"
     },
     "viewTypeList": {
       "grid": "網格視圖",
-      "list": "列表視圖"
+      "list": "清單視圖"
     }
   },
   "AddAuthServerModal": {
     "toast": {
       "duplicateServer": "伺服器已存在",
-      "success": "伺服器添加成功",
-      "invalidServerUrl": "無效的伺服器地址"
+      "success": "伺服器新增成功",
+      "invalidServerUrl": "無效的伺服器位址"
     },
     "header": {
-      "title": "添加認證伺服器"
+      "title": "新增認證伺服器"
     },
     "placeholder": {
-      "inputServerUrl": "請輸入伺服器地址"
+      "inputServerUrl": "請輸入伺服器位址"
     },
     "page1": {
-      "serverUrl": "伺服器地址",
-      "serverUrlRequired": "未輸入伺服器地址"
+      "serverUrl": "伺服器位址",
+      "serverUrlRequired": "必填欄位"
     },
     "page2": {
       "name": "名稱",
-      "serverUrl": "伺服器地址"
+      "serverUrl": "伺服器位址"
     },
     "button": {
       "cancel": "取消",
@@ -85,7 +85,7 @@
   },
   "AddPlayerModal": {
     "modal": {
-      "header": "添加角色",
+      "header": "新增角色",
       "confirm": "確定",
       "cancel": "取消"
     },
@@ -97,23 +97,23 @@
     },
     "authServer": {
       "selectSource": "請選擇認證源",
-      "noSource": "未添加可用認證源伺服器",
-      "addSource": "添加認證源"
+      "noSource": "未新增可用認證源伺服器",
+      "addSource": "新增認證源"
     },
     "placeholder": {
-      "playerName": "請輸入",
-      "password": "請輸入"
+      "playerName": "請輸入使用者名稱",
+      "password": "請輸入密碼"
     }
   },
   "AllGamesPage": {
     "Button": {
-      "addAndImport": "添加與導入",
-      "globalSettings": "全局遊戲設置",
+      "addAndImport": "新增與匯入",
+      "globalSettings": "全域遊戲設定",
       "launch": "啟動遊戲"
     },
     "viewTypeList": {
       "grid": "網格視圖",
-      "list": "列表視圖"
+      "list": "清單視圖"
     },
     "title": "全部實例"
   },
@@ -125,7 +125,7 @@
           "title": "啟動器強調色"
         },
         "headNavStyle": {
-          "title": "頂部導航欄樣式",
+          "title": "頂部導覽列樣式",
           "type": {
             "standard": "標準",
             "simplified": "簡約"
@@ -151,7 +151,7 @@
     }
   },
   "ComingSoonSign": {
-    "text": "該頁面暫未開放，敬請期待"
+    "text": "此頁面暫未開放，敬請期待"
   },
   "ContributorsPage": {
     "all": "全部開發者名單",
@@ -160,20 +160,39 @@
       "fullStackDev": "全棧開發",
       "frontendDev": "前端開發",
       "backendDev": "後端開發",
-      "doc": "文檔",
+      "doc": "文件",
       "cicd": "CI / CD",
       "design": "視覺設計"
     }
   },
+  "DeleteGameAlertDialog": {
+    "dialog": {
+      "title": "刪除遊戲實例",
+      "content": "確定要刪除遊戲實例 “{{gameName}}” 嗎？"
+    }
+  },
+  "DeletePlayerAlertDialog": {
+    "dialog": {
+      "title": "刪除角色",
+      "content": "確定要刪除角色 “{{name}}” 嗎？"
+    }
+  },
+  "DiscoverPage": {
+    "title": "發現",
+    "Button": {
+      "sources": "管理資料來源",
+      "refresh": "重新整理"
+    }
+  },
   "DownloadSettingPage": {
     "source": {
-      "title": "源",
+      "title": "來源",
       "settings": {
         "strategy": {
-          "title": "下載源選擇策略",
+          "title": "下載來源選擇策略",
           "auto": "自動選擇",
-          "official": "官方源優先",
-          "mirror": "鏡像源優先"
+          "official": "官方來源優先",
+          "mirror": "鏡像來源優先"
         }
       }
     },
@@ -190,41 +209,29 @@
           "title": "限制下載速度"
         },
         "speedLimitValue": {
-          "title": "限速設置"
+          "title": "限速設定"
         }
       }
     },
     "cache": {
-      "title": "緩存",
+      "title": "快取",
       "settings": {
         "directory": {
-          "title": "下載緩存目錄",
+          "title": "下載快取目錄",
           "select": "修改",
           "open": "打開"
         }
       }
     }
   },
-  "DeleteGameAlertDialog": {
-    "dialog": {
-      "title": "刪除遊戲實例",
-      "content": "確定要刪除遊戲實例 “{{gameName}}” 嗎？"
-    }
-  },
-  "DeletePlayerAlertDialog": {
-    "dialog": {
-      "title": "刪除角色",
-      "content": "確定要刪除角色 “{{name}}” 嗎？"
-    }
-  },
   "Empty": {
-    "nodata": "暫無數據"
+    "noData": "暫無資料"
   },
   "Enums": {
     "chakraColors": {
       "gray": "灰色",
       "red": "紅色",
-      "orange": "橙色",
+      "orange": "橘色",
       "yellow": "黃色",
       "green": "綠色",
       "teal": "藍綠色",
@@ -241,7 +248,7 @@
   },
   "GameLogPage": {
     "placeholder": "輸入關鍵字篩選",
-    "exportLogs": "導出日誌",
+    "exportLogs": "匯出日誌",
     "clearLogs": "清除所有日誌"
   },
   "GameMenu": {
@@ -250,9 +257,14 @@
       "delete": "刪除實例"
     }
   },
+  "General": {
+    "open": "打開",
+    "openFolder": "打開資料夾",
+    "openInFolder": "在資料夾中打開"
+  },
   "GeneralSettingsPage": {
     "general": {
-      "title": "通用設置",
+      "title": "通用設定",
       "settings": {
         "language": {
           "title": "語言（Language）"
@@ -268,7 +280,7 @@
       }
     }
   },
-  "GenericConfirmModal":{
+  "GenericConfirmModal": {
     "Button": {
       "delete": "刪除",
       "cancel": "取消"
@@ -276,24 +288,24 @@
   },
   "GlobalGameSettingsPage": {
     "performance": {
-      "title": "性能",
+      "title": "效能",
       "settings": {
         "gameWindowResolution": {
-          "title": "遊戲窗口分辨率",
-          "switch": "全屏"
+          "title": "遊戲視窗解析度",
+          "switch": "全螢幕"
         },
         "autoMemAllocation": {
-          "title": "自動分配內存"
+          "title": "自動分配記憶體"
         },
         "minMemAllocation": {
-          "title": "最小內存分配"
+          "title": "最小記憶體分配"
         },
         "memoryUsage": {
-          "title": "內存佔用情況",
-          "description": "已用內存{{usedMemory}}GB；遊戲分配{{allocatedMemory}}GB；總內存{{totalMemory}}GB"
+          "title": "記憶體使用情況",
+          "description": "已用記憶體{{usedMemory}}GB；遊戲分配{{allocatedMemory}}GB；總記憶體{{totalMemory}}GB"
         },
         "processPriority": {
-          "title": "進程優先級",
+          "title": "程序優先級",
           "low": "低",
           "middle": "中",
           "high": "高"
@@ -338,14 +350,14 @@
     "navList": {
       "launch": "啟動",
       "games": "遊戲",
-      "accounts": "賬戶",
+      "accounts": "帳號",
       "discover": "發現",
-      "settings": "設置"
+      "settings": "設定"
     }
   },
   "HelpSettingsPage": {
     "community": {
-      "title": "高校玩家社區",
+      "title": "高校玩家社群",
       "settings": {
         "MUA": {
           "title": "Minecraft 高校聯盟 (MUA)",
@@ -370,14 +382,14 @@
         },
         "curseforge": {
           "title": "CurseForge",
-          "description": "探索世界上最大的 Minecraft 模組存儲庫"
+          "description": "探索世界上最大的 Minecraft 模組儲存庫"
         }
       }
     },
     "top": {
       "settings": {
         "LauncherDocs": {
-          "title": "SJMC Launcher 文檔"
+          "title": "SJMC Launcher 文件"
         }
       }
     }
@@ -390,10 +402,32 @@
       "resourcepacks": "資源包",
       "shaderpacks": "光影",
       "screenshots": "截圖",
-      "settings": "設置"
+      "settings": "設定"
     },
     "Button": {
-      "launch": "启动实例"
+      "launch": "啟動實例"
+    }
+  },
+  "InstanceWorldsPage": {
+    "worldList": {
+      "title": "本地世界",
+      "lastPlayedAt": "上次遊玩於"
+    },
+    "serverList": {
+      "title": "伺服器"
+    }
+  },
+  "InstanceResourcePacksPage": {
+    "resourcePackList": {
+      "title": "全域資源包"
+    },
+    "serverResPackList": {
+      "title": "伺服器資源包"
+    }
+  },
+  "InstanceShaderPacksPage": {
+    "shaderPackList": {
+      "title": "光影包"
     }
   },
   "LaunchPage": {
@@ -412,16 +446,11 @@
     }
   },
   "MemoryStatusProgress": {
-    "title": "內存狀態",
+    "title": "記憶體狀態",
     "info": "{{used}} / {{total}} GB 已使用",
     "label": {
       "now": "正在使用",
       "minAllocation": "為 Minecraft 分配的最小值"
-    }
-  },
-  "InstanceShaderPacksPage":{
-    "shaderPackList": {
-      "title": "光影包"
     }
   },
   "NotFoundPage": {
@@ -429,38 +458,38 @@
   },
   "PlayerMenu": {
     "label": {
-      "skin": "管理皮膚",
+      "skin": "管理外觀",
       "delete": "刪除此角色"
     }
   },
   "RestoreConfigConfirmDialog": {
     "title": "還原啟動器設定",
-    "body": "此操作將重置所有啟動器設定為預設值。確定要繼續嗎？",
-    "btnOk": "确定"
+    "body": "此操作將會還原啟動器的所有設定為預設值，您確定要繼續嗎？",
+    "btnOk": "確定"
   },
   "Services": {
     "config": {
       "getLauncherConfig": {
-        "error": "获取启动器设置失败"
+        "error": "獲取啟動器設定失敗"
       },
       "updateLauncherConfig": {
-        "error": "更新启动器设置失败"
+        "error": "更新啟動器設定失敗"
       },
       "restoreLauncherConfig": {
-        "success": "设置已成功还原",
-        "error": "还原设置失败，请重试"
+        "success": "設定已成功還原",
+        "error": "還原設定失敗，請重試"
       }
     }
   },
   "SettingsLayout": {
     "settingsDomainList": {
-      "global-game": "全局遊戲設置",
+      "global-game": "全域遊戲設定",
       "java": "Java",
       "general": "通用",
       "appearance": "外觀",
       "download": "下載資源",
-      "sync-restore": "同步与还原",
-      "help": "文檔與幫助",
+      "sync-restore": "同步與還原",
+      "help": "文件與幫助",
       "about": "關於",
       "dev-test": "開發 - 測試頁"
     }
@@ -470,13 +499,32 @@
       "title": "啟動器設定",
       "settings": {
         "internetSync": {
-          "title": "網路同步",
+          "title": "聯網同步",
           "begin": "開始"
         },
         "restoreAll": {
-          "title": "还原所有设置",
-          "description": "将所有启动器设置还原为默认值",
-          "restore": "还原"
+          "title": "還原所有設定",
+          "description": "將所有啟動器設定還原為預設值",
+          "restore": "還原"
+        }
+      }
+    }
+  },
+  "Utils": {
+    "datetime": {
+      "formatRelativeTime": {
+        "now": "現在",
+        "minutes-ago": "{{count}} 分鐘前",
+        "last-hour": "1 小時前",
+        "hours-ago": "{{count}} 小時前",
+        "yesterday": "昨天",
+        "others": "{{time}}"
+      }
+    },
+    "env": {
+      "checkFrontendCompatibility": {
+        "warning": {
+          "title": "系統 WebView 版本較低，部分介面元素可能無法正常顯示"
         }
       }
     }
