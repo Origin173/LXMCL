@@ -10,7 +10,8 @@ import {
   VStack,
   useDisclosure,
 } from "@chakra-ui/react";
-import { LuChevronRight } from "react-icons/lu";
+import { useRouter } from "next/router";
+import { LuArrowLeft, LuChevronRight } from "react-icons/lu";
 
 export interface SectionProps extends Omit<BoxProps, "children"> {
   title?: string;
@@ -19,6 +20,7 @@ export interface SectionProps extends Omit<BoxProps, "children"> {
   description?: string;
   isAccordion?: boolean;
   initialIsOpen?: boolean;
+  withBackButton?: boolean;
   children?: React.ReactNode;
 }
 
@@ -29,16 +31,31 @@ export const Section: React.FC<SectionProps> = ({
   description,
   isAccordion = false,
   initialIsOpen = true,
+  withBackButton = false,
   children,
   ...props
 }) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: initialIsOpen });
+  const router = useRouter();
 
   return (
     <Box {...props}>
       {(isAccordion || title || description) && (
         <Flex alignItems="flex-start" flexShrink={0} mb={isOpen ? 2.5 : 0}>
           <HStack spacing={1}>
+            {withBackButton && (
+              <IconButton
+                aria-label="back"
+                icon={<Icon as={LuArrowLeft} boxSize={3.5} />}
+                size="xs"
+                h={21}
+                variant="ghost"
+                colorScheme="gray"
+                onClick={() => {
+                  router.back();
+                }}
+              />
+            )}
             {isAccordion && (
               <IconButton
                 aria-label="accordion-control"
