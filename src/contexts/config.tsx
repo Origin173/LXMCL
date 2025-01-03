@@ -1,5 +1,11 @@
 import i18n from "i18next";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/contexts/toast";
 import { LauncherConfig, defaultConfig } from "@/models/config";
@@ -12,6 +18,7 @@ import {
 interface LauncherConfigContextType {
   config: LauncherConfig;
   update: (path: string, value: any) => void;
+  fetchAll: () => void;
   restoreAll: () => void;
 }
 
@@ -26,7 +33,7 @@ export const LauncherConfigContextProvider: React.FC<{
   const { t } = useTranslation();
   const toast = useToast();
 
-  useEffect(() => {
+  const fetchAll = useCallback(() => {
     getLauncherConfig()
       .then((config) => {
         setConfig(config);
@@ -37,7 +44,11 @@ export const LauncherConfigContextProvider: React.FC<{
           status: "error",
         });
       });
-  }, [toast, t]);
+  }, [setConfig, toast, t]);
+
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
 
   useEffect(() => {
     i18n.changeLanguage(config.general.general.language);
@@ -91,7 +102,9 @@ export const LauncherConfigContextProvider: React.FC<{
   };
 
   return (
-    <LauncherConfigContext.Provider value={{ config, update, restoreAll }}>
+    <LauncherConfigContext.Provider
+      value={{ config, update, fetchAll, restoreAll }}
+    >
       {children}
     </LauncherConfigContext.Provider>
   );
