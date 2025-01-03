@@ -500,7 +500,8 @@
       "settings": {
         "internetSync": {
           "title": "联网同步",
-          "begin": "开始"
+          "import": "导入",
+          "export": "导出"
         },
         "restoreAll": {
           "title": "还原所有设置",
@@ -508,6 +509,32 @@
           "restore": "还原"
         }
       }
+    }
+  },
+  "SyncConfigExportModal": {
+    "header": {
+      "title": "同步设置 - 导出"
+    },
+    "label": {
+      "token": "令牌"
+    },
+    "helper": "将上述令牌输入至待同步的设备以完成同步",
+    "countdown": "{{seconds}} 秒后刷新",
+    "button": {
+      "close": "关闭"
+    }
+  },
+  "SyncConfigImportModal": {
+    "header": {
+      "title": "同步设置 - 导入"
+    },
+    "label": {
+      "token": "令牌"
+    },
+    "helper": "请输入需同步设备生成的令牌",
+    "button": {
+      "cancel": "取消",
+      "finish": "完成"
     }
   },
   "Utils": {

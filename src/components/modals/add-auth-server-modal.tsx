@@ -26,8 +26,6 @@ import { AuthServer } from "@/models/account";
 interface AddAuthServerModalProps extends Omit<ModalProps, "children"> {}
 
 const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
-  isOpen,
-  onClose,
   ...modalProps
 }) => {
   const { t } = useTranslation();
@@ -36,6 +34,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   const toast = useToast();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const { isOpen, onClose } = modalProps;
 
   const [serverUrl, setServerUrl] = useState<string>("");
   const [serverName] = useState<string>("Mock Server Name");
@@ -84,7 +83,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} {...modalProps}>
+    <Modal {...modalProps}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{t("AddAuthServerModal.header.title")}</ModalHeader>
