@@ -11,7 +11,8 @@
     "lint-staged": "lint-staged",
     "prepare": "husky",
     "check-version": "node scripts/check-version.js",
-    "bump-version": "node scripts/bump-version.js"
+    "bump-version": "node scripts/bump-version.js",
+    "check-locales-diff": "node src/locales/check-diff.js"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx}": [
