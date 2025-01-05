@@ -34,6 +34,16 @@
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.ico"
-    ]
+    ],
+    "licenseFile": "../LICENSE",
+    "license": "GPLv3",
+    "macOS": {
+      "dmg": {
+        "windowSize": {
+          "width": 640,
+          "height": 440
+        }
+      }
+    }
   }
 }
