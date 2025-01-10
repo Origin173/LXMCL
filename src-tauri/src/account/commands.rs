@@ -6,13 +6,13 @@ use crate::{
 use uuid::Uuid;
 
 #[tauri::command]
-pub fn get_accounts() -> SJMCLResult<Vec<Player>> {
+pub fn get_players() -> SJMCLResult<Vec<Player>> {
   let state: Vec<Player> = Storage::load().unwrap_or_default();
   Ok(state)
 }
 
 #[tauri::command]
-pub fn add_account(player: Player) -> SJMCLResult<()> {
+pub fn add_player(player: Player) -> SJMCLResult<()> {
   let uuid = Uuid::new_v4();
   match player.player_type.as_str() {
     "offline" => {
@@ -44,7 +44,7 @@ pub fn add_account(player: Player) -> SJMCLResult<()> {
 }
 
 #[tauri::command]
-pub fn delete_account(uuid: String) -> SJMCLResult<()> {
+pub fn delete_player(uuid: String) -> SJMCLResult<()> {
   let mut state: Vec<Player> = Storage::load().unwrap_or_default();
 
   state.retain(|s| s.uuid != uuid);
