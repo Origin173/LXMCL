@@ -2,33 +2,25 @@
 
 SJMCL is an open-source Minecraft launcher from [Shanghai Jiao Tong University Minecraft Club (SJMC)](https://mc.sjtu.cn/welcome/content/3/).
 
-### Development
+### Development and Contributing
 
-This project uses **[Tauri v2](https://v2.tauri.app/)**. Please make sure you have installed [node >=22](https://nodejs.org/) and [Rust](https://www.rust-lang.org/learn/get-started).
+To get started, clone the repository and install the required dependencies:
 
 ```bash
 git clone git@github.com:UNIkeEN/SJMCL.git
 npm install
 ```
 
-To start as development mode:
+To run the project in development mode:
 
 ```bash
 npm run tauri dev
 ```
 
-We use **ESLint** + **Prettier** for frontend code and **rustfmt** for backend code to ensure consistent formatting. Code formatting is automatically checked before each commit.
+We warmly invite contributions from everyone. 
 
-To manually check and fix formatting issues, you can run the following commands:
-
-```bash
-# For frontend part
-npx eslint "src/**/*.{js,jsx,ts,tsx}" --no-fix     # check
-npx eslint "src/**/*.{js,jsx,ts,tsx}" --fix        # fix
-
-# For backend part
-rustfmt --check src-tauri/src/**/*.rs
-```
+* Before you get started, please take a moment to review our [Contributing Guide](https://github.com/UNIkeEN/SJMCL/blob/main/CONTRIBUTING.md) (includes more details on the development workflow). 
+* Feel free to share your ideas through [Pull Requests](https://github.com/UNIkeEN/SJMCL/pulls) or [GitHub Issues](https://github.com/UNIkeEN/SJMCL/issues).
 
 ### Copyright
 

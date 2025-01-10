@@ -33,7 +33,54 @@ The core team monitors pull requests regularly. We will review your pull request
 * Ensure your code passes linting (`npm run lint-staged`). Tip: Linting runs automatically when you `git commit`.
 * Finally, please make sure that all GitHub CI checks pass.
 
-<!-- ### Development Workflow (TBD)-->
+### Development Workflow
+
+#### Preliminaries
+
+This project uses **[Tauri v2](https://v2.tauri.app/)**. Please make sure you have installed [node >=22](https://nodejs.org/) and [Rust](https://www.rust-lang.org/learn/get-started).
+
+We use `npm` as the preferred package manager for the frontend. After cloning the repository, use the following command to install the dependencies:
+
+```bash
+npm install
+```
+
+#### Run locally
+
+Run the project in development mode.
+
+```bash
+npm run tauri dev
+```
+
+#### Check the code style
+
+We use `ESLint` and `Prettier` for frontend code and `rustfmt` for backend code to ensure consistent formatting. 
+
+```bash
+npm run lint-staged
+```
+
+Alternatively, to manually check and fix formatting issues, run the following commands:
+
+```bash
+# For frontend part
+npx eslint "src/**/*.{js,jsx,ts,tsx}" --no-fix     # check
+npx eslint "src/**/*.{js,jsx,ts,tsx}" --fix        # fix
+
+# For backend part
+rustfmt --check src-tauri/src/**/*.rs
+```
+
+#### Build
+
+Build the project into an executable.
+
+```bash
+npm run tauri build
+```
+
+For cross-platform compilation, packaging in a specific format, or more details, please refer to the official [Tauri distribution guide](https://tauri.app/distribute/).
 
 ### Being a collaborator
 
