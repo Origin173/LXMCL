@@ -84,11 +84,11 @@ const AccountsPage = () => {
     if (type === "all") {
       return playerList;
     } else if (type === "offline") {
-      return playerList.filter((player) => player.type === "offline");
+      return playerList.filter((player) => player.serverType === "offline");
     } else {
       return playerList.filter(
         (player) =>
-          player.type === "3rdparty" &&
+          player.serverType === "3rdparty" &&
           authServerList.find((server) => server.authUrl === type)?.authUrl ===
             player.authServer?.authUrl
       );

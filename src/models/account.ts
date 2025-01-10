@@ -1,12 +1,12 @@
 // player
 export interface Player {
-  id: number;
   name: string;
   uuid: string;
-  avatarSrc: string;
-  type: "offline" | "3rdparty";
+  avatarUrl: string;
+  serverType: "offline" | "3rdparty";
   authServer?: AuthServer; // only from authlib-injector
   authAccount?: string; // only from authlib-injector
+  password?: string; // only from authlib-injector
 }
 
 // authlib-injector source

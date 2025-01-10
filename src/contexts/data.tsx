@@ -1,8 +1,17 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { useToast } from "@chakra-ui/react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { useTranslation } from "react-i18next";
 import { AuthServer, Player } from "@/models/account";
 import { GameInstanceSummary } from "@/models/game-instance";
 import { mockAuthServerList, mockPlayerList } from "@/models/mock/account";
 import { mockGameInstanceSummaryList } from "@/models/mock/game-instance";
+import { getPlayerList } from "@/services/account";
 
 interface DataContextType {
   playerList: Player[];
@@ -37,10 +46,30 @@ export const DataContextProvider: React.FC<{
   const [selectedGameInstance, setSelectedGameInstance] =
     useState<GameInstanceSummary>();
   const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
+  const toast = useToast();
+  const { t } = useTranslation();
+
+  const fetchPlayerList = useCallback(() => {
+    getPlayerList()
+      .then((playerList) => {
+        setPlayerList(playerList);
+        if (playerList.length > 0) {
+          setSelectedPlayer(playerList[0]);
+        }
+      })
+      .catch((error) => {
+        toast({
+          title: t("Services.account.getPlayerList.error"),
+          status: "error",
+        });
+      });
+  }, [setPlayerList, toast, t]);
 
   useEffect(() => {
-    setPlayerList(mockPlayerList);
-    setSelectedPlayer(mockPlayerList[0]);
+    fetchPlayerList();
+  }, [fetchPlayerList]);
+
+  useEffect(() => {
     setGameInstanceSummaryList(mockGameInstanceSummaryList);
     setSelectedGameInstance(mockGameInstanceSummaryList[0]);
     setAuthServerList(mockAuthServerList);

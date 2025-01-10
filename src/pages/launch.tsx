@@ -59,7 +59,7 @@ const LaunchPage = () => {
               <Image
                 boxSize="32px"
                 objectFit="cover"
-                src={selectedPlayer.avatarSrc}
+                src={selectedPlayer.avatarUrl}
                 alt={selectedPlayer.name}
               />
               <VStack spacing={0} align="left" mt={-2}>
@@ -74,11 +74,11 @@ const LaunchPage = () => {
                 </Text>
                 <Text fontSize="2xs" className="secondary-text no-select">
                   {t(
-                    `Enums.playerTypes.${selectedPlayer.type === "3rdparty" ? "3rdpartyShort" : selectedPlayer.type}`
+                    `Enums.playerTypes.${selectedPlayer.serverType === "3rdparty" ? "3rdpartyShort" : selectedPlayer.serverType}`
                   )}
                 </Text>
                 <Text fontSize="2xs" className="secondary-text no-select">
-                  {selectedPlayer.type === "3rdparty" &&
+                  {selectedPlayer.serverType === "3rdparty" &&
                     selectedPlayer.authServer?.name}
                 </Text>
               </VStack>

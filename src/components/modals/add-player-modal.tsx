@@ -20,18 +20,21 @@ import {
   Stack,
   Text,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import { error } from "console";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuChevronDown, LuLink2Off, LuPlus, LuServer } from "react-icons/lu";
 import SegmentedControl from "@/components/common/segmented";
 import AddAuthServerModal from "@/components/modals/add-auth-server-modal";
 import { useLauncherConfig } from "@/contexts/config";
-import { useData } from "@/contexts/data";
-import { AuthServer } from "@/models/account";
+import { useData, useDataDispatch } from "@/contexts/data";
+import { AuthServer, Player } from "@/models/account";
+import { addPlayer, getPlayerList } from "@/services/account";
 
 interface AddPlayerModalProps extends Omit<ModalProps, "children"> {
-  initialPlayerType?: string;
+  initialPlayerType?: "offline" | "3rdparty";
   initialAuthServerUrl?: string;
 }
 
@@ -42,7 +45,11 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { authServerList } = useData();
-  const [playerType, setPlayerType] = useState<string>("");
+  const { setPlayerList } = useDataDispatch();
+  const toast = useToast();
+  const [playerType, setPlayerType] = useState<"offline" | "3rdparty">(
+    initialPlayerType
+  );
   const [playername, setPlayername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [authServerUrl, setAuthServerUrl] = useState<string>("");
@@ -56,10 +63,6 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   } = useDisclosure();
 
   useEffect(() => {
-    setPlayerType(initialPlayerType);
-  }, [initialPlayerType]);
-
-  useEffect(() => {
     setAuthServerUrl(
       initialAuthServerUrl ||
         (authServerList.length > 0 ? authServerList[0].authUrl : "")
@@ -69,6 +72,46 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   useEffect(() => {
     setPassword("");
   }, [playerType]);
+
+  const handleLogin = useCallback(() => {
+    let player: Player = {
+      name: playername,
+      serverType: playerType,
+      password: password,
+      uuid: "",
+      avatarUrl: "",
+      authServer: authServerUrl
+        ? authServerList.find((server) => server.authUrl === authServerUrl)
+        : undefined,
+    };
+    (async () => {
+      try {
+        await addPlayer(player);
+        const players = await getPlayerList();
+        setPlayerList(players);
+        toast({
+          title: t("Services.account.addPlayer.success"),
+          status: "success",
+        });
+        modalProps.onClose();
+      } catch (error) {
+        toast({
+          title: t("Services.account.addPlayer.error"),
+          status: "error",
+        });
+      }
+    })();
+  }, [
+    playername,
+    playerType,
+    password,
+    authServerUrl,
+    authServerList,
+    setPlayerList,
+    toast,
+    t,
+    modalProps,
+  ]);
 
   const playerTypeList = [
     {
@@ -96,7 +139,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
               <FormLabel>{t("AddPlayerModal.label.playerType")}</FormLabel>
               <SegmentedControl
                 selected={playerType}
-                onSelectItem={(s) => setPlayerType(s)}
+                onSelectItem={(s) => setPlayerType(s as "offline" | "3rdparty")}
                 size="sm"
                 items={playerTypeList.map((item) => ({
                   label: item.key,
@@ -215,7 +258,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
           </Button>
           <Button
             colorScheme={primaryColor}
-            onClick={modalProps.onClose}
+            onClick={handleLogin}
             ml={3}
             isDisabled={
               !playername ||
