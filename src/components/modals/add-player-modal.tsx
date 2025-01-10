@@ -20,7 +20,6 @@ import {
   Stack,
   Text,
   useDisclosure,
-  useToast,
 } from "@chakra-ui/react";
 import { error } from "console";
 import React, { useCallback, useEffect, useState } from "react";
@@ -30,6 +29,7 @@ import SegmentedControl from "@/components/common/segmented";
 import AddAuthServerModal from "@/components/modals/add-auth-server-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData, useDataDispatch } from "@/contexts/data";
+import { useToast } from "@/contexts/toast";
 import { AuthServer, Player } from "@/models/account";
 import { addPlayer, getPlayerList } from "@/services/account";
 
@@ -75,7 +75,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
 
   const handleLogin = useCallback(() => {
     let player: Player = {
-      name: playername,
+      name: "",
       serverType: playerType,
       password: password,
       uuid: "",
@@ -84,6 +84,11 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
         ? authServerList.find((server) => server.authUrl === authServerUrl)
         : undefined,
     };
+    if (playerType === "offline") {
+      player.name = playername;
+    } else {
+      player.authAccount = playername;
+    }
     (async () => {
       try {
         await addPlayer(player);
