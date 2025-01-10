@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 pub struct Player {
   pub name: String,
   pub uuid: String,
-  pub avatar_url: String,
-  pub server_type: String,
+  pub avatar_src: String,
+  pub player_type: String,
   #[serde(default)]
   pub auth_account: String,
   #[serde(default)]

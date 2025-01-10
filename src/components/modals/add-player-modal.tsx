@@ -76,10 +76,10 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   const handleLogin = useCallback(() => {
     let player: Player = {
       name: "",
-      serverType: playerType,
+      playerType: playerType,
       password: password,
       uuid: "",
-      avatarUrl: "",
+      avatarSrc: "",
       authServer: authServerUrl
         ? authServerList.find((server) => server.authUrl === authServerUrl)
         : undefined,

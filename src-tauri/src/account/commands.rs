@@ -14,13 +14,13 @@ pub fn get_accounts() -> SJMCLResult<Vec<Player>> {
 #[tauri::command]
 pub fn add_account(player: Player) -> SJMCLResult<()> {
   let uuid = Uuid::new_v4();
-  match player.server_type.as_str() {
+  match player.player_type.as_str() {
     "offline" => {
       let mut state: Vec<Player> = Storage::load().unwrap_or_default();
 
       let mut new_player = player.clone();
       new_player.uuid = uuid.to_string();
-      new_player.avatar_url = "https://littleskin.cn/avatar/0?size=72&png=1".to_string();
+      new_player.avatar_src = "https://littleskin.cn/avatar/0?size=72&png=1".to_string();
 
       state.push(new_player);
       state.save()?;
@@ -33,7 +33,7 @@ pub fn add_account(player: Player) -> SJMCLResult<()> {
       let mut new_player = player.clone();
       new_player.name = "Player".to_string();
       new_player.uuid = uuid.to_string();
-      new_player.avatar_url = "https://littleskin.cn/avatar/0?size=72&png=1".to_string();
+      new_player.avatar_src = "https://littleskin.cn/avatar/0?size=72&png=1".to_string();
 
       state.push(new_player);
       state.save()?;
