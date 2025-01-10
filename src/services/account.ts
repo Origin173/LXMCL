@@ -8,7 +8,7 @@ export const getPlayerList = async (): Promise<Player[]> => {
     console.error("Error in get_accounts:", error);
     throw error;
   }
-}
+};
 
 export const addPlayer = async (player: Player): Promise<void> => {
   try {
@@ -17,4 +17,13 @@ export const addPlayer = async (player: Player): Promise<void> => {
     console.error("Error in add_account:", error);
     throw error;
   }
-}
+};
+
+export const deletePlayer = async (uuid: string): Promise<void> => {
+  try {
+    await invoke("delete_account", { uuid });
+  } catch (error) {
+    console.error("Error in delete_account:", error);
+    throw error;
+  }
+};
