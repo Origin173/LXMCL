@@ -479,6 +479,16 @@
         "success": "Successfully restored launcher settings",
         "error": "Failed to restore launcher settings"
       }
+    },
+    "account": {
+      "addPlayer": {
+        "success": "Successfully added player",
+        "error": "Failed to add player"
+      },
+      "deletePlayer": {
+        "success": "Successfully deleted player",
+        "error": "Failed to delete player"
+      }
     }
   },
   "SettingsLayout": {
