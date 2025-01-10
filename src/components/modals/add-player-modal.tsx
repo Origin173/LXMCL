@@ -53,6 +53,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   const [playername, setPlayername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [authServerUrl, setAuthServerUrl] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 
@@ -91,19 +92,25 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     }
     (async () => {
       try {
+        setIsLoading(true);
         await addPlayer(player);
         const players = await getPlayerList();
         setPlayerList(players);
+        setIsLoading(false);
         toast({
           title: t("Services.account.addPlayer.success"),
           status: "success",
         });
         modalProps.onClose();
       } catch (error) {
+        setIsLoading(false);
         toast({
           title: t("Services.account.addPlayer.error"),
           status: "error",
         });
+      } finally {
+        setPlayername("");
+        setPassword("");
       }
     })();
   }, [
@@ -113,6 +120,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     authServerUrl,
     authServerList,
     setPlayerList,
+    setIsLoading,
     toast,
     t,
     modalProps,
@@ -265,6 +273,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
             colorScheme={primaryColor}
             onClick={handleLogin}
             ml={3}
+            isLoading={isLoading}
             isDisabled={
               !playername ||
               (playerType === "3rdparty" &&
