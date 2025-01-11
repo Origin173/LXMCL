@@ -1,13 +1,23 @@
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
-#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Player {
   pub name: String,
-  pub uuid: Uuid,
-  pub avatar_url: String,
-  pub server_type: String,
+  pub uuid: String,
+  pub avatar_src: String,
+  pub player_type: String,
+  #[serde(default)]
   pub auth_account: String,
+  #[serde(default)]
   pub password: String,
+  #[serde(default)]
+  pub auth_server: AuthServer,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct AuthServer {
+  pub name: String,
+  pub auth_url: String,
 }

@@ -13,7 +13,10 @@ import { useTranslation } from "react-i18next";
 import { LuEllipsis, LuTrash } from "react-icons/lu";
 import { TbHanger } from "react-icons/tb";
 import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
+import { useData, useDataDispatch } from "@/contexts/data";
+import { useToast } from "@/contexts/toast";
 import { Player } from "@/models/account";
+import { deletePlayer, getPlayerList } from "@/services/account";
 
 interface PlayerMenuProps {
   player: Player;
@@ -30,10 +33,32 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
     onOpen: onDeleteOpen,
     onClose: onDeleteClose,
   } = useDisclosure();
+  const { selectedPlayer } = useData();
+  const { setPlayerList, setSelectedPlayer } = useDataDispatch();
+  const toast = useToast();
 
   const handleDelete = () => {
-    console.log(`Deleting player with id: ${player.id}`);
-    onDeleteClose();
+    (async () => {
+      try {
+        let uuid = player.uuid;
+        await deletePlayer(uuid);
+        const players = await getPlayerList();
+        setPlayerList(players);
+        if (selectedPlayer?.uuid === uuid) {
+          setSelectedPlayer(undefined);
+        }
+        toast({
+          title: t("Services.account.deletePlayer.success"),
+          status: "success",
+        });
+        onDeleteClose();
+      } catch (error) {
+        toast({
+          title: t("Services.account.deletePlayer.error"),
+          status: "error",
+        });
+      }
+    })();
   };
 
   const playerMenuOperations = [

@@ -74,11 +74,11 @@ const LaunchPage = () => {
                 </Text>
                 <Text fontSize="2xs" className="secondary-text no-select">
                   {t(
-                    `Enums.playerTypes.${selectedPlayer.type === "3rdparty" ? "3rdpartyShort" : selectedPlayer.type}`
+                    `Enums.playerTypes.${selectedPlayer.playerType === "3rdparty" ? "3rdpartyShort" : selectedPlayer.playerType}`
                   )}
                 </Text>
                 <Text fontSize="2xs" className="secondary-text no-select">
-                  {selectedPlayer.type === "3rdparty" &&
+                  {selectedPlayer.playerType === "3rdparty" &&
                     selectedPlayer.authServer?.name}
                 </Text>
               </VStack>

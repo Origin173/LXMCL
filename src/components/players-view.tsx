@@ -33,7 +33,7 @@ const PlayersView: React.FC<PlayersViewProps> = ({
   const listItems = players.map((player) => ({
     title: player.name,
     description:
-      player.type === "offline"
+      player.playerType === "offline"
         ? t("Enums.playerTypes.offline")
         : `${t("Enums.playerTypes.3rdparty")} - ${player.authServer?.name} (${player.authAccount})`,
     prefixElement: (
@@ -58,7 +58,7 @@ const PlayersView: React.FC<PlayersViewProps> = ({
     cardContent: {
       title: player.name,
       description:
-        player.type === "offline"
+        player.playerType === "offline"
           ? t("Enums.playerTypes.offline")
           : player.authServer?.name || "",
       image: player.avatarSrc,
