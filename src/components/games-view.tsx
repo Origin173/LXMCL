@@ -28,9 +28,20 @@ const GamesView: React.FC<GamesViewProps> = ({
   const { selectedGameInstance } = useData();
   const { setSelectedGameInstance } = useDataDispatch();
 
+  const generateDesc = (game: GameInstanceSummary) => {
+    if (game.modLoader.type === "none") {
+      return game.version;
+    }
+    const modLoaderType =
+      game.modLoader.type.charAt(0).toUpperCase() +
+      game.modLoader.type.slice(1);
+    return `${game.version}, ${modLoaderType} ${game.modLoader.version}`;
+  };
+
   const listItems = games.map((game) => ({
     title: game.name,
-    description: game.description,
+    description:
+      generateDesc(game) + (game.description ? `, ${game.description}` : ""),
     prefixElement: (
       <HStack spacing={2.5}>
         <Radio
@@ -52,7 +63,7 @@ const GamesView: React.FC<GamesViewProps> = ({
   const gridItems = games.map((game) => ({
     cardContent: {
       title: game.name,
-      description: game.description,
+      description: generateDesc(game),
       image: game.iconSrc,
       extraContent: (
         <Box position="absolute" top={0.5} right={1}>
