@@ -67,7 +67,7 @@ const LaunchPage = () => {
                   fontSize="xs-sm"
                   className="no-select ellipsis-text"
                   fontWeight="bold"
-                  w="90%"
+                  w="100%"
                   mt={2}
                 >
                   {selectedPlayer.name}
