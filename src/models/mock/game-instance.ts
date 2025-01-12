@@ -15,7 +15,7 @@ export const mockGameInstanceSummaryList: GameInstanceSummary[] = [
     name: "1.20.1 纯净生存整合包",
     version: "1.20.1",
     modLoader: {
-      type: "fabric",
+      type: "Fabric",
       version: "0.15.6",
     },
   },
@@ -27,7 +27,7 @@ export const mockGameInstanceSummaryList: GameInstanceSummary[] = [
     description: "更好的 MC 整合包",
     version: "1.20.1",
     modLoader: {
-      type: "forge",
+      type: "Forge",
       version: "47.2.17",
     },
   },

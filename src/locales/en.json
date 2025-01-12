@@ -408,6 +408,14 @@
       "launch": "Launch Instance"
     }
   },
+  "InstanceModsPage": {
+    "modLoaderList": {
+      "title": "Mod Loader"
+    },
+    "modList": {
+      "title": "Mods"
+    }
+  },
   "InstanceWorldsPage": {
     "worldList": {
       "title": "Worlds",
@@ -452,6 +460,10 @@
       "now": "In use",
       "minAllocation": "Minimum allocated for Minecraft"
     }
+  },
+  "ModLoaderCards": {
+    "installed": "Installed",
+    "unInstalled": "Not Installed"
   },
   "NotFoundPage": {
     "text": "Page not found, redirecting to launch page in {{seconds}} seconds..."

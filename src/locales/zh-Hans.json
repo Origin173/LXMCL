@@ -408,6 +408,14 @@
       "launch": "启动实例"
     }
   },
+  "InstanceModsPage": {
+    "modLoaderList": {
+      "title": "加载器"
+    },
+    "modList": {
+      "title": "模组"
+    }
+  },
   "InstanceWorldsPage": {
     "worldList": {
       "title": "本地世界",
@@ -452,6 +460,10 @@
       "now": "正在使用",
       "minAllocation": "为 Minecraft 分配的最小值"
     }
+  },
+  "ModLoaderCards": {
+    "installed": "已安装",
+    "unInstalled": "未安装"
   },
   "NotFoundPage": {
     "text": "页面不存在，即将在 {{seconds}} 秒后跳转"

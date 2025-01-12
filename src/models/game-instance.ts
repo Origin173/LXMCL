@@ -6,7 +6,7 @@ export interface GameInstanceSummary {
   description?: string;
   version: string;
   modLoader: {
-    type: "none" | "fabric" | "forge" | "neoforge" | "quilt";
+    type: "none" | "Fabric" | "Forge" | "NeoForge";
     version?: string;
   };
 }

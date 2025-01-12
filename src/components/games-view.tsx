@@ -32,10 +32,7 @@ const GamesView: React.FC<GamesViewProps> = ({
     if (game.modLoader.type === "none") {
       return game.version;
     }
-    const modLoaderType =
-      game.modLoader.type.charAt(0).toUpperCase() +
-      game.modLoader.type.slice(1);
-    return `${game.version}, ${modLoaderType} ${game.modLoader.version}`;
+    return `${game.version}, ${game.modLoader.type} ${game.modLoader.version}`;
   };
 
   const listItems = games.map((game) => ({
