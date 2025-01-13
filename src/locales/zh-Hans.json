@@ -46,7 +46,9 @@
   "AccountsPage": {
     "Button": {
       "addPlayer": "添加角色",
-      "add3rdPartySource": "添加第三方认证源"
+      "add3rdPartyServer": "添加认证服务器",
+      "sourceHomepage": "访问主页",
+      "deleteServer": "删除此服务器"
     },
     "playerTypeList": {
       "all": "全部来源"
@@ -59,7 +61,7 @@
   "AddAuthServerModal": {
     "toast": {
       "duplicateServer": "服务器已存在",
-      "success": "服务器添加成功",
+      "success": "认证服务器添加成功",
       "invalidServerUrl": "无效的服务器地址"
     },
     "header": {

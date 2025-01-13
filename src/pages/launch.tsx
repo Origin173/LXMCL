@@ -24,7 +24,7 @@ interface SwitchButtonProps extends IconButtonProps {
 
 const SwitchButton: React.FC<SwitchButtonProps> = ({ tooltip, ...props }) => {
   return (
-    <Tooltip label={tooltip} placement="top-end" fontSize="sm">
+    <Tooltip label={tooltip} placement="top-end">
       <IconButton
         size="xs"
         position="absolute"

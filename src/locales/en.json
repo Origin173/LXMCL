@@ -46,7 +46,9 @@
   "AccountsPage": {
     "Button": {
       "addPlayer": "Add Player",
-      "add3rdPartySource": "Add 3rd-party Auth"
+      "add3rdPartyServer": "Add 3rd-party Auth",
+      "sourceHomepage": "View Homepage",
+      "deleteServer": "Delete Auth Server"
     },
     "playerTypeList": {
       "all": "All Source"
@@ -59,7 +61,7 @@
   "AddAuthServerModal": {
     "toast": {
       "duplicateServer": "Server already exists",
-      "success": "Successfully added new server",
+      "success": "Successfully added new auth server",
       "invalidServerUrl": "Invalid server address"
     },
     "header": {
