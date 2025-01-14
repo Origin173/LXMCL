@@ -186,6 +186,15 @@
       "refresh": "Refresh"
     }
   },
+  "DiscoverSourcesPage": {
+    "Button": {
+      "addSource": "Add Source",
+      "deleteSource": "Delete"
+    },
+    "tag": {
+      "online": "Online"
+    }
+  },
   "DownloadSettingPage": {
     "source": {
       "title": "Source",

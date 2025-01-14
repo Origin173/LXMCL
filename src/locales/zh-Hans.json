@@ -186,6 +186,15 @@
       "refresh": "刷新"
     }
   },
+  "DiscoverSourcesPage": {
+    "Button": {
+      "addSource": "添加数据源",
+      "deleteSource": "删除数据源"
+    },
+    "tag": {
+      "online": "在线"
+    }
+  },
   "DownloadSettingPage": {
     "source": {
       "title": "源",
