@@ -57,7 +57,7 @@ const ModLoaderCards: React.FC<ModLoaderCardsProps> = ({
                 fontSize="xs-sm"
                 className="no-select"
                 fontWeight={isInstalled ? "bold" : "normal"}
-                color={isInstalled ? primaryColor : "inherit"}
+                color={isInstalled ? `${primaryColor}.600` : "inherit"}
                 mt={isInstalled ? -0.5 : 0}
               >
                 {type}
