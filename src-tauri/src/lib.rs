@@ -37,7 +37,11 @@ pub async fn run() {
       launcher_config::commands::get_memory_info,
       account::commands::get_players,
       account::commands::add_player,
-      account::commands::delete_player
+      account::commands::delete_player,
+      account::commands::get_auth_servers,
+      account::commands::fetch_auth_server_info,
+      account::commands::add_auth_server,
+      account::commands::delete_auth_server,
     ])
     .setup(|app| {
       let is_dev = cfg!(debug_assertions);

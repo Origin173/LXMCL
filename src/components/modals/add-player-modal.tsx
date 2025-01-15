@@ -21,7 +21,6 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import { error } from "console";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuChevronDown, LuLink2Off, LuPlus, LuServer } from "react-icons/lu";
@@ -30,7 +29,7 @@ import AddAuthServerModal from "@/components/modals/add-auth-server-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData, useDataDispatch } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
-import { AuthServer, Player } from "@/models/account";
+import { AuthServer, PlayerInfo } from "@/models/account";
 import { addPlayer, getPlayerList } from "@/services/account";
 
 interface AddPlayerModalProps extends Omit<ModalProps, "children"> {
@@ -48,7 +47,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   const { setPlayerList } = useDataDispatch();
   const toast = useToast();
   const [playerType, setPlayerType] = useState<"offline" | "3rdparty">(
-    initialPlayerType
+    "offline"
   );
   const [playername, setPlayername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -64,6 +63,10 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   } = useDisclosure();
 
   useEffect(() => {
+    setPlayerType(initialPlayerType);
+  }, [initialPlayerType]);
+
+  useEffect(() => {
     setAuthServerUrl(
       initialAuthServerUrl ||
         (authServerList.length > 0 ? authServerList[0].authUrl : "")
@@ -75,15 +78,13 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   }, [playerType]);
 
   const handleLogin = useCallback(() => {
-    let player: Player = {
+    let player: PlayerInfo = {
       name: "",
       playerType: playerType,
       password: password,
       uuid: "",
       avatarSrc: "",
-      authServer: authServerUrl
-        ? authServerList.find((server) => server.authUrl === authServerUrl)
-        : undefined,
+      authServerUrl,
     };
     if (playerType === "offline") {
       player.name = playername;
@@ -118,7 +119,6 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     playerType,
     password,
     authServerUrl,
-    authServerList,
     setPlayerList,
     setIsLoading,
     toast,

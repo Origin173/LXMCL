@@ -21,7 +21,12 @@ import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData, useDataDispatch } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
-import { AuthServer } from "@/models/account";
+import { AuthServerError } from "@/models/account";
+import {
+  addAuthServer,
+  fetchAuthServerInfo,
+  getAuthServerList,
+} from "@/services/account";
 
 interface AddAuthServerModalProps extends Omit<ModalProps, "children"> {}
 
@@ -37,7 +42,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   const { isOpen, onClose } = modalProps;
 
   const [serverUrl, setServerUrl] = useState<string>("");
-  const [serverName] = useState<string>("Mock Server Name");
+  const [serverName, setServerName] = useState<string>("");
   const [isNextStep, setIsNextStep] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -53,33 +58,66 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   }, [isOpen]);
 
   const handleNextStep = () => {
-    const isDuplicate = authServerList.some(
-      (server) => server.authUrl === serverUrl
-    );
-    if (isDuplicate) {
-      toast({
-        title: t("AddAuthServerModal.toast.duplicateServer"),
-        status: "error",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsNextStep(true);
-    }, 1000);
+    (async () => {
+      try {
+        setIsLoading(true);
+        // test the server url in backend & get the server name (without saving)
+        const newServer = await fetchAuthServerInfo(serverUrl);
+        setServerName(newServer.name);
+        setServerUrl(newServer.authUrl);
+        setIsLoading(false);
+        setIsNextStep(true);
+      } catch (error) {
+        setIsLoading(false);
+        switch (error as AuthServerError) {
+          case AuthServerError.INVALID_SERVER:
+            toast({
+              title: t("Services.account.addAuthServer.invalid"),
+              status: "error",
+            });
+            break;
+          case AuthServerError.DUPLICATE_SERVER:
+            toast({
+              title: t("Services.account.addAuthServer.duplicate"),
+              status: "error",
+            });
+            break;
+          default:
+            toast({
+              title: t("Services.account.addAuthServer.error"),
+              status: "error",
+            });
+            break;
+        }
+      }
+    })();
   };
 
   const handleFinish = () => {
-    const newServer: AuthServer = { name: serverName, authUrl: serverUrl };
-
-    setAuthServerList([...authServerList, newServer]);
-    toast({
-      title: t("AddAuthServerModal.toast.success"),
-      status: "success",
-    });
-    onClose?.();
+    (async () => {
+      try {
+        setIsLoading(true);
+        // save the server info to the storage
+        await addAuthServer({
+          name: serverName,
+          authUrl: serverUrl,
+          mutable: true,
+        });
+        setAuthServerList(await getAuthServerList());
+        setIsLoading(false);
+        toast({
+          title: t("Services.account.addAuthServer.success"),
+          status: "success",
+        });
+        onClose?.();
+      } catch (error) {
+        setIsLoading(false);
+        toast({
+          title: t("Services.account.addAuthServer.error"),
+          status: "error",
+        });
+      }
+    })();
   };
 
   return (
@@ -139,7 +177,11 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
                 <Button variant="ghost" onClick={() => setIsNextStep(false)}>
                   {t("AddAuthServerModal.button.previous")}
                 </Button>
-                <Button colorScheme={primaryColor} onClick={handleFinish}>
+                <Button
+                  colorScheme={primaryColor}
+                  onClick={handleFinish}
+                  isLoading={isLoading}
+                >
                   {t("AddAuthServerModal.button.finish")}
                 </Button>
               </>

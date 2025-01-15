@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { Player } from "@/models/account";
+import { AuthServer, Player, PlayerInfo } from "@/models/account";
 
 /**
  * Fetches the list of players.
@@ -16,12 +16,12 @@ export const getPlayerList = async (): Promise<Player[]> => {
 };
 
 /**
- * Adds a new player.
- * @param {Player} player - The player object to be added.
- * @returns {Promise<void>} A promise that resolves when the player is added.
- * @throws Will throw an error if the invocation fails.
+ * Adds a new player to the system.
+ * @param {PlayerInfo} player - The information of the player to be added.
+ * @returns {Promise<void>} A promise that resolves when the player is successfully added.
+ * @throws Will throw an error if the invocation of "add_player" fails.
  */
-export const addPlayer = async (player: Player): Promise<void> => {
+export const addPlayer = async (player: PlayerInfo): Promise<void> => {
   try {
     await invoke("add_player", { player });
   } catch (error) {
@@ -41,6 +41,65 @@ export const deletePlayer = async (uuid: string): Promise<void> => {
     await invoke("delete_player", { uuid });
   } catch (error) {
     console.error("Error in delete_player:", error);
+    throw error;
+  }
+};
+
+/**
+ * Fetches the list of authentication servers.
+ * @returns {Promise<AuthServer[]>} A promise that resolves to an array of AuthServer objects.
+ * @throws Will throw an error if the invocation fails.
+ */
+export const getAuthServerList = async (): Promise<AuthServer[]> => {
+  try {
+    return await invoke<AuthServer[]>("get_auth_servers");
+  } catch (error) {
+    console.error("Error in get_auth_servers:", error);
+    throw error;
+  }
+};
+
+/**
+ * Fetch information of a new authentication server.
+ * @param {string} url - The URL of the authentication server to be added.
+ * @returns {Promise<AuthServer>} A promise that resolves to the new server details after fetching the API.
+ * @throws Will throw an error if the invocation of "fetch_auth_server_info" fails.
+ */
+export const fetchAuthServerInfo = async (url: string): Promise<AuthServer> => {
+  try {
+    return await invoke("fetch_auth_server_info", { url });
+  } catch (error) {
+    console.error("Error in fetch_auth_server_info:", error);
+    throw error;
+  }
+};
+
+/**
+ * Add the new authentication server to the storage.
+ * @param {AuthServer} server - The authentication server to be added.
+ * @returns {Promise<void>} A promise that resolves when the server is added.
+ * @throws Will throw an error if the invocation of "add_auth_server" fails.
+ */
+export const addAuthServer = async (server: AuthServer): Promise<void> => {
+  try {
+    await invoke("add_auth_server", { server });
+  } catch (error) {
+    console.error("Error in add_auth_server:", error);
+    throw error;
+  }
+};
+
+/**
+ * Deletes an authentication server by URL.
+ * @param {string} url - The URL of the authentication server to be deleted.
+ * @returns {Promise<void>} A promise that resolves when the server is deleted.
+ * @throws Will throw an error if the invocation fails.
+ */
+export const deleteAuthServer = async (url: string): Promise<void> => {
+  try {
+    await invoke("delete_auth_server", { url });
+  } catch (error) {
+    console.error("Error in delete_auth_server:", error);
     throw error;
   }
 };
