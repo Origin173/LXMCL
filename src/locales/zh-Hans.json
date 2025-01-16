@@ -23,6 +23,10 @@
         "bmclapi": {
           "title": "BMCLAPI",
           "description": "感谢 @bangbang93 提供的高速下载源"
+        },
+        "skinview3d": {
+          "title": "bs-community / skinview3d",
+          "description": "皮肤预览组件基于此开源项目实现，遵循 MIT 协议"
         }
       }
     },

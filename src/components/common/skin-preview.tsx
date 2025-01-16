@@ -1,75 +1,77 @@
-import { Box, BoxProps } from "@chakra-ui/react";
-import { useEffect, useRef } from "react";
+import { Box, BoxProps, Flex, HStack, IconButton } from "@chakra-ui/react";
+import { useEffect, useRef, useState } from "react";
+import { LuRefreshCw, LuRefreshCwOff } from "react-icons/lu";
 import * as skinview3d from "skinview3d";
 
-interface SkinPreviewProps extends BoxProps {
-  skinUrl: string;
+interface SkinPreviewProps extends Omit<BoxProps, "width" | "height"> {
+  skinUrl?: string;
   capeUrl?: string;
-  defaultWidth?: number;
-  defaultHeight?: number;
+  width?: number;
+  height?: number;
 }
 
 const SkinPreview: React.FC<SkinPreviewProps> = ({
-  skinUrl,
+  skinUrl = "/images/skins/unicorn_isla.png",
   capeUrl,
-  defaultWidth = 400,
-  defaultHeight = 500,
-  width,
-  height,
-  ...rest
+  width = 300,
+  height = 400,
+  ...props
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [skinViewer, setSkinViewer] = useState<skinview3d.SkinViewer | null>(
+    null
+  );
 
-  const widthAsNumber =
-    typeof width === "number" ? width : parseInt(width as string, 10);
-  const heightAsNumber =
-    typeof height === "number" ? height : parseInt(height as string, 10);
-
-  const computedWidth =
-    widthAsNumber ||
-    (heightAsNumber
-      ? (heightAsNumber * defaultWidth) / defaultHeight
-      : defaultWidth);
-  const computedHeight =
-    heightAsNumber ||
-    (widthAsNumber
-      ? (widthAsNumber * defaultHeight) / defaultWidth
-      : defaultHeight);
+  const [autoRotate, setAutoRotate] = useState(false);
 
   useEffect(() => {
-    if (canvasRef.current && skinUrl) {
-      const skinViewer = new skinview3d.SkinViewer({
+    // create once
+    if (canvasRef.current && !skinViewer) {
+      const viewer = new skinview3d.SkinViewer({
         canvas: canvasRef.current,
-        width: computedWidth,
-        height: computedHeight,
-        skin: skinUrl,
+        width: width,
+        height: height - 32,
       });
 
-      skinViewer.autoRotate = true;
+      viewer.zoom = 0.8;
+      viewer.controls.enableZoom = false;
+      viewer.animation = new skinview3d.WalkingAnimation();
 
-      if (capeUrl) {
-        skinViewer.loadCape(capeUrl);
-      }
-
-      skinViewer.camera.position.set(0, 1, 3);
-      skinViewer.camera.lookAt(0, 1, 0);
-
-      return () => {
-        skinViewer.dispose();
-      };
+      setSkinViewer(viewer);
     }
-  }, [skinUrl, capeUrl, computedWidth, computedHeight]);
+  }, [width, height, skinViewer]);
+
+  useEffect(() => {
+    if (skinViewer && skinUrl) {
+      skinViewer.loadSkin(skinUrl);
+    }
+  }, [skinUrl, skinViewer]);
+
+  useEffect(() => {
+    if (skinViewer && capeUrl) {
+      skinViewer.loadCape(capeUrl);
+    }
+  }, [capeUrl, skinViewer]);
+
+  useEffect(() => {
+    if (skinViewer) {
+      skinViewer.autoRotate = autoRotate;
+    }
+  }, [autoRotate, skinViewer]);
 
   return (
-    <Box {...rest}>
-      <canvas
-        ref={canvasRef}
-        style={{
-          width: "100%",
-          height: "auto",
-          display: "block",
-        }}
-      ></canvas>
+    <Box {...props} bgColor="white">
+      <canvas ref={canvasRef} />
+      <Flex alignItems="flex-start" flexShrink={0}>
+        <HStack>
+          <IconButton
+            aria-label="rotate"
+            icon={autoRotate ? <LuRefreshCwOff /> : <LuRefreshCw />}
+            variant="ghost"
+            onClick={() => setAutoRotate(!autoRotate)}
+          />
+        </HStack>
+      </Flex>
     </Box>
   );
 };
