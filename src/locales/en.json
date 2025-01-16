@@ -157,6 +157,7 @@
       "fullStackDev": "Full Stack Dev",
       "frontendDev": "Frontend Dev",
       "backendDev": "Backend Dev",
+      "externalAPI": "External API",
       "doc": "Documentation",
       "cicd": "CI / CD",
       "design": "Visual Design"

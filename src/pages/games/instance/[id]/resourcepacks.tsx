@@ -3,6 +3,7 @@ import { open } from "@tauri-apps/plugin-shell";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuFolderOpen } from "react-icons/lu";
+import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
@@ -43,6 +44,7 @@ const InstanceResourcePacksPage = () => {
             title={t(`InstanceResourcePacksPage.${value.locale}.title`)}
             isAccordion
             initialIsOpen={value.initIsOpen}
+            titleExtra={<CountTag count={value.data.length} />}
           >
             {value.data.length > 0 ? (
               <OptionItemGroup

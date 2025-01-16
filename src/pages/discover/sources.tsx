@@ -5,7 +5,6 @@ import {
   Image,
   Tag,
   TagLabel,
-  TagLeftIcon,
   Text,
   Tooltip,
 } from "@chakra-ui/react";
@@ -73,7 +72,7 @@ export const DiscoverSourcesPage = () => {
             >
               <HStack>
                 {source.name && (
-                  <Tag size="sm" colorScheme="green">
+                  <Tag colorScheme="green">
                     <LuCheck />
                     <TagLabel ml={0.5}>
                       {t("DiscoverSourcesPage.tag.online")}

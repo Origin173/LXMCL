@@ -157,6 +157,7 @@
       "fullStackDev": "全栈开发",
       "frontendDev": "前端开发",
       "backendDev": "后端开发",
+      "externalAPI": "外部服务",
       "doc": "文档",
       "cicd": "CI / CD",
       "design": "视觉设计"

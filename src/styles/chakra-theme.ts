@@ -134,6 +134,11 @@ const chakraExtendTheme = extendTheme({
         size: "sm",
       },
     },
+    Tag: {
+      defaultProps: {
+        size: "sm",
+      },
+    },
     Tooltip: {
       baseStyle: {
         fontSize: "xs-sm",

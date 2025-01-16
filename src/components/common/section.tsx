@@ -76,7 +76,7 @@ export const Section: React.FC<SectionProps> = ({
                 onClick={onToggle}
               />
             )}
-            <VStack spacing={0} align="start">
+            <VStack spacing={0} mr={1} align="start">
               {title && (
                 <Text fontWeight="bold" fontSize="sm" className="no-select">
                   {title}

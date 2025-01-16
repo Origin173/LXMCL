@@ -3,6 +3,7 @@ import { open } from "@tauri-apps/plugin-shell";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuFolderOpen } from "react-icons/lu";
+import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
@@ -22,7 +23,11 @@ const InstanceWorldsPage = () => {
 
   return (
     <>
-      <Section isAccordion title={t("InstanceWorldsPage.worldList.title")}>
+      <Section
+        isAccordion
+        title={t("InstanceWorldsPage.worldList.title")}
+        titleExtra={<CountTag count={worlds.length} />}
+      >
         {worlds.length > 0 ? (
           <OptionItemGroup
             items={worlds.map((world) => (
@@ -58,7 +63,11 @@ const InstanceWorldsPage = () => {
         )}
       </Section>
 
-      <Section isAccordion title={t("InstanceWorldsPage.serverList.title")}>
+      <Section
+        isAccordion
+        title={t("InstanceWorldsPage.serverList.title")}
+        titleExtra={<CountTag count={gameServers.length} />}
+      >
         {gameServers.length > 0 ? (
           <OptionItemGroup
             items={gameServers.map((server) => (

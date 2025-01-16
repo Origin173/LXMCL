@@ -40,15 +40,19 @@ export const CoreContributorsList = [
     contribution: "frontendDev",
   },
   {
-    username: "Minecrafter-Pythoner",
-    contribution: "frontendDev",
+    username: "xunying123",
+    contribution: "externalAPI",
   },
   {
-    username: "ff98sha",
+    username: "hans362",
+    contribution: "externalAPI",
+  },
+  {
+    username: "Minecrafter-Pythoner",
     contribution: "doc",
   },
   {
-    username: "xunying123",
+    username: "ff98sha",
     contribution: "doc",
   },
   {

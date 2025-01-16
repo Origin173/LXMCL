@@ -54,9 +54,7 @@ const PosterCard = ({ data }: PosterCardProps) => {
             <Wrap spacing={1}>
               {keywords.split(",").map((keyword, index) => (
                 <WrapItem key={index}>
-                  <Tag size="sm" colorScheme={primaryColor}>
-                    {keyword.trim()}
-                  </Tag>
+                  <Tag colorScheme={primaryColor}>{keyword.trim()}</Tag>
                 </WrapItem>
               ))}
             </Wrap>

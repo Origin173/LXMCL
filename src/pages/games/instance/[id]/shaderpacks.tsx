@@ -3,6 +3,7 @@ import { open } from "@tauri-apps/plugin-shell";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuFolderOpen } from "react-icons/lu";
+import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
@@ -18,7 +19,10 @@ const InstanceShaderPacksPage = () => {
   }, []);
 
   return (
-    <Section title={t("InstanceShaderPacksPage.shaderPackList.title")}>
+    <Section
+      title={t("InstanceShaderPacksPage.shaderPackList.title")}
+      titleExtra={<CountTag count={shaderPacks.length} />}
+    >
       {shaderPacks.length > 0 ? (
         <OptionItemGroup
           items={shaderPacks.map((pack) => (
