@@ -264,7 +264,9 @@
       "delete": "删除实例"
     }
   },
-  "General":{
+  "General": {
+    "disable": "禁用",
+    "enable": "启用",
     "open": "打开",
     "openFolder": "打开文件夹",
     "openInFolder": "打开文件位置"
@@ -420,7 +422,11 @@
       "title": "加载器"
     },
     "modList": {
-      "title": "模组"
+      "title": "模组",
+      "menu": {
+        "alert": "可能不兼容",
+        "info": "查看信息"
+      }
     }
   },
   "InstanceWorldsPage": {

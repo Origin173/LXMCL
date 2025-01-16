@@ -264,7 +264,9 @@
       "delete": "Delete"
     }
   },
-  "General":{
+  "General": {
+    "disable": "Disable",
+    "enable": "Enable",
     "open": "Open",
     "openFolder": "Open Folder",
     "openInFolder": "Open in Folder"
@@ -420,7 +422,11 @@
       "title": "Mod Loader"
     },
     "modList": {
-      "title": "Mods"
+      "title": "Mods",
+      "menu": {
+        "alert": "Potentially incompatible",
+        "info": "Mod Info"
+      }
     }
   },
   "InstanceWorldsPage": {
