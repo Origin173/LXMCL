@@ -533,6 +533,18 @@
       "dev-test": "Dev - Test Page"
     }
   },
+  "SkinPreviewModal":{
+    "cape": "Cape",
+    "idle": "Idle",
+    "walk": "Walk",
+    "run": "Run",
+    "wave": "Wave",
+    "rotation": "Rotation",
+    "enableRotation": "Enable Rotation",
+    "disableRotation": "Disable Rotation",
+    "play": "Play",
+    "pause": "Pause"
+  },
   "SyncAndRestoreSettingsPage": {
     "launcherConfig": {
       "title": "Launcher Settings",
