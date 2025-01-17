@@ -533,18 +533,22 @@
       "dev-test": "开发 - 测试页"
     }
   },
-  "SkinPreviewModal":{
+  "SkinPreview":{
     "cape": "披风",
-    "idle": "静止",
-    "walk": "走路",
-    "run": "跑步",
-    "wave": "挥手",
-    "rotation": "旋转",
-    "enableRotation": "启用旋转",
-    "disableRotation": "禁用旋转",
-    "play": "播放",
-    "pause": "暂停"
+    "animation": {
+      "idle": "空闲",
+      "walk": "步行 ",
+      "run": "跑步",
+      "wave": "挥手"
+    },
+    "Button": {
+      "enableRotation": "启用旋转",
+      "disableRotation": "禁用旋转",
+      "play": "播放",
+      "pause": "暂停"
+    }    
   },
+
   "SyncAndRestoreSettingsPage": {
     "launcherConfig": {
       "title": "启动器设置",

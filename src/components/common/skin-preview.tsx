@@ -48,7 +48,7 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
   const [isPlaying, setIsPlaying] = useState(true);
   const [isCapeVisible, setIsCapeVisible] = useState(showCape);
 
-  const animationConfig = useMemo(
+  const animationList = useMemo(
     () => ({
       idle: { icon: <FaPerson />, animation: new skinview3d.IdleAnimation() },
       walk: {
@@ -67,16 +67,7 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
     []
   );
 
-  const animationLabels: Record<AnimationType, string> = {
-    idle: t("SkinPreviewModal.idle"),
-    walk: t("SkinPreviewModal.walk"),
-    run: t("SkinPreviewModal.run"),
-    wave: t("SkinPreviewModal.wave"),
-  };
-
-  const rotationTooltipLabel = autoRotate
-    ? t("SkinPreviewModal.disableRotation")
-    : t("SkinPreviewModal.enableRotation");
+  const animationTypes = Object.keys(animationList) as AnimationType[];
 
   useEffect(() => {
     // create once
@@ -84,22 +75,19 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
       const viewer = new skinview3d.SkinViewer({
         canvas: canvasRef.current,
         width: width,
-        height: height - 32 - 8, // Subtract height for control bar and margin-top
+        height: height - 40, // Subtract height for control bar and top-margin
       });
 
       viewer.zoom = 0.8;
       viewer.controls.enableZoom = false;
-      viewer.animation = animationConfig.walk.animation;
 
       setSkinViewer(viewer);
     }
-  }, [
-    width,
-    height,
-    showControlBar,
-    skinViewer,
-    animationConfig.walk.animation,
-  ]);
+  }, [width, height, showControlBar, skinViewer, animationList.walk.animation]);
+
+  useEffect(() => {
+    setIsCapeVisible(showCape);
+  }, [showCape]);
 
   useEffect(() => {
     if (skinViewer) {
@@ -116,39 +104,37 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
     if (skinViewer) {
       skinViewer.autoRotate = isPlaying && autoRotate;
       if (isPlaying) {
-        skinViewer.animation = animationConfig[currentAnimation].animation;
+        skinViewer.animation = animationList[currentAnimation].animation;
       } else {
         skinViewer.animation = null;
         setAutoRotate(false);
       }
     }
-  }, [skinViewer, autoRotate, currentAnimation, isPlaying, animationConfig]);
+  }, [skinViewer, autoRotate, currentAnimation, isPlaying, animationList]);
 
   return (
     <Box {...props}>
       <canvas ref={canvasRef} />
       {showControlBar && (
         <Flex alignItems="center" justifyContent="space-between" mt={2}>
-          <HStack spacing={2}>
-            <Tooltip label={animationLabels[currentAnimation]}>
+          <HStack spacing={0}>
+            <Tooltip label={t(`SkinPreview.animation.${currentAnimation}`)}>
               <IconButton
                 aria-label="Switch Animation"
-                icon={animationConfig[currentAnimation].icon}
+                icon={animationList[currentAnimation].icon}
                 variant="ghost"
                 onClick={() => {
-                  const animationTypes: AnimationType[] = [
-                    "idle",
-                    "walk",
-                    "run",
-                    "wave",
-                  ];
                   const currentIndex = animationTypes.indexOf(currentAnimation);
                   const nextIndex = (currentIndex + 1) % animationTypes.length;
                   setCurrentAnimation(animationTypes[nextIndex]);
                 }}
               />
             </Tooltip>
-            <Tooltip label={rotationTooltipLabel}>
+            <Tooltip
+              label={t(
+                `SkinPreview.Button.${autoRotate ? "disable" : "enable"}Rotation`
+              )}
+            >
               <IconButton
                 aria-label="Toggle Rotation"
                 icon={autoRotate ? <LuRefreshCw /> : <LuRefreshCwOff />}
@@ -157,11 +143,7 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
               />
             </Tooltip>
             <Tooltip
-              label={
-                isPlaying
-                  ? t("SkinPreviewModal.pause")
-                  : t("SkinPreviewModal.play")
-              }
+              label={t(`SkinPreview.Button.${isPlaying ? "pause" : "play"}`)}
             >
               <IconButton
                 aria-label="Play/Pause Animation"
@@ -177,7 +159,7 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
             </Tooltip>
           </HStack>
           <HStack>
-            <Text>{t("SkinPreviewModal.cape")}</Text>
+            <Text fontSize="sm">{t("SkinPreview.cape")}</Text>
             <Switch
               isChecked={isCapeVisible}
               onChange={(e) => setIsCapeVisible(e.target.checked)}
