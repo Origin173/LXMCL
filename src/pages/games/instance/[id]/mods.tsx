@@ -55,10 +55,10 @@ const InstanceModsPage = () => {
       onClick: () => {
         // TBD, only mock operation in frontend
         setLocalMods((prevMods) =>
-          prevMods.map((mod) =>
-            mod.fileName === mod.fileName
-              ? { ...mod, enabled: !mod.enabled }
-              : mod
+          prevMods.map((prev) =>
+            prev.fileName === mod.fileName
+              ? { ...prev, enabled: !prev.enabled }
+              : prev
           )
         );
       },
@@ -97,6 +97,7 @@ const InstanceModsPage = () => {
             items={localMods.map((mod) => (
               <OptionItem
                 key={mod.fileName} // unique
+                childrenOnHover
                 title={
                   mod.transltedName
                     ? `${mod.transltedName}｜${mod.name}`
@@ -107,7 +108,15 @@ const InstanceModsPage = () => {
                     {mod.version}
                   </Text>
                 }
-                description={`${mod.fileName}: ${mod.description}`}
+                description={
+                  <Text
+                    fontSize="xs"
+                    overflow="hidden"
+                    className="secondary-text no-select ellipsis-text" // only show one line
+                  >
+                    {`${mod.fileName}: ${mod.description}`}
+                  </Text>
+                }
                 prefixElement={
                   <Avatar
                     src={mod.icon}
