@@ -494,6 +494,18 @@
       "dev-test": "開發 - 測試頁"
     }
   },
+  "SkinPreviewModal":{
+    "cape": "披風",
+    "idle": "靜止",
+    "walk": "走路",
+    "run": "跑步",
+    "wave": "揮手",
+    "rotation": "旋轉",
+    "enableRotation": "啟用旋轉",
+    "disableRotation": "禁用旋轉",
+    "play": "播放",
+    "pause": "暫停"
+  },
   "SyncAndRestoreSettingsPage": {
     "launcherConfig": {
       "title": "啟動器設定",
