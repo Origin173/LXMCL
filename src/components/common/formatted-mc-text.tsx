@@ -1,26 +1,23 @@
-import {
-  Text as ChakraText,
-  TextProps as ChakraTextProps,
-} from "@chakra-ui/react";
+import { Text, TextProps } from "@chakra-ui/react";
 import React from "react";
 
 const colorMap: Record<string, string> = {
-  "0": "#000000", // 黑色
-  "1": "#0000AA", // 深蓝色
-  "2": "#00AA00", // 深绿色
-  "3": "#00AAAA", // 深青色
-  "4": "#AA0000", // 深红色
-  "5": "#AA00AA", // 深紫色
-  "6": "#FFAA00", // 金色
-  "7": "#AAAAAA", // 灰色
-  "8": "#555555", // 深灰色
-  "9": "#5555FF", // 蓝色
-  a: "#55FF55", // 绿色
-  b: "#55FFFF", // 青色
-  c: "#FF5555", // 红色
-  d: "#FF55FF", // 浅紫色
-  e: "#FFFF55", // 黄色
-  f: "#000000", // 白色
+  "0": "#000000", // Black
+  "1": "#0000AA", // Dark Blue
+  "2": "#00AA00", // Dark Green
+  "3": "#00AAAA", // Dark Cyan
+  "4": "#AA0000", // Dark Red
+  "5": "#AA00AA", // Dark Purple
+  "6": "#FFAA00", // Gold
+  "7": "#AAAAAA", // Gray
+  "8": "#555555", // Dark Gray
+  "9": "#5555FF", // Blue
+  a: "#55FF55", // Green
+  b: "#55FFFF", // Cyan
+  c: "#FF5555", // Red
+  d: "#FF55FF", // Light Purple
+  e: "#FFFF55", // Yellow
+  f: "", // White
 };
 
 function parseMCColorString(input: string) {
@@ -55,29 +52,28 @@ function parseMCColorString(input: string) {
   return segments;
 }
 
-export interface McTextProps extends ChakraTextProps {
-  children?: React.ReactNode;
-}
-
-export const McText: React.FC<McTextProps> = ({ children, ...props }) => {
+export const FormattedMCText: React.FC<TextProps> = ({
+  children,
+  ...props
+}) => {
   if (typeof children === "string") {
     const segments = parseMCColorString(children);
     return (
-      <ChakraText {...props}>
+      <Text {...props}>
         {segments.map((segment, index) => (
-          <ChakraText
+          <Text
             as="span"
             key={index}
-            color={segment.color}
             display="inline"
+            {...(segment.color && { color: segment.color })}
           >
             {segment.text}
-          </ChakraText>
+          </Text>
         ))}
-      </ChakraText>
+      </Text>
     );
   }
-  return <ChakraText {...props}>{children}</ChakraText>;
+  return <Text {...props}>{children}</Text>;
 };
 
 export function stripMCColorCodes(input: string): string {
