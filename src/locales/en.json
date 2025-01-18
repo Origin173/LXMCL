@@ -179,6 +179,12 @@
       "content": "Are you sure you want to delete the player \"{{name}}\" ?"
     }
   },
+  "DeleteAuthServerAlertDialog": {
+    "dialog": {
+      "title": "Delete Authentication Server",
+      "content": "Are you sure you want to delete the authentication server \"{{name}}\" ?"
+    }
+  },
   "DiscoverPage": {
     "title": "Discover",
     "Button": {
@@ -293,7 +299,7 @@
       }
     }
   },
-  "GenericConfirmModal":{
+  "GenericConfirmModal": {
     "Button": {
       "delete": "Delete",
       "cancel": "Cancel"
@@ -442,7 +448,7 @@
       "title": "Servers"
     }
   },
-  "InstanceResourcePacksPage":{
+  "InstanceResourcePacksPage": {
     "resourcePackList": {
       "title": "Global Resource Packs"
     },
@@ -450,7 +456,7 @@
       "title": "Server Resource Packs"
     }
   },
-  "InstanceShaderPacksPage":{
+  "InstanceShaderPacksPage": {
     "shaderPackList": {
       "title": "Shader Packs"
     }
@@ -518,11 +524,36 @@
         "success": "Successfully deleted player",
         "error": "Failed to delete player"
       },
+      "getAuthServerInfo": {
+        "error": {
+          "title": "Failed to get authentication server information",
+          "description": {
+            "duplicate": "The server has already been added",
+            "invalid": "Invalid server URL",
+            "unknown": "Unknown error"
+          }
+        }
+      },
       "addAuthServer": {
         "success": "Successfully added authentication server",
-        "duplicate": "The server has already been added",
-        "invalid": "Invalid server URL",
-        "error": "Failed to add authentication server"
+        "error": {
+          "title": "Failed to add authentication server",
+          "description": {
+            "duplicate": "The server has already been added",
+            "invalid": "Invalid server URL",
+            "unknown": "Unknown error"
+          }
+        }
+      },
+      "deleteAuthServer": {
+        "success": "Successfully deleted authentication server",
+        "error": {
+          "title": "Failed to delete authentication server",
+          "description": {
+            "notFound": "The authentication server does not exist",
+            "unknown": "Unknown error"
+          }
+        }
       }
     }
   },

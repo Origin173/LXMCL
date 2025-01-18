@@ -179,6 +179,12 @@
       "content": "确定要删除角色 “{{name}}” 吗？"
     }
   },
+  "DeleteAuthServerAlertDialog": {
+    "dialog": {
+      "title": "删除认证服务器",
+      "content": "确定要删除认证服务器 “{{name}}” 吗？"
+    }
+  },
   "DiscoverPage": {
     "title": "发现",
     "Button": {
@@ -293,7 +299,7 @@
       }
     }
   },
-  "GenericConfirmModal":{
+  "GenericConfirmModal": {
     "Button": {
       "delete": "删除",
       "cancel": "取消"
@@ -442,7 +448,7 @@
       "title": "服务器"
     }
   },
-  "InstanceResourcePacksPage":{
+  "InstanceResourcePacksPage": {
     "resourcePackList": {
       "title": "全局资源包"
     },
@@ -450,7 +456,7 @@
       "title": "服务器资源包"
     }
   },
-  "InstanceShaderPacksPage":{
+  "InstanceShaderPacksPage": {
     "shaderPackList": {
       "title": "光影包"
     }
@@ -518,11 +524,36 @@
         "success": "角色删除成功",
         "error": "角色删除失败"
       },
+      "getAuthServerInfo": {
+        "error": {
+          "title": "获取认证服务器信息失败",
+          "description": {
+            "duplicate": "认证服务器已存在",
+            "invalid": "无效的认证服务器地址",
+            "unknown": "未知错误"
+          }
+        }
+      },
       "addAuthServer": {
         "success": "认证服务器添加成功",
-        "duplicate": "认证服务器已存在",
-        "invalid": "无效的认证服务器地址",
-        "error": "认证服务器添加失败"
+        "error": {
+          "title": "认证服务器添加失败",
+          "description": {
+            "duplicate": "认证服务器已存在",
+            "invalid": "无效的认证服务器地址",
+            "unknown": "未知错误"
+          }
+        }
+      },
+      "deleteAuthServer": {
+        "success": "认证服务器删除成功",
+        "error": {
+          "title": "认证服务器删除失败",
+          "description": {
+            "notFound": "认证服务器不存在",
+            "unknown": "未知错误"
+          }
+        }
       }
     }
   },
