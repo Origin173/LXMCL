@@ -1,7 +1,7 @@
 name: 功能建议
-description: 为SJMCL提出新功能建议
+description: 为 SJMCL 提出新功能建议
 title: "[Feature] "
-labels: 📝 Feature Request
+labels: 💡 Feature Request
 body:
   - type: markdown
     attributes:

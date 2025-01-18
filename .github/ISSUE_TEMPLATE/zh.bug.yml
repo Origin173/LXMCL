@@ -1,7 +1,7 @@
 name: 错误报告
 description: 提交错误报告以帮助我们改进
 title: "[Bug] "
-labels: 📜 BUG Report
+labels: 📝 BUG Report
 body:
   - type: markdown
     attributes:
@@ -33,7 +33,7 @@ body:
   - type: input
     id: launcherVersion
     attributes:
-      label: SJMCL版本（可选）
+      label: SJMCL 版本（可选）
       description: "请输入您使用的SJMCL版本。"
       placeholder: "0.0.0"
     validations:
@@ -43,7 +43,7 @@ body:
     id: steps
     attributes:
       label: 复现步骤
-      description: "请详细说明复现该bug的方法。"
+      description: "请详细说明复现该 bug 的方法。"
       placeholder: "请提供简洁的复现步骤。"
     validations:
       required: true
