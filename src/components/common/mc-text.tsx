@@ -1,71 +1,93 @@
-import { Text as McText, TextProps } from "@chakra-ui/react";
+import {
+  Text as ChakraText,
+  TextProps as ChakraTextProps,
+} from "@chakra-ui/react";
 import React from "react";
 
-const GameText = ({ children, ...props }: TextProps) => {
-  const colorMap = {
-    "0": "#000000", // 黑色
-    "1": "#0000AA", // 深蓝
-    "2": "#00AA00", // 绿色
-    "3": "#00AAAA", // 浅绿色
-    "4": "#AA0000", // 红色
-    "5": "#AA00AA", // 紫色
-    "6": "#FFAA00", // 金色
-    "7": "#AAAAAA", // 灰色
-    "8": "#555555", // 深灰
-    "9": "#5555FF", // 蓝色
-    a: "#55FF55", // 亮绿色
-    b: "#55FFFF", // 青色
-    c: "#FF5555", // 亮红
-    d: "#FF55FF", // 粉红
-    e: "#FFFF55", // 亮黄
-    f: "#FFFFFF", // 白色
-  };
-
-  // 处理 Minecraft 格式化字符串，将其拆分为带有颜色的文本片段
-  const processMinecraftText = (text: string) => {
-    const parts: { text: string; color: string }[] = [];
-    let currentColor = "#000000"; // 默认颜色
-    let currentText = "";
-
-    for (let i = 0; i < text.length; i++) {
-      if (text[i] === "§" && i + 1 < text.length) {
-        const colorCode = text[i + 1].toLowerCase() as keyof typeof colorMap;
-        if (colorMap[colorCode]) {
-          if (currentText) {
-            parts.push({ text: currentText, color: currentColor });
-            currentText = "";
-          }
-          currentColor = colorMap[colorCode];
-          i++; // 跳过颜色代码的第二个字符
-        } else {
-          currentText += text[i];
-        }
-      } else {
-        currentText += text[i];
-      }
-    }
-
-    if (currentText) {
-      parts.push({ text: currentText, color: currentColor });
-    }
-
-    return parts;
-  };
-
-  // 处理后的文本片段
-  const processedText = processMinecraftText(
-    typeof children === "string" ? children : ""
-  );
-
-  return (
-    <McText {...props}>
-      {processedText.map((part, index) => (
-        <span key={index} style={{ color: part.color }}>
-          {part.text}
-        </span>
-      ))}
-    </McText>
-  );
+const colorMap: Record<string, string> = {
+  "0": "#000000", // 黑色
+  "1": "#0000AA", // 深蓝色
+  "2": "#00AA00", // 深绿色
+  "3": "#00AAAA", // 深青色
+  "4": "#AA0000", // 深红色
+  "5": "#AA00AA", // 深紫色
+  "6": "#FFAA00", // 金色
+  "7": "#AAAAAA", // 灰色
+  "8": "#555555", // 深灰色
+  "9": "#5555FF", // 蓝色
+  a: "#55FF55", // 绿色
+  b: "#55FFFF", // 青色
+  c: "#FF5555", // 红色
+  d: "#FF55FF", // 浅紫色
+  e: "#FFFF55", // 黄色
+  f: "#000000", // 白色
 };
 
-export default GameText;
+function parseMCColorString(input: string) {
+  let currentColor = colorMap["f"];
+  const segments: Array<{ text: string; color: string }> = [];
+  let currentText = "";
+
+  const pushSegment = () => {
+    if (currentText) {
+      segments.push({ text: currentText, color: currentColor });
+      currentText = "";
+    }
+  };
+
+  for (let i = 0; i < input.length; i++) {
+    const char = input[i];
+    if (char === "§" && i < input.length - 1) {
+      const code = input[i + 1].toLowerCase();
+      i++;
+      pushSegment();
+      if (code in colorMap) {
+        currentColor = colorMap[code];
+      } else if (code === "r") {
+        currentColor = colorMap["f"];
+      }
+    } else {
+      currentText += char;
+    }
+  }
+  pushSegment();
+
+  return segments;
+}
+
+export interface McTextProps extends ChakraTextProps {
+  children?: React.ReactNode;
+}
+
+export const McText: React.FC<McTextProps> = ({ children, ...props }) => {
+  if (typeof children === "string") {
+    const segments = parseMCColorString(children);
+    return (
+      <ChakraText {...props}>
+        {segments.map((segment, index) => (
+          <ChakraText
+            as="span"
+            key={index}
+            color={segment.color}
+            display="inline"
+          >
+            {segment.text}
+          </ChakraText>
+        ))}
+      </ChakraText>
+    );
+  }
+  return <ChakraText {...props}>{children}</ChakraText>;
+};
+
+export function stripMCColorCodes(input: string): string {
+  let output = "";
+  for (let i = 0; i < input.length; i++) {
+    if (input[i] === "§" && i < input.length - 1) {
+      i++;
+    } else {
+      output += input[i];
+    }
+  }
+  return output;
+}
