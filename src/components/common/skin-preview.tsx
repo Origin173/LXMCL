@@ -30,6 +30,7 @@ import {
   LuRefreshCwOff,
 } from "react-icons/lu";
 import * as skinview3d from "skinview3d";
+import { useLauncherConfig } from "@/contexts/config";
 
 type AnimationType = "idle" | "walk" | "run" | "wave";
 type backgroundType = "none" | "black" | "panorama";
@@ -57,6 +58,8 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
   ...props
 }) => {
   const { t } = useTranslation();
+  const { config } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [skinViewer, setSkinViewer] = useState<skinview3d.SkinViewer | null>(
     null
@@ -277,6 +280,7 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
             <Switch
               isChecked={isCapeVisible}
               onChange={(e) => setIsCapeVisible(e.target.checked)}
+              colorScheme={primaryColor}
             />
           </HStack>
         </Flex>
