@@ -22,8 +22,8 @@ type WrapCardContentObject = {
 };
 
 export interface WrapCardProps extends CardProps {
-  width?: string;
   cardContent?: React.ReactNode | WrapCardContentObject;
+  colSpan?: number;
   variant?: "normal" | "radio";
   radioValue?: string;
   isSelected?: boolean;
@@ -40,12 +40,12 @@ export interface WrapCardGroupProps extends SectionProps {
 }
 
 export const WrapCard: React.FC<WrapCardProps> = ({
-  width = "10.45rem",
+  cardContent,
+  colSpan = 1,
   variant = "normal",
   radioValue = "",
   isSelected = false,
   onSelect = () => {},
-  cardContent,
   ...cardProps
 }) => {
   const { config } = useLauncherConfig();
@@ -88,7 +88,6 @@ export const WrapCard: React.FC<WrapCardProps> = ({
   return (
     <Card
       className="content-card"
-      w={width}
       borderColor={`${primaryColor}.500`}
       variant={isSelected ? "outline" : "elevated"}
       position="relative"
@@ -109,8 +108,8 @@ export const WrapCard: React.FC<WrapCardProps> = ({
 };
 
 export const WrapCardGroup: React.FC<WrapCardGroupProps> = ({
-  cardMinWidth = 41.8,
-  spacing = 3.5,
+  cardMinWidth = 41.8, // in chakra-size, 4x rem (or px/4)
+  spacing = 3.5, // in chakra-size
   items,
   variant = "normal",
   widthMode = "dynamic",
@@ -122,7 +121,7 @@ export const WrapCardGroup: React.FC<WrapCardGroupProps> = ({
   const spacingScale = theme.space[1] || "0.25rem";
   const baseFontSize = theme.fontSizes.base || "16px";
   const numberToPx = parseFloat(spacingScale) * parseInt(baseFontSize);
-  const [cardWidth, setCardWidth] = useState<number>(cardMinWidth * numberToPx);
+  const [cardWidth, setCardWidth] = useState<number>(cardMinWidth * numberToPx); // width for single-column card (colSpan = 1)
 
   const resizeCard = useCallback(() => {
     if (boxRef.current && widthMode === "dynamic") {
@@ -159,18 +158,22 @@ export const WrapCardGroup: React.FC<WrapCardGroupProps> = ({
         {items.length > 0 && (
           <Wrap spacing={spacing} mb={0.5}>
             {/* add mb to show last row cards' bottom shadow */}
-            {items.map((item, index) => (
-              <WrapItem key={index}>
-                <WrapCard
-                  {...item}
-                  width={`${cardWidth}px`}
-                  variant={variant}
-                  {...(cardAspectRatio !== 0 && {
-                    height: `${cardWidth / cardAspectRatio}px`,
-                  })}
-                />
-              </WrapItem>
-            ))}
+            {items.map((item, index) => {
+              const validColSpan = Math.max(1, Math.floor(item.colSpan || 1));
+              const spannedWidth = `${cardWidth * validColSpan + (validColSpan - 1) * (spacing * numberToPx)}px`;
+              return (
+                <WrapItem key={index}>
+                  <WrapCard
+                    {...item}
+                    width={spannedWidth}
+                    variant={variant}
+                    {...(cardAspectRatio !== 0 && {
+                      height: `${cardWidth / cardAspectRatio}px`,
+                    })}
+                  />
+                </WrapItem>
+              );
+            })}
           </Wrap>
         )}
       </Section>
