@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuCircleCheck, LuCircleX, LuPen } from "react-icons/lu";
+import { LuCheck, LuPenLine, LuX } from "react-icons/lu";
 
 interface EditableProps extends BoxProps {
   isTextArea: boolean;
@@ -55,7 +55,7 @@ const Editable: React.FC<EditableProps> = ({
     return isEditing ? (
       <HStack ml="auto">
         <IconButton
-          icon={<LuCircleCheck />}
+          icon={<LuCheck />}
           size="sm"
           aria-label="submit"
           onClick={() => {
@@ -65,7 +65,7 @@ const Editable: React.FC<EditableProps> = ({
           }}
         />
         <IconButton
-          icon={<LuCircleX />}
+          icon={<LuX />}
           size="sm"
           aria-label="cancel"
           onClick={() => {
@@ -77,7 +77,7 @@ const Editable: React.FC<EditableProps> = ({
       </HStack>
     ) : (
       <IconButton
-        icon={<LuPen />}
+        icon={<LuPenLine />}
         size="sm"
         aria-label="edit"
         onClick={() => {
