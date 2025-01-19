@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { AuthServer, Player, PlayerInfo } from "@/models/account";
+import { AuthServer, Player } from "@/models/account";
 
 /**
  * Fetches the list of players.
@@ -8,9 +8,9 @@ import { AuthServer, Player, PlayerInfo } from "@/models/account";
  */
 export const getPlayerList = async (): Promise<Player[]> => {
   try {
-    return await invoke<Player[]>("get_players");
+    return await invoke<Player[]>("get_player_list");
   } catch (error) {
-    console.error("Error in get_players:", error);
+    console.error("Error in get_player_list:", error);
     throw error;
   }
 };
@@ -19,11 +19,21 @@ export const getPlayerList = async (): Promise<Player[]> => {
  * Adds a new player to the system.
  * @param {PlayerInfo} player - The information of the player to be added.
  * @returns {Promise<void>} A promise that resolves when the player is successfully added.
- * @throws Will throw an error if the invocation of "add_player" fails.
+ * @throws Will throw an error if the invocation fails.
  */
-export const addPlayer = async (player: PlayerInfo): Promise<void> => {
+export const addPlayer = async (
+  playerType: string,
+  username: string,
+  password: string,
+  authServerUrl: string
+): Promise<void> => {
   try {
-    await invoke("add_player", { player });
+    await invoke("add_player", {
+      playerType,
+      username,
+      password,
+      authServerUrl,
+    });
   } catch (error) {
     console.error("Error in add_player:", error);
     throw error;
@@ -46,15 +56,44 @@ export const deletePlayer = async (uuid: string): Promise<void> => {
 };
 
 /**
+ * Fetches the selected player by UUID.
+ * @returns {Promise<Player>} A promise that resolves to the selected Player object.
+ * @throws Will throw an error if the invocation fails.
+ */
+export const getSelectedPlayer = async (): Promise<Player> => {
+  try {
+    return await invoke<Player>("get_selected_player");
+  } catch (error) {
+    console.error("Error in get_selected_player:", error);
+    throw error;
+  }
+};
+
+/**
+ * Posts the selected player by UUID.
+ * @param {string} uuid - The UUID of the player to be posted as selected.
+ * @returns {Promise<void>} A promise that resolves when the player is posted as selected.
+ * @throws Will throw an error if the invocation fails.
+ */
+export const postSelectedPlayer = async (uuid: string): Promise<void> => {
+  try {
+    await invoke("post_selected_player", { uuid });
+  } catch (error) {
+    console.error("Error in post_selected_player:", error);
+    throw error;
+  }
+};
+
+/**
  * Fetches the list of authentication servers.
  * @returns {Promise<AuthServer[]>} A promise that resolves to an array of AuthServer objects.
  * @throws Will throw an error if the invocation fails.
  */
 export const getAuthServerList = async (): Promise<AuthServer[]> => {
   try {
-    return await invoke<AuthServer[]>("get_auth_servers");
+    return await invoke<AuthServer[]>("get_auth_server_list");
   } catch (error) {
-    console.error("Error in get_auth_servers:", error);
+    console.error("Error in get_auth_server_list:", error);
     throw error;
   }
 };
@@ -78,7 +117,7 @@ export const getAuthServerInfo = async (url: string): Promise<AuthServer> => {
  * Adds the new authentication server to the storage.
  * @param {string} authUrl - The authentication server url (already formatted by backend).
  * @returns {Promise<void>} A promise that resolves when the server is added.
- * @throws Will throw an error if the invocation of "add_auth_server" fails.
+ * @throws Will throw an error if the invocation fails.
  */
 export const addAuthServer = async (authUrl: string): Promise<void> => {
   try {

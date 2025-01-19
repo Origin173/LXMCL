@@ -10,7 +10,11 @@ import { useTranslation } from "react-i18next";
 import { AuthServer, Player } from "@/models/account";
 import { GameInstanceSummary } from "@/models/game-instance";
 import { mockGameInstanceSummaryList } from "@/models/mock/game-instance";
-import { getAuthServerList, getPlayerList } from "@/services/account";
+import {
+  getAuthServerList,
+  getPlayerList,
+  getSelectedPlayer,
+} from "@/services/account";
 
 interface DataContextType {
   playerList: Player[];
@@ -26,6 +30,9 @@ interface DataDispatchContextType {
   setGameInstanceSummaryList: React.Dispatch<GameInstanceSummary[]>;
   setSelectedGameInstance: React.Dispatch<GameInstanceSummary | undefined>;
   setAuthServerList: React.Dispatch<AuthServer[]>;
+  fetchPlayerList: () => void;
+  fetchSelectedPlayer: () => void;
+  fetchAuthServerList: () => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -62,7 +69,17 @@ export const DataContextProvider: React.FC<{
           status: "error",
         });
       });
-  }, [setPlayerList, toast, t]);
+  }, [toast, t]);
+
+  const fetchSelectedPlayer = useCallback(() => {
+    getSelectedPlayer()
+      .then((player) => {
+        setSelectedPlayer(player);
+      })
+      .catch((error) => {
+        setSelectedPlayer(undefined);
+      });
+  }, []);
 
   const fetchAuthServerList = useCallback(() => {
     getAuthServerList()
@@ -75,7 +92,7 @@ export const DataContextProvider: React.FC<{
           status: "error",
         });
       });
-  }, [setAuthServerList, toast, t]);
+  }, [toast, t]);
 
   useEffect(() => {
     fetchPlayerList();
@@ -86,6 +103,10 @@ export const DataContextProvider: React.FC<{
   }, [fetchAuthServerList]);
 
   useEffect(() => {
+    fetchSelectedPlayer();
+  }, [fetchSelectedPlayer]);
+
+  useEffect(() => {
     setGameInstanceSummaryList(mockGameInstanceSummaryList);
     setSelectedGameInstance(mockGameInstanceSummaryList[0]);
   }, []);
@@ -93,8 +114,8 @@ export const DataContextProvider: React.FC<{
   return (
     <DataContext.Provider
       value={{
-        playerList: playerList,
-        selectedPlayer: selectedPlayer,
+        playerList,
+        selectedPlayer,
         gameInstanceSummaryList,
         selectedGameInstance,
         authServerList,
@@ -102,11 +123,14 @@ export const DataContextProvider: React.FC<{
     >
       <DataDispatchContext.Provider
         value={{
-          setPlayerList: setPlayerList,
-          setSelectedPlayer: setSelectedPlayer,
+          setPlayerList,
+          setSelectedPlayer,
           setGameInstanceSummaryList,
           setSelectedGameInstance,
           setAuthServerList,
+          fetchPlayerList,
+          fetchSelectedPlayer,
+          fetchAuthServerList,
         }}
       >
         {children}

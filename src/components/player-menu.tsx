@@ -34,7 +34,7 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
     onClose: onDeleteClose,
   } = useDisclosure();
   const { selectedPlayer } = useData();
-  const { setPlayerList, setSelectedPlayer } = useDataDispatch();
+  const { fetchPlayerList, fetchSelectedPlayer } = useDataDispatch();
   const toast = useToast();
 
   const handleDelete = () => {
@@ -42,11 +42,8 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
       try {
         let uuid = player.uuid;
         await deletePlayer(uuid);
-        const players = await getPlayerList();
-        setPlayerList(players);
-        if (selectedPlayer?.uuid === uuid) {
-          setSelectedPlayer(undefined);
-        }
+        fetchPlayerList();
+        fetchSelectedPlayer();
         toast({
           title: t("Services.account.deletePlayer.success"),
           status: "success",

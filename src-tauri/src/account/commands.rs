@@ -9,55 +9,84 @@ use crate::{
 use uuid::Uuid;
 
 #[tauri::command]
-pub fn get_players() -> SJMCLResult<Vec<Player>> {
+pub fn get_player_list() -> SJMCLResult<Vec<Player>> {
   let state: AccountInfo = Storage::load().unwrap_or_default();
-  let AccountInfo {
-    players,
-    auth_servers,
-  } = state;
-  let player_list: Vec<Player> = players
+  let player_list: Vec<Player> = state
+    .players
     .into_iter()
-    .map(|player_info| {
-      let auth_server = auth_servers
-        .iter()
-        .find(|server| server.auth_url == player_info.auth_server_url)
-        .cloned()
-        .unwrap_or_default();
-      Player {
-        uuid: player_info.uuid,
-        name: player_info.name,
-        player_type: player_info.player_type,
-        auth_server,
-        avatar_src: player_info.avatar_src,
-        auth_account: player_info.auth_account,
-        password: player_info.password,
-      }
-    })
+    .map(|player_info| Player::from(player_info))
     .collect();
   Ok(player_list)
 }
 
 #[tauri::command]
-pub async fn add_player(mut player: PlayerInfo) -> SJMCLResult<()> {
+pub fn get_selected_player() -> SJMCLResult<Player> {
+  let state: AccountInfo = Storage::load().unwrap_or_default();
+  if state.selected_player_id.is_empty() {
+    return Err(SJMCLError("No player selected".to_string()));
+  }
+  let player_info = state
+    .players
+    .iter()
+    .find(|player| player.uuid.to_string() == state.selected_player_id)
+    .cloned()
+    .ok_or(SJMCLError("Player not found".to_string()))?;
+  Ok(Player::from(player_info))
+}
+
+#[tauri::command]
+pub fn post_selected_player(uuid: Uuid) -> SJMCLResult<()> {
+  let mut state: AccountInfo = Storage::load().unwrap_or_default();
+  if state.players.iter().any(|player| player.uuid == uuid) {
+    state.selected_player_id = uuid.to_string();
+    state.save()?;
+    Ok(())
+  } else {
+    Err(SJMCLError("Player not found".to_string()))
+  }
+}
+
+#[tauri::command]
+pub async fn add_player(
+  player_type: String,
+  username: String,
+  password: String,
+  auth_server_url: String,
+) -> SJMCLResult<()> {
   let mut state: AccountInfo = Storage::load().unwrap_or_default();
 
   let uuid = Uuid::new_v4();
-  match player.player_type.as_str() {
+  match player_type.as_str() {
     "offline" => {
-      player.uuid = uuid.to_string();
-      // use the default steve skin (maybe the wrong way, need help)
-      player.avatar_src = "https://littleskin.cn/avatar/0?size=72&png=1".to_string();
+      let player = PlayerInfo {
+        name: username,
+        uuid,
+        player_type,
+        // this url for avatar_src is a mock.
+        avatar_src: "https://littleskin.cn/avatar/0?size=72&png=1".to_string(),
+        auth_account: "".to_string(),
+        password: "".to_string(),
+        auth_server_url: "".to_string(),
+      };
 
+      state.selected_player_id = uuid.to_string();
       state.players.push(player);
       state.save()?;
       Ok(())
     }
     "3rdparty" => {
       // todo: real login
-      player.name = "Player".to_string();
-      player.uuid = uuid.to_string();
-      player.avatar_src = "https://littleskin.cn/avatar/0?size=72&png=1".to_string();
+      let player = PlayerInfo {
+        name: "Player".to_string(), // mock name
+        uuid,
+        player_type,
+        avatar_src: "https://littleskin.cn/avatar/0?size=72&png=1".to_string(),
+        auth_account: username,
+        password,
+        auth_server_url,
+      };
 
+      state.selected_player_id = uuid.to_string();
       state.players.push(player);
       state.save()?;
       Ok(())
@@ -67,8 +96,13 @@ pub async fn add_player(mut player: PlayerInfo) -> SJMCLResult<()> {
 }
 
 #[tauri::command]
-pub fn delete_player(uuid: String) -> SJMCLResult<()> {
+pub fn delete_player(uuid: Uuid) -> SJMCLResult<()> {
   let mut state: AccountInfo = Storage::load().unwrap_or_default();
+
+  if state.selected_player_id == uuid.to_string() {
+    state.selected_player_id = "".to_string();
+  }
+
   let initial_len = state.players.len();
   state.players.retain(|s| s.uuid != uuid);
   if state.players.len() == initial_len {
@@ -79,7 +113,7 @@ pub fn delete_player(uuid: String) -> SJMCLResult<()> {
 }
 
 #[tauri::command]
-pub fn get_auth_servers() -> SJMCLResult<Vec<AuthServer>> {
+pub fn get_auth_server_list() -> SJMCLResult<Vec<AuthServer>> {
   let mut state: AccountInfo = Storage::load().unwrap_or_default();
 
   if state.auth_servers.len() == 0 {
@@ -153,8 +187,13 @@ pub fn delete_auth_server(url: String) -> SJMCLResult<()> {
     return Err(SJMCLError(AuthServerError::NotFound.to_string()));
   }
 
-  // remove all players using this server
-  state.players.retain(|player| player.auth_server_url != url);
+  // remove all players using this server & check if the selected player is using this server
+  state.players.retain(|player| {
+    if player.uuid.to_string() == state.selected_player_id && player.auth_server_url == url {
+      state.selected_player_id = "".to_string();
+    }
+    player.auth_server_url != url
+  });
 
   state.save()?;
   Ok(())

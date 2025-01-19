@@ -14,6 +14,7 @@ import PlayerMenu from "@/components/player-menu";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData, useDataDispatch } from "@/contexts/data";
 import { Player } from "@/models/account";
+import { postSelectedPlayer } from "@/services/account";
 
 interface PlayersViewProps extends BoxProps {
   players: Player[];
@@ -29,7 +30,7 @@ const PlayersView: React.FC<PlayersViewProps> = ({
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const { selectedPlayer } = useData();
-  const { setSelectedPlayer } = useDataDispatch();
+  const { fetchSelectedPlayer } = useDataDispatch();
 
   const listItems = players.map((player) => ({
     title: player.name,
@@ -41,7 +42,9 @@ const PlayersView: React.FC<PlayersViewProps> = ({
       <HStack spacing={2.5}>
         <Radio
           value={player.uuid}
-          onClick={() => setSelectedPlayer(player)}
+          onClick={() =>
+            postSelectedPlayer(player.uuid).then(fetchSelectedPlayer)
+          }
           colorScheme={primaryColor}
         />
         <Image
@@ -70,7 +73,7 @@ const PlayersView: React.FC<PlayersViewProps> = ({
       ),
     },
     isSelected: selectedPlayer?.uuid === player.uuid,
-    onSelect: () => setSelectedPlayer(player),
+    onSelect: () => postSelectedPlayer(player.uuid).then(fetchSelectedPlayer),
     radioValue: player.uuid,
   }));
 

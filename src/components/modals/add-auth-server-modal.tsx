@@ -34,8 +34,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   ...modalProps
 }) => {
   const { t } = useTranslation();
-  const { authServerList } = useData();
-  const { setAuthServerList } = useDataDispatch();
+  const { fetchAuthServerList } = useDataDispatch();
   const toast = useToast();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
@@ -86,7 +85,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
         setIsLoading(true);
         // save the server info to the storage
         await addAuthServer(serverUrl);
-        setAuthServerList(await getAuthServerList());
+        fetchAuthServerList();
         toast({
           title: t("Services.account.addAuthServer.success"),
           status: "success",

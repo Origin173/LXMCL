@@ -29,7 +29,7 @@ import AddAuthServerModal from "@/components/modals/add-auth-server-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData, useDataDispatch } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
-import { AuthServer, PlayerInfo } from "@/models/account";
+import { AuthServer } from "@/models/account";
 import { addPlayer, getPlayerList } from "@/services/account";
 
 interface AddPlayerModalProps extends Omit<ModalProps, "children"> {
@@ -44,7 +44,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { authServerList } = useData();
-  const { setPlayerList } = useDataDispatch();
+  const { fetchPlayerList, fetchSelectedPlayer } = useDataDispatch();
   const toast = useToast();
   const [playerType, setPlayerType] = useState<"offline" | "3rdparty">(
     "offline"
@@ -78,49 +78,33 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   }, [playerType]);
 
   const handleLogin = useCallback(() => {
-    let player: PlayerInfo = {
-      name: "",
-      playerType: playerType,
-      password: password,
-      uuid: "",
-      avatarSrc: "",
-      authServerUrl,
-    };
-    if (playerType === "offline") {
-      player.name = playername;
-    } else {
-      player.authAccount = playername;
-    }
     (async () => {
       try {
         setIsLoading(true);
-        await addPlayer(player);
-        const players = await getPlayerList();
-        setPlayerList(players);
-        setIsLoading(false);
+        await addPlayer(playerType, playername, password, authServerUrl);
+        fetchPlayerList();
+        fetchSelectedPlayer();
         toast({
           title: t("Services.account.addPlayer.success"),
           status: "success",
         });
         modalProps.onClose();
       } catch (error) {
-        setIsLoading(false);
         toast({
           title: t("Services.account.addPlayer.error"),
           status: "error",
         });
       } finally {
-        setPlayername("");
-        setPassword("");
+        setIsLoading(false);
       }
     })();
   }, [
-    playername,
     playerType,
+    playername,
     password,
     authServerUrl,
-    setPlayerList,
-    setIsLoading,
+    fetchPlayerList,
+    fetchSelectedPlayer,
     toast,
     t,
     modalProps,

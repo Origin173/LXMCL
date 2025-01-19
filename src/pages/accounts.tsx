@@ -53,8 +53,8 @@ const AccountsPage = () => {
   const selectedViewType = config.page.accounts.viewType;
 
   const [selectedPlayerType, setSelectedPlayerType] = useState<string>("all");
-  const { selectedPlayer, playerList, authServerList } = useData();
-  const { setSelectedPlayer, setPlayerList, setAuthServerList } =
+  const { playerList, authServerList } = useData();
+  const { fetchSelectedPlayer, fetchPlayerList, fetchAuthServerList } =
     useDataDispatch();
 
   const {
@@ -126,13 +126,9 @@ const AccountsPage = () => {
         if (servers.length > 0) {
           let url = servers[0].authUrl;
           await deleteAuthServer(url);
-          // check if the selected player was deleted with the server
-          if (selectedPlayer?.authServer?.authUrl === url) {
-            setSelectedPlayer(undefined);
-          }
-          // update the new player list & auth server list
-          setPlayerList(await getPlayerList());
-          setAuthServerList(await getAuthServerList());
+          fetchAuthServerList();
+          fetchPlayerList();
+          fetchSelectedPlayer();
           // redirect the selected player type to "all" to avoid display error
           setSelectedPlayerType("all");
           toast({
