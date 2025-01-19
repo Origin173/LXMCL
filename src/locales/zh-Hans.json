@@ -570,6 +570,14 @@
       "dev-test": "开发 - 测试页"
     }
   },
+  "ManageSkinModal": {
+    "skinManage": "管理皮肤",
+    "default": "默认",
+    "steve": "Steve",
+    "alex": "Alex",
+    "confirm": "确定",
+    "cancel": "取消"
+  },
   "SkinPreview":{
     "cape": "披风",
     "animation": {

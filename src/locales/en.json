@@ -570,6 +570,14 @@
       "dev-test": "Dev - Test Page"
     }
   },
+  "ManageSkinModal": {
+    "skinManage": "Manage Skin",
+    "default": "Default",
+    "steve": "Steve",
+    "alex": "Alex",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  },
   "SkinPreview":{
     "cape": "Cape",
     "animation": {
