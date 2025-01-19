@@ -27,10 +27,10 @@ import { LuChevronDown, LuLink2Off, LuPlus, LuServer } from "react-icons/lu";
 import SegmentedControl from "@/components/common/segmented";
 import AddAuthServerModal from "@/components/modals/add-auth-server-modal";
 import { useLauncherConfig } from "@/contexts/config";
-import { useData, useDataDispatch } from "@/contexts/data";
+import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
 import { AuthServer } from "@/models/account";
-import { addPlayer, getPlayerList } from "@/services/account";
+import { addPlayer } from "@/services/account";
 
 interface AddPlayerModalProps extends Omit<ModalProps, "children"> {
   initialPlayerType?: "offline" | "3rdparty";
@@ -43,8 +43,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   ...modalProps
 }) => {
   const { t } = useTranslation();
-  const { authServerList } = useData();
-  const { fetchPlayerList, fetchSelectedPlayer } = useDataDispatch();
+  const { authServerList, handlePlayerList, handleSelectedPlayer } = useData();
   const toast = useToast();
   const [playerType, setPlayerType] = useState<"offline" | "3rdparty">(
     "offline"
@@ -82,8 +81,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
       try {
         setIsLoading(true);
         await addPlayer(playerType, playername, password, authServerUrl);
-        fetchPlayerList();
-        fetchSelectedPlayer();
+        handlePlayerList();
+        handleSelectedPlayer();
         toast({
           title: t("Services.account.addPlayer.success"),
           status: "success",
@@ -103,8 +102,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     playername,
     password,
     authServerUrl,
-    fetchPlayerList,
-    fetchSelectedPlayer,
+    handlePlayerList,
+    handleSelectedPlayer,
     toast,
     t,
     modalProps,

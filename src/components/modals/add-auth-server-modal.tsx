@@ -19,7 +19,7 @@ import {
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
-import { useData, useDataDispatch } from "@/contexts/data";
+import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
 import { AuthServerError, errorToLocaleKey } from "@/models/account";
 import {
@@ -34,7 +34,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   ...modalProps
 }) => {
   const { t } = useTranslation();
-  const { fetchAuthServerList } = useDataDispatch();
+  const { handleAuthServerList } = useData();
   const toast = useToast();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
@@ -85,7 +85,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
         setIsLoading(true);
         // save the server info to the storage
         await addAuthServer(serverUrl);
-        fetchAuthServerList();
+        handleAuthServerList();
         toast({
           title: t("Services.account.addAuthServer.success"),
           status: "success",

@@ -35,9 +35,9 @@ import AddPlayerModal from "@/components/modals/add-player-modal";
 import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
 import PlayersView from "@/components/players-view";
 import { useLauncherConfig } from "@/contexts/config";
-import { useData, useDataDispatch } from "@/contexts/data";
+import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
-import { AuthServerError, errorToLocaleKey } from "@/models/account";
+import { errorToLocaleKey } from "@/models/account";
 import {
   deleteAuthServer,
   getAuthServerList,
@@ -53,9 +53,13 @@ const AccountsPage = () => {
   const selectedViewType = config.page.accounts.viewType;
 
   const [selectedPlayerType, setSelectedPlayerType] = useState<string>("all");
-  const { playerList, authServerList } = useData();
-  const { fetchSelectedPlayer, fetchPlayerList, fetchAuthServerList } =
-    useDataDispatch();
+  const {
+    playerList,
+    authServerList,
+    handleSelectedPlayer,
+    handlePlayerList,
+    handleAuthServerList,
+  } = useData();
 
   const {
     isOpen: isAddAuthServerModalOpen,
@@ -126,9 +130,9 @@ const AccountsPage = () => {
         if (servers.length > 0) {
           let url = servers[0].authUrl;
           await deleteAuthServer(url);
-          fetchAuthServerList();
-          fetchPlayerList();
-          fetchSelectedPlayer();
+          handleAuthServerList();
+          handlePlayerList();
+          handleSelectedPlayer();
           // redirect the selected player type to "all" to avoid display error
           setSelectedPlayerType("all");
           toast({

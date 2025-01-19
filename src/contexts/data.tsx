@@ -22,6 +22,9 @@ interface DataContextType {
   gameInstanceSummaryList: GameInstanceSummary[];
   selectedGameInstance: GameInstanceSummary | undefined;
   authServerList: AuthServer[];
+  handlePlayerList: () => void;
+  handleSelectedPlayer: () => void;
+  handleAuthServerList: () => void;
 }
 
 interface DataDispatchContextType {
@@ -30,9 +33,6 @@ interface DataDispatchContextType {
   setGameInstanceSummaryList: React.Dispatch<GameInstanceSummary[]>;
   setSelectedGameInstance: React.Dispatch<GameInstanceSummary | undefined>;
   setAuthServerList: React.Dispatch<AuthServer[]>;
-  fetchPlayerList: () => void;
-  fetchSelectedPlayer: () => void;
-  fetchAuthServerList: () => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -55,7 +55,7 @@ export const DataContextProvider: React.FC<{
   const toast = useToast();
   const { t } = useTranslation();
 
-  const fetchPlayerList = useCallback(() => {
+  const handlePlayerList = useCallback(() => {
     getPlayerList()
       .then((playerList) => {
         setPlayerList(playerList);
@@ -71,7 +71,7 @@ export const DataContextProvider: React.FC<{
       });
   }, [toast, t]);
 
-  const fetchSelectedPlayer = useCallback(() => {
+  const handleSelectedPlayer = useCallback(() => {
     getSelectedPlayer()
       .then((player) => {
         setSelectedPlayer(player);
@@ -81,7 +81,7 @@ export const DataContextProvider: React.FC<{
       });
   }, []);
 
-  const fetchAuthServerList = useCallback(() => {
+  const handleAuthServerList = useCallback(() => {
     getAuthServerList()
       .then((authServerList) => {
         setAuthServerList(authServerList);
@@ -95,16 +95,16 @@ export const DataContextProvider: React.FC<{
   }, [toast, t]);
 
   useEffect(() => {
-    fetchPlayerList();
-  }, [fetchPlayerList]);
+    handlePlayerList();
+  }, [handlePlayerList]);
 
   useEffect(() => {
-    fetchAuthServerList();
-  }, [fetchAuthServerList]);
+    handleAuthServerList();
+  }, [handleAuthServerList]);
 
   useEffect(() => {
-    fetchSelectedPlayer();
-  }, [fetchSelectedPlayer]);
+    handleSelectedPlayer();
+  }, [handleSelectedPlayer]);
 
   useEffect(() => {
     setGameInstanceSummaryList(mockGameInstanceSummaryList);
@@ -119,6 +119,9 @@ export const DataContextProvider: React.FC<{
         gameInstanceSummaryList,
         selectedGameInstance,
         authServerList,
+        handlePlayerList,
+        handleSelectedPlayer,
+        handleAuthServerList,
       }}
     >
       <DataDispatchContext.Provider
@@ -128,9 +131,6 @@ export const DataContextProvider: React.FC<{
           setGameInstanceSummaryList,
           setSelectedGameInstance,
           setAuthServerList,
-          fetchPlayerList,
-          fetchSelectedPlayer,
-          fetchAuthServerList,
         }}
       >
         {children}

@@ -12,7 +12,7 @@ import { OptionItemGroup } from "@/components/common/option-item";
 import { WrapCardGroup } from "@/components/common/wrap-card";
 import PlayerMenu from "@/components/player-menu";
 import { useLauncherConfig } from "@/contexts/config";
-import { useData, useDataDispatch } from "@/contexts/data";
+import { useData } from "@/contexts/data";
 import { Player } from "@/models/account";
 import { postSelectedPlayer } from "@/services/account";
 
@@ -29,8 +29,7 @@ const PlayersView: React.FC<PlayersViewProps> = ({
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const { selectedPlayer } = useData();
-  const { fetchSelectedPlayer } = useDataDispatch();
+  const { selectedPlayer, handleSelectedPlayer } = useData();
 
   const listItems = players.map((player) => ({
     title: player.name,
@@ -43,7 +42,7 @@ const PlayersView: React.FC<PlayersViewProps> = ({
         <Radio
           value={player.uuid}
           onClick={() =>
-            postSelectedPlayer(player.uuid).then(fetchSelectedPlayer)
+            postSelectedPlayer(player.uuid).then(handleSelectedPlayer)
           }
           colorScheme={primaryColor}
         />
@@ -73,7 +72,7 @@ const PlayersView: React.FC<PlayersViewProps> = ({
       ),
     },
     isSelected: selectedPlayer?.uuid === player.uuid,
-    onSelect: () => postSelectedPlayer(player.uuid).then(fetchSelectedPlayer),
+    onSelect: () => postSelectedPlayer(player.uuid).then(handleSelectedPlayer),
     radioValue: player.uuid,
   }));
 
