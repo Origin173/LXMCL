@@ -62,6 +62,22 @@
       "list": "列表视图"
     }
   },
+  "AddAndImportInstancePage": {
+    "addAndImportOptions": {
+      "new": {
+        "title": "安装新实例",
+        "description": "选择并安装游戏版本、加载器与模组"
+      },
+      "modpack": {
+        "title": "导入整合包",
+        "description": "从本地文件或互联网导入整合包（CurseForge, Modrinth 或 HMCL 格式）"
+      },
+      "manageDirs": {
+        "title": "管理游戏目录",
+        "description": "管理本地游戏存储目录，以添加已安装实例"
+      }
+    }
+  },
   "AddAuthServerModal": {
     "header": {
       "title": "添加认证服务器"
@@ -275,6 +291,7 @@
     }
   },
   "General": {
+    "delete": "删除",
     "disable": "禁用",
     "enable": "启用",
     "open": "打开",
@@ -306,6 +323,15 @@
     }
   },
   "GlobalGameSettingsPage": {
+    "directories": {
+      "title": "游戏目录",
+      "settings": {
+        "directories": {
+          "title": "本地游戏存储目录",
+          "add": "添加"
+        }
+      }
+    },
     "performance": {
       "title": "性能",
       "settings": {
