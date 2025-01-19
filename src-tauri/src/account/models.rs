@@ -87,3 +87,5 @@ impl fmt::Display for AuthServerError {
     }
   }
 }
+
+impl std::error::Error for AuthServerError {}

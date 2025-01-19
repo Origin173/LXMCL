@@ -157,7 +157,7 @@ pub async fn get_auth_server_info(mut url: String) -> SJMCLResult<AuthServer> {
     .iter()
     .any(|server| server.auth_url == url)
   {
-    return Err(SJMCLError(AuthServerError::DuplicateServer.to_string()));
+    return Err(AuthServerError::DuplicateServer.into());
   }
 
   fetch_auth_server(url).await
@@ -168,7 +168,7 @@ pub async fn add_auth_server(auth_url: String) -> SJMCLResult<()> {
   let mut state: AccountInfo = Storage::load().unwrap_or_default();
   if state.auth_servers.iter().any(|s| s.auth_url == auth_url) {
     // we need to strictly ensure the uniqueness of the url
-    return Err(SJMCLError(AuthServerError::DuplicateServer.to_string()));
+    return Err(AuthServerError::DuplicateServer.into());
   }
   let server = fetch_auth_server(auth_url).await?;
   state.auth_servers.push(server);
@@ -184,7 +184,7 @@ pub fn delete_auth_server(url: String) -> SJMCLResult<()> {
   // try to remove the server from the storage
   state.auth_servers.retain(|server| server.auth_url != url);
   if state.auth_servers.len() == initial_len {
-    return Err(SJMCLError(AuthServerError::NotFound.to_string()));
+    return Err(AuthServerError::NotFound.into());
   }
 
   // remove all players using this server & check if the selected player is using this server

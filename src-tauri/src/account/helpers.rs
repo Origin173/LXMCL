@@ -1,10 +1,6 @@
 use tauri_plugin_http::reqwest;
 
-use crate::{
-  error::{SJMCLError, SJMCLResult},
-  storage::Storage,
-  EXE_DIR,
-};
+use crate::{error::SJMCLResult, storage::Storage, EXE_DIR};
 
 use super::models::{AccountInfo, AuthServer, AuthServerError};
 use std::path::PathBuf;
@@ -21,18 +17,18 @@ pub async fn fetch_auth_server(auth_url: String) -> SJMCLResult<AuthServer> {
       let json: serde_json::Value = response
         .json()
         .await
-        .map_err(|_| SJMCLError(AuthServerError::InvalidServer.to_string()))?;
+        .map_err(|_| AuthServerError::InvalidServer)?;
       let server_name = json["meta"]["serverName"]
         .as_str()
-        .ok_or_else(|| SJMCLError(AuthServerError::InvalidServer.to_string()))?
+        .ok_or_else(|| AuthServerError::InvalidServer)?
         .to_string();
       let homepage_url = json["meta"]["links"]["homepage"]
         .as_str()
-        .ok_or_else(|| SJMCLError(AuthServerError::InvalidServer.to_string()))?
+        .ok_or_else(|| AuthServerError::InvalidServer)?
         .to_string();
       let register_url = json["meta"]["links"]["register"]
         .as_str()
-        .ok_or_else(|| SJMCLError(AuthServerError::InvalidServer.to_string()))?
+        .ok_or_else(|| AuthServerError::InvalidServer)?
         .to_string();
 
       let new_server = AuthServer {
@@ -44,6 +40,6 @@ pub async fn fetch_auth_server(auth_url: String) -> SJMCLResult<AuthServer> {
 
       Ok(new_server)
     }
-    Err(_) => Err(SJMCLError(AuthServerError::InvalidServer.to_string())),
+    Err(_) => Err(AuthServerError::InvalidServer.into()),
   }
 }
