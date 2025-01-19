@@ -63,12 +63,36 @@ pub struct AuthServer {
   pub register_url: String,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct AccountInfo {
   pub players: Vec<PlayerInfo>,
   pub selected_player_id: String, // maybe "" if none of the player was selected
   pub auth_servers: Vec<AuthServer>,
+}
+
+impl Default for AccountInfo {
+  fn default() -> Self {
+    AccountInfo {
+      players: Vec::new(),
+      selected_player_id: String::new(),
+      auth_servers: [
+        AuthServer {
+          name: "SJMC 用户中心".to_string(),
+          auth_url: "https://skin.mc.sjtu.cn/api/yggdrasil".to_string(),
+          homepage_url: "https://skin.mc.sjtu.cn".to_string(),
+          register_url: "https://skin.mc.sjtu.cn/auth/register".to_string(),
+        },
+        AuthServer {
+          name: "MUA 用户中心".to_string(),
+          auth_url: "https://skin.mualliance.ltd/api/yggdrasil".to_string(),
+          homepage_url: "https://skin.mualliance.ltd".to_string(),
+          register_url: "https://skin.mualliance.ltd/auth/register".to_string(),
+        },
+      ]
+      .to_vec(),
+    }
+  }
 }
 
 #[derive(Debug)]

@@ -114,28 +114,7 @@ pub fn delete_player(uuid: Uuid) -> SJMCLResult<()> {
 
 #[tauri::command]
 pub fn get_auth_server_list() -> SJMCLResult<Vec<AuthServer>> {
-  let mut state: AccountInfo = Storage::load().unwrap_or_default();
-
-  if state.auth_servers.len() == 0 {
-    // first time launch the app, add some default auth servers
-    let sjmc_auth_server = AuthServer {
-      name: "SJMC 用户中心".to_string(),
-      auth_url: "https://skin.mc.sjtu.cn/api/yggdrasil".to_string(),
-      homepage_url: "https://skin.mc.sjtu.cn".to_string(),
-      register_url: "https://skin.mc.sjtu.cn/auth/register".to_string(),
-    };
-    let mua_auth_server = AuthServer {
-      name: "MUA 用户中心".to_string(),
-      auth_url: "https://skin.mualliance.ltd/api/yggdrasil".to_string(),
-      homepage_url: "https://skin.mualliance.ltd".to_string(),
-      register_url: "https://skin.mualliance.ltd/auth/register".to_string(),
-    };
-    state.auth_servers.push(sjmc_auth_server);
-    state.auth_servers.push(mua_auth_server);
-
-    state.save()?;
-  }
-
+  let state: AccountInfo = Storage::load().unwrap_or_default();
   Ok(state.auth_servers)
 }
 
