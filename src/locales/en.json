@@ -167,6 +167,22 @@
       "design": "Visual Design"
     }
   },
+  "CreateInstanceModal": {
+    "header": {
+      "title": "Create New Instance"
+    },
+    "stepper": {
+      "game": "Game",
+      "loader": "Loader",
+      "mods": "Mods and Resource Packs"
+    },
+    "button": {
+      "cancel": "Cancel",
+      "previous": "Previous",
+      "next": "Next",
+      "finish": "Finish"
+    }
+  },
   "DeleteGameAlertDialog": {
     "dialog": {
       "title": "Delete Game Instance",

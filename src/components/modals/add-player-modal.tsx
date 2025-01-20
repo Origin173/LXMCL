@@ -140,7 +140,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   ];
 
   return (
-    <Modal {...modalProps}>
+    <Modal size={{ base: "md", lg: "lg", xl: "xl" }} {...modalProps}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{t("AddPlayerModal.modal.header")}</ModalHeader>
@@ -272,7 +272,6 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
           <Button
             colorScheme={primaryColor}
             onClick={handleLogin}
-            ml={3}
             isLoading={isLoading}
             isDisabled={
               !playername ||
@@ -288,7 +287,6 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
       <AddAuthServerModal
         isOpen={isAddAuthServerModalOpen}
         onClose={onAddAuthServerModalClose}
-        isCentered
       />
     </Modal>
   );

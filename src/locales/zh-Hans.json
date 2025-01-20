@@ -167,6 +167,22 @@
       "design": "视觉设计"
     }
   },
+  "CreateInstanceModal": {
+    "header": {
+      "title": "创建新实例"
+    },
+    "stepper": {
+      "game": "选择游戏版本",
+      "loader": "选择加载器",
+      "mods": "模组与资源包"
+    },
+    "button": {
+      "cancel": "取消",
+      "previous": "上一步",
+      "next": "下一步",
+      "finish": "完成"
+    }
+  },
   "DeleteGameAlertDialog": {
     "dialog": {
       "title": "删除游戏实例",

@@ -12,6 +12,7 @@ import {
   ModalProps,
   Radio,
   RadioGroup,
+  Text,
   VStack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
@@ -23,14 +24,12 @@ export type SkinType = "default" | "steve" | "alex";
 
 interface ManageSkinModalProps extends Omit<ModalProps, "children"> {
   skin?: SkinType;
-  isCenter?: boolean;
   onSelectSkin?: (skin: SkinType) => void;
 }
 
 const ManageSkinModal: React.FC<ManageSkinModalProps> = ({
   isOpen,
   onClose,
-  isCenter = false,
   skin = "default",
   onSelectSkin,
   ...modalProps
@@ -39,6 +38,7 @@ const ManageSkinModal: React.FC<ManageSkinModalProps> = ({
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+
   const skinOptions = {
     default: "/images/skins/unicorn_isla.png",
     steve: "/images/skins/steve.png",
@@ -60,7 +60,7 @@ const ManageSkinModal: React.FC<ManageSkinModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      isCentered={isCenter}
+      size={{ base: "md", lg: "lg", xl: "xl" }}
       {...modalProps}
     >
       <ModalOverlay />
@@ -82,10 +82,10 @@ const ManageSkinModal: React.FC<ManageSkinModalProps> = ({
               value={selectedSkin}
               onChange={(skinType: SkinType) => setSelectedSkin(skinType)}
             >
-              <VStack spacing={4} alignItems="flex-start">
+              <VStack spacing={2} alignItems="flex-start">
                 {Object.keys(skinOptions).map((key) => (
                   <Radio key={key} value={key} colorScheme={primaryColor}>
-                    {t(`ManageSkinModal.${key}`)}
+                    <Text fontSize="sm">{t(`ManageSkinModal.${key}`)}</Text>
                   </Radio>
                 ))}
               </VStack>
@@ -101,7 +101,6 @@ const ManageSkinModal: React.FC<ManageSkinModalProps> = ({
             variant="solid"
             colorScheme={primaryColor}
             onClick={handleSave}
-            ml={3}
           >
             {t("ManageSkinModal.confirm")}
           </Button>

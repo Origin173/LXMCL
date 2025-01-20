@@ -107,7 +107,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   };
 
   return (
-    <Modal {...modalProps}>
+    <Modal size={{ base: "md", lg: "lg", xl: "xl" }} {...modalProps}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{t("AddAuthServerModal.header.title")}</ModalHeader>
@@ -154,34 +154,32 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
         </ModalBody>
 
         <ModalFooter>
-          <HStack spacing={3} ml="auto">
-            <Button variant="ghost" onClick={onClose}>
-              {t("AddAuthServerModal.button.cancel")}
-            </Button>
-            {isNextStep ? (
-              <>
-                <Button variant="ghost" onClick={() => setIsNextStep(false)}>
-                  {t("AddAuthServerModal.button.previous")}
-                </Button>
-                <Button
-                  colorScheme={primaryColor}
-                  onClick={handleFinish}
-                  isLoading={isLoading}
-                >
-                  {t("AddAuthServerModal.button.finish")}
-                </Button>
-              </>
-            ) : (
+          <Button variant="ghost" onClick={onClose}>
+            {t("AddAuthServerModal.button.cancel")}
+          </Button>
+          {isNextStep ? (
+            <>
+              <Button variant="ghost" onClick={() => setIsNextStep(false)}>
+                {t("AddAuthServerModal.button.previous")}
+              </Button>
               <Button
                 colorScheme={primaryColor}
-                onClick={handleNextStep}
+                onClick={handleFinish}
                 isLoading={isLoading}
-                isDisabled={!serverUrl}
               >
-                {t("AddAuthServerModal.button.next")}
+                {t("AddAuthServerModal.button.finish")}
               </Button>
-            )}
-          </HStack>
+            </>
+          ) : (
+            <Button
+              colorScheme={primaryColor}
+              onClick={handleNextStep}
+              isLoading={isLoading}
+              isDisabled={!serverUrl}
+            >
+              {t("AddAuthServerModal.button.next")}
+            </Button>
+          )}
         </ModalFooter>
       </ModalContent>
     </Modal>

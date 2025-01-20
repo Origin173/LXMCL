@@ -65,7 +65,7 @@ export const SyncConfigExportModal: React.FC<SyncConfigModalProps> = ({
   }, []);
 
   return (
-    <Modal {...modalProps}>
+    <Modal size={{ base: "md", lg: "lg", xl: "xl" }} {...modalProps}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{t("SyncConfigExportModal.header.title")}</ModalHeader>
@@ -106,7 +106,7 @@ export const SyncConfigImportModal: React.FC<SyncConfigModalProps> = ({
   const fields = new Array(6).fill(null);
 
   return (
-    <Modal {...modalProps}>
+    <Modal size={{ base: "md", lg: "lg", xl: "xl" }} {...modalProps}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{t("SyncConfigImportModal.header.title")}</ModalHeader>
@@ -125,14 +125,12 @@ export const SyncConfigImportModal: React.FC<SyncConfigModalProps> = ({
           </FormControl>
         </ModalBody>
         <ModalFooter>
-          <HStack spacing={3} ml="auto">
-            <Button variant="ghost" onClick={modalProps.onClose}>
-              {t("SyncConfigImportModal.button.cancel")}
-            </Button>
-            <Button colorScheme={primaryColor} onClick={modalProps.onClose}>
-              {t("SyncConfigImportModal.button.finish")}
-            </Button>
-          </HStack>
+          <Button variant="ghost" onClick={modalProps.onClose}>
+            {t("SyncConfigImportModal.button.cancel")}
+          </Button>
+          <Button colorScheme={primaryColor} onClick={modalProps.onClose}>
+            {t("SyncConfigImportModal.button.finish")}
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

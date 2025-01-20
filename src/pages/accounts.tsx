@@ -272,7 +272,6 @@ const AccountsPage = () => {
       <AddAuthServerModal
         isOpen={isAddAuthServerModalOpen}
         onClose={onAddAuthServerModalClose}
-        isCentered
       />
       <GenericConfirmDialog
         isAlert
@@ -301,7 +300,6 @@ const AccountsPage = () => {
             ? ""
             : selectedPlayerType
         }
-        isCentered
       />
     </>
   );

@@ -98,12 +98,10 @@ const SyncAndRestoreSettingsPage = () => {
       <SyncConfigExportModal
         isOpen={isSyncConfigExportModalOpen}
         onClose={onSyncConfigExportModalClose}
-        isCentered
       />
       <SyncConfigImportModal
         isOpen={isSyncConfigImportModalOpen}
         onClose={onSyncConfigImportModalClose}
-        isCentered
       />
       <GenericConfirmDialog
         isOpen={isRestoreConfirmDialogOpen}

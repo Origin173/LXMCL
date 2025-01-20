@@ -143,7 +143,6 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
       <ManageSkinModal
         isOpen={isManageSkinModalOpen}
         onClose={onManageSkinModalClose}
-        isCenter
       />
     </>
   );

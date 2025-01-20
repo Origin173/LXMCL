@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import ComingSoonSign from "@/components/common/coming-soon";
+import ComingSoonSign from "@/components/coming-soon";
 import {
   OptionItemGroup,
   OptionItemGroupProps,
