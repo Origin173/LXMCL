@@ -1,6 +1,8 @@
 import {
   Button,
+  Flex,
   HStack,
+  IconButton,
   Menu,
   MenuButton,
   MenuItemOption,
@@ -14,10 +16,18 @@ import {
   SliderTrack,
   Switch,
   Text,
+  Tooltip,
+  VStack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuChevronDown } from "react-icons/lu";
+import {
+  LuChevronDown,
+  LuFolder,
+  LuFolderOpen,
+  LuPlus,
+  LuTrash,
+} from "react-icons/lu";
 import {
   OptionItemGroup,
   OptionItemGroupProps,
@@ -68,6 +78,65 @@ const GlobalGameSettingsPage = () => {
   }, []);
 
   const globalGameSettingGroups: OptionItemGroupProps[] = [
+    {
+      title: t("GlobalGameSettingsPage.directories.title"),
+      items: [
+        {
+          title: t(
+            "GlobalGameSettingsPage.directories.settings.directories.title"
+          ),
+          children: (
+            <Tooltip
+              label={t(
+                "GlobalGameSettingsPage.directories.settings.directories.add"
+              )}
+              placement="top"
+            >
+              <IconButton // TBD
+                aria-label="add"
+                variant="ghost"
+                size="xs"
+                icon={<LuPlus />}
+                h={21}
+              />
+            </Tooltip>
+          ),
+        },
+        <VStack key="dir-list" ml={1.5} spacing={0.5}>
+          {config.localGameDirectories.map((dir) => (
+            <Flex key={dir} alignItems="center" w="100%">
+              <HStack>
+                <LuFolder size={12} />
+                <Text fontSize="xs" className="secondary-text">
+                  {dir}
+                </Text>
+              </HStack>
+              <HStack spacing={1} ml="auto">
+                <Tooltip label={t("General.openFolder")}>
+                  <IconButton // TBD
+                    aria-label="openFolder"
+                    variant="ghost"
+                    size="xs"
+                    icon={<LuFolderOpen />}
+                    h={21}
+                  />
+                </Tooltip>
+                <Tooltip label={t("General.delete")}>
+                  <IconButton // TBD
+                    aria-label="openFolder"
+                    variant="ghost"
+                    size="xs"
+                    icon={<LuTrash />}
+                    h={21}
+                    colorScheme="red"
+                  />
+                </Tooltip>
+              </HStack>
+            </Flex>
+          ))}
+        </VStack>,
+      ],
+    },
     {
       title: t("GlobalGameSettingsPage.performance.title"),
       items: [

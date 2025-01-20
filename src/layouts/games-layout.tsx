@@ -62,7 +62,13 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
             />
           </Box>
           <VStack mt="auto" align="strench" spacing={0.5}>
-            <SelectableButton size="sm">
+            <SelectableButton
+              size="sm"
+              onClick={() => {
+                router.push("/games/add-import");
+              }}
+              isSelected={router.asPath === "/games/add-import"}
+            >
               <HStack spacing={2}>
                 <Icon as={LuCirclePlus} />
                 <Text fontSize="sm">

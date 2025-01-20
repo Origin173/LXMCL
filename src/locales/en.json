@@ -62,6 +62,22 @@
       "list": "List View"
     }
   },
+  "AddAndImportInstancePage": {
+    "addAndImportOptions": {
+      "new": {
+        "title": "Install New Instance",
+        "description": "Choose and install game versions, loaders and mods"
+      },
+      "modpack": {
+        "title": "Import Modpack",
+        "description": "Import a modpack (CurseForge, Modrinth or HMCL formats) from local files or the internet"
+      },
+      "manageDirs": {
+        "title": "Manage Game Directories",
+        "description": "Manage local game storage directories to add installed instances"
+      }
+    }
+  },
   "AddAuthServerModal": {
     "header": {
       "title": "Add Authentication Server"
@@ -291,6 +307,7 @@
     }
   },
   "General": {
+    "delete": "Delete",
     "disable": "Disable",
     "enable": "Enable",
     "open": "Open",
@@ -322,6 +339,15 @@
     }
   },
   "GlobalGameSettingsPage": {
+    "directories": {
+      "title": "Game Directories",
+      "settings": {
+        "directories": {
+          "title": "Manage Local Game Storage Directories",
+          "add": "Add"
+        }
+      }
+    },
     "performance": {
       "title": "Performance",
       "settings": {
