@@ -13,8 +13,9 @@ import { WrapCardGroup } from "@/components/common/wrap-card";
 import PlayerMenu from "@/components/player-menu";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
+import { useToast } from "@/contexts/toast";
 import { Player } from "@/models/account";
-import { postSelectedPlayer } from "@/services/account";
+import accountService from "@/services/account";
 
 interface PlayersViewProps extends BoxProps {
   players: Player[];
@@ -28,8 +29,24 @@ const PlayersView: React.FC<PlayersViewProps> = ({
 }) => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
+  const { postSelectedPlayer } = accountService;
   const primaryColor = config.appearance.theme.primaryColor;
   const { selectedPlayer, handleSelectedPlayer } = useData();
+  const toast = useToast();
+
+  const handlePlayerSelect = (uuid: string) => {
+    postSelectedPlayer(uuid).then((response) => {
+      if (response.status === "success") {
+        handleSelectedPlayer();
+      } else {
+        toast({
+          title: response.message,
+          description: response.details,
+          status: "error",
+        });
+      }
+    });
+  };
 
   const listItems = players.map((player) => ({
     title: player.name,
@@ -41,9 +58,7 @@ const PlayersView: React.FC<PlayersViewProps> = ({
       <HStack spacing={2.5}>
         <Radio
           value={player.uuid}
-          onClick={() =>
-            postSelectedPlayer(player.uuid).then(handleSelectedPlayer)
-          }
+          onClick={() => handlePlayerSelect(player.uuid)}
           colorScheme={primaryColor}
         />
         <Image
@@ -72,7 +87,7 @@ const PlayersView: React.FC<PlayersViewProps> = ({
       ),
     },
     isSelected: selectedPlayer?.uuid === player.uuid,
-    onSelect: () => postSelectedPlayer(player.uuid).then(handleSelectedPlayer),
+    onSelect: () => handlePlayerSelect(player.uuid),
     radioValue: player.uuid,
   }));
 

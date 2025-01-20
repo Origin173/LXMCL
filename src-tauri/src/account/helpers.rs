@@ -2,7 +2,7 @@ use tauri_plugin_http::reqwest;
 
 use crate::{error::SJMCLResult, storage::Storage, EXE_DIR};
 
-use super::models::{AccountInfo, AuthServer, AuthServerError};
+use super::models::{AccountError, AccountInfo, AuthServer};
 use std::path::PathBuf;
 
 impl Storage for AccountInfo {
@@ -14,21 +14,18 @@ impl Storage for AccountInfo {
 pub async fn fetch_auth_server(auth_url: String) -> SJMCLResult<AuthServer> {
   match reqwest::get(&auth_url).await {
     Ok(response) => {
-      let json: serde_json::Value = response
-        .json()
-        .await
-        .map_err(|_| AuthServerError::InvalidServer)?;
+      let json: serde_json::Value = response.json().await.map_err(|_| AccountError::Invalid)?;
       let server_name = json["meta"]["serverName"]
         .as_str()
-        .ok_or_else(|| AuthServerError::InvalidServer)?
+        .ok_or_else(|| AccountError::Invalid)?
         .to_string();
       let homepage_url = json["meta"]["links"]["homepage"]
         .as_str()
-        .ok_or_else(|| AuthServerError::InvalidServer)?
+        .ok_or_else(|| AccountError::Invalid)?
         .to_string();
       let register_url = json["meta"]["links"]["register"]
         .as_str()
-        .ok_or_else(|| AuthServerError::InvalidServer)?
+        .ok_or_else(|| AccountError::Invalid)?
         .to_string();
 
       let new_server = AuthServer {
@@ -40,6 +37,6 @@ pub async fn fetch_auth_server(auth_url: String) -> SJMCLResult<AuthServer> {
 
       Ok(new_server)
     }
-    Err(_) => Err(AuthServerError::InvalidServer.into()),
+    Err(_) => Err(AccountError::Invalid.into()),
   }
 }

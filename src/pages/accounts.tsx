@@ -37,18 +37,14 @@ import PlayersView from "@/components/players-view";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
-import { errorToLocaleKey } from "@/models/account";
-import {
-  deleteAuthServer,
-  getAuthServerList,
-  getPlayerList,
-} from "@/services/account";
+import accountService from "@/services/account";
 
 const AccountsPage = () => {
   const router = useRouter();
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
   const toast = useToast();
+  const { deleteAuthServer } = accountService;
   const primaryColor = config.appearance.theme.primaryColor;
   const selectedViewType = config.page.accounts.viewType;
 
@@ -122,36 +118,31 @@ const AccountsPage = () => {
   };
 
   const handleDeleteAuthServer = () => {
-    (async () => {
-      try {
-        let servers = authServerList.filter(
-          (server) => server.authUrl === selectedPlayerType
-        );
-        if (servers.length > 0) {
-          let url = servers[0].authUrl;
-          await deleteAuthServer(url);
+    let servers = authServerList.filter(
+      (server) => server.authUrl === selectedPlayerType
+    );
+    if (servers.length > 0) {
+      deleteAuthServer(servers[0].authUrl).then((response) => {
+        if (response.status === "success") {
           handleAuthServerList();
           handlePlayerList();
           handleSelectedPlayer();
           // redirect the selected player type to "all" to avoid display error
           setSelectedPlayerType("all");
           toast({
-            title: t("Services.account.deleteAuthServer.success"),
+            title: response.message,
             status: "success",
           });
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
         }
-      } catch (error) {
-        toast({
-          title: t("Services.account.deleteAuthServer.error.title"),
-          description: t(
-            `Services.account.deleteAuthServer.error.description.${errorToLocaleKey(error)}`
-          ),
-          status: "error",
-        });
-      } finally {
-        onDeleteAuthServerDialogClose();
-      }
-    })();
+      });
+    }
+    onDeleteAuthServerDialogClose();
   };
 
   return (

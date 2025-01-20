@@ -96,20 +96,20 @@ impl Default for AccountInfo {
 }
 
 #[derive(Debug)]
-pub enum AuthServerError {
-  DuplicateServer,
-  InvalidServer,
+pub enum AccountError {
+  Duplicate,
+  Invalid,
   NotFound,
 }
 
-impl fmt::Display for AuthServerError {
+impl fmt::Display for AccountError {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
-      AuthServerError::DuplicateServer => write!(f, "DUPLICATE_SERVER"),
-      AuthServerError::InvalidServer => write!(f, "INVALID_SERVER"),
-      AuthServerError::NotFound => write!(f, "NOT_FOUND"),
+      AccountError::Duplicate => write!(f, "DUPLICATE"),
+      AccountError::Invalid => write!(f, "INVALID"),
+      AccountError::NotFound => write!(f, "NOT_FOUND"),
     }
   }
 }
 
-impl std::error::Error for AuthServerError {}
+impl std::error::Error for AccountError {}

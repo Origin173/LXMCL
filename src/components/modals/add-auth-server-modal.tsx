@@ -21,12 +21,7 @@ import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
-import { AuthServerError, errorToLocaleKey } from "@/models/account";
-import {
-  addAuthServer,
-  getAuthServerInfo,
-  getAuthServerList,
-} from "@/services/account";
+import accountService from "@/services/account";
 
 interface AddAuthServerModalProps extends Omit<ModalProps, "children"> {}
 
@@ -35,6 +30,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { handleAuthServerList } = useData();
+  const { getAuthServerInfo, addAuthServer } = accountService;
   const toast = useToast();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
@@ -57,52 +53,50 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   }, [isOpen]);
 
   const handleNextStep = () => {
-    (async () => {
-      try {
-        setIsLoading(true);
-        // test the server url in backend & get the server name (without saving)
-        const newServer = await getAuthServerInfo(serverUrl);
-        setServerName(newServer.name);
-        setServerUrl(newServer.authUrl);
-        setIsNextStep(true);
-      } catch (error) {
-        toast({
-          title: t("Services.account.getAuthServerInfo.error.title"),
-          description: t(
-            `Services.account.getAuthServerInfo.error.description.${errorToLocaleKey(error)}`
-          ),
-          status: "error",
-        });
-      } finally {
+    setIsLoading(true);
+    // test the server url in backend & get the server name (without saving)
+    getAuthServerInfo(serverUrl)
+      .then((response) => {
+        if (response.status === "success") {
+          setServerName(response.data.name);
+          setServerUrl(response.data.authUrl);
+          setIsNextStep(true);
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+        }
+      })
+      .finally(() => {
         setIsLoading(false);
-      }
-    })();
+      });
   };
 
   const handleFinish = () => {
-    (async () => {
-      try {
-        setIsLoading(true);
-        // save the server info to the storage
-        await addAuthServer(serverUrl);
-        handleAuthServerList();
-        toast({
-          title: t("Services.account.addAuthServer.success"),
-          status: "success",
-        });
-        onClose?.();
-      } catch (error) {
-        toast({
-          title: t("Services.account.addAuthServer.error.title"),
-          description: t(
-            `Services.account.addAuthServer.error.description.${errorToLocaleKey(error)}`
-          ),
-          status: "error",
-        });
-      } finally {
+    setIsLoading(true);
+    // save the server info to the storage
+    addAuthServer(serverUrl)
+      .then((response) => {
+        if (response.status === "success") {
+          handleAuthServerList();
+          toast({
+            title: response.message,
+            status: "success",
+          });
+          onClose?.();
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+        }
+      })
+      .finally(() => {
         setIsLoading(false);
-      }
-    })();
+      });
   };
 
   return (

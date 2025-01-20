@@ -1,4 +1,3 @@
-import { useToast } from "@chakra-ui/react";
 import React, {
   createContext,
   useCallback,
@@ -6,15 +5,11 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { useTranslation } from "react-i18next";
+import { useToast } from "@/contexts/toast";
 import { AuthServer, Player } from "@/models/account";
 import { GameInstanceSummary } from "@/models/game-instance";
 import { mockGameInstanceSummaryList } from "@/models/mock/game-instance";
-import {
-  getAuthServerList,
-  getPlayerList,
-  getSelectedPlayer,
-} from "@/services/account";
+import accountService from "@/services/account";
 
 interface DataContextType {
   playerList: Player[];
@@ -53,46 +48,44 @@ export const DataContextProvider: React.FC<{
     useState<GameInstanceSummary>();
   const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
   const toast = useToast();
-  const { t } = useTranslation();
+  const { getAuthServerList, getPlayerList, getSelectedPlayer } =
+    accountService;
 
   const handlePlayerList = useCallback(() => {
-    getPlayerList()
-      .then((playerList) => {
-        setPlayerList(playerList);
-        if (playerList.length > 0) {
-          setSelectedPlayer(playerList[0]);
+    getPlayerList().then((response) => {
+      if (response.status === "success") {
+        setPlayerList(response.data);
+        if (response.data.length > 0) {
+          setSelectedPlayer(response.data[0]);
         }
-      })
-      .catch((error) => {
+      } else {
         toast({
-          title: t("Services.account.getPlayerList.error"),
+          title: response.message,
+          description: response.details,
           status: "error",
         });
-      });
-  }, [toast, t]);
+      }
+    });
+  }, [getPlayerList, toast]);
 
   const handleSelectedPlayer = useCallback(() => {
-    getSelectedPlayer()
-      .then((player) => {
-        setSelectedPlayer(player);
-      })
-      .catch((error) => {
-        setSelectedPlayer(undefined);
-      });
-  }, []);
+    getSelectedPlayer().then((response) => {
+      if (response.status === "success") setSelectedPlayer(response.data);
+      else setSelectedPlayer(undefined);
+    });
+  }, [getSelectedPlayer]);
 
   const handleAuthServerList = useCallback(() => {
-    getAuthServerList()
-      .then((authServerList) => {
-        setAuthServerList(authServerList);
-      })
-      .catch((error) => {
+    getAuthServerList().then((response) => {
+      if (response.status === "success") setAuthServerList(response.data);
+      else
         toast({
-          title: t("Services.auth_server.getAuthServerList.error"),
+          title: response.message,
+          description: response.details,
           status: "error",
         });
-      });
-  }, [toast, t]);
+    });
+  }, [getAuthServerList, toast]);
 
   useEffect(() => {
     handlePlayerList();

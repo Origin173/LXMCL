@@ -1,144 +1,165 @@
 import { invoke } from "@tauri-apps/api/core";
-import { AuthServer, Player } from "@/models/account";
+import { t } from "i18next";
+import {
+  AuthServer,
+  Player,
+  accountErrorToLocaleKey as errorToLocaleKey,
+} from "@/models/account";
+import { ResponseError, ResponseSuccess } from "@/models/response";
+import { responseHandler } from "@/utils/response";
 
 /**
- * Fetches the list of players.
- * @returns {Promise<Player[]>} A promise that resolves to an array of Player objects.
- * @throws Will throw an error if the invocation fails.
+ * Service class formanaging accounts, players, and authentication servers.
  */
-export const getPlayerList = async (): Promise<Player[]> => {
-  try {
-    return await invoke<Player[]>("get_player_list");
-  } catch (error) {
-    console.error("Error in get_player_list:", error);
-    throw error;
+class AccountService {
+  /**
+   * Fetches the list of players.
+   * @returns {Promise<ResponseSuccess<Player[]> | ResponseError>}
+   */
+  @responseHandler("account", errorToLocaleKey, t)
+  async getPlayerList(): Promise<ResponseSuccess<Player[]> | ResponseError> {
+    return {
+      status: "success",
+      data: await invoke<Player[]>("get_player_list"),
+      message: "",
+    };
   }
-};
 
-/**
- * Adds a new player to the system.
- * @param {PlayerInfo} player - The information of the player to be added.
- * @returns {Promise<void>} A promise that resolves when the player is successfully added.
- * @throws Will throw an error if the invocation fails.
- */
-export const addPlayer = async (
-  playerType: string,
-  username: string,
-  password: string,
-  authServerUrl: string
-): Promise<void> => {
-  try {
-    await invoke("add_player", {
-      playerType,
-      username,
-      password,
-      authServerUrl,
-    });
-  } catch (error) {
-    console.error("Error in add_player:", error);
-    throw error;
+  /**
+   * Adds a new player to the system.
+   * @param {string} playerType - The type of the player to be added.
+   * @param {string} username - The username of the player to be added.
+   * @param {string} password - The password of the player to be added.
+   * @param {string} authServerUrl - The authentication server URL for the player.
+   * @returns {Promise<ResponseSuccess<void> | ResponseError>}
+   */
+  @responseHandler("account", errorToLocaleKey, t)
+  async addPlayer(
+    playerType: string,
+    username: string,
+    password: string,
+    authServerUrl: string
+  ): Promise<ResponseSuccess<void> | ResponseError> {
+    return {
+      status: "success",
+      data: await invoke("add_player", {
+        playerType,
+        username,
+        password,
+        authServerUrl,
+      }),
+      message: "",
+    };
   }
-};
 
-/**
- * Deletes a player by UUID.
- * @param {string} uuid - The UUID of the player to be deleted.
- * @returns {Promise<void>} A promise that resolves when the player is deleted.
- * @throws Will throw an error if the invocation fails.
- */
-export const deletePlayer = async (uuid: string): Promise<void> => {
-  try {
-    await invoke("delete_player", { uuid });
-  } catch (error) {
-    console.error("Error in delete_player:", error);
-    throw error;
+  /**
+   * Deletes a player by UUID.
+   * @param {string} uuid - The UUID of the player to be deleted.
+   * @returns {Promise<ResponseSuccess<void> | ResponseError>}
+   */
+  @responseHandler("account", errorToLocaleKey, t)
+  async deletePlayer(
+    uuid: string
+  ): Promise<ResponseSuccess<void> | ResponseError> {
+    return {
+      status: "success",
+      data: await invoke("delete_player", { uuid }),
+      message: "",
+    };
   }
-};
 
-/**
- * Fetches the selected player by UUID.
- * @returns {Promise<Player>} A promise that resolves to the selected Player object.
- * @throws Will throw an error if the invocation fails.
- */
-export const getSelectedPlayer = async (): Promise<Player> => {
-  try {
-    return await invoke<Player>("get_selected_player");
-  } catch (error) {
-    console.error("Error in get_selected_player:", error);
-    throw error;
+  /**
+   * Fetches the selected player by UUID.
+   * @returns {Promise<ResponseSuccess<Player> | ResponseError>}
+   */
+  @responseHandler("account", errorToLocaleKey, t)
+  async getSelectedPlayer(): Promise<ResponseSuccess<Player> | ResponseError> {
+    return {
+      status: "success",
+      data: await invoke<Player>("get_selected_player"),
+      message: "",
+    };
   }
-};
 
-/**
- * Posts the selected player by UUID.
- * @param {string} uuid - The UUID of the player to be posted as selected.
- * @returns {Promise<void>} A promise that resolves when the player is posted as selected.
- * @throws Will throw an error if the invocation fails.
- */
-export const postSelectedPlayer = async (uuid: string): Promise<void> => {
-  try {
-    await invoke("post_selected_player", { uuid });
-  } catch (error) {
-    console.error("Error in post_selected_player:", error);
-    throw error;
+  /**
+   * Posts the selected player by UUID.
+   * @param {string} uuid - The UUID of the player to be posted as selected.
+   * @returns {Promise<ResponseSuccess<void> | ResponseError>}
+   */
+  async postSelectedPlayer(
+    uuid: string
+  ): Promise<ResponseSuccess<void> | ResponseError> {
+    return {
+      status: "success",
+      data: await invoke("post_selected_player", { uuid }),
+      message: "",
+    };
   }
-};
 
-/**
- * Fetches the list of authentication servers.
- * @returns {Promise<AuthServer[]>} A promise that resolves to an array of AuthServer objects.
- * @throws Will throw an error if the invocation fails.
- */
-export const getAuthServerList = async (): Promise<AuthServer[]> => {
-  try {
-    return await invoke<AuthServer[]>("get_auth_server_list");
-  } catch (error) {
-    console.error("Error in get_auth_server_list:", error);
-    throw error;
+  /**
+   * Fetches the list of authentication servers.
+   * @returns {Promise<ResponseSuccess<AuthServer[]> | ResponseError>}
+   */
+  @responseHandler("account", errorToLocaleKey, t)
+  async getAuthServerList(): Promise<
+    ResponseSuccess<AuthServer[]> | ResponseError
+  > {
+    return {
+      status: "success",
+      data: await invoke<AuthServer[]>("get_auth_server_list"),
+      message: "",
+    };
   }
-};
 
-/**
- * Gets the information of a new authentication server.
- * @param {string} url - The URL of the authentication server to be added.
- * @returns {Promise<AuthServer>} A promise that resolves to an object containing the new server's name & formatted URL.
- * @throws Will throw an error if the invocation of "get_auth_server_info" fails.
- */
-export const getAuthServerInfo = async (url: string): Promise<AuthServer> => {
-  try {
-    return await invoke("get_auth_server_info", { url });
-  } catch (error) {
-    console.error("Error in get_auth_server_info:", error);
-    throw error;
+  /**
+   * Gets the information of a new authentication server.
+   * @param {string} url - The URL of the authentication server to be added.
+   * @returns {Promise<ResponseSuccess<AuthServer> | ResponseError>}
+   */
+  @responseHandler("account", errorToLocaleKey, t)
+  async getAuthServerInfo(
+    url: string
+  ): Promise<ResponseSuccess<AuthServer> | ResponseError> {
+    return {
+      status: "success",
+      data: await invoke<AuthServer>("get_auth_server_info", { url }),
+      message: "",
+    };
   }
-};
 
-/**
- * Adds the new authentication server to the storage.
- * @param {string} authUrl - The authentication server url (already formatted by backend).
- * @returns {Promise<void>} A promise that resolves when the server is added.
- * @throws Will throw an error if the invocation fails.
- */
-export const addAuthServer = async (authUrl: string): Promise<void> => {
-  try {
-    await invoke("add_auth_server", { authUrl });
-  } catch (error) {
-    console.error("Error in add_auth_server:", error);
-    throw error;
+  /**
+   * Adds the new authentication server to the storage.
+   * @param {string} authUrl - The authentication server URL (already formatted by backend).
+   * @returns {Promise<ResponseSuccess<void> | ResponseError>}
+   */
+  @responseHandler("account", errorToLocaleKey, t)
+  async addAuthServer(
+    authUrl: string
+  ): Promise<ResponseSuccess<void> | ResponseError> {
+    return {
+      status: "success",
+      data: await invoke("add_auth_server", { authUrl }),
+      message: "",
+    };
   }
-};
 
-/**
- * Deletes an authentication server by URL.
- * @param {string} url - The URL of the authentication server to be deleted.
- * @returns {Promise<void>} A promise that resolves when the server is deleted.
- * @throws Will throw an error if the invocation fails.
- */
-export const deleteAuthServer = async (url: string): Promise<void> => {
-  try {
-    await invoke("delete_auth_server", { url });
-  } catch (error) {
-    console.error("Error in delete_auth_server:", error);
-    throw error;
+  /**
+   * Deletes an authentication server by URL.
+   * @param {string} url - The URL of the authentication server to be deleted.
+   * @returns {Promise<ResponseSuccess<void> | ResponseError>}
+   */
+  @responseHandler("account", errorToLocaleKey, t)
+  async deleteAuthServer(
+    url: string
+  ): Promise<ResponseSuccess<void> | ResponseError> {
+    return {
+      status: "success",
+      data: await invoke("delete_auth_server", { url }),
+      message: "",
+    };
   }
-};
+}
+
+const accountService = new AccountService();
+
+export default accountService;

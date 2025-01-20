@@ -30,7 +30,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
 import { AuthServer } from "@/models/account";
-import { addPlayer } from "@/services/account";
+import accountService from "@/services/account";
 
 interface AddPlayerModalProps extends Omit<ModalProps, "children"> {
   initialPlayerType?: "offline" | "3rdparty";
@@ -44,6 +44,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { authServerList, handlePlayerList, handleSelectedPlayer } = useData();
+  const { addPlayer } = accountService;
   const toast = useToast();
   const [playerType, setPlayerType] = useState<"offline" | "3rdparty">(
     "offline"
@@ -76,38 +77,30 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     setPassword("");
   }, [playerType]);
 
-  const handleLogin = useCallback(() => {
-    (async () => {
-      try {
-        setIsLoading(true);
-        await addPlayer(playerType, playername, password, authServerUrl);
-        handlePlayerList();
-        handleSelectedPlayer();
-        toast({
-          title: t("Services.account.addPlayer.success"),
-          status: "success",
-        });
-        modalProps.onClose();
-      } catch (error) {
-        toast({
-          title: t("Services.account.addPlayer.error"),
-          status: "error",
-        });
-      } finally {
+  const handleLogin = () => {
+    setIsLoading(true);
+    addPlayer(playerType, playername, password, authServerUrl)
+      .then((response) => {
+        if (response.status === "success") {
+          handlePlayerList();
+          handleSelectedPlayer();
+          toast({
+            title: response.message,
+            status: "success",
+          });
+          modalProps.onClose();
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+        }
+      })
+      .finally(() => {
         setIsLoading(false);
-      }
-    })();
-  }, [
-    playerType,
-    playername,
-    password,
-    authServerUrl,
-    handlePlayerList,
-    handleSelectedPlayer,
-    toast,
-    t,
-    modalProps,
-  ]);
+      });
+  };
 
   const playerTypeList = [
     {

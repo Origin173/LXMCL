@@ -1,11 +1,8 @@
 use super::{
   helpers::fetch_auth_server,
-  models::{AccountInfo, AuthServer, AuthServerError, Player, PlayerInfo},
+  models::{AccountError, AccountInfo, AuthServer, Player, PlayerInfo},
 };
-use crate::{
-  error::{SJMCLError, SJMCLResult},
-  storage::Storage,
-};
+use crate::{error::SJMCLResult, storage::Storage};
 use uuid::Uuid;
 
 #[tauri::command]
@@ -23,14 +20,14 @@ pub fn get_player_list() -> SJMCLResult<Vec<Player>> {
 pub fn get_selected_player() -> SJMCLResult<Player> {
   let state: AccountInfo = Storage::load().unwrap_or_default();
   if state.selected_player_id.is_empty() {
-    return Err(SJMCLError("No player selected".to_string()));
+    return Err(AccountError::NotFound.into());
   }
   let player_info = state
     .players
     .iter()
     .find(|player| player.uuid.to_string() == state.selected_player_id)
     .cloned()
-    .ok_or(SJMCLError("Player not found".to_string()))?;
+    .ok_or(AccountError::NotFound)?;
   Ok(Player::from(player_info))
 }
 
@@ -42,7 +39,7 @@ pub fn post_selected_player(uuid: Uuid) -> SJMCLResult<()> {
     state.save()?;
     Ok(())
   } else {
-    Err(SJMCLError("Player not found".to_string()))
+    Err(AccountError::NotFound.into())
   }
 }
 
@@ -91,7 +88,7 @@ pub async fn add_player(
       state.save()?;
       Ok(())
     }
-    _ => Err(SJMCLError("Unknown server type".to_string())),
+    _ => Err(AccountError::Invalid.into()),
   }
 }
 
@@ -106,7 +103,7 @@ pub fn delete_player(uuid: Uuid) -> SJMCLResult<()> {
   let initial_len = state.players.len();
   state.players.retain(|s| s.uuid != uuid);
   if state.players.len() == initial_len {
-    return Err(SJMCLError("Player not found".to_string()));
+    return Err(AccountError::NotFound.into());
   }
   state.save()?;
   Ok(())
@@ -136,7 +133,7 @@ pub async fn get_auth_server_info(mut url: String) -> SJMCLResult<AuthServer> {
     .iter()
     .any(|server| server.auth_url == url)
   {
-    return Err(AuthServerError::DuplicateServer.into());
+    return Err(AccountError::Duplicate.into());
   }
 
   fetch_auth_server(url).await
@@ -147,7 +144,7 @@ pub async fn add_auth_server(auth_url: String) -> SJMCLResult<()> {
   let mut state: AccountInfo = Storage::load().unwrap_or_default();
   if state.auth_servers.iter().any(|s| s.auth_url == auth_url) {
     // we need to strictly ensure the uniqueness of the url
-    return Err(AuthServerError::DuplicateServer.into());
+    return Err(AccountError::Duplicate.into());
   }
   let server = fetch_auth_server(auth_url).await?;
   state.auth_servers.push(server);
@@ -163,7 +160,7 @@ pub fn delete_auth_server(url: String) -> SJMCLResult<()> {
   // try to remove the server from the storage
   state.auth_servers.retain(|server| server.auth_url != url);
   if state.auth_servers.len() == initial_len {
-    return Err(AuthServerError::NotFound.into());
+    return Err(AccountError::NotFound.into());
   }
 
   // remove all players using this server & check if the selected player is using this server
