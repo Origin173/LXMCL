@@ -87,12 +87,12 @@ class AccountService {
    * @param {string} uuid - The UUID of the player to be posted as selected.
    * @returns {Promise<ResponseSuccess<void> | ResponseError>}
    */
-  async postSelectedPlayer(
+  async updateSelectedPlayer(
     uuid: string
   ): Promise<ResponseSuccess<void> | ResponseError> {
     return {
       status: "success",
-      data: await invoke("post_selected_player", { uuid }),
+      data: await invoke("update_selected_player", { uuid }),
       message: "",
     };
   }

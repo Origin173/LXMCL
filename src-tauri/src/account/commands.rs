@@ -32,7 +32,7 @@ pub fn get_selected_player() -> SJMCLResult<Player> {
 }
 
 #[tauri::command]
-pub fn post_selected_player(uuid: Uuid) -> SJMCLResult<()> {
+pub fn update_selected_player(uuid: Uuid) -> SJMCLResult<()> {
   let mut state: AccountInfo = Storage::load().unwrap_or_default();
   if state.players.iter().any(|player| player.uuid == uuid) {
     state.selected_player_id = uuid.to_string();

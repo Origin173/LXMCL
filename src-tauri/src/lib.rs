@@ -37,7 +37,7 @@ pub async fn run() {
       launcher_config::commands::get_memory_info,
       account::commands::get_player_list,
       account::commands::get_selected_player,
-      account::commands::post_selected_player,
+      account::commands::update_selected_player,
       account::commands::add_player,
       account::commands::delete_player,
       account::commands::get_auth_server_list,
