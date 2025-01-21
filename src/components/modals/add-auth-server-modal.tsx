@@ -29,8 +29,8 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   ...modalProps
 }) => {
   const { t } = useTranslation();
-  const { handleGetAuthServerList } = useData();
-  const { getAuthServerInfo, addAuthServer } = accountService;
+  const { handleRetriveAuthServerList } = useData();
+  const { retriveAuthServerInfo, addAuthServer } = accountService;
   const toast = useToast();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
@@ -55,7 +55,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   const handleNextStep = () => {
     setIsLoading(true);
     // test the server url in backend & get the server name (without saving)
-    getAuthServerInfo(serverUrl)
+    retriveAuthServerInfo(serverUrl)
       .then((response) => {
         if (response.status === "success") {
           setServerName(response.data.name);
@@ -80,7 +80,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
     addAuthServer(serverUrl)
       .then((response) => {
         if (response.status === "success") {
-          handleGetAuthServerList();
+          handleRetriveAuthServerList();
           toast({
             title: response.message,
             status: "success",

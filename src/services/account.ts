@@ -14,20 +14,22 @@ const errorToLocaleKey: { [key: string]: string } = {
  */
 class AccountService {
   /**
-   * Fetches the list of players.
+   * RETRIVE the list of players.
    * @returns {Promise<ResponseSuccess<Player[]> | ResponseError>}
    */
   @responseHandler("account", errorToLocaleKey)
-  async getPlayerList(): Promise<ResponseSuccess<Player[]> | ResponseError> {
+  async retrivePlayerList(): Promise<
+    ResponseSuccess<Player[]> | ResponseError
+  > {
     return {
       status: "success",
-      data: await invoke<Player[]>("get_player_list"),
+      data: await invoke<Player[]>("retrive_player_list"),
       message: "",
     };
   }
 
   /**
-   * Adds a new player to the system.
+   * ADD a new player to the system.
    * @param {string} playerType - The type of the player to be added.
    * @param {string} username - The username of the player to be added.
    * @param {string} password - The password of the player to be added.
@@ -54,7 +56,7 @@ class AccountService {
   }
 
   /**
-   * Deletes a player by UUID.
+   * DELETE a player by UUID.
    * @param {string} uuid - The UUID of the player to be deleted.
    * @returns {Promise<ResponseSuccess<void> | ResponseError>}
    */
@@ -70,20 +72,22 @@ class AccountService {
   }
 
   /**
-   * Fetches the selected player by UUID.
+   * RETRIVE the selected player by UUID.
    * @returns {Promise<ResponseSuccess<Player> | ResponseError>}
    */
   @responseHandler("account", errorToLocaleKey)
-  async getSelectedPlayer(): Promise<ResponseSuccess<Player> | ResponseError> {
+  async retriveSelectedPlayer(): Promise<
+    ResponseSuccess<Player> | ResponseError
+  > {
     return {
       status: "success",
-      data: await invoke<Player>("get_selected_player"),
+      data: await invoke<Player>("retrive_selected_player"),
       message: "",
     };
   }
 
   /**
-   * Posts the selected player by UUID.
+   * UPDATE the selected player by UUID.
    * @param {string} uuid - The UUID of the player to be posted as selected.
    * @returns {Promise<ResponseSuccess<void> | ResponseError>}
    */
@@ -98,38 +102,38 @@ class AccountService {
   }
 
   /**
-   * Fetches the list of authentication servers.
+   * RETRIVE the list of authentication servers.
    * @returns {Promise<ResponseSuccess<AuthServer[]> | ResponseError>}
    */
   @responseHandler("account", errorToLocaleKey)
-  async getAuthServerList(): Promise<
+  async retriveAuthServerList(): Promise<
     ResponseSuccess<AuthServer[]> | ResponseError
   > {
     return {
       status: "success",
-      data: await invoke<AuthServer[]>("get_auth_server_list"),
+      data: await invoke<AuthServer[]>("retrive_auth_server_list"),
       message: "",
     };
   }
 
   /**
-   * Gets the information of a new authentication server.
+   * RETRIVE the information of a new authentication server.
    * @param {string} url - The URL of the authentication server to be added.
    * @returns {Promise<ResponseSuccess<AuthServer> | ResponseError>}
    */
   @responseHandler("account", errorToLocaleKey)
-  async getAuthServerInfo(
+  async retriveAuthServerInfo(
     url: string
   ): Promise<ResponseSuccess<AuthServer> | ResponseError> {
     return {
       status: "success",
-      data: await invoke<AuthServer>("get_auth_server_info", { url }),
+      data: await invoke<AuthServer>("retrive_auth_server_info", { url }),
       message: "",
     };
   }
 
   /**
-   * Adds the new authentication server to the storage.
+   * ADD the new authentication server to the storage.
    * @param {string} authUrl - The authentication server URL (already formatted by backend).
    * @returns {Promise<ResponseSuccess<void> | ResponseError>}
    */
@@ -145,7 +149,7 @@ class AccountService {
   }
 
   /**
-   * Deletes an authentication server by URL.
+   * DELETE the authentication server by URL.
    * @param {string} url - The URL of the authentication server to be deleted.
    * @returns {Promise<ResponseSuccess<void> | ResponseError>}
    */

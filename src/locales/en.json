@@ -534,7 +534,7 @@
           }
         }
       },
-      "getAuthServerInfo": {
+      "retriveAuthServerInfo": {
         "error": {
           "title": "Failed to get authentication server information",
           "description": {

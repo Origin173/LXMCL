@@ -534,7 +534,7 @@
           }
         }
       },
-      "getAuthServerInfo": {
+      "retriveAuthServerInfo": {
         "error": {
           "title": "获取认证服务器信息失败",
           "description": {

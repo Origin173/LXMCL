@@ -52,9 +52,9 @@ const AccountsPage = () => {
   const {
     playerList,
     authServerList,
-    handleGetSelectedPlayer,
-    handleGetPlayerList,
-    handleGetAuthServerList,
+    handleRetriveSelectedPlayer,
+    handleRetrivePlayerList,
+    handleRetriveAuthServerList,
   } = useData();
 
   const {
@@ -124,9 +124,9 @@ const AccountsPage = () => {
     if (servers.length > 0) {
       deleteAuthServer(servers[0].authUrl).then((response) => {
         if (response.status === "success") {
-          handleGetAuthServerList();
-          handleGetPlayerList();
-          handleGetSelectedPlayer();
+          handleRetriveAuthServerList();
+          handleRetrivePlayerList();
+          handleRetriveSelectedPlayer();
           // redirect the selected player type to "all" to avoid display error
           setSelectedPlayerType("all");
           toast({

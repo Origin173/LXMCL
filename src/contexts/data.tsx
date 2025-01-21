@@ -17,9 +17,9 @@ interface DataContextType {
   gameInstanceSummaryList: GameInstanceSummary[];
   selectedGameInstance: GameInstanceSummary | undefined;
   authServerList: AuthServer[];
-  handleGetPlayerList: () => void;
-  handleGetSelectedPlayer: () => void;
-  handleGetAuthServerList: () => void;
+  handleRetrivePlayerList: () => void;
+  handleRetriveSelectedPlayer: () => void;
+  handleRetriveAuthServerList: () => void;
 }
 
 interface DataDispatchContextType {
@@ -48,11 +48,11 @@ export const DataContextProvider: React.FC<{
     useState<GameInstanceSummary>();
   const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
   const toast = useToast();
-  const { getAuthServerList, getPlayerList, getSelectedPlayer } =
+  const { retriveAuthServerList, retrivePlayerList, retriveSelectedPlayer } =
     accountService;
 
-  const handleGetPlayerList = useCallback(() => {
-    getPlayerList().then((response) => {
+  const handleRetrivePlayerList = useCallback(() => {
+    retrivePlayerList().then((response) => {
       if (response.status === "success") {
         setPlayerList(response.data);
         if (response.data.length > 0) {
@@ -66,17 +66,17 @@ export const DataContextProvider: React.FC<{
         });
       }
     });
-  }, [getPlayerList, toast]);
+  }, [retrivePlayerList, toast]);
 
-  const handleGetSelectedPlayer = useCallback(() => {
-    getSelectedPlayer().then((response) => {
+  const handleRetriveSelectedPlayer = useCallback(() => {
+    retriveSelectedPlayer().then((response) => {
       if (response.status === "success") setSelectedPlayer(response.data);
       else setSelectedPlayer(undefined);
     });
-  }, [getSelectedPlayer]);
+  }, [retriveSelectedPlayer]);
 
-  const handleGetAuthServerList = useCallback(() => {
-    getAuthServerList().then((response) => {
+  const handleRetriveAuthServerList = useCallback(() => {
+    retriveAuthServerList().then((response) => {
       if (response.status === "success") setAuthServerList(response.data);
       else
         toast({
@@ -85,19 +85,19 @@ export const DataContextProvider: React.FC<{
           status: "error",
         });
     });
-  }, [getAuthServerList, toast]);
+  }, [retriveAuthServerList, toast]);
 
   useEffect(() => {
-    handleGetPlayerList();
-  }, [handleGetPlayerList]);
+    handleRetrivePlayerList();
+  }, [handleRetrivePlayerList]);
 
   useEffect(() => {
-    handleGetAuthServerList();
-  }, [handleGetAuthServerList]);
+    handleRetriveAuthServerList();
+  }, [handleRetriveAuthServerList]);
 
   useEffect(() => {
-    handleGetSelectedPlayer();
-  }, [handleGetSelectedPlayer]);
+    handleRetriveSelectedPlayer();
+  }, [handleRetriveSelectedPlayer]);
 
   useEffect(() => {
     setGameInstanceSummaryList(mockGameInstanceSummaryList);
@@ -112,9 +112,9 @@ export const DataContextProvider: React.FC<{
         gameInstanceSummaryList,
         selectedGameInstance,
         authServerList,
-        handleGetPlayerList,
-        handleGetSelectedPlayer,
-        handleGetAuthServerList,
+        handleRetrivePlayerList,
+        handleRetriveSelectedPlayer,
+        handleRetriveAuthServerList,
       }}
     >
       <DataDispatchContext.Provider

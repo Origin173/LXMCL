@@ -6,7 +6,7 @@ use crate::{error::SJMCLResult, storage::Storage};
 use uuid::Uuid;
 
 #[tauri::command]
-pub fn get_player_list() -> SJMCLResult<Vec<Player>> {
+pub fn retrive_player_list() -> SJMCLResult<Vec<Player>> {
   let state: AccountInfo = Storage::load().unwrap_or_default();
   let player_list: Vec<Player> = state
     .players
@@ -17,7 +17,7 @@ pub fn get_player_list() -> SJMCLResult<Vec<Player>> {
 }
 
 #[tauri::command]
-pub fn get_selected_player() -> SJMCLResult<Player> {
+pub fn retrive_selected_player() -> SJMCLResult<Player> {
   let state: AccountInfo = Storage::load().unwrap_or_default();
   if state.selected_player_id.is_empty() {
     return Err(AccountError::NotFound.into());
@@ -110,13 +110,13 @@ pub fn delete_player(uuid: Uuid) -> SJMCLResult<()> {
 }
 
 #[tauri::command]
-pub fn get_auth_server_list() -> SJMCLResult<Vec<AuthServer>> {
+pub fn retrive_auth_server_list() -> SJMCLResult<Vec<AuthServer>> {
   let state: AccountInfo = Storage::load().unwrap_or_default();
   Ok(state.auth_servers)
 }
 
 #[tauri::command]
-pub async fn get_auth_server_info(mut url: String) -> SJMCLResult<AuthServer> {
+pub async fn retrive_auth_server_info(mut url: String) -> SJMCLResult<AuthServer> {
   // check the url integrity following the standard
   // https://github.com/yushijinhun/authlib-injector/wiki/%E5%90%AF%E5%8A%A8%E5%99%A8%E6%8A%80%E6%9C%AF%E8%A7%84%E8%8C%83#%E5%9C%A8%E5%90%AF%E5%8A%A8%E5%99%A8%E4%B8%AD%E8%BE%93%E5%85%A5%E5%9C%B0%E5%9D%80
   if !url.starts_with("http://") && !url.starts_with("https://") {
