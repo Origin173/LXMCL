@@ -18,9 +18,3 @@ export interface AuthServer {
   registerUrl: string;
   mutable: boolean;
 }
-
-export const accountErrorToLocaleKey: { [key: string]: string } = {
-  DUPLICATE: "duplicate",
-  INVALID: "invalid",
-  NOT_FOUND: "notFound",
-};

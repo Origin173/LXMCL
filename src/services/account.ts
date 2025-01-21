@@ -1,12 +1,13 @@
 import { invoke } from "@tauri-apps/api/core";
-import { t } from "i18next";
-import {
-  AuthServer,
-  Player,
-  accountErrorToLocaleKey as errorToLocaleKey,
-} from "@/models/account";
+import { AuthServer, Player } from "@/models/account";
 import { ResponseError, ResponseSuccess } from "@/models/response";
 import { responseHandler } from "@/utils/response";
+
+const errorToLocaleKey: { [key: string]: string } = {
+  DUPLICATE: "duplicate",
+  INVALID: "invalid",
+  NOT_FOUND: "notFound",
+};
 
 /**
  * Service class formanaging accounts, players, and authentication servers.
@@ -16,7 +17,7 @@ class AccountService {
    * Fetches the list of players.
    * @returns {Promise<ResponseSuccess<Player[]> | ResponseError>}
    */
-  @responseHandler("account", errorToLocaleKey, t)
+  @responseHandler("account", errorToLocaleKey)
   async getPlayerList(): Promise<ResponseSuccess<Player[]> | ResponseError> {
     return {
       status: "success",
@@ -33,7 +34,7 @@ class AccountService {
    * @param {string} authServerUrl - The authentication server URL for the player.
    * @returns {Promise<ResponseSuccess<void> | ResponseError>}
    */
-  @responseHandler("account", errorToLocaleKey, t)
+  @responseHandler("account", errorToLocaleKey)
   async addPlayer(
     playerType: string,
     username: string,
@@ -57,7 +58,7 @@ class AccountService {
    * @param {string} uuid - The UUID of the player to be deleted.
    * @returns {Promise<ResponseSuccess<void> | ResponseError>}
    */
-  @responseHandler("account", errorToLocaleKey, t)
+  @responseHandler("account", errorToLocaleKey)
   async deletePlayer(
     uuid: string
   ): Promise<ResponseSuccess<void> | ResponseError> {
@@ -72,7 +73,7 @@ class AccountService {
    * Fetches the selected player by UUID.
    * @returns {Promise<ResponseSuccess<Player> | ResponseError>}
    */
-  @responseHandler("account", errorToLocaleKey, t)
+  @responseHandler("account", errorToLocaleKey)
   async getSelectedPlayer(): Promise<ResponseSuccess<Player> | ResponseError> {
     return {
       status: "success",
@@ -100,7 +101,7 @@ class AccountService {
    * Fetches the list of authentication servers.
    * @returns {Promise<ResponseSuccess<AuthServer[]> | ResponseError>}
    */
-  @responseHandler("account", errorToLocaleKey, t)
+  @responseHandler("account", errorToLocaleKey)
   async getAuthServerList(): Promise<
     ResponseSuccess<AuthServer[]> | ResponseError
   > {
@@ -116,7 +117,7 @@ class AccountService {
    * @param {string} url - The URL of the authentication server to be added.
    * @returns {Promise<ResponseSuccess<AuthServer> | ResponseError>}
    */
-  @responseHandler("account", errorToLocaleKey, t)
+  @responseHandler("account", errorToLocaleKey)
   async getAuthServerInfo(
     url: string
   ): Promise<ResponseSuccess<AuthServer> | ResponseError> {
@@ -132,7 +133,7 @@ class AccountService {
    * @param {string} authUrl - The authentication server URL (already formatted by backend).
    * @returns {Promise<ResponseSuccess<void> | ResponseError>}
    */
-  @responseHandler("account", errorToLocaleKey, t)
+  @responseHandler("account", errorToLocaleKey)
   async addAuthServer(
     authUrl: string
   ): Promise<ResponseSuccess<void> | ResponseError> {
@@ -148,7 +149,7 @@ class AccountService {
    * @param {string} url - The URL of the authentication server to be deleted.
    * @returns {Promise<ResponseSuccess<void> | ResponseError>}
    */
-  @responseHandler("account", errorToLocaleKey, t)
+  @responseHandler("account", errorToLocaleKey)
   async deleteAuthServer(
     url: string
   ): Promise<ResponseSuccess<void> | ResponseError> {

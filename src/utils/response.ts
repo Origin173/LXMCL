@@ -1,9 +1,9 @@
+import { t } from "i18next";
 import { ResponseError, ResponseSuccess } from "@/models/response";
 
 export function responseHandler(
-  serviceName: string,
-  errorToLocaleKey: { [key: string]: string },
-  t: (key: string) => string
+  serviceDomain: string,
+  errorToLocaleKey: { [key: string]: string }
 ): MethodDecorator {
   return function (
     target: any,
@@ -16,15 +16,15 @@ export function responseHandler(
       try {
         const { data } = await originalMethod.apply(this, args);
         const message = t(
-          `Services.${serviceName}.${String(propertyKey)}.success`
+          `Services.${serviceDomain}.${String(propertyKey)}.success`
         );
         return { status: "success", message, data };
       } catch (error: any) {
         const message = t(
-          `Services.${serviceName}.${String(propertyKey)}.error.title`
+          `Services.${serviceDomain}.${String(propertyKey)}.error.title`
         );
         const details = t(
-          `Services.${serviceName}.${String(propertyKey)}.error.description.${errorToLocaleKey[error.message] || "unknown"}`
+          `Services.${serviceDomain}.${String(propertyKey)}.error.description.${errorToLocaleKey[error.message] || "unknown"}`
         );
         return { status: "error", message, details };
       }

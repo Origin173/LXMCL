@@ -43,7 +43,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   ...modalProps
 }) => {
   const { t } = useTranslation();
-  const { authServerList, handlePlayerList, handleSelectedPlayer } = useData();
+  const { authServerList, handleGetPlayerList, handleGetSelectedPlayer } =
+    useData();
   const { addPlayer } = accountService;
   const toast = useToast();
   const [playerType, setPlayerType] = useState<"offline" | "3rdparty">(
@@ -82,8 +83,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     addPlayer(playerType, playername, password, authServerUrl)
       .then((response) => {
         if (response.status === "success") {
-          handlePlayerList();
-          handleSelectedPlayer();
+          handleGetPlayerList();
+          handleGetSelectedPlayer();
           toast({
             title: response.message,
             status: "success",

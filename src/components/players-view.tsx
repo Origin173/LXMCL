@@ -31,13 +31,13 @@ const PlayersView: React.FC<PlayersViewProps> = ({
   const { config } = useLauncherConfig();
   const { postSelectedPlayer } = accountService;
   const primaryColor = config.appearance.theme.primaryColor;
-  const { selectedPlayer, handleSelectedPlayer } = useData();
+  const { selectedPlayer, handleGetSelectedPlayer } = useData();
   const toast = useToast();
 
   const handlePlayerSelect = (uuid: string) => {
     postSelectedPlayer(uuid).then((response) => {
       if (response.status === "success") {
-        handleSelectedPlayer();
+        handleGetSelectedPlayer();
       } else {
         toast({
           title: response.message,

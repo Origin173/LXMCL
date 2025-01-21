@@ -34,14 +34,14 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
     onOpen: onDeleteOpen,
     onClose: onDeleteClose,
   } = useDisclosure();
-  const { handlePlayerList, handleSelectedPlayer } = useData();
+  const { handleGetPlayerList, handleGetSelectedPlayer } = useData();
   const toast = useToast();
 
   const handleDelete = () => {
     deletePlayer(player.uuid).then((response) => {
       if (response.status === "success") {
-        handlePlayerList();
-        handleSelectedPlayer();
+        handleGetPlayerList();
+        handleGetSelectedPlayer();
         toast({
           title: response.message,
           status: "success",

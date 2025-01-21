@@ -29,7 +29,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   ...modalProps
 }) => {
   const { t } = useTranslation();
-  const { handleAuthServerList } = useData();
+  const { handleGetAuthServerList } = useData();
   const { getAuthServerInfo, addAuthServer } = accountService;
   const toast = useToast();
   const { config } = useLauncherConfig();
@@ -80,7 +80,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
     addAuthServer(serverUrl)
       .then((response) => {
         if (response.status === "success") {
-          handleAuthServerList();
+          handleGetAuthServerList();
           toast({
             title: response.message,
             status: "success",
