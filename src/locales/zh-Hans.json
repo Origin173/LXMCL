@@ -263,6 +263,11 @@
       }
     }
   },
+  "Editable": {
+    "edit": "编辑",
+    "save": "保存",
+    "cancel": "取消"
+  },
   "Empty": {
     "noData": "无数据"
   },
@@ -487,6 +492,14 @@
     "serverResPackList": {
       "title": "服务器资源包"
     }
+  },
+  "InstanceSettingsPage": {
+    "name": "实例名称",
+    "description": "实例描述",
+    "applySettings": "启动特定游戏设置",
+    "restoreSettings": "重置以下特定设置",
+    "restoreSettingsDesc": "将以下特定设置重置为全局游戏设置",
+    "restore": "重置"
   },
   "InstanceShaderPacksPage": {
     "shaderPackList": {
