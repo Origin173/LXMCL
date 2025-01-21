@@ -72,7 +72,7 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
               <HStack spacing={2}>
                 <Icon as={LuCirclePlus} />
                 <Text fontSize="sm">
-                  {t("AllGamesPage.Button.addAndImport")}
+                  {t("AllGamesPage.button.addAndImport")}
                 </Text>
               </HStack>
             </SelectableButton>
