@@ -19,16 +19,28 @@ const path = require("path");
 const chalk = require("chalk");
 
 try {
-  const base =
-    process.argv[3].split("/").pop().replace(".json", "") || "zh-Hans";
+  const arg = process.argv[3];
+  if (arg.includes("/") && arg.match(/\.json$/)) {
+    base = arg.split("/").pop().replace(".json", "");
+  } else {
+    base = arg || "zh-Hans";
+  }
 } catch (error) {
   base = "zh-Hans";
 }
-const targets = process.argv.slice(4) || null;
+
+let targets = process.argv.slice(4) || [];
 if (targets != null) {
   for (let i = 0; i < targets.length; i++) {
-    targets[i] = targets[i].split("/").pop().replace(".json", "");
+    let target = targets[i];
+    if (target.includes("/") && target.match(/\.json$/)) {
+      target = target.split("/").pop().replace(".json", "");
+    }
+    targets[i] = target;
   }
+
+  targets = targets.filter((target) => target !== base); // delete item same as base
+  targets = [...new Set(targets)]; // delete duplicate item
 }
 
 function flattenDict(obj, parentKey = "") {
@@ -83,7 +95,7 @@ function compareLocales(base, target) {
 
   if (missing.length === 0 && extra.length === 0) {
     console.log(
-      chalk.green(`'${target}.json' is identical to '${base}.json'.`)
+      chalk.green(`✅ '${target}.json' is identical to '${base}.json'.`)
     );
   } else {
     console.log(`Comparing ${target} to ${base}:`);

@@ -16,7 +16,7 @@ const AddAndImportInstancePage = () => {
 
   return (
     <OptionItemGroup
-      title={t("AllGamesPage.Button.addAndImport")}
+      title={t("AllGamesPage.button.addAndImport")}
       items={Object.keys(addAndImportOptions).map((key) => ({
         title: t(`AddAndImportInstancePage.addAndImportOptions.${key}.title`),
         description: t(

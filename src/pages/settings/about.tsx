@@ -72,6 +72,20 @@ const AboutSettingsPage = () => {
       title: t("AboutSettingsPage.ack.title"),
       items: [
         {
+          title: t("AboutSettingsPage.ack.settings.skinview3d.title"),
+          description: t(
+            "AboutSettingsPage.ack.settings.skinview3d.description"
+          ),
+          children: (
+            <LinkIconButton
+              url="https://github.com/bs-community/skinview3d"
+              aria-label="skinview3d"
+              isExternal
+              showTooltip
+            />
+          ),
+        },
+        {
           title: t("AboutSettingsPage.ack.settings.bmclapi.title"),
           description: t("AboutSettingsPage.ack.settings.bmclapi.description"),
           children: (
@@ -84,14 +98,14 @@ const AboutSettingsPage = () => {
           ),
         },
         {
-          title: t("AboutSettingsPage.ack.settings.skinview3d.title"),
+          title: t("AboutSettingsPage.ack.settings.littleskin.title"),
           description: t(
-            "AboutSettingsPage.ack.settings.skinview3d.description"
+            "AboutSettingsPage.ack.settings.littleskin.description"
           ),
           children: (
             <LinkIconButton
-              url="https://github.com/bs-community/skinview3d"
-              aria-label="skinview3d"
+              url="https://github.com/LittleSkinChina"
+              aria-label="littleskin"
               isExternal
               showTooltip
             />

@@ -24,6 +24,10 @@
           "title": "BMCLAPI",
           "description": "感谢 @bangbang93 提供的高速下载源"
         },
+        "littleskin": {
+          "title": "LittleSkin",
+          "description": "感谢 LittleSkin 和 @tnqzh123 对登录流程设计的帮助"
+        },
         "skinview3d": {
           "title": "bs-community / skinview3d",
           "description": "皮肤预览组件基于此开源项目实现，遵循 MIT 协议使用"
@@ -293,19 +297,18 @@
     }
   },
   "General": {
+    "cancel": "取消",
+    "close": "关闭",
+    "confirm": "确定",
     "delete": "删除",
     "disable": "禁用",
     "enable": "启用",
+    "finish": "完成",
+    "next": "下一步",
     "open": "打开",
     "openFolder": "打开文件夹",
     "openInFolder": "打开文件位置",
-    "delete": "删除",
-    "confirm": "确定",
-    "cancel": "取消",
-    "finish": "完成",
-    "next": "下一步",
-    "previous": "上一步",
-    "close": "关闭"
+    "previous": "上一步"
   },
   "GeneralSettingsPage": {
     "general": {
