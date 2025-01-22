@@ -635,6 +635,16 @@
       "pause": "暂停"
     }
   },
+  "StarUsModal": {
+    "header": {
+      "title": "在 GitHub 为我们点亮星标"
+    },
+    "body": "如果您喜爱 SJMCL，并希望支持我们，可以在 GitHub 为我们点一颗星吗？这个小小的动作对我们来说意义重大，能激励我们为您持续提供特性体验",
+    "button": {
+      "later": "稍后",
+      "starUs": "点亮星标 🌟"
+    }
+  },
   "SyncAndRestoreSettingsPage": {
     "launcherConfig": {
       "title": "启动器设置",

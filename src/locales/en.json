@@ -635,6 +635,16 @@
       "pause": "Pause"
     }
   },
+  "StarUsModal": {
+    "header": {
+      "title": "Star Us on GitHub"
+    },
+    "body": "If you love our product and would like to support us, could you give us a star on GitHub? This small action means a lot to us and will motivate us to continue delivering new features and experiences for you.",
+    "button": {
+      "later": "Later",
+      "starUs": "Star Us 🌟"
+    }
+  },
   "SyncAndRestoreSettingsPage": {
     "launcherConfig": {
       "title": "Launcher Settings",
