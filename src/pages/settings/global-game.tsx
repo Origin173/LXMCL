@@ -1,6 +1,7 @@
 import {
   Flex,
   HStack,
+  Icon,
   IconButton,
   Text,
   Tooltip,
@@ -38,7 +39,7 @@ const GlobalGameSettingsPage = () => {
                 aria-label="add"
                 variant="ghost"
                 size="xs"
-                icon={<LuPlus />}
+                icon={<Icon as={LuPlus} boxSize={3.5} />}
                 h={21}
               />
             </Tooltip>
