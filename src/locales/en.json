@@ -210,8 +210,7 @@
   "DiscoverPage": {
     "title": "Discover",
     "button": {
-      "sources": "Manage Sources",
-      "refresh": "Refresh"
+      "sources": "Manage Sources"
     }
   },
   "DiscoverSourcesPage": {
@@ -319,7 +318,8 @@
     "open": "Open",
     "openFolder": "Open Folder",
     "openInFolder": "Open in Folder",
-    "previous": "Previous"
+    "previous": "Previous",
+    "refresh": "Refresh"
   },
   "GeneralSettingsPage": {
     "general": {
@@ -510,6 +510,13 @@
   "InstanceShaderPacksPage": {
     "shaderPackList": {
       "title": "Shader Packs"
+    }
+  },
+  "JavaSettingsPage":{
+    "javaList":{
+      "title":"Java Management",
+      "download":"Download Java",
+      "add":"Add Java"
     }
   },
   "LaunchPage": {
