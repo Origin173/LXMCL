@@ -13,14 +13,14 @@ import {
   OptionItemGroup,
   OptionItemGroupProps,
 } from "@/components/common/option-item";
-import GlobalGameSettings from "@/components/global-game-settings";
+import GameSettingsGroups from "@/components/game-settings-groups";
 import { useLauncherConfig } from "@/contexts/config";
 
 const GlobalGameSettingsPage = () => {
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
 
-  const directorySettings: OptionItemGroupProps[] = [
+  const globalSpecSettingsGroups: OptionItemGroupProps[] = [
     {
       title: t("GlobalGameSettingsPage.directories.title"),
       items: [
@@ -84,10 +84,10 @@ const GlobalGameSettingsPage = () => {
 
   return (
     <>
-      {directorySettings.map((group, index) => (
+      {globalSpecSettingsGroups.map((group, index) => (
         <OptionItemGroup {...group} key={index} />
       ))}
-      <GlobalGameSettings />
+      <GameSettingsGroups />
     </>
   );
 };

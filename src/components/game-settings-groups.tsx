@@ -28,11 +28,11 @@ import { useLauncherConfig } from "@/contexts/config";
 import { MemoryInfo } from "@/models/system-info";
 import { getMemoryInfo } from "@/services/utils";
 
-interface GlobalGameSettingsProps {
+interface GameSettingsGroupsProps {
   instanceId?: number;
 }
 
-const GlobalGameSettings: React.FC<GlobalGameSettingsProps> = ({
+const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
   instanceId = 0,
 }) => {
   const { t } = useTranslation();
@@ -420,4 +420,4 @@ const GlobalGameSettings: React.FC<GlobalGameSettingsProps> = ({
   );
 };
 
-export default GlobalGameSettings;
+export default GameSettingsGroups;

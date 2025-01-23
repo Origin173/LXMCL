@@ -1,4 +1,4 @@
-import { Box, Button, Collapse, Fade, Switch } from "@chakra-ui/react";
+import { Box, Button, Collapse, Switch } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -7,7 +7,7 @@ import {
   OptionItemGroup,
   OptionItemGroupProps,
 } from "@/components/common/option-item";
-import GlobalGameSettings from "@/components/global-game-settings";
+import GameSettingsGroups from "@/components/game-settings-groups";
 import { useLauncherConfig } from "@/contexts/config";
 import { InstanceContext } from "@/contexts/instance";
 
@@ -20,7 +20,7 @@ const InstanceSettingsPage = () => {
 
   const [applySettings, setApplySettings] = useState<boolean>(false);
 
-  const InstanceSettingGroups: OptionItemGroupProps[] = [
+  const instanceSpecSettingsGroups: OptionItemGroupProps[] = [
     {
       items: [
         {
@@ -30,8 +30,8 @@ const InstanceSettingsPage = () => {
               isTextArea={false}
               value={instanceCtx.summary?.name || ""}
               onEditSubmit={(value) => {}}
-              textProps={{ className: "secondary-text", fontSize: "xs" }}
-              inputProps={{ fontSize: "xs" }}
+              textProps={{ className: "secondary-text", fontSize: "xs-sm" }}
+              inputProps={{ fontSize: "xs-sm" }}
             />
           ),
         },
@@ -42,8 +42,8 @@ const InstanceSettingsPage = () => {
               isTextArea={true}
               value={instanceCtx.summary?.description || ""}
               onEditSubmit={(value) => {}}
-              textProps={{ className: "secondary-text", fontSize: "xs" }}
-              inputProps={{ fontSize: "xs" }}
+              textProps={{ className: "secondary-text", fontSize: "xs-sm" }}
+              inputProps={{ fontSize: "xs-sm" }}
             />
           ),
         },
@@ -83,12 +83,12 @@ const InstanceSettingsPage = () => {
 
   return (
     <Box height="100%" overflowY="auto">
-      {InstanceSettingGroups.map((group, index) => (
+      {instanceSpecSettingsGroups.map((group, index) => (
         <OptionItemGroup title={group.title} items={group.items} key={index} />
       ))}
       <Box h={4} />
       <Collapse in={applySettings} animateOpacity>
-        <GlobalGameSettings instanceId={Number(router.query.id)} />
+        <GameSettingsGroups instanceId={Number(router.query.id)} />
       </Collapse>
     </Box>
   );
