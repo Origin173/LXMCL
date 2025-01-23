@@ -88,6 +88,7 @@ const GlobalGameSettings: React.FC<GlobalGameSettingsProps> = ({
                 min={400}
                 size="xs"
                 maxW={16}
+                focusBorderColor={`${primaryColor}.500`}
                 value={globalGameConfigs.performance.gameWindowResolution.width}
                 onChange={(value) => {
                   if (instanceId) return; // TBD
@@ -98,10 +99,7 @@ const GlobalGameSettings: React.FC<GlobalGameSettingsProps> = ({
                 }}
               >
                 {/* no stepper NumberInput, use pr={0} */}
-                <NumberInputField
-                  pr={0}
-                  focusBorderColor={`${primaryColor}.500`}
-                />
+                <NumberInputField pr={0} />
               </NumberInput>
               <Text fontSize="sm" mt={-1}>
                 ×
@@ -110,6 +108,7 @@ const GlobalGameSettings: React.FC<GlobalGameSettingsProps> = ({
                 min={300}
                 size="xs"
                 maxW={16}
+                focusBorderColor={`${primaryColor}.500`}
                 value={
                   globalGameConfigs.performance.gameWindowResolution.height
                 }
@@ -121,10 +120,7 @@ const GlobalGameSettings: React.FC<GlobalGameSettingsProps> = ({
                   );
                 }}
               >
-                <NumberInputField
-                  pr={0}
-                  focusBorderColor={`${primaryColor}.500`}
-                />
+                <NumberInputField pr={0} />
               </NumberInput>
               <Switch
                 colorScheme={primaryColor}
@@ -199,6 +195,7 @@ const GlobalGameSettings: React.FC<GlobalGameSettingsProps> = ({
                       max={maxMemCanAllocated || 8192}
                       size="xs"
                       maxW={16}
+                      focusBorderColor={`${primaryColor}.500`}
                       value={globalGameConfigs.performance.minMemAllocation}
                       onChange={(value) => {
                         if (instanceId) return; // TBD
@@ -208,10 +205,7 @@ const GlobalGameSettings: React.FC<GlobalGameSettingsProps> = ({
                         );
                       }}
                     >
-                      <NumberInputField
-                        pr={0}
-                        focusBorderColor={`${primaryColor}.500`}
-                      />
+                      <NumberInputField pr={0} />
                     </NumberInput>
                     <Text fontSize="xs">MB</Text>
                   </HStack>

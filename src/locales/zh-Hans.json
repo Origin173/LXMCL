@@ -186,7 +186,7 @@
     "stepper": {
       "game": "选择游戏版本",
       "loader": "选择加载器",
-      "mods": "模组与资源包"
+      "info": "基本设置"
     }
   },
   "DeleteGameAlertDialog": {

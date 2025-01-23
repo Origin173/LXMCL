@@ -186,7 +186,7 @@
     "stepper": {
       "game": "Game",
       "loader": "Loader",
-      "mods": "Mods and Resource Packs"
+      "info": "Basic Settings"
     }
   },
   "DeleteGameAlertDialog": {
