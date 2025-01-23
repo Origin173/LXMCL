@@ -52,7 +52,7 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   const gameTypes: Record<string, string> = {
     release: "GrassBlock.webp",
     snapshot: "CommandBlock.webp",
-    old_beta: "CraftingTable.webp",
+    old_beta: "StoneOldBeta.webp",
   };
 
   // @TODO: move this logic to backend and get data by invoke
