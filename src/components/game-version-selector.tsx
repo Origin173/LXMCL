@@ -21,14 +21,13 @@ import { BeatLoader } from "react-spinners";
 import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import {
-  OptionItem,
   OptionItemGroup,
   OptionItemProps,
 } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { GameResourceInfo } from "@/models/resource";
-import { ISOtoDate } from "@/utils/datetime";
+import { ISOToDatetime } from "@/utils/datetime";
 
 interface GameVersionSelectorProps extends BoxProps {
   selectedVersion: string;
@@ -41,13 +40,14 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   ...props
 }) => {
   const { t } = useTranslation();
+  const { config } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
+
   const [versions, setVersions] = useState<GameResourceInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(
     new Set(["release"])
   );
-  const { config } = useLauncherConfig();
-  const primaryColor = config.appearance.theme.primaryColor;
 
   const gameTypes: Record<string, string> = {
     release: "GrassBlock.webp",
@@ -55,7 +55,7 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
     old_beta: "CraftingTable.webp",
   };
 
-  // TBD: move this logic to backend and get data by invoke
+  // @TODO: move this logic to backend and get data by invoke
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -102,10 +102,9 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
     });
   };
 
-  const buildOptionItem = (version: GameResourceInfo): OptionItemProps => ({
+  const buildOptionItems = (version: GameResourceInfo): OptionItemProps => ({
     title: version.id,
-    description: ISOtoDate(version.releaseTime),
-    children: null,
+    description: ISOToDatetime(version.releaseTime),
     prefixElement: (
       <HStack spacing={2.5}>
         <Radio value={version.id} colorScheme={primaryColor} />
@@ -121,6 +120,17 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
       <Tag colorScheme={primaryColor} className="tag-xs">
         {t(`GameVersionSelector.${version.type}`)}
       </Tag>
+    ),
+    children: (
+      <Tooltip label={t("GameVersionSelector.viewOnWiki")}>
+        <IconButton
+          size="sm"
+          aria-label="viewOnWiki"
+          icon={<LuEarth />}
+          variant="ghost"
+          onClick={() => open(`https://zh.minecraft.wiki/w/${version.id}`)}
+        />
+      </Tooltip>
     ),
   });
 
@@ -162,8 +172,8 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
         }
       >
         {loading ? (
-          <Center h="100%">
-            <BeatLoader size={16} color={primaryColor} />
+          <Center>
+            <BeatLoader size={16} color="gray" />
           </Center>
         ) : selectedTypes.size === 0 ? (
           <Empty withIcon={false} size="sm" />
@@ -171,24 +181,8 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
           <RadioGroup value={selectedVersion || ""} onChange={onVersionSelect}>
             <OptionItemGroup
               items={versions
-                .filter((version) => selectedTypes.has(version.type))
-                .map((version) => {
-                  return (
-                    <OptionItem key={version.id} {...buildOptionItem(version)}>
-                      <Tooltip label={t("GameVersionSelector.viewOnWiki")}>
-                        <IconButton
-                          size="sm"
-                          aria-label="viewOnWiki"
-                          icon={<LuEarth />}
-                          variant="ghost"
-                          onClick={() =>
-                            open(`https://zh.minecraft.wiki/w/${version.id}`)
-                          }
-                        />
-                      </Tooltip>
-                    </OptionItem>
-                  );
-                })}
+                .filter((v) => selectedTypes.has(v.type))
+                .map(buildOptionItems)}
             />
           </RadioGroup>
         )}
