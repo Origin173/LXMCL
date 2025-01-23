@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Modal,
   ModalBody,
@@ -23,18 +22,16 @@ const StarUsModal: React.FC<Omit<ModalProps, "children">> = ({ ...props }) => {
   };
 
   return (
-    <Modal size={{ base: "sm", lg: "md" }} {...props}>
+    <Modal autoFocus={false} size={{ base: "sm", lg: "md" }} {...props}>
       <ModalOverlay />
       <ModalContent borderRadius="md" overflow="hidden">
         <video autoPlay loop muted width="100%" height="auto">
           <source src="/videos/star-3-2.mp4" type="video/mp4" />
         </video>
-        <ModalHeader>{t("StarUsModal.header.title")}</ModalHeader>
+        <ModalHeader>🌟&nbsp;&nbsp;{t("StarUsModal.header.title")}</ModalHeader>
         <ModalCloseButton />
-        <ModalBody mt={-2}>
-          <Text color="gray.500" fontSize="xs-sm">
-            {t("StarUsModal.body")}
-          </Text>
+        <ModalBody mt={-1}>
+          <Text color="gray.500">{t("StarUsModal.body")}</Text>
         </ModalBody>
         <ModalFooter>
           <Button variant="ghost" onClick={props.onClose}>
