@@ -23,6 +23,7 @@ export interface GameConfig {
 export interface LauncherConfig {
   version: string;
   mocked: boolean;
+  runCount: number;
   appearance: {
     theme: {
       primaryColor: string;
@@ -91,6 +92,7 @@ export const defaultGameConfig: GameConfig = {
 export const defaultConfig: LauncherConfig = {
   version: "dev",
   mocked: true,
+  runCount: -1,
   appearance: {
     theme: {
       primaryColor: "blue",

@@ -48,7 +48,9 @@ structstruck::strike! {
   #[strikethrough[serde(rename_all = "camelCase", deny_unknown_fields)]]
   pub struct LauncherConfig {
     pub version: String,
+    // mocked: false when invoked from the backend, true when the frontend placeholder data is used during loading.
     pub mocked: bool,
+    pub run_count: usize,
     pub appearance: struct AppearanceConfig {
       pub theme: struct {
         pub primary_color: String,
@@ -122,6 +124,7 @@ impl Default for LauncherConfig {
     Self {
       version: "dev".to_string(),
       mocked: false,
+      run_count: 0,
       appearance: AppearanceConfig {
         theme: Theme {
           primary_color: "blue".to_string(),
