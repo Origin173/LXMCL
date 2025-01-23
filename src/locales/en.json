@@ -534,6 +534,12 @@
       "noSelectedGame": "No game instance selected"
     }
   },
+  "ManageSkinModal": {
+    "skinManage": "Manage Skin",
+    "default": "Default",
+    "steve": "Steve",
+    "alex": "Alex"
+  },
   "MemoryStatusProgress": {
     "title": "Memory Status",
     "info": "{{used}} / {{total}} GB used",
@@ -627,12 +633,6 @@
       "dev-test": "Dev - Test Page"
     }
   },
-  "ManageSkinModal": {
-    "skinManage": "Manage Skin",
-    "default": "Default",
-    "steve": "Steve",
-    "alex": "Alex"
-  },
   "SkinPreview": {
     "cape": "Cape",
     "animation": {
@@ -655,7 +655,7 @@
     "body": "If you love our product and would like to support us, could you give us a star on GitHub? This small action means a lot to us and will motivate us to continue delivering new features and experiences for you.",
     "button": {
       "later": "Later",
-      "starUs": "Star Us 🌟"
+      "starUs": "Star Us"
     }
   },
   "SyncAndRestoreSettingsPage": {
@@ -711,6 +711,20 @@
           "title": "System's webview version is outdated. Some UI elements may not display correctly."
         }
       }
+    }
+  },
+  "WelcomeAndTermsModal": {
+    "header": {
+      "title": "Welcome!"
+    },
+    "body": {
+      "part1": "Welcome to SJMCL! Before you start, please be sure to read and agree to our ",
+      "terms": "User Agreement",
+      "periods": "."
+    },
+    "button": {
+      "exit": "Exit",
+      "agree": "Agree"
     }
   }
 }

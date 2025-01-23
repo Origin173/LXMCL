@@ -25,6 +25,7 @@ static EXE_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
 
 pub async fn run() {
   tauri::Builder::default()
+    .plugin(tauri_plugin_process::init())
     .plugin(tauri_plugin_window_state::Builder::new().build())
     .plugin(tauri_plugin_http::init())
     .plugin(tauri_plugin_os::init())

@@ -1,22 +1,12 @@
-// @ts-nocheck
-import {
-  Button,
-  Menu,
-  MenuButton,
-  MenuItemOption,
-  MenuList,
-  MenuOptionGroup,
-  Switch,
-} from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import { Switch } from "@chakra-ui/react";
+import React from "react";
 import { useTranslation } from "react-i18next";
-import { LuChevronDown } from "react-icons/lu";
 import {
   OptionItemGroup,
   OptionItemGroupProps,
 } from "@/components/common/option-item";
+import LanguageMenu from "@/components/language-menu";
 import { useLauncherConfig } from "@/contexts/config";
-import { localeResources } from "@/locales";
 
 const GeneralSettingsPage = () => {
   const { t } = useTranslation();
@@ -24,47 +14,13 @@ const GeneralSettingsPage = () => {
   const generalConfigs = config.general;
   const primaryColor = config.appearance.theme.primaryColor;
 
-  const LocaleMenu = () => {
-    const currentLanguage = generalConfigs.general.language;
-
-    return (
-      <Menu>
-        <MenuButton
-          as={Button}
-          size="xs"
-          w="auto"
-          rightIcon={<LuChevronDown />}
-          variant="outline"
-          textAlign="left"
-        >
-          {localeResources[currentLanguage]?.display_name}
-        </MenuButton>
-        <MenuList>
-          <MenuOptionGroup
-            defaultValue={currentLanguage}
-            type="radio"
-            onChange={(value) => {
-              update("general.general.language", value);
-            }}
-          >
-            {Object.keys(localeResources).map((key) => (
-              <MenuItemOption key={key} value={key} fontSize="xs">
-                {localeResources[key].display_name}
-              </MenuItemOption>
-            ))}
-          </MenuOptionGroup>
-        </MenuList>
-      </Menu>
-    );
-  };
-
   const generalSettingGroups: OptionItemGroupProps[] = [
     {
       title: t("GeneralSettingsPage.general.title"),
       items: [
         {
           title: t("GeneralSettingsPage.general.settings.language.title"),
-          children: <LocaleMenu />,
+          children: <LanguageMenu />,
         },
       ],
     },
