@@ -20,8 +20,10 @@ import {
   Text,
   useSteps,
 } from "@chakra-ui/react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
+import GameVersionSelector from "../game-version-selector";
 
 export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   ...modalProps
@@ -35,10 +37,17 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     count: 3,
   });
 
-  const Step1Content = () => {
+  const [selectedVersion, setSelectedVersion] = useState<string>("");
+
+  const Step1Content = useMemo(() => {
     return (
       <>
-        <ModalBody>Step1 TBD</ModalBody>
+        <ModalBody>
+          <GameVersionSelector
+            selectedVersion={selectedVersion}
+            onVersionSelect={setSelectedVersion}
+          />
+        </ModalBody>
         <ModalFooter>
           <Button variant="ghost" onClick={modalProps.onClose}>
             {t("General.cancel")}
@@ -49,7 +58,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
         </ModalFooter>
       </>
     );
-  };
+  }, [modalProps.onClose, primaryColor, selectedVersion, setActiveStep, t]);
 
   const Step2Content = () => {
     return (
@@ -92,7 +101,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   const steps = [
     {
       key: "game",
-      content: <Step1Content />,
+      content: Step1Content,
     },
     {
       key: "loader",
@@ -105,7 +114,11 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   ];
 
   return (
-    <Modal size={{ base: "2xl", lg: "3xl", xl: "4xl" }} {...modalProps}>
+    <Modal
+      scrollBehavior="inside"
+      size={{ base: "2xl", lg: "3xl", xl: "4xl" }}
+      {...modalProps}
+    >
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{t("CreateInstanceModal.header.title")}</ModalHeader>
@@ -134,7 +147,9 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
             ))}
           </Stepper>
         </Center>
-        <Flex h="70vh">{steps[activeStep].content}</Flex>
+        <Flex h="70vh" flexDir="column">
+          {steps[activeStep].content}
+        </Flex>
       </ModalContent>
     </Modal>
   );

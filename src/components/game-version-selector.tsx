@@ -14,7 +14,13 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-shell";
-import { useCallback, useEffect, useState } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { LuEarth, LuRefreshCcw } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
@@ -34,6 +40,13 @@ interface GameVersionSelectorProps extends BoxProps {
   onVersionSelect: (versionId: string) => void;
 }
 
+type Version = {
+  id: string;
+  type: string;
+  releaseTime: string;
+  url: string;
+};
+
 const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   selectedVersion,
   onVersionSelect,
@@ -42,57 +55,59 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const gameTypes: Record<string, string> = useMemo(() => {
+    return {
+      release: "GrassBlock.webp",
+      snapshot: "CommandBlock.webp",
+      old_beta: "StoneOldBeta.webp",
+    };
+  }, []);
 
   const [versions, setVersions] = useState<GameResourceInfo[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [counts, setCounts] = useState<Map<string, number>>();
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(
     new Set(["release"])
   );
 
-  const gameTypes: Record<string, string> = {
-    release: "GrassBlock.webp",
-    snapshot: "CommandBlock.webp",
-    old_beta: "StoneOldBeta.webp",
-  };
+  const defferedVersions = useDeferredValue(versions);
+  const defferedCounts = useDeferredValue(counts);
+
+  const loading = versions !== defferedVersions;
 
   // @TODO: move this logic to backend and get data by invoke
   const fetchData = useCallback(async () => {
-    setLoading(true);
     try {
       const response = await fetch(
         "https://launchermeta.mojang.com/mc/game/version_manifest.json"
       );
       const data = await response.json();
 
-      const versionData = data.versions.map(
-        (version: {
-          id: string;
-          type: string;
-          releaseTime: string;
-          url: string;
-        }) => ({
-          id: version.id,
-          type: version.type,
-          releaseTime: version.releaseTime,
-          url: version.url,
-        })
-      );
+      const versionData = data.versions as Version[];
 
-      setVersions(versionData);
+      const newCounts = new Map<string, number>();
+      versionData.forEach((version: Version) => {
+        let oldCount = newCounts.get(version.type) || 0;
+        newCounts.set(version.type, oldCount + 1);
+      });
+      setCounts(newCounts);
+
+      setVersions(
+        versionData.filter((version: Version) =>
+          selectedTypes.has(version.type)
+        )
+      );
     } catch (error) {
       console.error("Error fetching versions:", error);
-    } finally {
-      setLoading(false);
     }
-  }, []);
+  }, [selectedTypes]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  const handleTypeToggle = (type: string) => {
-    setSelectedTypes((prev) => {
-      const newSelectedTypes = new Set(prev);
+  const handleTypeToggle = useCallback((type: string) => {
+    setSelectedTypes((prevSelectedTypes) => {
+      const newSelectedTypes = new Set(prevSelectedTypes);
       if (newSelectedTypes.has(type)) {
         newSelectedTypes.delete(type);
       } else {
@@ -100,7 +115,7 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
       }
       return newSelectedTypes;
     });
-  };
+  }, []);
 
   const buildOptionItems = (version: GameResourceInfo): OptionItemProps => ({
     title: version.id,
@@ -134,31 +149,42 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
     ),
   });
 
+  const typeTogglers = useMemo(() => {
+    return (
+      <HStack spacing={4}>
+        {Object.keys(gameTypes).map((type) => (
+          <Checkbox
+            key={type}
+            isChecked={selectedTypes.has(type)}
+            onChange={() => handleTypeToggle(type)}
+            colorScheme={primaryColor}
+            borderColor="gray.400"
+          >
+            <HStack spacing={2} alignItems="center">
+              <Text fontWeight="bold" fontSize="sm" className="no-select">
+                {t(`GameVersionSelector.${type}`)}
+              </Text>
+              <CountTag
+                count={defferedCounts ? defferedCounts.get(type) || 0 : 0}
+              />
+            </HStack>
+          </Checkbox>
+        ))}
+      </HStack>
+    );
+  }, [
+    defferedCounts,
+    gameTypes,
+    handleTypeToggle,
+    primaryColor,
+    selectedTypes,
+    t,
+  ]);
+
   return (
     <Box {...props}>
       <Section
-        titleExtra={
-          <HStack spacing={4}>
-            {Object.keys(gameTypes).map((type) => (
-              <Checkbox
-                key={type}
-                isChecked={selectedTypes.has(type)}
-                onChange={() => handleTypeToggle(type)}
-                colorScheme={primaryColor}
-                borderColor="gray.400"
-              >
-                <HStack spacing={2} alignItems="center">
-                  <Text fontWeight="bold" fontSize="sm" className="no-select">
-                    {t(`GameVersionSelector.${type}`)}
-                  </Text>
-                  <CountTag
-                    count={versions.filter((v) => v.type === type).length}
-                  />
-                </HStack>
-              </Checkbox>
-            ))}
-          </HStack>
-        }
+        titleExtra={typeTogglers}
         headExtra={
           <IconButton
             aria-label="refresh"
@@ -179,11 +205,7 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
           <Empty withIcon={false} size="sm" />
         ) : (
           <RadioGroup value={selectedVersion || ""} onChange={onVersionSelect}>
-            <OptionItemGroup
-              items={versions
-                .filter((v) => selectedTypes.has(v.type))
-                .map(buildOptionItems)}
-            />
+            <OptionItemGroup items={defferedVersions.map(buildOptionItems)} />
           </RadioGroup>
         )}
       </Section>
