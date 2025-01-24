@@ -32,6 +32,7 @@ const WelcomeAndTermsModal: React.FC<Omit<ModalProps, "children">> = ({
   return (
     <Modal
       autoFocus={false}
+      closeOnEsc={false}
       closeOnOverlayClick={false}
       size={{ base: "sm", lg: "md" }}
       {...props}
@@ -43,7 +44,7 @@ const WelcomeAndTermsModal: React.FC<Omit<ModalProps, "children">> = ({
           🎉&nbsp;&nbsp;{t("WelcomeAndTermsModal.header.title")}
         </ModalHeader>
         <ModalBody mt={-1}>
-          <Text color="gray.500">
+          <Text color="gray.500" className="no-select">
             {t("WelcomeAndTermsModal.body.part1")}
             <Link color={`${primaryColor}.500`}>
               {t("WelcomeAndTermsModal.body.terms")}
