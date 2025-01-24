@@ -1,5 +1,6 @@
 use partial_derive::Partial;
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -64,14 +65,14 @@ structstruck::strike! {
       pub source: struct {
         pub strategy: String,
       },
-      pub download: struct {
+      pub transmission: struct {
         pub auto_concurrent: bool,
         pub concurrent_count: usize,
         pub enable_speed_limit: bool,
         pub speed_limit_value: usize,
       },
       pub cache: struct {
-        pub directory: String,
+        pub directory: PathBuf,
       }
     },
     pub general: struct GeneralConfig {
@@ -83,7 +84,7 @@ structstruck::strike! {
       }
     },
     pub global_game_config: GameConfig,
-    pub local_game_directories: Vec<String>,
+    pub local_game_directories: Vec<PathBuf>,
     pub states: struct States {
       pub accounts_page: struct {
         pub view_type: String
@@ -138,14 +139,14 @@ impl Default for LauncherConfig {
         source: Source {
           strategy: "auto".to_string(),
         },
-        download: Download {
+        transmission: Transmission {
           auto_concurrent: true,
           concurrent_count: 64,
           enable_speed_limit: false,
           speed_limit_value: 1024,
         },
         cache: Cache {
-          directory: "/mock/path/to/cache/".to_string(),
+          directory: PathBuf::default(),
         },
       },
       general: GeneralConfig {
@@ -155,7 +156,7 @@ impl Default for LauncherConfig {
         optional_functions: OptionalFunctions { discover: false },
       },
       global_game_config: GameConfig::default(),
-      local_game_directories: vec![".minecraft/".to_string()],
+      local_game_directories: vec![".minecraft/".into()],
       states: States {
         accounts_page: AccountsPage {
           view_type: "grid".to_string(),
