@@ -116,6 +116,9 @@
     "placeholder": {
       "playerName": "Player Name",
       "password": "Password"
+    },
+    "errormessage": {
+      "playerName": "Can only contain letters, numbers, and underscores, within 16 characters."
     }
   },
   "AllGamesPage": {

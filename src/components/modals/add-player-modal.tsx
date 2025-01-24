@@ -2,6 +2,7 @@ import {
   Button,
   Flex,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Icon,
   Input,
@@ -77,6 +78,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   useEffect(() => {
     setPassword("");
   }, [playerType]);
+
+  const isOfflinePlayernameValid = /^[a-zA-Z0-9_]{0,16}$/.test(playername);
 
   const handleLogin = useCallback(() => {
     let player: PlayerInfo = {
@@ -173,7 +176,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
             </FormControl>
 
             {playerType === "offline" ? (
-              <FormControl isRequired>
+              <FormControl isRequired isInvalid={!isOfflinePlayernameValid}>
                 <FormLabel>{t("AddPlayerModal.label.playerName")}</FormLabel>
                 <Input
                   placeholder={t("AddPlayerModal.placeholder.playerName")}
@@ -183,6 +186,11 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                   ref={initialRef}
                   focusBorderColor={`${primaryColor}.500`}
                 />
+                {!isOfflinePlayernameValid && (
+                  <FormErrorMessage>
+                    {t("AddPlayerModal.errormessage.playerName")}
+                  </FormErrorMessage>
+                )}
               </FormControl>
             ) : (
               <>
