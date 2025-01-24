@@ -122,18 +122,21 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
       </Tag>
     ),
     children: (
-      <Tooltip label={t("GameVersionSelector.viewOnWiki")}>
+      <Tooltip label={t("General.viewOnWiki")}>
         <IconButton
           size="sm"
           aria-label="viewOnWiki"
           icon={<LuEarth />}
           variant="ghost"
-          onClick={() => open(`https://zh.minecraft.wiki/w/${version.id}`)}
+          onClick={() => {
+            open(
+              `${t("Utils.wiki.baseUrl")}${t(`GameVersionSelector.wikiKey.${version.type}`)}${version.id.replace("b", "")}`
+            );
+          }}
         />
       </Tooltip>
     ),
   });
-
   return (
     <Box {...props}>
       <Section
