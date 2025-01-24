@@ -3,6 +3,7 @@ import {
   BoxProps,
   Center,
   Checkbox,
+  Flex,
   HStack,
   Icon,
   IconButton,
@@ -182,21 +183,20 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   ]);
 
   return (
-    <Box {...props}>
-      <Section
-        titleExtra={typeTogglers}
-        headExtra={
-          <IconButton
-            aria-label="refresh"
-            icon={<Icon as={LuRefreshCcw} boxSize={3.5} />}
-            onClick={fetchData}
-            size="sm"
-            h={21}
-            variant="ghost"
-            colorScheme="gray"
-          />
-        }
-      >
+    <Box {...props} overflow="hidden" width="100%" height="100%">
+      <Flex justifyContent="space-between" flexShrink={0} padding={1}>
+        {typeTogglers}
+        <IconButton
+          aria-label="refresh"
+          icon={<Icon as={LuRefreshCcw} boxSize={3.5} />}
+          onClick={fetchData}
+          size="sm"
+          h={21}
+          variant="ghost"
+          colorScheme="gray"
+        />
+      </Flex>
+      <Section overflow="auto" flexGrow={1} height="100%">
         {loading ? (
           <Center>
             <BeatLoader size={16} color="gray" />
