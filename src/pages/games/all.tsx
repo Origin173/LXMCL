@@ -56,7 +56,9 @@ const AllGamesPage = () => {
             size="xs"
             colorScheme={primaryColor}
             variant={primaryColor === "gray" ? "subtle" : "outline"}
-            onClick={() => {}} // TODO
+            onClick={() => {
+              router.push("/games/add-import");
+            }}
           >
             {t("AllGamesPage.button.addAndImport")}
           </Button>

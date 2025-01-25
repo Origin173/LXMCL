@@ -202,7 +202,7 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
       width="100%"
       height="100%"
     >
-      <Flex justifyContent="space-between" flexShrink={0} padding={1}>
+      <Flex justifyContent="space-between" flexShrink={0} padding={1} mb={2.5}>
         {typeTogglers}
         <IconButton
           aria-label="refresh"
