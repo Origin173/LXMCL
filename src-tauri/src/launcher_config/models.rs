@@ -91,6 +91,9 @@ structstruck::strike! {
       pub all_games_page: struct {
         pub view_type: String
       },
+      pub game_version_selector: struct {
+        pub game_types: Vec<String>
+      }
     }
   }
 }
@@ -162,6 +165,9 @@ impl Default for LauncherConfig {
         },
         all_games_page: AllGamesPage {
           view_type: "list".to_string(),
+        },
+        game_version_selector: GameVersionSelector {
+          game_types: ["release".to_string()].to_vec(),
         },
       },
     }

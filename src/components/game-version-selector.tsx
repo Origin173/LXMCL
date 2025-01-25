@@ -47,7 +47,7 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   ...props
 }) => {
   const { t } = useTranslation();
-  const { config } = useLauncherConfig();
+  const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const gameTypes: Record<string, string> = useMemo(() => {
     return {
@@ -60,7 +60,7 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   const [versions, setVersions] = useState<GameResourceInfo[]>([]);
   const [counts, setCounts] = useState<Map<string, number>>();
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(
-    new Set(["release"])
+    new Set(config.states.gameVersionSelector.gameTypes)
   );
 
   const defferedVersions = useDeferredValue(versions);
@@ -99,17 +99,24 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
     fetchData();
   }, [fetchData]);
 
-  const handleTypeToggle = useCallback((type: string) => {
-    setSelectedTypes((prevSelectedTypes) => {
-      const newSelectedTypes = new Set(prevSelectedTypes);
-      if (newSelectedTypes.has(type)) {
-        newSelectedTypes.delete(type);
-      } else {
-        newSelectedTypes.add(type);
-      }
-      return newSelectedTypes;
-    });
-  }, []);
+  const handleTypeToggle = useCallback(
+    (type: string) => {
+      setSelectedTypes((prevSelectedTypes) => {
+        const newSelectedTypes = new Set(prevSelectedTypes);
+        if (newSelectedTypes.has(type)) {
+          newSelectedTypes.delete(type);
+        } else {
+          newSelectedTypes.add(type);
+        }
+        update(
+          "states.gameVersionSelector.gameTypes",
+          Array.from(newSelectedTypes)
+        );
+        return newSelectedTypes;
+      });
+    },
+    [update]
+  );
 
   const buildOptionItems = (version: GameResourceInfo): OptionItemProps => ({
     title: version.id,

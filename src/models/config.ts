@@ -64,6 +64,9 @@ export interface LauncherConfig {
     allGamesPage: {
       viewType: string;
     };
+    gameVersionSelector: {
+      gameTypes: string[];
+    };
   };
 }
 
@@ -132,6 +135,9 @@ export const defaultConfig: LauncherConfig = {
     },
     allGamesPage: {
       viewType: "list",
+    },
+    gameVersionSelector: {
+      gameTypes: ["release"],
     },
   },
 };
