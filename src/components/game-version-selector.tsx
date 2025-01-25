@@ -37,16 +37,9 @@ import { GameResourceInfo } from "@/models/resource";
 import { ISOToDatetime } from "@/utils/datetime";
 
 interface GameVersionSelectorProps extends BoxProps {
-  selectedVersion: string;
-  onVersionSelect: (versionId: string) => void;
+  selectedVersion: GameResourceInfo | undefined;
+  onVersionSelect: (version: GameResourceInfo) => void;
 }
-
-type Version = {
-  id: string;
-  type: string;
-  releaseTime: string;
-  url: string;
-};
 
 const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   selectedVersion,
@@ -83,17 +76,17 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
       );
       const data = await response.json();
 
-      const versionData = data.versions as Version[];
+      const versionData = data.versions as GameResourceInfo[];
 
       const newCounts = new Map<string, number>();
-      versionData.forEach((version: Version) => {
+      versionData.forEach((version: GameResourceInfo) => {
         let oldCount = newCounts.get(version.type) || 0;
         newCounts.set(version.type, oldCount + 1);
       });
       setCounts(newCounts);
 
       setVersions(
-        versionData.filter((version: Version) =>
+        versionData.filter((version: GameResourceInfo) =>
           selectedTypes.has(version.type)
         )
       );
@@ -182,6 +175,14 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
     t,
   ]);
 
+  const onVersionIdSelect = useCallback(
+    (versionId: string) => {
+      let versions = defferedVersions.filter((v) => v.id === versionId);
+      if (versions.length > 0) onVersionSelect(versions[0]);
+    },
+    [defferedVersions, onVersionSelect]
+  );
+
   return (
     <Box {...props} overflow="hidden" width="100%" height="100%">
       <Flex justifyContent="space-between" flexShrink={0} padding={1}>
@@ -204,7 +205,10 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
         ) : selectedTypes.size === 0 ? (
           <Empty withIcon={false} size="sm" />
         ) : (
-          <RadioGroup value={selectedVersion || ""} onChange={onVersionSelect}>
+          <RadioGroup
+            value={selectedVersion?.id || ""}
+            onChange={onVersionIdSelect}
+          >
             <OptionItemGroup items={defferedVersions.map(buildOptionItems)} />
           </RadioGroup>
         )}

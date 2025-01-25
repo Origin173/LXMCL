@@ -23,6 +23,7 @@ import {
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
+import { GameResourceInfo } from "@/models/resource";
 import GameVersionSelector from "../game-version-selector";
 
 export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
@@ -37,7 +38,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     count: 3,
   });
 
-  const [selectedVersion, setSelectedVersion] = useState<string>("");
+  const [selectedVersion, setSelectedVersion] = useState<GameResourceInfo>();
 
   const Step1Content = useMemo(() => {
     return (
