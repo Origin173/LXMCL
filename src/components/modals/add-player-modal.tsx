@@ -188,7 +188,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                 />
                 {!isOfflinePlayernameValid && (
                   <FormErrorMessage>
-                    {t("AddPlayerModal.errormessage.playerName")}
+                    {t("AddPlayerModal.errorMessage.playerName")}
                   </FormErrorMessage>
                 )}
               </FormControl>
@@ -293,6 +293,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
             isLoading={isLoading}
             isDisabled={
               !playername ||
+              (playerType === "offline" && !isOfflinePlayernameValid) ||
               (playerType === "3rdparty" &&
                 authServerList.length > 0 &&
                 (!authServerUrl || !password))

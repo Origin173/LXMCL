@@ -117,7 +117,7 @@
       "playerName": "Player Name",
       "password": "Password"
     },
-    "errormessage": {
+    "errorMessage": {
       "playerName": "Can only contain letters, numbers, and underscores, within 16 characters."
     }
   },

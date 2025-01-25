@@ -22,9 +22,9 @@ import {
 } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import GameVersionSelector from "@/components/game-version-selector";
 import { useLauncherConfig } from "@/contexts/config";
 import { GameResourceInfo } from "@/models/resource";
-import GameVersionSelector from "../game-version-selector";
 
 export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   ...modalProps
@@ -49,7 +49,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
             onVersionSelect={setSelectedVersion}
           />
         </ModalBody>
-        <ModalFooter>
+        <ModalFooter mt={1}>
           <Button variant="ghost" onClick={modalProps.onClose}>
             {t("General.cancel")}
           </Button>
@@ -148,7 +148,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
             ))}
           </Stepper>
         </Center>
-        <Flex h="70vh" flexDir="column">
+        <Flex h="60vh" flexDir="column">
           {steps[activeStep].content}
         </Flex>
       </ModalContent>

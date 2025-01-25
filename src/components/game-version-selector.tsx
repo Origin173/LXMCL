@@ -191,7 +191,13 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   );
 
   return (
-    <Box {...props} overflow="hidden" width="100%" height="100%">
+    <Flex
+      {...props}
+      flexDirection="column"
+      overflow="hidden"
+      width="100%"
+      height="100%"
+    >
       <Flex justifyContent="space-between" flexShrink={0} padding={1}>
         {typeTogglers}
         <IconButton
@@ -220,7 +226,7 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
           </RadioGroup>
         )}
       </Section>
-    </Box>
+    </Flex>
   );
 };
 

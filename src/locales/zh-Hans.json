@@ -117,7 +117,7 @@
       "playerName": "请输入用户名",
       "password": "请输入密码"
     },
-    "errormessage": {
+    "errorMessage": {
       "playerName": "只能包含英文字母、数字和下划线，不超过16个字符。"
     }
   },
