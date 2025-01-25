@@ -287,6 +287,7 @@
       "pink": "Pink"
     },
     "playerTypes": {
+      "microsoft": "Microsoft",
       "offline": "Offline Mode",
       "3rdparty": "3rd-party Authentication",
       "3rdpartyShort": "3rd-party Auth"
@@ -307,7 +308,11 @@
     "old_beta": "Old Beta",
     "release": "Release",
     "snapshot": "Snapshot",
-    "viewOnWiki":"Minecraft Wiki"
+    "wikiKey": {
+      "release": "Java_Edition_",
+      "snapshot": "",
+      "old_beta": "Java_Edition_Beta_"
+    }
   },
   "General": {
     "cancel": "Cancel",
@@ -322,7 +327,8 @@
     "openFolder": "Open Folder",
     "openInFolder": "Open in Folder",
     "previous": "Previous",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "viewOnWiki": "View on Minecraft Wiki"
   },
   "GeneralSettingsPage": {
     "general": {
@@ -714,6 +720,9 @@
           "title": "System's webview version is outdated. Some UI elements may not display correctly."
         }
       }
+    },
+    "wiki": {
+      "baseUrl": "https://minecraft.wiki/"
     }
   },
   "WelcomeAndTermsModal": {

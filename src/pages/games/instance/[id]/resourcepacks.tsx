@@ -55,7 +55,7 @@ const InstanceResourcePacksPage = () => {
                     description={pack.description}
                     prefixElement={
                       <Image
-                        src={pack.iconUrl || defaultIcon}
+                        src={pack.iconSrc || defaultIcon}
                         alt={pack.name}
                         boxSize="28px"
                         style={{ borderRadius: "4px" }}

@@ -39,7 +39,7 @@ const InstanceWorldsPage = () => {
                 )} ${formatRelativeTime(world.lastPlayedAt, t)}`}
                 prefixElement={
                   <Image
-                    src={world.iconUrl}
+                    src={world.iconSrc}
                     alt={world.name}
                     boxSize="28px"
                     style={{ borderRadius: "4px" }}
@@ -77,7 +77,7 @@ const InstanceWorldsPage = () => {
                 description={server.ip}
                 prefixElement={
                   <Image
-                    src={server.icon}
+                    src={server.iconSrc}
                     alt={server.name}
                     boxSize="28px"
                     style={{ borderRadius: "4px" }}

@@ -20,18 +20,18 @@ export interface Screenshot {
 export interface WorldInfo {
   name: string;
   lastPlayedAt: string;
-  iconUrl: string;
+  iconSrc: string;
   fileDir: string;
 }
 
 export interface GameServerInfo {
-  icon: string;
+  iconSrc: string;
   ip: string;
   name: string;
 }
 
 export interface LocalModInfo {
-  icon: string;
+  iconSrc: string;
   enabled: boolean;
   name: string;
   transltedName?: string;
@@ -44,7 +44,7 @@ export interface LocalModInfo {
 export interface ResourcePacksInfo {
   name: string;
   description?: string;
-  iconUrl?: string;
+  iconSrc?: string;
   fileDir: string;
 }
 

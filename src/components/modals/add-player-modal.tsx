@@ -24,7 +24,13 @@ import {
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuChevronDown, LuLink2Off, LuPlus, LuServer } from "react-icons/lu";
+import {
+  LuChevronDown,
+  LuGrid2X2,
+  LuLink2Off,
+  LuPlus,
+  LuServer,
+} from "react-icons/lu";
 import SegmentedControl from "@/components/common/segmented";
 import AddAuthServerModal from "@/components/modals/add-auth-server-modal";
 import { useLauncherConfig } from "@/contexts/config";
@@ -34,7 +40,7 @@ import { AuthServer, PlayerInfo } from "@/models/account";
 import { addPlayer, getPlayerList } from "@/services/account";
 
 interface AddPlayerModalProps extends Omit<ModalProps, "children"> {
-  initialPlayerType?: "offline" | "3rdparty";
+  initialPlayerType?: "offline" | "microsoft" | "3rdparty";
   initialAuthServerUrl?: string;
 }
 
@@ -47,9 +53,9 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   const { authServerList } = useData();
   const { setPlayerList } = useDataDispatch();
   const toast = useToast();
-  const [playerType, setPlayerType] = useState<"offline" | "3rdparty">(
-    "offline"
-  );
+  const [playerType, setPlayerType] = useState<
+    "offline" | "microsoft" | "3rdparty"
+  >("offline");
   const [playername, setPlayername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [authServerUrl, setAuthServerUrl] = useState<string>("");
@@ -90,7 +96,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
       avatarSrc: "",
       authServerUrl,
     };
-    if (playerType === "offline") {
+    if (playerType === "offline" || playerType === "microsoft") {
       player.name = playername;
     } else {
       player.authAccount = playername;
@@ -137,6 +143,11 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
       label: t("Enums.playerTypes.offline"),
     },
     {
+      key: "microsoft",
+      icon: LuGrid2X2,
+      label: t("Enums.playerTypes.microsoft"),
+    },
+    {
       key: "3rdparty",
       icon: LuServer,
       label: t("Enums.playerTypes.3rdparty"),
@@ -160,7 +171,9 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
               <FormLabel>{t("AddPlayerModal.label.playerType")}</FormLabel>
               <SegmentedControl
                 selected={playerType}
-                onSelectItem={(s) => setPlayerType(s as "offline" | "3rdparty")}
+                onSelectItem={(s) =>
+                  setPlayerType(s as "offline" | "microsoft" | "3rdparty")
+                }
                 size="sm"
                 items={playerTypeList.map((item) => ({
                   label: item.key,
@@ -175,7 +188,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
               />
             </FormControl>
 
-            {playerType === "offline" ? (
+            {playerType === "offline" && (
               <FormControl isRequired isInvalid={!isOfflinePlayernameValid}>
                 <FormLabel>{t("AddPlayerModal.label.playerName")}</FormLabel>
                 <Input
@@ -192,7 +205,12 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                   </FormErrorMessage>
                 )}
               </FormControl>
-            ) : (
+            )}
+
+            {playerType === "microsoft" && (
+              <FormControl>{/*TODO*/}</FormControl>
+            )}
+            {playerType === "3rdparty" && (
               <>
                 {authServerList.length === 0 ? (
                   <Stack direction="row" align="center">
