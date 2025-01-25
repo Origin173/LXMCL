@@ -119,7 +119,7 @@ const InstanceModsPage = () => {
                 }
                 prefixElement={
                   <Avatar
-                    src={mod.icon}
+                    src={mod.iconSrc}
                     name={mod.name}
                     boxSize="28px"
                     borderRadius="4px"
