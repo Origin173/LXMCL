@@ -28,9 +28,9 @@ import { BeatLoader } from "react-spinners";
 import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import {
-  OptionItemGroup,
   OptionItemProps,
-} from "@/components/common/option-item";
+  VirtualOptionItemGroup,
+} from "@/components/common/option-item-virtual";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { GameResourceInfo } from "@/models/resource";
@@ -214,7 +214,7 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
           colorScheme="gray"
         />
       </Flex>
-      <Section overflow="auto" flexGrow={1} height="100%">
+      <Section overflow="auto" flexGrow={1} h="100%">
         {loading ? (
           <Center>
             <BeatLoader size={16} color="gray" />
@@ -225,8 +225,12 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
           <RadioGroup
             value={selectedVersion?.id || ""}
             onChange={onVersionIdSelect}
+            h="100%"
           >
-            <OptionItemGroup items={defferedVersions.map(buildOptionItems)} />
+            <VirtualOptionItemGroup
+              h="100%"
+              items={defferedVersions.map(buildOptionItems)}
+            />
           </RadioGroup>
         )}
       </Section>

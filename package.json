@@ -49,6 +49,7 @@
     "react-i18next": "^15.1.1",
     "react-icons": "^5.4.0",
     "react-spinners": "^0.14.1",
+    "react-virtualized": "^9.22.6",
     "skinview3d": "^3.1.0"
   },
   "devDependencies": {
@@ -58,6 +59,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/react-virtualized": "^9.22.0",
     "chalk": "^4.1.2",
     "eslint": "^8",
     "eslint-config-next": "15.0.3",
