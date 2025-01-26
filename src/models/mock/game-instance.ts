@@ -12,7 +12,7 @@ export const mockGameInstanceSummaryList: GameInstanceSummary[] = [
   {
     id: 1,
     uuid: "aaaaaaaa-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
-    iconSrc: "/images/icons/GrassBlock.webp",
+    iconSrc: "/images/icons/GrassBlock.png",
     name: "1.20.1 纯净生存整合包",
     version: "1.20.1",
     modLoader: {
@@ -23,7 +23,7 @@ export const mockGameInstanceSummaryList: GameInstanceSummary[] = [
   {
     id: 2,
     uuid: "00000000-0000-0000-0000-000000000000",
-    iconSrc: "/images/icons/Anvil.webp",
+    iconSrc: "/images/icons/Anvil.png",
     name: "Better MC [FORGE]",
     description: "更好的 MC 整合包",
     version: "1.20.1",
@@ -72,13 +72,13 @@ export const mockWorlds: WorldInfo[] = [
   {
     name: "Dev-SJMC",
     lastPlayedAt: "2024-12-18T10:00:00Z",
-    iconSrc: "/images/icons/GrassBlock.webp",
+    iconSrc: "/images/icons/GrassBlock.png",
     fileDir: "/.minecraft/saves",
   },
   {
     name: "SMP-SJMC",
     lastPlayedAt: "2024-12-18T10:00:00Z",
-    iconSrc: "/images/icons/Anvil.webp",
+    iconSrc: "/images/icons/Anvil.png",
     fileDir: "/.minecraft/saves",
   },
 ];
