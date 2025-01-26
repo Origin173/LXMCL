@@ -32,6 +32,7 @@ import {
   OptionItemProps,
 } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
+import { VirtualOptionItemGroup } from "@/components/common/virtual-option-item";
 import { useLauncherConfig } from "@/contexts/config";
 import { GameResourceInfo } from "@/models/resource";
 import { ISOToDatetime } from "@/utils/datetime";
@@ -214,7 +215,7 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
           colorScheme="gray"
         />
       </Flex>
-      <Section overflow="auto" flexGrow={1} height="100%">
+      <Section overflow="auto" flexGrow={1} h="100%">
         {loading ? (
           <Center>
             <BeatLoader size={16} color="gray" />
@@ -225,8 +226,12 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
           <RadioGroup
             value={selectedVersion?.id || ""}
             onChange={onVersionIdSelect}
+            h="100%"
           >
-            <OptionItemGroup items={defferedVersions.map(buildOptionItems)} />
+            <VirtualOptionItemGroup
+              h="100%"
+              items={defferedVersions.map(buildOptionItems)}
+            />
           </RadioGroup>
         )}
       </Section>
