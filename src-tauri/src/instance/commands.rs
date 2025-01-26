@@ -29,8 +29,9 @@ pub async fn get_game_servers(
         players_max: 0,
         online: false,
     },
-];
+  ];
 
+  // query_online is true, amend query and return player count and online status
   if query_online {
     for server in &mut game_servers {
       let url = format!("https://mc.sjtu.cn/custom/serverlist/?query={}", server.ip);
@@ -39,7 +40,7 @@ pub async fn get_game_servers(
           if response.status().is_success() {
             match response.json::<Value>().await {
               Ok(data) => {
-                // Here you can manually parse the JSON into the required fields
+                // manually parse the JSON into the required fields
                 if let Some(players) = data["players"].as_object() {
                   if let Some(online) = players["online"].as_u64() {
                     server.players_online = online as usize;
@@ -50,6 +51,9 @@ pub async fn get_game_servers(
                 }
                 if let Some(online) = data["online"].as_bool() {
                   server.online = online;
+                }
+                if let Some(favicon) = data["favicon"].as_str() {
+                  server.icon_src = favicon.to_string();
                 }
                 server.is_queried = true;
               }
