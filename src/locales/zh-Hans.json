@@ -491,15 +491,6 @@
       }
     }
   },
-  "InstanceWorldsPage": {
-    "worldList": {
-      "title": "本地世界",
-      "lastPlayedAt": "上次游玩于"
-    },
-    "serverList": {
-      "title": "服务器"
-    }
-  },
   "InstanceResourcePacksPage": {
     "resourcePackList": {
       "title": "全局资源包"
@@ -511,6 +502,7 @@
   "InstanceSettingsPage": {
     "name": "实例名称",
     "description": "实例描述",
+    "icon": "实例图标",
     "applySettings": "启动特定游戏设置",
     "restoreSettings": "重置以下特定设置",
     "restoreSettingsDesc": "将以下特定设置重置为全局游戏设置",
@@ -519,6 +511,15 @@
   "InstanceShaderPacksPage": {
     "shaderPackList": {
       "title": "光影包"
+    }
+  },
+  "InstanceWorldsPage": {
+    "worldList": {
+      "title": "本地世界",
+      "lastPlayedAt": "上次游玩于"
+    },
+    "serverList": {
+      "title": "服务器"
     }
   },
   "JavaSettingsPage":{

@@ -51,9 +51,9 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   const primaryColor = config.appearance.theme.primaryColor;
   const gameTypes: Record<string, string> = useMemo(() => {
     return {
-      release: "GrassBlock.webp",
-      snapshot: "CommandBlock.webp",
-      old_beta: "StoneOldBeta.webp",
+      release: "GrassBlock.png",
+      snapshot: "CommandBlock.png",
+      old_beta: "StoneOldBeta.png",
     };
   }, []);
 

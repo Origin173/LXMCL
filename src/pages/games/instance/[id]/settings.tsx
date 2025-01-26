@@ -1,4 +1,4 @@
-import { Box, Button, Collapse, Switch } from "@chakra-ui/react";
+import { Box, Button, Collapse, HStack, Image, Switch } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -7,6 +7,7 @@ import {
   OptionItemGroup,
   OptionItemGroupProps,
 } from "@/components/common/option-item";
+import { GameIconSelectorPopover } from "@/components/game-icon-selector";
 import GameSettingsGroups from "@/components/game-settings-groups";
 import { useLauncherConfig } from "@/contexts/config";
 import { InstanceContext } from "@/contexts/instance";
@@ -45,6 +46,23 @@ const InstanceSettingsPage = () => {
               textProps={{ className: "secondary-text", fontSize: "xs-sm" }}
               inputProps={{ fontSize: "xs-sm" }}
             />
+          ),
+        },
+        {
+          title: t("InstanceSettingsPage.icon"),
+          children: (
+            <HStack>
+              <Image
+                src={instanceCtx.summary?.iconSrc}
+                alt={instanceCtx.summary?.iconSrc}
+                boxSize="28px"
+                objectFit="cover"
+              />
+              <GameIconSelectorPopover // TBD
+                value={instanceCtx.summary?.iconSrc}
+                onIconSelect={(value) => {}}
+              />
+            </HStack>
           ),
         },
         {

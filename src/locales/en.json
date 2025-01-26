@@ -491,15 +491,6 @@
       }
     }
   },
-  "InstanceWorldsPage": {
-    "worldList": {
-      "title": "Worlds",
-      "lastPlayedAt": "Last played"
-    },
-    "serverList": {
-      "title": "Servers"
-    }
-  },
   "InstanceResourcePacksPage": {
     "resourcePackList": {
       "title": "Global Resource Packs"
@@ -511,6 +502,7 @@
   "InstanceSettingsPage": {
     "name": "Instance Name",
     "description": "Instance Description",
+    "icon": "Instance Icon",
     "applySettings": "Apply the following specific settings",
     "restoreSettings": "Restore to default settings",
     "restoreSettingsDesc": "Restore the following specific settings to their default values",
@@ -519,6 +511,15 @@
   "InstanceShaderPacksPage": {
     "shaderPackList": {
       "title": "Shader Packs"
+    }
+  },
+  "InstanceWorldsPage": {
+    "worldList": {
+      "title": "Worlds",
+      "lastPlayedAt": "Last played"
+    },
+    "serverList": {
+      "title": "Servers"
     }
   },
   "JavaSettingsPage":{

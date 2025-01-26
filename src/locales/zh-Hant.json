@@ -488,15 +488,6 @@
       }
     }
   },
-  "InstanceWorldsPage": {
-    "worldList": {
-      "title": "本地世界",
-      "lastPlayedAt": "上次遊玩於"
-    },
-    "serverList": {
-      "title": "伺服器"
-    }
-  },
   "InstanceResourcePacksPage": {
     "resourcePackList": {
       "title": "全域資源包"
@@ -516,6 +507,15 @@
   "InstanceShaderPacksPage": {
     "shaderPackList": {
       "title": "光影包"
+    }
+  },
+  "InstanceWorldsPage": {
+    "worldList": {
+      "title": "本地世界",
+      "lastPlayedAt": "上次遊玩於"
+    },
+    "serverList": {
+      "title": "伺服器"
     }
   },
   "JavaSettingsPage": {
