@@ -28,11 +28,10 @@ import { BeatLoader } from "react-spinners";
 import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import {
-  OptionItemGroup,
   OptionItemProps,
-} from "@/components/common/option-item";
+  VirtualOptionItemGroup,
+} from "@/components/common/option-item-virtual";
 import { Section } from "@/components/common/section";
-import { VirtualOptionItemGroup } from "@/components/common/virtual-option-item";
 import { useLauncherConfig } from "@/contexts/config";
 import { GameResourceInfo } from "@/models/resource";
 import { ISOToDatetime } from "@/utils/datetime";

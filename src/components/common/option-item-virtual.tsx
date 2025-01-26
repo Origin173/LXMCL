@@ -4,11 +4,12 @@ import { AutoSizer, List, ListRowProps } from "react-virtualized";
 import { OptionItem, OptionItemProps } from "@/components/common/option-item";
 import { Section, SectionProps } from "@/components/common/section";
 
+export { OptionItem };
+export type { OptionItemProps };
+
 export interface VirtualOptionItemGroupProps extends SectionProps {
   items: (OptionItemProps | React.ReactNode)[];
   withDivider?: boolean;
-  itemHeight?: number; // 新增项高度属性
-  height?: number; // 新增容器高度属性
 }
 
 export const VirtualOptionItemGroup: React.FC<VirtualOptionItemGroupProps> = ({
@@ -16,17 +17,16 @@ export const VirtualOptionItemGroup: React.FC<VirtualOptionItemGroupProps> = ({
   withDivider = true,
   ...props
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [itemHeight, setItemHeight] = useState(50);
+  const testItemRef = useRef<HTMLDivElement>(null);
+  const [itemHeight, setItemHeight] = useState(0);
+  const [isHeightCalculated, setIsHeightCalculated] = useState(false);
 
   useEffect(() => {
-    if (containerRef.current) {
-      const firstItem = containerRef.current.querySelector(".option-item");
-      if (firstItem) {
-        setItemHeight(firstItem.clientHeight);
-      }
+    if (testItemRef.current) {
+      setItemHeight(testItemRef.current.clientHeight);
+      setIsHeightCalculated(true);
     }
-  }, [items]);
+  }, []);
 
   function isOptionItemProps(item: any): item is OptionItemProps {
     return (
@@ -60,18 +60,38 @@ export const VirtualOptionItemGroup: React.FC<VirtualOptionItemGroupProps> = ({
   return (
     <Section {...props}>
       {items.length > 0 && (
-        <Card className="content-card" ref={containerRef} h="100%">
-          <AutoSizer>
-            {({ height, width }) => (
-              <List
-                height={height}
-                width={width}
-                rowCount={items.length}
-                rowHeight={itemHeight}
-                rowRenderer={rowRenderer}
-              />
+        <Card className="content-card" h="100%">
+          <Box
+            ref={testItemRef}
+            position="absolute"
+            visibility="hidden"
+            pointerEvents="none"
+          >
+            {isOptionItemProps(items[0]) && (
+              <OptionItem
+                title={items[0].title}
+                description={items[0].description}
+                titleExtra={items[0].titleExtra}
+                prefixElement={items[0].prefixElement}
+              >
+                {items[0].children}
+              </OptionItem>
             )}
-          </AutoSizer>
+            {withDivider ? <Divider my={2} /> : <Box h={2} />}
+          </Box>
+          {isHeightCalculated && (
+            <AutoSizer>
+              {({ height, width }) => (
+                <List
+                  height={height}
+                  width={width}
+                  rowCount={items.length}
+                  rowHeight={itemHeight}
+                  rowRenderer={rowRenderer}
+                />
+              )}
+            </AutoSizer>
+          )}
         </Card>
       )}
     </Section>
