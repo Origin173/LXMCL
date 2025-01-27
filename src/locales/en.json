@@ -354,7 +354,8 @@
       "settings": {
         "directories": {
           "title": "Manage Local Game Storage Directories",
-          "add": "Add"
+          "add": "Add",
+          "currentDir": "Current"
         }
       }
     },

@@ -46,12 +46,19 @@ const GlobalGameSettingsPage = () => {
           ),
         },
         <VStack key="dir-list" ml={1.5} spacing={0.5}>
-          {config.localGameDirectories.map((dir) => (
-            <Flex key={dir} alignItems="center" w="100%">
-              <HStack>
+          {config.localGameDirectories.map((directory, index) => (
+            <Flex key={index} alignItems="center" w="100%">
+              <HStack overflow="hidden" mr={2}>
                 <LuFolder size={12} />
-                <Text fontSize="xs" className="secondary-text">
-                  {dir}
+                <Text fontSize="xs" className="ellipsis-text" flex={1}>
+                  <span>
+                    {directory.name === "CURRENT_DIR"
+                      ? t(
+                          "GlobalGameSettingsPage.directories.settings.directories.currentDir"
+                        )
+                      : directory.name}
+                  </span>
+                  <span className="secondary-text">&ensp;{directory.dir}</span>
                 </Text>
               </HStack>
               <HStack spacing={1} ml="auto">

@@ -45,6 +45,13 @@ structstruck::strike! {
   }
 }
 
+#[derive(Partial, Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct GameDirectory {
+  pub name: String,
+  pub dir: PathBuf,
+}
+
 structstruck::strike! {
   #[strikethrough[derive(Partial, Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]]
   #[strikethrough[serde(rename_all = "camelCase", deny_unknown_fields)]]
@@ -85,7 +92,7 @@ structstruck::strike! {
       }
     },
     pub global_game_config: GameConfig,
-    pub local_game_directories: Vec<PathBuf>,
+    pub local_game_directories: Vec<GameDirectory>,
     pub states: struct States {
       pub accounts_page: struct {
         pub view_type: String
@@ -166,7 +173,10 @@ impl Default for LauncherConfig {
         optional_functions: OptionalFunctions { discover: false },
       },
       global_game_config: GameConfig::default(),
-      local_game_directories: vec![".minecraft/".into()],
+      local_game_directories: vec![GameDirectory {
+        name: "CURRENT_DIR".to_string(),
+        dir: PathBuf::from(".minecraft"),
+      }],
       states: States {
         accounts_page: AccountsPage {
           view_type: "grid".to_string(),
