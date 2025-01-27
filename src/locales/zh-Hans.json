@@ -314,6 +314,18 @@
       "old_beta": "Java版Beta_"
     }
   },
+  "ModLoaderSelector": {
+    "stable": "稳定版",
+    "beta": "测试版",
+    "releaseDate": "发布于 {{date}}"
+  },
+  "GameSettingsSelector": {
+    "instanceName": {
+      "label": "实例名称",
+      "placeholder": "请输入实例名称",
+      "errorMessage": "实例名称不能为空"
+    }
+  },
   "General": {
     "cancel": "取消",
     "close": "关闭",
@@ -560,7 +572,8 @@
   },
   "ModLoaderCards": {
     "installed": "已安装",
-    "unInstalled": "未安装"
+    "unInstalled": "未安装",
+    "notCompatibleWith": "与 {{modLoader}} 不兼容"
   },
   "NotFoundPage": {
     "text": "页面不存在，即将在 {{seconds}} 秒后跳转"

@@ -83,8 +83,9 @@ const InstanceModsPage = () => {
     <>
       <Section title={t("InstanceModsPage.modLoaderList.title")} isAccordion>
         <ModLoaderCards
-          installedType={summary?.modLoader.type || "none"}
-          installedVersion={summary?.modLoader.version}
+          currentType={summary?.modLoader.type || "none"}
+          currentVersion={summary?.modLoader.version}
+          displayMode="entry"
         />
       </Section>
       <Section

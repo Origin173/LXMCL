@@ -33,7 +33,7 @@ import {
 } from "@/components/common/option-item-virtual";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
-import { GameResourceInfo } from "@/models/resource";
+import { GameResourceInfo, gameTypesToIcon } from "@/models/resource";
 import { ISOToDatetime } from "@/utils/datetime";
 
 interface GameVersionSelectorProps extends BoxProps {
@@ -49,13 +49,6 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const gameTypes: Record<string, string> = useMemo(() => {
-    return {
-      release: "GrassBlock.png",
-      snapshot: "CommandBlock.png",
-      old_beta: "StoneOldBeta.png",
-    };
-  }, []);
 
   const [versions, setVersions] = useState<GameResourceInfo[]>([]);
   const [counts, setCounts] = useState<Map<string, number>>();
@@ -125,7 +118,7 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
       <HStack spacing={2.5}>
         <Radio value={version.id} colorScheme={primaryColor} />
         <Image
-          src={`/images/icons/${gameTypes[version.type]}`}
+          src={`/images/icons/${gameTypesToIcon[version.type]}`}
           alt={version.type}
           boxSize="28px"
           borderRadius="4px"
@@ -157,7 +150,7 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   const typeTogglers = useMemo(() => {
     return (
       <HStack spacing={4}>
-        {Object.keys(gameTypes).map((type) => (
+        {Object.keys(gameTypesToIcon).map((type) => (
           <Checkbox
             key={type}
             isChecked={selectedTypes.has(type)}
@@ -177,19 +170,12 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
         ))}
       </HStack>
     );
-  }, [
-    defferedCounts,
-    gameTypes,
-    handleTypeToggle,
-    primaryColor,
-    selectedTypes,
-    t,
-  ]);
+  }, [defferedCounts, handleTypeToggle, primaryColor, selectedTypes, t]);
 
   const onVersionIdSelect = useCallback(
     (versionId: string) => {
-      let versions = defferedVersions.filter((v) => v.id === versionId);
-      if (versions.length > 0) onVersionSelect(versions[0]);
+      let _versions = defferedVersions.filter((v) => v.id === versionId);
+      if (_versions.length > 0) onVersionSelect(_versions[0]);
     },
     [defferedVersions, onVersionSelect]
   );

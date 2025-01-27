@@ -20,11 +20,12 @@ import {
   Text,
   useSteps,
 } from "@chakra-ui/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GameVersionSelector from "@/components/game-version-selector";
 import { useLauncherConfig } from "@/contexts/config";
-import { GameResourceInfo } from "@/models/resource";
+import { GameResourceInfo, ModLoaderResourceInfo } from "@/models/resource";
+import { ModLoaderSelector } from "../mod-loader-selector";
 
 export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   ...modalProps
@@ -38,33 +39,62 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     count: 3,
   });
 
-  const [selectedVersion, setSelectedVersion] = useState<GameResourceInfo>();
+  const [selectedGameVersion, setSelectedGameVersion] =
+    useState<GameResourceInfo>();
+  const [stepTitles, setStepTitles] = useState<string[]>(["", "", ""]);
+  const [instanceName, setInstanceName] = useState("");
+  const [selectedModLoaderVersion, setSelectedModLoaderVersion] =
+    useState<ModLoaderResourceInfo>({
+      type: "none",
+      version: "",
+      stable: false,
+    });
 
   const Step1Content = useMemo(() => {
     return (
       <>
         <ModalBody>
           <GameVersionSelector
-            selectedVersion={selectedVersion}
-            onVersionSelect={setSelectedVersion}
+            selectedVersion={selectedGameVersion}
+            onVersionSelect={setSelectedGameVersion}
           />
         </ModalBody>
         <ModalFooter mt={1}>
           <Button variant="ghost" onClick={modalProps.onClose}>
             {t("General.cancel")}
           </Button>
-          <Button colorScheme={primaryColor} onClick={() => setActiveStep(1)}>
+          <Button
+            disabled={!selectedGameVersion}
+            colorScheme={primaryColor}
+            onClick={() => {
+              selectedGameVersion &&
+                setStepTitles((prev) => [
+                  `${selectedGameVersion.id} ${t(`GameVersionSelector.${selectedGameVersion.type}`)}`,
+                  prev[1],
+                  prev[2],
+                ]);
+              setActiveStep(1);
+            }}
+          >
             {t("General.next")}
           </Button>
         </ModalFooter>
       </>
     );
-  }, [modalProps.onClose, primaryColor, selectedVersion, setActiveStep, t]);
+  }, [modalProps.onClose, primaryColor, selectedGameVersion, setActiveStep, t]);
 
-  const Step2Content = () => {
+  const Step2Content = useMemo(() => {
     return (
       <>
-        <ModalBody>Step2 TBD</ModalBody>
+        <ModalBody>
+          {selectedGameVersion && (
+            <ModLoaderSelector
+              selectedGameVersion={selectedGameVersion}
+              selectedModLoaderVersion={selectedModLoaderVersion}
+              onSelectModLoaderVersion={setSelectedModLoaderVersion}
+            />
+          )}
+        </ModalBody>
         <ModalFooter>
           <Button variant="ghost" onClick={modalProps.onClose}>
             {t("General.cancel")}
@@ -78,9 +108,16 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
         </ModalFooter>
       </>
     );
-  };
+  }, [
+    modalProps.onClose,
+    primaryColor,
+    selectedGameVersion,
+    selectedModLoaderVersion,
+    setActiveStep,
+    t,
+  ]);
 
-  const Step3Content = () => {
+  const Step3Content = useMemo(() => {
     return (
       <>
         <ModalBody>Step3 TBD</ModalBody>
@@ -97,22 +134,33 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
         </ModalFooter>
       </>
     );
-  };
+  }, [modalProps.onClose, primaryColor, setActiveStep, t]);
 
-  const steps = [
-    {
-      key: "game",
-      content: Step1Content,
-    },
-    {
-      key: "loader",
-      content: <Step2Content />,
-    },
-    {
-      key: "info",
-      content: <Step3Content />,
-    },
-  ];
+  const steps = useMemo(
+    () => [
+      {
+        key: "game",
+        content: Step1Content,
+      },
+      {
+        key: "loader",
+        content: Step2Content,
+      },
+      {
+        key: "info",
+        content: Step3Content,
+      },
+    ],
+    [Step1Content, Step2Content, Step3Content]
+  );
+
+  useEffect(() => {
+    setStepTitles(
+      ["game", "loader", "info"].map((step) =>
+        t(`CreateInstanceModal.stepper.${step}`)
+      )
+    );
+  }, [t]);
 
   return (
     <Modal
@@ -131,7 +179,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
             w="80%"
             my={1.5}
           >
-            {steps.map((step, index) => (
+            {steps.map((_, index) => (
               <Step key={index}>
                 <StepIndicator>
                   <StepStatus
@@ -141,7 +189,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
                   />
                 </StepIndicator>
                 <Text fontSize="sm" className="no-select">
-                  {t(`CreateInstanceModal.stepper.${step.key}`)}
+                  {stepTitles[index]}
                 </Text>
                 <StepSeparator />
               </Step>
