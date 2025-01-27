@@ -20,10 +20,9 @@ import {
   StepStatus,
   StepTitle,
   Stepper,
-  Text,
   useSteps,
 } from "@chakra-ui/react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GameVersionSelector from "@/components/game-version-selector";
 import { ModLoaderSelector } from "@/components/mod-loader-selector";
@@ -49,7 +48,6 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     "",
     "",
   ]);
-  const [instanceName, setInstanceName] = useState("");
   const [selectedModLoaderVersion, setSelectedModLoaderVersion] =
     useState<ModLoaderResourceInfo>({
       type: "none",
@@ -112,6 +110,9 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
           <Button
             colorScheme={primaryColor}
             onClick={() => {
+              if (!selectedModLoaderVersion.version) {
+                selectedModLoaderVersion.type = "none";
+              }
               setStepDescriptions((prev) => [
                 prev[0],
                 `${selectedModLoaderVersion.type} ${selectedModLoaderVersion.version}`,
