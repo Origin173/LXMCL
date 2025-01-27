@@ -4,3 +4,12 @@ export interface GameResourceInfo {
   releaseTime: string;
   url: string;
 }
+
+export type ModLoaderType = "none" | "Fabric" | "Forge" | "NeoForge";
+
+export interface ModLoaderResourceInfo {
+  type: ModLoaderType;
+  version: string;
+  description?: string;
+  stable: boolean;
+}

@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Center,
   Flex,
@@ -11,20 +12,22 @@ import {
   ModalOverlay,
   ModalProps,
   Step,
+  StepDescription,
   StepIcon,
   StepIndicator,
   StepNumber,
   StepSeparator,
   StepStatus,
+  StepTitle,
   Stepper,
-  Text,
   useSteps,
 } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GameVersionSelector from "@/components/game-version-selector";
+import { ModLoaderSelector } from "@/components/mod-loader-selector";
 import { useLauncherConfig } from "@/contexts/config";
-import { GameResourceInfo } from "@/models/resource";
+import { GameResourceInfo, ModLoaderResourceInfo } from "@/models/resource";
 
 export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   ...modalProps
@@ -38,33 +41,54 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     count: 3,
   });
 
-  const [selectedVersion, setSelectedVersion] = useState<GameResourceInfo>();
+  const [selectedGameVersion, setSelectedGameVersion] =
+    useState<GameResourceInfo>();
+  const [selectedModLoader, setSelectedModLoader] =
+    useState<ModLoaderResourceInfo>({
+      type: "none",
+      version: "",
+      stable: false,
+    });
 
   const Step1Content = useMemo(() => {
     return (
       <>
         <ModalBody>
           <GameVersionSelector
-            selectedVersion={selectedVersion}
-            onVersionSelect={setSelectedVersion}
+            selectedVersion={selectedGameVersion}
+            onVersionSelect={setSelectedGameVersion}
           />
         </ModalBody>
         <ModalFooter mt={1}>
           <Button variant="ghost" onClick={modalProps.onClose}>
             {t("General.cancel")}
           </Button>
-          <Button colorScheme={primaryColor} onClick={() => setActiveStep(1)}>
+          <Button
+            disabled={!selectedGameVersion}
+            colorScheme={primaryColor}
+            onClick={() => {
+              setActiveStep(1);
+            }}
+          >
             {t("General.next")}
           </Button>
         </ModalFooter>
       </>
     );
-  }, [modalProps.onClose, primaryColor, selectedVersion, setActiveStep, t]);
+  }, [modalProps.onClose, primaryColor, selectedGameVersion, setActiveStep, t]);
 
-  const Step2Content = () => {
+  const Step2Content = useMemo(() => {
     return (
       <>
-        <ModalBody>Step2 TBD</ModalBody>
+        <ModalBody>
+          {selectedGameVersion && (
+            <ModLoaderSelector
+              selectedGameVersion={selectedGameVersion}
+              selectedModLoader={selectedModLoader}
+              onSelectModLoader={setSelectedModLoader}
+            />
+          )}
+        </ModalBody>
         <ModalFooter>
           <Button variant="ghost" onClick={modalProps.onClose}>
             {t("General.cancel")}
@@ -72,15 +96,34 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
           <Button variant="ghost" onClick={() => setActiveStep(0)}>
             {t("General.previous")}
           </Button>
-          <Button colorScheme={primaryColor} onClick={() => setActiveStep(2)}>
+          <Button
+            colorScheme={primaryColor}
+            onClick={() => {
+              if (!selectedModLoader.version) {
+                setSelectedModLoader({
+                  type: "none",
+                  version: "",
+                  stable: false,
+                });
+              }
+              setActiveStep(2);
+            }}
+          >
             {t("General.next")}
           </Button>
         </ModalFooter>
       </>
     );
-  };
+  }, [
+    modalProps.onClose,
+    primaryColor,
+    selectedGameVersion,
+    selectedModLoader,
+    setActiveStep,
+    t,
+  ]);
 
-  const Step3Content = () => {
+  const Step3Content = useMemo(() => {
     return (
       <>
         <ModalBody>Step3 TBD</ModalBody>
@@ -97,22 +140,38 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
         </ModalFooter>
       </>
     );
-  };
+  }, [modalProps.onClose, primaryColor, setActiveStep, t]);
 
-  const steps = [
-    {
-      key: "game",
-      content: Step1Content,
-    },
-    {
-      key: "loader",
-      content: <Step2Content />,
-    },
-    {
-      key: "info",
-      content: <Step3Content />,
-    },
-  ];
+  const steps = useMemo(
+    () => [
+      {
+        key: "game",
+        content: Step1Content,
+        description:
+          selectedGameVersion &&
+          `${selectedGameVersion.id} ${t(`GameVersionSelector.${selectedGameVersion.type}`)}`,
+      },
+      {
+        key: "loader",
+        content: Step2Content,
+        description: `${selectedModLoader.type} ${selectedModLoader.version}`,
+      },
+      {
+        key: "info",
+        content: Step3Content,
+        description: "",
+      },
+    ],
+    [
+      Step1Content,
+      Step2Content,
+      Step3Content,
+      selectedGameVersion,
+      selectedModLoader.type,
+      selectedModLoader.version,
+      t,
+    ]
+  );
 
   return (
     <Modal
@@ -140,9 +199,14 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
                     active={<StepNumber />}
                   />
                 </StepIndicator>
-                <Text fontSize="sm" className="no-select">
-                  {t(`CreateInstanceModal.stepper.${step.key}`)}
-                </Text>
+                <Box flexShrink="0">
+                  <StepTitle fontSize="sm">
+                    {t(`CreateInstanceModal.stepper.${step.key}`)}
+                  </StepTitle>
+                  <StepDescription fontSize="xs">
+                    {index < activeStep && step.description}
+                  </StepDescription>
+                </Box>
                 <StepSeparator />
               </Step>
             ))}
@@ -154,4 +218,10 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
       </ModalContent>
     </Modal>
   );
+};
+
+export const gameTypesToIcon: Record<string, string> = {
+  release: "GrassBlock.png",
+  snapshot: "CommandBlock.png",
+  old_beta: "StoneOldBeta.png",
 };

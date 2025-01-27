@@ -566,7 +566,13 @@
   },
   "ModLoaderCards": {
     "installed": "Installed",
-    "unInstalled": "Not Installed"
+    "unInstalled": "Not Installed",
+    "notCompatibleWith": "Not compatible with {{modLoader}}"
+  },
+  "ModLoaderSelector": {
+    "stable": "Stable",
+    "beta": "Beta",
+    "releaseDate": "Released at {{date}}"
   },
   "NotFoundPage": {
     "text": "Page not found, redirecting to launch page in {{seconds}} seconds..."
