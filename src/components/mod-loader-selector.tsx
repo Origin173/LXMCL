@@ -28,20 +28,20 @@ import { ISOToDatetime } from "@/utils/datetime";
 
 interface ModLoaderSelectorProps {
   selectedGameVersion: GameResourceInfo;
-  selectedModLoaderVersion: ModLoaderResourceInfo;
-  onSelectModLoaderVersion: (v: ModLoaderResourceInfo) => void;
+  selectedModLoader: ModLoaderResourceInfo;
+  onSelectModLoader: (v: ModLoaderResourceInfo) => void;
 }
 
 export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
   selectedGameVersion,
-  selectedModLoaderVersion,
-  onSelectModLoaderVersion,
+  selectedModLoader,
+  onSelectModLoader,
   ...props
 }) => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const [versions, setVersions] = useState<ModLoaderResourceInfo[]>([]);
+  const [modLoaders, setModLoaders] = useState<ModLoaderResourceInfo[]>([]);
   const [loading, setLoading] = useState(false);
 
   const modLoaderTypesToIcon = useMemo(
@@ -57,14 +57,14 @@ export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
   const fetchVersions = useCallback(async () => {
     setLoading(true);
     try {
-      switch (selectedModLoaderVersion.type) {
+      switch (selectedModLoader.type) {
         case "Fabric": {
           let data = await new Promise<any[]>((resolve) => {
             setTimeout(() => {
               resolve(mockFabricVersions);
             }, 1000);
           });
-          setVersions(
+          setModLoaders(
             data.map((v: any) => ({
               type: "Fabric",
               version: v.loader.version,
@@ -79,7 +79,7 @@ export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
               resolve(mockForgeVersions);
             }, 1000);
           });
-          setVersions(
+          setModLoaders(
             data.map((v: any) => ({
               type: "Forge",
               version: v.version,
@@ -97,7 +97,7 @@ export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
               resolve(mockNeoForgeVersions);
             }, 1000);
           });
-          setVersions(
+          setModLoaders(
             data.map((v: any) => ({
               type: "NeoForge",
               version: v.version,
@@ -107,27 +107,29 @@ export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
           break;
         }
         default:
-          setVersions([]);
+          setModLoaders([]);
           break;
       }
     } catch (e) {
-      setVersions([]);
+      setModLoaders([]);
     }
     setLoading(false);
-  }, [selectedModLoaderVersion.type, t]);
+  }, [selectedModLoader.type, t]);
 
   useEffect(() => {
     fetchVersions();
   }, [fetchVersions]);
 
-  const onSelectModLoaderVersionName = useCallback(
+  const onSelectModLoaderVersion = useCallback(
     (version: string) => {
-      let _versions = versions.filter((v) => v.version === version);
-      if (_versions.length > 0) {
-        onSelectModLoaderVersion(_versions[0]);
+      let _modLoaders = modLoaders.filter(
+        (loader) => loader.version === version
+      );
+      if (_modLoaders.length > 0) {
+        onSelectModLoader(_modLoaders[0]);
       }
     },
-    [versions, onSelectModLoaderVersion]
+    [modLoaders, onSelectModLoader]
   );
 
   const buildOptionItems = useCallback(
@@ -158,12 +160,12 @@ export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
   return (
     <VStack {...props} w="100%" h="100%">
       <ModLoaderCards
-        currentType={selectedModLoaderVersion.type}
-        currentVersion={selectedModLoaderVersion.version}
+        currentType={selectedModLoader.type}
+        currentVersion={selectedModLoader.version}
         displayMode="selector"
         onTypeSelect={(type) => {
-          if (type !== selectedModLoaderVersion.type) {
-            onSelectModLoaderVersion({
+          if (type !== selectedModLoader.type) {
+            onSelectModLoader({
               type,
               version: "",
               stable: false,
@@ -178,17 +180,17 @@ export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
           <Center>
             <BeatLoader size={16} color="gray" />
           </Center>
-        ) : versions.length === 0 ? (
+        ) : modLoaders.length === 0 ? (
           <Empty withIcon={false} size="sm" />
         ) : (
           <RadioGroup
-            value={selectedModLoaderVersion?.version || ""}
-            onChange={onSelectModLoaderVersionName}
+            value={selectedModLoader?.version || ""}
+            onChange={onSelectModLoaderVersion}
             h="100%"
           >
             <VirtualOptionItemGroup
               h="100%"
-              items={versions.map(buildOptionItems)}
+              items={modLoaders.map(buildOptionItems)}
             />
           </RadioGroup>
         )}

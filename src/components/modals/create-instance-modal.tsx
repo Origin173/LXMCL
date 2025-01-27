@@ -43,12 +43,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
 
   const [selectedGameVersion, setSelectedGameVersion] =
     useState<GameResourceInfo>();
-  const [stepDescriptions, setStepDescriptions] = useState<string[]>([
-    "",
-    "",
-    "",
-  ]);
-  const [selectedModLoaderVersion, setSelectedModLoaderVersion] =
+  const [selectedModLoader, setSelectedModLoader] =
     useState<ModLoaderResourceInfo>({
       type: "none",
       version: "",
@@ -72,12 +67,6 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
             disabled={!selectedGameVersion}
             colorScheme={primaryColor}
             onClick={() => {
-              selectedGameVersion &&
-                setStepDescriptions((prev) => [
-                  `${selectedGameVersion.id} ${t(`GameVersionSelector.${selectedGameVersion.type}`)}`,
-                  prev[1],
-                  prev[2],
-                ]);
               setActiveStep(1);
             }}
           >
@@ -95,8 +84,8 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
           {selectedGameVersion && (
             <ModLoaderSelector
               selectedGameVersion={selectedGameVersion}
-              selectedModLoaderVersion={selectedModLoaderVersion}
-              onSelectModLoaderVersion={setSelectedModLoaderVersion}
+              selectedModLoader={selectedModLoader}
+              onSelectModLoader={setSelectedModLoader}
             />
           )}
         </ModalBody>
@@ -110,14 +99,13 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
           <Button
             colorScheme={primaryColor}
             onClick={() => {
-              if (!selectedModLoaderVersion.version) {
-                selectedModLoaderVersion.type = "none";
+              if (!selectedModLoader.version) {
+                setSelectedModLoader({
+                  type: "none",
+                  version: "",
+                  stable: false,
+                });
               }
-              setStepDescriptions((prev) => [
-                prev[0],
-                `${selectedModLoaderVersion.type} ${selectedModLoaderVersion.version}`,
-                prev[2],
-              ]);
               setActiveStep(2);
             }}
           >
@@ -130,7 +118,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     modalProps.onClose,
     primaryColor,
     selectedGameVersion,
-    selectedModLoaderVersion,
+    selectedModLoader,
     setActiveStep,
     t,
   ]);
@@ -159,17 +147,30 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
       {
         key: "game",
         content: Step1Content,
+        description:
+          selectedGameVersion &&
+          `${selectedGameVersion.id} ${t(`GameVersionSelector.${selectedGameVersion.type}`)}`,
       },
       {
         key: "loader",
         content: Step2Content,
+        description: `${selectedModLoader.type} ${selectedModLoader.version}`,
       },
       {
         key: "info",
         content: Step3Content,
+        description: "",
       },
     ],
-    [Step1Content, Step2Content, Step3Content]
+    [
+      Step1Content,
+      Step2Content,
+      Step3Content,
+      selectedGameVersion,
+      selectedModLoader.type,
+      selectedModLoader.version,
+      t,
+    ]
   );
 
   return (
@@ -203,7 +204,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
                     {t(`CreateInstanceModal.stepper.${step.key}`)}
                   </StepTitle>
                   <StepDescription fontSize="xs">
-                    {stepDescriptions[index]}
+                    {index < activeStep && step.description}
                   </StepDescription>
                 </Box>
                 <StepSeparator />
@@ -217,4 +218,10 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
       </ModalContent>
     </Modal>
   );
+};
+
+export const gameTypesToIcon: Record<string, string> = {
+  release: "GrassBlock.png",
+  snapshot: "CommandBlock.png",
+  old_beta: "StoneOldBeta.png",
 };

@@ -32,8 +32,9 @@ import {
   VirtualOptionItemGroup,
 } from "@/components/common/option-item-virtual";
 import { Section } from "@/components/common/section";
+import { gameTypesToIcon } from "@/components/modals/create-instance-modal";
 import { useLauncherConfig } from "@/contexts/config";
-import { GameResourceInfo, gameTypesToIcon } from "@/models/resource";
+import { GameResourceInfo } from "@/models/resource";
 import { ISOToDatetime } from "@/utils/datetime";
 
 interface GameVersionSelectorProps extends BoxProps {
