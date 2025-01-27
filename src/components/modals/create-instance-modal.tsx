@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Center,
   Flex,
@@ -11,11 +12,13 @@ import {
   ModalOverlay,
   ModalProps,
   Step,
+  StepDescription,
   StepIcon,
   StepIndicator,
   StepNumber,
   StepSeparator,
   StepStatus,
+  StepTitle,
   Stepper,
   Text,
   useSteps,
@@ -23,9 +26,9 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GameVersionSelector from "@/components/game-version-selector";
+import { ModLoaderSelector } from "@/components/mod-loader-selector";
 import { useLauncherConfig } from "@/contexts/config";
 import { GameResourceInfo, ModLoaderResourceInfo } from "@/models/resource";
-import { ModLoaderSelector } from "../mod-loader-selector";
 
 export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   ...modalProps
@@ -41,7 +44,11 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
 
   const [selectedGameVersion, setSelectedGameVersion] =
     useState<GameResourceInfo>();
-  const [stepTitles, setStepTitles] = useState<string[]>(["", "", ""]);
+  const [stepDescriptions, setStepDescriptions] = useState<string[]>([
+    "",
+    "",
+    "",
+  ]);
   const [instanceName, setInstanceName] = useState("");
   const [selectedModLoaderVersion, setSelectedModLoaderVersion] =
     useState<ModLoaderResourceInfo>({
@@ -68,7 +75,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
             colorScheme={primaryColor}
             onClick={() => {
               selectedGameVersion &&
-                setStepTitles((prev) => [
+                setStepDescriptions((prev) => [
                   `${selectedGameVersion.id} ${t(`GameVersionSelector.${selectedGameVersion.type}`)}`,
                   prev[1],
                   prev[2],
@@ -102,7 +109,17 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
           <Button variant="ghost" onClick={() => setActiveStep(0)}>
             {t("General.previous")}
           </Button>
-          <Button colorScheme={primaryColor} onClick={() => setActiveStep(2)}>
+          <Button
+            colorScheme={primaryColor}
+            onClick={() => {
+              setStepDescriptions((prev) => [
+                prev[0],
+                `${selectedModLoaderVersion.type} ${selectedModLoaderVersion.version}`,
+                prev[2],
+              ]);
+              setActiveStep(2);
+            }}
+          >
             {t("General.next")}
           </Button>
         </ModalFooter>
@@ -154,14 +171,6 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     [Step1Content, Step2Content, Step3Content]
   );
 
-  useEffect(() => {
-    setStepTitles(
-      ["game", "loader", "info"].map((step) =>
-        t(`CreateInstanceModal.stepper.${step}`)
-      )
-    );
-  }, [t]);
-
   return (
     <Modal
       scrollBehavior="inside"
@@ -179,7 +188,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
             w="80%"
             my={1.5}
           >
-            {steps.map((_, index) => (
+            {steps.map((step, index) => (
               <Step key={index}>
                 <StepIndicator>
                   <StepStatus
@@ -188,9 +197,14 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
                     active={<StepNumber />}
                   />
                 </StepIndicator>
-                <Text fontSize="sm" className="no-select">
-                  {stepTitles[index]}
-                </Text>
+                <Box flexShrink="0">
+                  <StepTitle fontSize="sm">
+                    {t(`CreateInstanceModal.stepper.${step.key}`)}
+                  </StepTitle>
+                  <StepDescription fontSize="xs">
+                    {stepDescriptions[index]}
+                  </StepDescription>
+                </Box>
                 <StepSeparator />
               </Step>
             ))}

@@ -314,18 +314,6 @@
       "old_beta": "Java_Edition_Beta_"
     }
   },
-  "ModLoaderSelector": {
-    "stable": "Stable",
-    "beta": "Beta",
-    "releaseDate": "Released at {{date}}"
-  },
-  "GameSettingsSelector": {
-    "instanceName": {
-      "label": "Instance Name",
-      "placeholder": "Please input instance name",
-      "errorMessage": "Instance name cannot be empty."
-    }
-  },
   "General": {
     "cancel": "Cancel",
     "close": "Close",
@@ -574,6 +562,11 @@
     "installed": "Installed",
     "unInstalled": "Not Installed",
     "notCompatibleWith": "Not compatible with {{modLoader}}"
+  },
+  "ModLoaderSelector": {
+    "stable": "Stable",
+    "beta": "Beta",
+    "releaseDate": "Released at {{date}}"
   },
   "NotFoundPage": {
     "text": "Page not found, redirecting to launch page in {{seconds}} seconds..."

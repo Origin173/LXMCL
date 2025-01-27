@@ -19,10 +19,3 @@ export interface ModLoaderResourceInfo {
   description?: string;
   stable: boolean;
 }
-
-export const modLoaderTypesToIcon: Record<ModLoaderType, string> = {
-  none: "",
-  Fabric: "Fabric.png",
-  Forge: "Forge.png",
-  NeoForge: "NeoForge.png",
-};

@@ -1,18 +1,13 @@
 import {
-  Card,
   Center,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
   HStack,
   Image,
-  Input,
   Radio,
   RadioGroup,
   Tag,
   VStack,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BeatLoader } from "react-spinners";
 import Empty from "@/components/common/empty";
@@ -28,11 +23,7 @@ import {
   mockForgeVersions,
   mockNeoForgeVersions,
 } from "@/models/mock/resource";
-import {
-  GameResourceInfo,
-  ModLoaderResourceInfo,
-  modLoaderTypesToIcon,
-} from "@/models/resource";
+import { GameResourceInfo, ModLoaderResourceInfo } from "@/models/resource";
 import { ISOToDatetime } from "@/utils/datetime";
 
 interface ModLoaderSelectorProps {
@@ -50,9 +41,18 @@ export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  // const instanceNameError = instanceName.length === 0;
   const [versions, setVersions] = useState<ModLoaderResourceInfo[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const modLoaderTypesToIcon = useMemo(
+    () => ({
+      none: "",
+      Fabric: "Fabric.png",
+      Forge: "Forge.png",
+      NeoForge: "NeoForge.png",
+    }),
+    []
+  );
 
   const fetchVersions = useCallback(async () => {
     setLoading(true);
@@ -152,38 +152,11 @@ export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
       ),
       children: <></>,
     }),
-    [primaryColor, t]
+    [modLoaderTypesToIcon, primaryColor, t]
   );
 
   return (
     <VStack {...props} w="100%" h="100%">
-      {/* <Card className="content-card" pr={1.5} w="100%">
-        <HStack spacing={2.5}>
-          <Image
-            src={`/images/icons/${gameTypesToIcon[selectedGameVersion.type]}`}
-            alt={selectedGameVersion.type}
-            boxSize="28px"
-            borderRadius="4px"
-          />
-          <FormControl isInvalid={instanceNameError}>
-            <FormLabel fontSize="xs">
-              {t("ModLoaderSelector.instanceName.label")}
-            </FormLabel>
-            <Input
-              fontSize="xs-sm"
-              value={instanceName}
-              onChange={(e) => setInstanceName(e.target.value)}
-              placeholder={t("ModLoaderSelector.instanceName.placeholder")}
-            />
-            {instanceNameError && (
-              <FormErrorMessage fontSize="xs">
-                {t("ModLoaderSelector.instanceName.errorMessage")}
-              </FormErrorMessage>
-            )}
-          </FormControl>
-        </HStack>
-      </Card> */}
-
       <ModLoaderCards
         currentType={selectedModLoaderVersion.type}
         currentVersion={selectedModLoaderVersion.version}
