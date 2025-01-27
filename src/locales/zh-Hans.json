@@ -225,6 +225,75 @@
       "online": "在线"
     }
   },
+  "DownloadResourceModal": {
+    "header": {
+      "title": "下载资源"
+    },
+    "label": {
+      "source": "下载源",
+      "version": "游戏版本",
+      "type": "类型",
+      "sortedBy": "排序",
+      "name": "名称"
+    },
+    "button": {
+      "search": "搜索"
+    },
+    "resourceTypeList": {
+      "world": "世界",
+      "mod": "模组",
+      "resourcepack": "资源包",
+      "shaderpack": "光影"
+    },
+    "modTypeList": {
+      "all": "全部模组",
+      "world": "世界生成",
+      "technology": "科技",
+      "magic": "魔法",
+      "adventure": "冒险",
+      "utility": "实用",
+      "storage": "存储",
+      "creatures": "生物",
+      "equipment": "工具&装备",
+      "food": "食物",
+      "building": "建筑",
+      "redstone": "红石",
+      "decoration": "装饰",
+      "support": "支持库",
+      "other": "其他"
+    },
+    "worldTypeList": {
+      "all": "全部世界",
+      "survival": "生存",
+      "architecture": "建筑",
+      "parkour": "跑酷",
+      "puzzle": "解谜",
+      "minigame": "小游戏",
+      "pvp": "PvP",
+      "other": "其他"
+    },
+    "resourcepackTypeList": {
+      "all": "全部资源包",
+      "realistic": "写实",
+      "cartoon": "动画",
+      "simple": "简约",
+      "fantasy": "奇幻",
+      "modern": "现代",
+      "medieval": "中世纪",
+      "other": "其他"
+    },
+    "shaderpackTypeList": {
+      "all": "全部光影",
+      "realistic": "写实",
+      "fantasy": "梦幻"
+    },
+    "sortedByList": {
+      "downloads": "下载量",
+      "updated": "更新时间",
+      "created": "创建时间",
+      "name": "名称"
+    }
+  },
   "DownloadSettingPage": {
     "source": {
       "title": "源",
@@ -528,11 +597,11 @@
       }
     }
   },
-  "JavaSettingsPage":{
-    "javaList":{
-      "title":"Java 管理",
-      "download":"下载 Java",
-      "add":"添加 Java"
+  "JavaSettingsPage": {
+    "javaList": {
+      "title": "Java 管理",
+      "download": "下载 Java",
+      "add": "添加 Java"
     }
   },
   "LaunchPage": {
@@ -728,7 +797,7 @@
         }
       }
     },
-    "wiki":{
+    "wiki": {
       "baseUrl": "https://zh.minecraft.wiki/w/"
     }
   },

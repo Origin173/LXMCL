@@ -225,6 +225,75 @@
       "online": "Online"
     }
   },
+  "DownloadResourceModal": {
+    "header": {
+      "title": "Download Resource"
+    },
+    "label": {
+      "source": "Source",
+      "version": "Game Version",
+      "type": "Type",
+      "sortedBy": "Sorted By",
+      "name": "Name"
+    },
+    "button": {
+      "search": "Search"
+    },
+    "resourceTypeList": {
+      "world": "Worlds",
+      "mod": "Mods",
+      "resourcepack": "Resourcepacks",
+      "shaderpack": "Shaderpacks"
+    },
+    "modTypeList": {
+      "all": "All Mods",
+      "world": "World Generation",
+      "technology": "Technology",
+      "magic": "Magic",
+      "adventure": "Adventure",
+      "utility": "Utility",
+      "storage": "Storage",
+      "creatures": "Creatures",
+      "equipment": "Tools & Equipment",
+      "food": "Food",
+      "building": "Building",
+      "redstone": "Redstone",
+      "decoration": "Decoration",
+      "support": "Support",
+      "other": "Other"
+    },
+    "worldTypeList": {
+      "all": "All Worlds",
+      "survival": "Survival",
+      "architecture": "Architecture",
+      "parkour": "Parkour",
+      "puzzle": "Puzzle",
+      "minigame": "Mini-game",
+      "pvp": "PvP",
+      "other": "Other"
+    },
+    "resourcepackTypeList": {
+      "all": "All Resourcepacks",
+      "realistic": "Realistic",
+      "cartoon": "Cartoon",
+      "simple": "Simple",
+      "fantasy": "Fantasy",
+      "modern": "Modern",
+      "medieval": "Medieval",
+      "other": "Other"
+    },
+    "shaderpackTypeList": {
+      "all": "All Shaderpacks",
+      "realistic": "Realistic",
+      "fantasy": "Fantasy"
+    },
+    "sortedByList": {
+      "downloads": "Downloads",
+      "updated": "Updated",
+      "created": "Created",
+      "name": "Name"
+    }
+  },
   "DownloadSettingPage": {
     "source": {
       "title": "Source",
@@ -528,11 +597,11 @@
       }
     }
   },
-  "JavaSettingsPage":{
-    "javaList":{
-      "title":"Java Management",
-      "download":"Download Java",
-      "add":"Add Java"
+  "JavaSettingsPage": {
+    "javaList": {
+      "title": "Java Management",
+      "download": "Download Java",
+      "add": "Add Java"
     }
   },
   "LaunchPage": {
