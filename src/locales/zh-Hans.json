@@ -294,29 +294,25 @@
     }
   },
   "GameErrorPage": {
-    "button": {
-      "exportGameInfo": "导出游戏崩溃信息",
-      "gameLogs": "游戏日志",
-      "help": "帮助"
-    },
-    "errorInfo": {
-      "crashReason": "崩溃原因",
-      "notice": "请不要将本界面截图给他人！如果你需要帮助，请点击左下角的“导出游戏崩溃信息”，将导出的文件发送给他人进行分析。你也可以点击下方的“帮助”加入交流群寻求帮助。检测到多个原因："
+    "title": "游戏非正常退出",
+    "basicInfo": {
+      "arch": "架构",
+      "launcherVersion": "启动器版本",
+      "os": "操作系统"
     },
     "gameInfo": {
-      "gamePath": "游戏路径",
-      "fabric": "Fabric 版本",
-      "minecraft": "Minecraft 版本"
+      "gameVersion": "游戏版本"
     },
-    "PCInfo": {
-      "architecture": "架构",
-      "gameMemory": "游戏内存",
-      "gameVersion": "游戏版本",
-      "java": "Java 版本",
-      "javaPath": "Java 路径",
-      "launcherVersion": "启动器版本",
-      "os": "操作系统",
-      "physicalMemory": "物理内存"
+    "javaInfo": {
+      "javaVersion": "Java 版本"
+    },
+    "crashDetails": {
+      "title": "崩溃信息"
+    },
+    "button": {
+      "exportGameInfo": "导出游戏崩溃报告",
+      "gameLogs": "游戏日志",
+      "help": "帮助"
     }
   },
   "GameLogPage": {

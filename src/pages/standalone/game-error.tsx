@@ -1,121 +1,144 @@
 import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  Box,
   Button,
-  Divider,
+  Flex,
   HStack,
+  IconButton,
   Stat,
-  StatLabel,
   StatNumber,
+  StatProps,
+  Text,
+  Tooltip,
   VStack,
 } from "@chakra-ui/react";
-import { arch, platform } from "@tauri-apps/plugin-os";
+import { arch, platform, version } from "@tauri-apps/plugin-os";
+import { open } from "@tauri-apps/plugin-shell";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { LuFolderOpen } from "react-icons/lu";
 import { useLauncherConfig } from "@/contexts/config";
+import { capitalizeFirstLetter } from "@/utils/string";
 
 const GameErrorPage: React.FC = () => {
+  const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const { t } = useTranslation();
-  const [os, setOs] = useState<string | null>(null);
-  const [architecture, setArchitecture] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchInfo = async () => {
-      const platformInfo = await platform();
-      const archInfo = await arch();
-      setOs(
-        platformInfo
-          .replace("bsd", "BSD")
-          .replace(/\w/, (match) => match.toUpperCase())
-          .replace("Macos", "macOS")
-      );
-      setArchitecture(archInfo);
-    };
-    fetchInfo();
-  }, []);
+  const [basicInfoParams, setBasicInfoParams] = useState(
+    new Map<string, string>()
+  );
 
-  const BasicInfo = {
-    launcherVersion: config.version,
-    os: os,
-    architecture: architecture,
+  const platformName = () => {
+    let name = platform().replace("os", "OS").replace("bsd", "BSD");
+    return name.includes("OS") ? name : capitalizeFirstLetter(name);
   };
 
-  const PCInfo = [
-    { label: "launcherVersion", value: BasicInfo.launcherVersion },
-    { label: "gameVersion", value: "1.20.1 Fabric" },
-    { label: "physicalMemory", value: "16274 MB" },
-    { label: "gameMemory", value: "6518 MB" },
-    { label: "java", value: "21.0.3" },
-    { label: "os", value: BasicInfo.os },
-    { label: "architecture", value: BasicInfo.architecture },
-  ];
+  useEffect(() => {
+    // construct info maps
+    let infoList = new Map<string, string>();
+    infoList.set("launcherVersion", config.version);
+    infoList.set("os", `${platformName()} ${version()}`);
+    infoList.set("arch", arch());
+    setBasicInfoParams(infoList);
+  }, [config.version]);
 
-  const gameInfo = [
-    { label: "minecraft", value: "1.20.1" },
-    { label: "fabric", value: "0.15.6" },
-  ];
+  const renderStats = ({
+    title,
+    value,
+    helper,
+    ...props
+  }: {
+    title: string;
+    value: string;
+    helper?: string | React.ReactNode;
+  } & StatProps) => {
+    return (
+      <Stat {...props}>
+        <Text fontSize="xs-sm">{title}</Text>
+        <StatNumber fontSize="xl">{value}</StatNumber>
+        {typeof helper === "string" ? (
+          <Text className="secondary-text" fontSize="sm">
+            {helper}
+          </Text>
+        ) : (
+          helper
+        )}
+      </Stat>
+    );
+  };
 
   return (
-    <VStack align="stretch" spacing={6} w="full" p={6}>
-      <HStack justify="space-between" spacing={6}>
-        {PCInfo.map((item, index) => (
-          <Stat key={index}>
-            <StatLabel fontWeight="bold" fontSize="md">
-              {t(`GameErrorPage.PCInfo.${item.label}`)}
-            </StatLabel>
-            <StatNumber fontWeight="normal" fontSize="sm">
-              {item.value}
-            </StatNumber>
-          </Stat>
-        ))}
-      </HStack>
-      <Divider />
+    <Flex direction="column" h="100vh">
+      <Alert status="error">
+        <AlertIcon />
+        <AlertTitle fontSize="md">{t("GameErrorPage.title")}</AlertTitle>
+      </Alert>
+      <Box flex="1" overflowY="auto">
+        <VStack align="stretch" spacing={4} p={4} pb={0}>
+          <HStack>
+            {[...basicInfoParams.entries()].map(([title, value]) =>
+              renderStats({
+                title: t(`GameErrorPage.basicInfo.${title}`),
+                value,
+                key: title,
+              })
+            )}
+          </HStack>
 
-      <HStack justify="flex-start">
-        {gameInfo.map((item, index) => (
-          <Stat key={index} textAlign="left">
-            <StatLabel fontWeight="bold" fontSize="md">
-              {t(`GameErrorPage.gameInfo.${item.label}`)}
-            </StatLabel>
-            <StatNumber fontWeight="normal" fontSize="sm">
-              {item.value}
-            </StatNumber>
-          </Stat>
-        ))}
-      </HStack>
-      <Divider />
+          {renderStats({
+            title: t("GameErrorPage.gameInfo.gameVersion"),
+            value: "1.20.4 + Fabric 0.15.11", // TBD
+            helper: (
+              <HStack spacing={1}>
+                <Text className="secondary-text" fontSize="sm">
+                  /mock/path/to/minecraft/
+                </Text>
+                <Tooltip label={t("General.openFolder")}>
+                  <IconButton
+                    aria-label={"open"}
+                    icon={<LuFolderOpen />}
+                    variant="ghost"
+                    size="sm"
+                    h={21}
+                    // onClick={() => {}} TBD
+                  />
+                </Tooltip>
+              </HStack>
+            ),
+          })}
+          {renderStats({
+            title: t("GameErrorPage.javaInfo.javaVersion"),
+            value: "JDK 21.0.3", // TBD
+            helper: (
+              <HStack spacing={1}>
+                <Text className="secondary-text" fontSize="sm">
+                  /mock/path/to/java/
+                </Text>
+                <Tooltip label={t("General.openFolder")}>
+                  <IconButton
+                    aria-label={"open"}
+                    icon={<LuFolderOpen />}
+                    variant="ghost"
+                    size="sm"
+                    h={21}
+                    // onClick={() => {}} TBD
+                  />
+                </Tooltip>
+              </HStack>
+            ),
+          })}
+          <VStack spacing={1} align="stretch">
+            <Text fontSize="xs-sm">
+              {t("GameErrorPage.crashDetails.title")}
+            </Text>
+          </VStack>
+        </VStack>
+      </Box>
 
-      <Stat>
-        <StatLabel fontWeight="bold" fontSize="md">
-          {t("GameErrorPage.gameInfo.gamePath")}
-        </StatLabel>
-        <StatNumber fontWeight="normal" fontSize="sm">
-          {"G:\\Minecraft\\.minecraft"}
-        </StatNumber>
-      </Stat>
-      <Divider />
-
-      <Stat>
-        <StatLabel fontWeight="bold" fontSize="md">
-          {t("GameErrorPage.PCInfo.javaPath")}
-        </StatLabel>
-        <StatNumber fontWeight="normal" fontSize="sm">
-          {"D:\\Program Files\\Zulu\\zulu-21\\bin\\java.exe"}
-        </StatNumber>
-      </Stat>
-      <Divider />
-
-      <Stat>
-        <StatLabel fontWeight="bold" fontSize="md">
-          {t("GameErrorPage.errorInfo.crashReason")}
-        </StatLabel>
-        <StatNumber fontWeight="normal" fontSize="sm">
-          {t("GameErrorPage.errorInfo.notice") +
-            "当前游戏因为代码不完整，无法继续运行。"}
-        </StatNumber>
-      </Stat>
-
-      <HStack justify="flex-start" position="sticky">
+      <HStack mt="auto" p={4}>
         <Button colorScheme={primaryColor} variant="solid">
           {t("GameErrorPage.button.exportGameInfo")}
         </Button>
@@ -126,7 +149,7 @@ const GameErrorPage: React.FC = () => {
           {t("GameErrorPage.button.help")}
         </Button>
       </HStack>
-    </VStack>
+    </Flex>
   );
 };
 
