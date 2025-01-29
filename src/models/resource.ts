@@ -12,7 +12,6 @@ export interface OtherResourceInfo {
   description: string;
   iconSrc: string;
   tags: string[];
-  version: string;
   lastUpdated: string;
   downloads: number;
   source?: string; // CurseForge, Modrinth, etc.

@@ -9,8 +9,10 @@ import {
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import ResourceDownloadList from "@/components/resource-download-list";
 import ResourceDownloadMenu from "@/components/resourse-download-menu";
 import { useLauncherConfig } from "@/contexts/config";
+import { mockDownloadResourceList } from "@/models/mock/resource";
 import { GameResourceInfo, OtherResourceInfo } from "@/models/resource";
 
 interface ResourceDownloadProps {
@@ -167,7 +169,7 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
         />
       </Flex>
 
-      <HStack gap={3}>
+      <HStack gap={3} mb={1}>
         <Text whiteSpace="nowrap" w={8} textAlign="right">
           {t("DownloadResourceModal.label.name")}
         </Text>
@@ -183,12 +185,15 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
           size="xs"
           onClick={() => {
             // TBD
+            setResourceList(mockDownloadResourceList);
           }}
           px={5}
         >
           {t("DownloadResourceModal.button.search")}
         </Button>
       </HStack>
+
+      <ResourceDownloadList list={resourceList} />
     </VStack>
   );
 };

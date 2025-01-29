@@ -79,11 +79,6 @@ export const DownloadResourceModal: React.FC<Omit<ModalProps, "children">> = ({
               resourceType={selectedResourceType}
             />
           </ModalBody>
-          <ModalFooter mt={1}>
-            <Button variant="ghost" onClick={modalProps.onClose}>
-              {t("General.cancel")}
-            </Button>
-          </ModalFooter>
         </Flex>
       </ModalContent>
     </Modal>
