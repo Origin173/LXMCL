@@ -514,6 +514,16 @@
       "title": "Shader Packs"
     }
   },
+  "InstanceWidgets": {
+    "basicInfo": {
+      "title": "Basic Info",
+      "gameVersion": "Version",
+      "playTime": "Playtime"
+    },
+    "screenshots": {
+      "title": "Screenshots"
+    }
+  },
   "InstanceWorldsPage": {
     "worldList": {
       "title": "Worlds",

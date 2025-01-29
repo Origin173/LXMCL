@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import SkinPreview from "@/components/common/skin-preview";
+import SkinPreview from "@/components/skin-preview";
 import { useLauncherConfig } from "@/contexts/config";
 
 export type SkinType = "default" | "steve" | "alex";

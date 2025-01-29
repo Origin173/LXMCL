@@ -19,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { LuChevronDown } from "react-icons/lu";
-import ChakraColorSelector from "@/components/common/chakra-color-selector";
+import ChakraColorSelector from "@/components/chakra-color-selector";
 import {
   OptionItemGroup,
   OptionItemGroupProps,

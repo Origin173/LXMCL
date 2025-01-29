@@ -165,6 +165,7 @@ export const WrapCardGroup: React.FC<WrapCardGroupProps> = ({
                 <WrapItem key={index}>
                   <WrapCard
                     {...item}
+                    overflow="hidden"
                     width={spannedWidth}
                     variant={variant}
                     {...(cardAspectRatio !== 0 && {

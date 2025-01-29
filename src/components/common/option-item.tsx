@@ -19,7 +19,7 @@ export interface OptionItemProps extends BoxProps {
   titleExtra?: React.ReactNode;
   description?: React.ReactNode;
   isLoading?: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   childrenOnHover?: boolean;
 }
 

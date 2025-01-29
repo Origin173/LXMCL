@@ -514,6 +514,16 @@
       "title": "光影包"
     }
   },
+  "InstanceWidgets": {
+    "basicInfo": {
+      "title": "基本信息",
+      "gameVersion": "游戏版本",
+      "playTime": "游戏时长"
+    },
+    "screenshots": {
+      "title": "截图"
+    }
+  },
   "InstanceWorldsPage": {
     "worldList": {
       "title": "本地世界",
