@@ -231,9 +231,9 @@
     },
     "label": {
       "source": "下载源",
-      "version": "游戏版本",
+      "gameVer": "游戏版本",
       "type": "类型",
-      "sortedBy": "排序",
+      "sort": "排序",
       "name": "名称"
     },
     "button": {
@@ -289,8 +289,8 @@
     },
     "sortedByList": {
       "downloads": "下载量",
-      "updated": "更新时间",
-      "created": "创建时间",
+      "update": "更新时间",
+      "creation": "创建时间",
       "name": "名称"
     }
   },

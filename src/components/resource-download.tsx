@@ -33,7 +33,7 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
   const [gameVersion, setGameVersion] = useState<string>("");
 
   const downloadSourceList = ["Curseforge", "Modrinth"];
-  const sortedByList = ["downloads", "updated", "created", "name"];
+  const sortedByList = ["downloads", "update", "creation", "name"];
   const [gameVersionList, setGameVersionList] = useState<string[]>([]);
 
   const modTypeList = [
@@ -129,7 +129,7 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
         />
 
         <ResourceDownloadMenu
-          label={t("DownloadResourceModal.label.version")}
+          label={t("DownloadResourceModal.label.gameVer")}
           displayText={gameVersion}
           onChange={setGameVersion}
           defaultValue={""}
@@ -155,7 +155,7 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
         />
 
         <ResourceDownloadMenu
-          label={t("DownloadResourceModal.label.sortedBy")}
+          label={t("DownloadResourceModal.label.sort")}
           displayText={t(`DownloadResourceModal.sortedByList.${sortedBy}`)}
           onChange={setSortedBy}
           defaultValue={"downloads"}

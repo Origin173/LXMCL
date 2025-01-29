@@ -231,9 +231,9 @@
     },
     "label": {
       "source": "Source",
-      "version": "Game Version",
+      "gameVer": "Game Ver.",
       "type": "Type",
-      "sortedBy": "Sorted By",
+      "sort": "Sorted by",
       "name": "Name"
     },
     "button": {
@@ -289,8 +289,8 @@
     },
     "sortedByList": {
       "downloads": "Downloads",
-      "updated": "Updated",
-      "created": "Created",
+      "update": "Update Time",
+      "creation": "Creation Time",
       "name": "Name"
     }
   },
