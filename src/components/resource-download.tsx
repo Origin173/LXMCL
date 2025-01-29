@@ -1,62 +1,17 @@
 import {
   Button,
-  FormControl,
-  FormLabel,
+  Flex,
   HStack,
   Input,
-  Menu,
-  MenuButton,
   MenuItemOption,
-  MenuList,
-  MenuOptionGroup,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuChevronDown } from "react-icons/lu";
+import ResourceDownloadMenu from "@/components/resourse-download-menu";
 import { useLauncherConfig } from "@/contexts/config";
 import { GameResourceInfo, OtherResourceInfo } from "@/models/resource";
-
-interface ResourceMenuProps {
-  displayText: string;
-  onChange: (value: string) => void;
-  defaultValue: string;
-  options: React.ReactNode;
-}
-
-const ResourceMenu: React.FC<ResourceMenuProps> = ({
-  displayText,
-  onChange,
-  defaultValue,
-  options,
-}) => {
-  return (
-    <Menu>
-      <MenuButton
-        as={Button}
-        size="sm"
-        w="auto"
-        variant="outline"
-        textAlign="left"
-        rightIcon={<LuChevronDown />}
-      >
-        {displayText}
-      </MenuButton>
-      <MenuList maxH="40vh" overflow="auto">
-        <MenuOptionGroup
-          defaultValue={defaultValue}
-          type="radio"
-          onChange={(value) => {
-            onChange(value as string);
-          }}
-        >
-          {options}
-        </MenuOptionGroup>
-      </MenuList>
-    </Menu>
-  );
-};
 
 interface ResourceDownloadProps {
   resourceType: string;
@@ -157,77 +112,79 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
   }, [fetchData]);
 
   return (
-    <VStack mt={2}>
-      <HStack>
-        <Text>{t("DownloadResourceModal.label.type")}</Text>
-        <ResourceMenu
+    <VStack mt={1} fontSize="xs">
+      <Flex align="center" gap={6}>
+        <ResourceDownloadMenu
+          label={t("DownloadResourceModal.label.type")}
           displayText={t(
             `DownloadResourceModal.${resourceType}TypeList.${selectedType}`
           )}
           onChange={setSelectedType}
           defaultValue={"all"}
           options={typeList.map((item, key) => (
-            <MenuItemOption key={key} value={item} fontSize="sm">
+            <MenuItemOption key={key} value={item} fontSize="xs">
               {t(`DownloadResourceModal.${resourceType}TypeList.${item}`)}
             </MenuItemOption>
           ))}
         />
 
-        <Text>{t("DownloadResourceModal.label.version")}</Text>
-        <ResourceMenu
+        <ResourceDownloadMenu
+          label={t("DownloadResourceModal.label.version")}
           displayText={gameVersion}
           onChange={setGameVersion}
           defaultValue={""}
           options={gameVersionList.map((item, key) => (
-            <MenuItemOption key={key} value={item} fontSize="sm">
+            <MenuItemOption key={key} value={item} fontSize="xs">
               {item}
             </MenuItemOption>
           ))}
         />
-      </HStack>
+      </Flex>
 
-      <HStack>
-        <Text>{t("DownloadResourceModal.label.source")}</Text>
-        <ResourceMenu
+      <Flex align="center" gap={6}>
+        <ResourceDownloadMenu
+          label={t("DownloadResourceModal.label.source")}
           displayText={downloadSource}
           onChange={setDownloadSource}
           defaultValue={"Curseforge"}
           options={downloadSourceList.map((item, key) => (
-            <MenuItemOption key={key} value={item} fontSize="sm">
+            <MenuItemOption key={key} value={item} fontSize="xs">
               {item}
             </MenuItemOption>
           ))}
         />
 
-        <Text>{t("DownloadResourceModal.label.sortedBy")}</Text>
-        <ResourceMenu
+        <ResourceDownloadMenu
+          label={t("DownloadResourceModal.label.sortedBy")}
           displayText={t(`DownloadResourceModal.sortedByList.${sortedBy}`)}
           onChange={setSortedBy}
           defaultValue={"downloads"}
           options={sortedByList.map((item, key) => (
-            <MenuItemOption key={key} value={item} fontSize="sm">
+            <MenuItemOption key={key} value={item} fontSize="xs">
               {t(`DownloadResourceModal.sortedByList.${item}`)}
             </MenuItemOption>
           ))}
         />
-      </HStack>
+      </Flex>
 
-      <HStack>
-        <VStack>
-          <Text w={8}>{t("DownloadResourceModal.label.name")}</Text>
-        </VStack>
+      <HStack gap={3}>
+        <Text whiteSpace="nowrap" w={8} textAlign="right">
+          {t("DownloadResourceModal.label.name")}
+        </Text>
         <Input
           placeholder={t("DownloadResourceModal.label.name")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           focusBorderColor={`${primaryColor}.500`}
+          size="xs"
         />
         <Button
           colorScheme={primaryColor}
-          size="sm"
+          size="xs"
           onClick={() => {
             // TBD
           }}
+          px={5}
         >
           {t("DownloadResourceModal.button.search")}
         </Button>

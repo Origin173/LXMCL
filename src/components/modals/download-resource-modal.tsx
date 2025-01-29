@@ -55,14 +55,14 @@ export const DownloadResourceModal: React.FC<Omit<ModalProps, "children">> = ({
                 selectedKeys={[selectedResourceType]}
                 onClick={(value) => setSelectedResourceType(value)}
                 direction="row"
-                size="sm"
+                size="xs"
                 spacing={2}
                 mt={-2}
                 mb={2}
                 items={resourceTypeList.map((item) => ({
                   value: item.key,
                   label: (
-                    <HStack spacing={1.5} fontSize="md">
+                    <HStack spacing={1.5} fontSize="sm">
                       <Icon as={item.icon} />
                       <Text>
                         {t(
@@ -74,7 +74,10 @@ export const DownloadResourceModal: React.FC<Omit<ModalProps, "children">> = ({
                 }))}
               />
             </Center>
-            <ResourceDownload resourceType={selectedResourceType} />
+            <ResourceDownload
+              key={selectedResourceType}
+              resourceType={selectedResourceType}
+            />
           </ModalBody>
           <ModalFooter mt={1}>
             <Button variant="ghost" onClick={modalProps.onClose}>
