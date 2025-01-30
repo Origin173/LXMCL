@@ -470,6 +470,9 @@
       }
     }
   },
+  "InstanceBasicSettings": {
+    "selectDirectory": "选择游戏目录"
+  },
   "InstanceLayout": {
     "instanceTabList": {
       "overview": "概览",
@@ -511,7 +514,10 @@
     "applySettings": "启动特定游戏设置",
     "restoreSettings": "重置以下特定设置",
     "restoreSettingsDesc": "将以下特定设置重置为全局游戏设置",
-    "restore": "重置"
+    "restore": "重置",
+    "errorMessage": {
+      "error-1": "实例名称不能为空"
+    }
   },
   "InstanceShaderPacksPage": {
     "shaderPackList": {
@@ -581,7 +587,8 @@
   "ModLoaderCards": {
     "installed": "已安装",
     "unInstalled": "未安装",
-    "notCompatibleWith": "与 {{modLoader}} 不兼容"
+    "notCompatibleWith": "与 {{modLoader}} 不兼容",
+    "versionNotSelected": "未选择版本"
   },
   "ModLoaderSelector": {
     "stable": "稳定版",

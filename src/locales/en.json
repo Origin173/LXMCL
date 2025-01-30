@@ -470,6 +470,9 @@
       }
     }
   },
+  "InstanceBasicSettings": {
+    "selectDirectory": "Select Game Diretory"
+  },
   "InstanceLayout": {
     "instanceTabList": {
       "overview": "Overview",
@@ -511,7 +514,10 @@
     "applySettings": "Apply the following specific settings",
     "restoreSettings": "Restore to default settings",
     "restoreSettingsDesc": "Restore the following specific settings to their default values",
-    "restore": "Restore"
+    "restore": "Restore",
+    "errorMessage": {
+      "error-1": "Instance name cannot be empty"
+    }
   },
   "InstanceShaderPacksPage": {
     "shaderPackList": {
@@ -581,7 +587,8 @@
   "ModLoaderCards": {
     "installed": "Installed",
     "unInstalled": "Not Installed",
-    "notCompatibleWith": "Not compatible with {{modLoader}}"
+    "notCompatibleWith": "Not compatible with {{modLoader}}",
+    "versionNotSelected": "No version selected"
   },
   "ModLoaderSelector": {
     "stable": "Stable",

@@ -150,7 +150,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     {
       key: "3rdparty",
       icon: LuServer,
-      label: t("Enums.playerTypes.3rdparty"),
+      label: t("Enums.playerTypes.3rdpartyShort"),
     },
   ];
 

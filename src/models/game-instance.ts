@@ -1,3 +1,5 @@
+import { ModLoaderType } from "@/models/resource";
+
 export interface GameInstanceSummary {
   id: number;
   uuid: string;
@@ -6,7 +8,7 @@ export interface GameInstanceSummary {
   description?: string;
   version: string;
   modLoader: {
-    type: "none" | "Fabric" | "Forge" | "NeoForge";
+    type: ModLoaderType;
     version?: string;
   };
 }
