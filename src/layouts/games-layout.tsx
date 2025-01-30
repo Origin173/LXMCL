@@ -23,7 +23,8 @@ interface GamesLayoutProps {
 const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
   const router = useRouter();
   const { t } = useTranslation();
-  const { gameInstanceSummaryList } = useData();
+  const { getGameInstanceSummaryList } = useData();
+  const gameInstanceSummaryList = getGameInstanceSummaryList();
 
   const gameInstanceList: { key: string; icon: IconType; label: string }[] = [
     { key: "all", icon: LuBoxes, label: t("AllGamesPage.title") },

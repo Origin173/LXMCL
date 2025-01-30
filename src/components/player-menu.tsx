@@ -16,7 +16,7 @@ import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
 import { Player } from "@/models/account";
-import accountService from "@/services/account";
+import { AccountService } from "@/services/account";
 
 interface PlayerMenuProps {
   player: Player;
@@ -28,20 +28,19 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
   variant = "dropdown",
 }) => {
   const { t } = useTranslation();
-  const { deletePlayer } = accountService;
   const {
     isOpen: isDeleteOpen,
     onOpen: onDeleteOpen,
     onClose: onDeleteClose,
   } = useDisclosure();
-  const { handleRetrivePlayerList, handleRetriveSelectedPlayer } = useData();
+  const { getPlayerList, getSelectedPlayer } = useData();
   const toast = useToast();
 
   const handleDelete = () => {
-    deletePlayer(player.uuid).then((response) => {
+    AccountService.deletePlayer(player.uuid).then((response) => {
       if (response.status === "success") {
-        handleRetrivePlayerList();
-        handleRetriveSelectedPlayer();
+        getPlayerList(true);
+        getSelectedPlayer(true);
         toast({
           title: response.message,
           status: "success",

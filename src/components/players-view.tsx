@@ -15,7 +15,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
 import { Player } from "@/models/account";
-import accountService from "@/services/account";
+import { AccountService } from "@/services/account";
 
 interface PlayersViewProps extends BoxProps {
   players: Player[];
@@ -29,15 +29,15 @@ const PlayersView: React.FC<PlayersViewProps> = ({
 }) => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
-  const { updateSelectedPlayer } = accountService;
   const primaryColor = config.appearance.theme.primaryColor;
-  const { selectedPlayer, handleRetriveSelectedPlayer } = useData();
+  const { getSelectedPlayer } = useData();
+  const selectedPlayer = getSelectedPlayer();
   const toast = useToast();
 
   const handlePlayerSelect = (uuid: string) => {
-    updateSelectedPlayer(uuid).then((response) => {
+    AccountService.updateSelectedPlayer(uuid).then((response) => {
       if (response.status === "success") {
-        handleRetriveSelectedPlayer();
+        getSelectedPlayer(true);
       } else {
         toast({
           title: response.message,

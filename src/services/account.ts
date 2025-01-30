@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { AuthServer, Player } from "@/models/account";
-import { ResponseError, ResponseSuccess } from "@/models/response";
+import { InvokeResponse } from "@/models/response";
 import { responseHandler } from "@/utils/response";
 
 const errorToLocaleKey: { [key: string]: string } = {
@@ -12,20 +12,14 @@ const errorToLocaleKey: { [key: string]: string } = {
 /**
  * Service class formanaging accounts, players, and authentication servers.
  */
-class AccountService {
+export class AccountService {
   /**
    * RETRIVE the list of players.
-   * @returns {Promise<ResponseSuccess<Player[]> | ResponseError>}
+   * @returns {Promise<InvokeResponse<Player[]>>}
    */
   @responseHandler("account", errorToLocaleKey)
-  async retrivePlayerList(): Promise<
-    ResponseSuccess<Player[]> | ResponseError
-  > {
-    return {
-      status: "success",
-      data: await invoke<Player[]>("retrive_player_list"),
-      message: "",
-    };
+  static async retrivePlayerList(): Promise<InvokeResponse<Player[]>> {
+    return await invoke("retrive_player_list");
   }
 
   /**
@@ -34,137 +28,92 @@ class AccountService {
    * @param {string} username - The username of the player to be added.
    * @param {string} password - The password of the player to be added.
    * @param {string} authServerUrl - The authentication server URL for the player.
-   * @returns {Promise<ResponseSuccess<void> | ResponseError>}
+   * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("account", errorToLocaleKey)
-  async addPlayer(
+  static async addPlayer(
     playerType: string,
     username: string,
     password: string,
     authServerUrl: string
-  ): Promise<ResponseSuccess<void> | ResponseError> {
-    return {
-      status: "success",
-      data: await invoke("add_player", {
-        playerType,
-        username,
-        password,
-        authServerUrl,
-      }),
-      message: "",
-    };
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("add_player", {
+      playerType,
+      username,
+      password,
+      authServerUrl,
+    });
   }
 
   /**
    * DELETE a player by UUID.
    * @param {string} uuid - The UUID of the player to be deleted.
-   * @returns {Promise<ResponseSuccess<void> | ResponseError>}
+   * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("account", errorToLocaleKey)
-  async deletePlayer(
-    uuid: string
-  ): Promise<ResponseSuccess<void> | ResponseError> {
-    return {
-      status: "success",
-      data: await invoke("delete_player", { uuid }),
-      message: "",
-    };
+  static async deletePlayer(uuid: string): Promise<InvokeResponse<void>> {
+    return await invoke("delete_player", { uuid });
   }
 
   /**
    * RETRIVE the selected player by UUID.
-   * @returns {Promise<ResponseSuccess<Player> | ResponseError>}
+   * @returns {Promise<InvokeResponse<Player>>}
    */
   @responseHandler("account", errorToLocaleKey)
-  async retriveSelectedPlayer(): Promise<
-    ResponseSuccess<Player> | ResponseError
-  > {
-    return {
-      status: "success",
-      data: await invoke<Player>("retrive_selected_player"),
-      message: "",
-    };
+  static async retriveSelectedPlayer(): Promise<InvokeResponse<Player>> {
+    return await invoke("retrive_selected_player");
   }
 
   /**
    * UPDATE the selected player by UUID.
    * @param {string} uuid - The UUID of the player to be posted as selected.
-   * @returns {Promise<ResponseSuccess<void> | ResponseError>}
+   * @returns {Promise<InvokeResponse<void>>}
    */
-  async updateSelectedPlayer(
+  @responseHandler("account", errorToLocaleKey)
+  static async updateSelectedPlayer(
     uuid: string
-  ): Promise<ResponseSuccess<void> | ResponseError> {
-    return {
-      status: "success",
-      data: await invoke("update_selected_player", { uuid }),
-      message: "",
-    };
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("update_selected_player", { uuid });
   }
 
   /**
    * RETRIVE the list of authentication servers.
-   * @returns {Promise<ResponseSuccess<AuthServer[]> | ResponseError>}
+   * @returns {Promise<InvokeResponse<AuthServer[]>>}
    */
   @responseHandler("account", errorToLocaleKey)
-  async retriveAuthServerList(): Promise<
-    ResponseSuccess<AuthServer[]> | ResponseError
-  > {
-    return {
-      status: "success",
-      data: await invoke<AuthServer[]>("retrive_auth_server_list"),
-      message: "",
-    };
+  static async retriveAuthServerList(): Promise<InvokeResponse<AuthServer[]>> {
+    return await invoke("retrive_auth_server_list");
   }
 
   /**
    * RETRIVE the information of a new authentication server.
    * @param {string} url - The URL of the authentication server to be added.
-   * @returns {Promise<ResponseSuccess<AuthServer> | ResponseError>}
+   * @returns {Promise<InvokeResponse<AuthServer>>}
    */
   @responseHandler("account", errorToLocaleKey)
-  async retriveAuthServerInfo(
+  static async retriveAuthServerInfo(
     url: string
-  ): Promise<ResponseSuccess<AuthServer> | ResponseError> {
-    return {
-      status: "success",
-      data: await invoke<AuthServer>("retrive_auth_server_info", { url }),
-      message: "",
-    };
+  ): Promise<InvokeResponse<AuthServer>> {
+    return await invoke("retrive_auth_server_info", { url });
   }
 
   /**
    * ADD the new authentication server to the storage.
    * @param {string} authUrl - The authentication server URL (already formatted by backend).
-   * @returns {Promise<ResponseSuccess<void> | ResponseError>}
+   * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("account", errorToLocaleKey)
-  async addAuthServer(
-    authUrl: string
-  ): Promise<ResponseSuccess<void> | ResponseError> {
-    return {
-      status: "success",
-      data: await invoke("add_auth_server", { authUrl }),
-      message: "",
-    };
+  static async addAuthServer(authUrl: string): Promise<InvokeResponse<void>> {
+    return await invoke("add_auth_server", { authUrl });
   }
 
   /**
    * DELETE the authentication server by URL.
    * @param {string} url - The URL of the authentication server to be deleted.
-   * @returns {Promise<ResponseSuccess<void> | ResponseError>}
+   * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("account", errorToLocaleKey)
-  async deleteAuthServer(
-    url: string
-  ): Promise<ResponseSuccess<void> | ResponseError> {
-    return {
-      status: "success",
-      data: await invoke("delete_auth_server", { url }),
-      message: "",
-    };
+  static async deleteAuthServer(url: string): Promise<InvokeResponse<void>> {
+    return await invoke("delete_auth_server", { url });
   }
 }
-
-const accountService = new AccountService();
-
-export default accountService;

@@ -26,7 +26,8 @@ const GamesView: React.FC<GamesViewProps> = ({
 }) => {
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const { selectedGameInstance } = useData();
+  const { getSelectedGameInstance } = useData();
+  const selectedGameInstance = getSelectedGameInstance();
   const { setSelectedGameInstance } = useDataDispatch();
 
   const generateDesc = (game: GameInstanceSummary) => {

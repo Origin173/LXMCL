@@ -1,5 +1,5 @@
 import { t } from "i18next";
-import { ResponseError, ResponseSuccess } from "@/models/response";
+import { InvokeResponse } from "@/models/response";
 
 export function responseHandler(
   serviceDomain: string,
@@ -12,9 +12,11 @@ export function responseHandler(
   ): TypedPropertyDescriptor<any> | void {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (
+      ...args: any[]
+    ): Promise<InvokeResponse<any>> {
       try {
-        const { data } = await originalMethod.apply(this, args);
+        const data = await originalMethod.apply(this, args);
         const message = t(
           `Services.${serviceDomain}.${String(propertyKey)}.success`
         );
@@ -26,7 +28,7 @@ export function responseHandler(
         const details = t(
           `Services.${serviceDomain}.${String(propertyKey)}.error.description.${errorToLocaleKey[error.message] || "unknown"}`
         );
-        return { status: "error", message, details };
+        return { status: "error", message, details, raw_error: error };
       }
     };
 

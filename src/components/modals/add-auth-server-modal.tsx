@@ -21,7 +21,7 @@ import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
-import accountService from "@/services/account";
+import { AccountService } from "@/services/account";
 
 interface AddAuthServerModalProps extends Omit<ModalProps, "children"> {}
 
@@ -29,8 +29,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   ...modalProps
 }) => {
   const { t } = useTranslation();
-  const { handleRetriveAuthServerList } = useData();
-  const { retriveAuthServerInfo, addAuthServer } = accountService;
+  const { getAuthServerList } = useData();
   const toast = useToast();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
@@ -55,7 +54,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   const handleNextStep = () => {
     setIsLoading(true);
     // test the server url in backend & get the server name (without saving)
-    retriveAuthServerInfo(serverUrl)
+    AccountService.retriveAuthServerInfo(serverUrl)
       .then((response) => {
         if (response.status === "success") {
           setServerName(response.data.name);
@@ -77,10 +76,10 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   const handleFinish = () => {
     setIsLoading(true);
     // save the server info to the storage
-    addAuthServer(serverUrl)
+    AccountService.addAuthServer(serverUrl)
       .then((response) => {
         if (response.status === "success") {
-          handleRetriveAuthServerList();
+          getAuthServerList(true);
           toast({
             title: response.message,
             status: "success",

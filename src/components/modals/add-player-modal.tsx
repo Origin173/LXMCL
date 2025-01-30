@@ -30,7 +30,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
 import { AuthServer } from "@/models/account";
-import accountService from "@/services/account";
+import { AccountService } from "@/services/account";
 
 interface AddPlayerModalProps extends Omit<ModalProps, "children"> {
   initialPlayerType?: "offline" | "3rdparty";
@@ -43,12 +43,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   ...modalProps
 }) => {
   const { t } = useTranslation();
-  const {
-    authServerList,
-    handleRetrivePlayerList,
-    handleRetriveSelectedPlayer,
-  } = useData();
-  const { addPlayer } = accountService;
+  const { getAuthServerList, getPlayerList, getSelectedPlayer } = useData();
+  const authServerList = getAuthServerList();
   const toast = useToast();
   const [playerType, setPlayerType] = useState<"offline" | "3rdparty">(
     "offline"
@@ -75,7 +71,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
       initialAuthServerUrl ||
         (authServerList.length > 0 ? authServerList[0].authUrl : "")
     );
-  }, [initialAuthServerUrl, authServerList]);
+  }, [initialAuthServerUrl, getAuthServerList, authServerList]);
 
   useEffect(() => {
     setPassword("");
@@ -83,11 +79,11 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
 
   const handleLogin = () => {
     setIsLoading(true);
-    addPlayer(playerType, playername, password, authServerUrl)
+    AccountService.addPlayer(playerType, playername, password, authServerUrl)
       .then((response) => {
         if (response.status === "success") {
-          handleRetrivePlayerList();
-          handleRetriveSelectedPlayer();
+          getPlayerList(true);
+          getSelectedPlayer(true);
           toast({
             title: response.message,
             status: "success",

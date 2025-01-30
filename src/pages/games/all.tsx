@@ -15,7 +15,9 @@ const AllGamesPage = () => {
   const primaryColor = config.appearance.theme.primaryColor;
   const selectedViewType = config.page.games.viewType;
 
-  const { selectedGameInstance, gameInstanceSummaryList } = useData();
+  const { getSelectedGameInstance, getGameInstanceSummaryList } = useData();
+  const selectedGameInstance = getSelectedGameInstance();
+  const gameInstanceSummaryList = getGameInstanceSummaryList();
 
   const viewTypeList = [
     {

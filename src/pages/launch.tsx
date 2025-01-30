@@ -40,9 +40,11 @@ const SwitchButton: React.FC<SwitchButtonProps> = ({ tooltip, ...props }) => {
 const LaunchPage = () => {
   const { t } = useTranslation();
   const router = useRouter();
-  const { selectedPlayer, selectedGameInstance } = useData();
+  const { getSelectedPlayer, getSelectedGameInstance } = useData();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const selectedPlayer = getSelectedPlayer();
+  const selectedGameInstance = getSelectedGameInstance();
 
   return (
     <HStack position="absolute" bottom={7} right={7} spacing={4}>

@@ -37,25 +37,22 @@ import PlayersView from "@/components/players-view";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
-import accountService from "@/services/account";
+import { AccountService } from "@/services/account";
 
 const AccountsPage = () => {
   const router = useRouter();
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
   const toast = useToast();
-  const { deleteAuthServer } = accountService;
   const primaryColor = config.appearance.theme.primaryColor;
   const selectedViewType = config.page.accounts.viewType;
 
   const [selectedPlayerType, setSelectedPlayerType] = useState<string>("all");
-  const {
-    playerList,
-    authServerList,
-    handleRetriveSelectedPlayer,
-    handleRetrivePlayerList,
-    handleRetriveAuthServerList,
-  } = useData();
+  const { getPlayerList, getAuthServerList, getSelectedPlayer } = useData();
+
+  const playerList = getPlayerList();
+  const authServerList = getAuthServerList();
+  const selectedPlayer = getSelectedPlayer();
 
   const {
     isOpen: isAddAuthServerModalOpen,
@@ -122,11 +119,11 @@ const AccountsPage = () => {
       (server) => server.authUrl === selectedPlayerType
     );
     if (servers.length > 0) {
-      deleteAuthServer(servers[0].authUrl).then((response) => {
+      AccountService.deleteAuthServer(servers[0].authUrl).then((response) => {
         if (response.status === "success") {
-          handleRetriveAuthServerList();
-          handleRetrivePlayerList();
-          handleRetriveSelectedPlayer();
+          getAuthServerList(true);
+          getPlayerList(true);
+          getSelectedPlayer(true);
           // redirect the selected player type to "all" to avoid display error
           setSelectedPlayerType("all");
           toast({

@@ -9,17 +9,14 @@ import { useToast } from "@/contexts/toast";
 import { AuthServer, Player } from "@/models/account";
 import { GameInstanceSummary } from "@/models/game-instance";
 import { mockGameInstanceSummaryList } from "@/models/mock/game-instance";
-import accountService from "@/services/account";
+import { AccountService } from "@/services/account";
 
 interface DataContextType {
-  playerList: Player[];
-  selectedPlayer: Player | undefined;
-  gameInstanceSummaryList: GameInstanceSummary[];
-  selectedGameInstance: GameInstanceSummary | undefined;
-  authServerList: AuthServer[];
-  handleRetrivePlayerList: () => void;
-  handleRetriveSelectedPlayer: () => void;
-  handleRetriveAuthServerList: () => void;
+  getPlayerList: (sync?: boolean) => Player[];
+  getSelectedPlayer: (sync?: boolean) => Player | undefined;
+  getGameInstanceSummaryList: (sync?: boolean) => GameInstanceSummary[];
+  getSelectedGameInstance: (sync?: boolean) => GameInstanceSummary | undefined;
+  getAuthServerList: (sync?: boolean) => AuthServer[];
 }
 
 interface DataDispatchContextType {
@@ -48,11 +45,9 @@ export const DataContextProvider: React.FC<{
     useState<GameInstanceSummary>();
   const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
   const toast = useToast();
-  const { retriveAuthServerList, retrivePlayerList, retriveSelectedPlayer } =
-    accountService;
 
   const handleRetrivePlayerList = useCallback(() => {
-    retrivePlayerList().then((response) => {
+    AccountService.retrivePlayerList().then((response) => {
       if (response.status === "success") {
         setPlayerList(response.data);
         if (response.data.length > 0) {
@@ -66,17 +61,17 @@ export const DataContextProvider: React.FC<{
         });
       }
     });
-  }, [retrivePlayerList, toast]);
+  }, [toast]);
 
   const handleRetriveSelectedPlayer = useCallback(() => {
-    retriveSelectedPlayer().then((response) => {
+    AccountService.retriveSelectedPlayer().then((response) => {
       if (response.status === "success") setSelectedPlayer(response.data);
       else setSelectedPlayer(undefined);
     });
-  }, [retriveSelectedPlayer]);
+  }, [setSelectedPlayer]);
 
   const handleRetriveAuthServerList = useCallback(() => {
-    retriveAuthServerList().then((response) => {
+    AccountService.retriveAuthServerList().then((response) => {
       if (response.status === "success") setAuthServerList(response.data);
       else
         toast({
@@ -85,19 +80,50 @@ export const DataContextProvider: React.FC<{
           status: "error",
         });
     });
-  }, [retriveAuthServerList, toast]);
+  }, [setAuthServerList, toast]);
 
-  useEffect(() => {
-    handleRetrivePlayerList();
-  }, [handleRetrivePlayerList]);
+  const getPlayerList = useCallback(
+    (sync = false) => {
+      if (sync || !playerList.length) handleRetrivePlayerList();
 
-  useEffect(() => {
-    handleRetriveAuthServerList();
-  }, [handleRetriveAuthServerList]);
+      return playerList;
+    },
+    [handleRetrivePlayerList, playerList]
+  ); //
 
-  useEffect(() => {
-    handleRetriveSelectedPlayer();
-  }, [handleRetriveSelectedPlayer]);
+  const getSelectedPlayer = useCallback(
+    (sync = false) => {
+      if (sync || !selectedPlayer) handleRetriveSelectedPlayer();
+
+      return selectedPlayer;
+    },
+    [handleRetriveSelectedPlayer, selectedPlayer]
+  );
+
+  const getAuthServerList = useCallback(
+    (sync = false) => {
+      if (sync || !authServerList.length) handleRetriveAuthServerList();
+
+      return authServerList;
+    },
+    [handleRetriveAuthServerList, authServerList]
+  );
+
+  const getGameInstanceSummaryList = useCallback(
+    (sync = false) => {
+      // todo
+      return gameInstanceSummaryList;
+    },
+    [gameInstanceSummaryList]
+  );
+
+  const getSelectedGameInstance = useCallback(
+    (sync = false) => {
+      // todo
+      return selectedGameInstance;
+    },
+    [selectedGameInstance]
+  );
 
   useEffect(() => {
     setGameInstanceSummaryList(mockGameInstanceSummaryList);
@@ -107,14 +133,11 @@ export const DataContextProvider: React.FC<{
   return (
     <DataContext.Provider
       value={{
-        playerList,
-        selectedPlayer,
-        gameInstanceSummaryList,
-        selectedGameInstance,
-        authServerList,
-        handleRetrivePlayerList,
-        handleRetriveSelectedPlayer,
-        handleRetriveAuthServerList,
+        getPlayerList,
+        getSelectedPlayer,
+        getGameInstanceSummaryList,
+        getSelectedGameInstance,
+        getAuthServerList,
       }}
     >
       <DataDispatchContext.Provider
