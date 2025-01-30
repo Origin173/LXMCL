@@ -510,7 +510,10 @@
     "applySettings": "启动特定游戏设置",
     "restoreSettings": "重置以下特定设置",
     "restoreSettingsDesc": "将以下特定设置重置为全局游戏设置",
-    "restore": "重置"
+    "restore": "重置",
+    "errorMessage": {
+      "error-1": "实例名称不能为空"
+    }
   },
   "InstanceShaderPacksPage": {
     "shaderPackList": {

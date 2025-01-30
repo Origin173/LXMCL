@@ -170,7 +170,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
             {t("General.previous")}
           </Button>
           <Button
-            disabled={!instanceDirectory}
+            disabled={!instanceDirectory || instanceName === ""}
             colorScheme={primaryColor}
             onClick={modalProps.onClose}
           >

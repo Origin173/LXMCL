@@ -42,9 +42,12 @@ export const InstanceBasicSettings: React.FC<InstanceBasicSettingsProps> = ({
             <Editable
               isTextArea={false}
               value={name}
-              onEditSubmit={setName}
+              onEditSubmit={(value) => setName(value.trim())}
               textProps={{ className: "secondary-text", fontSize: "xs-sm" }}
               inputProps={{ fontSize: "xs-sm" }}
+              formErrMsgProps={{ fontSize: "xs-sm" }}
+              checkError={(value) => (value.trim() === "" ? 1 : 0)}
+              localeKey="InstanceSettingsPage.errorMessage"
             />
           ),
         },
@@ -107,7 +110,7 @@ export const InstanceBasicSettings: React.FC<InstanceBasicSettingsProps> = ({
   ];
 
   return (
-    <Box h="100%" w="100%" overflowY="auto">
+    <Box h="100%" w="100%" overflowX="hidden" overflowY="auto">
       <VStack w="100%" spacing={4}>
         {instanceSpecSettingsGroups.map((group, index) => (
           <OptionItemGroup

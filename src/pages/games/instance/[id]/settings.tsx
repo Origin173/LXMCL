@@ -33,6 +33,9 @@ const InstanceSettingsPage = () => {
               onEditSubmit={(value) => {}}
               textProps={{ className: "secondary-text", fontSize: "xs-sm" }}
               inputProps={{ fontSize: "xs-sm" }}
+              formErrMsgProps={{ fontSize: "xs-sm" }}
+              checkError={(value) => (value.trim() === "" ? 1 : 0)}
+              localeKey="InstanceSettingsPage.errorMessage"
             />
           ),
         },
