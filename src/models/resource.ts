@@ -13,3 +13,9 @@ export interface ModLoaderResourceInfo {
   description?: string;
   stable: boolean;
 }
+
+export const defaultModLoaderResourceInfo: ModLoaderResourceInfo = {
+  type: "none",
+  version: "",
+  stable: true,
+};

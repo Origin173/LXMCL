@@ -25,9 +25,27 @@ import {
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GameVersionSelector from "@/components/game-version-selector";
+import { InstanceBasicSettings } from "@/components/instance-basic-settings";
 import { ModLoaderSelector } from "@/components/mod-loader-selector";
 import { useLauncherConfig } from "@/contexts/config";
-import { GameResourceInfo, ModLoaderResourceInfo } from "@/models/resource";
+import {
+  GameResourceInfo,
+  ModLoaderResourceInfo,
+  defaultModLoaderResourceInfo,
+} from "@/models/resource";
+
+const gameTypesToIcon: Record<string, string> = {
+  release: "/images/icons/GrassBlock.png",
+  snapshot: "/images/icons/CommandBlock.png",
+  old_beta: "/images/icons/StoneOldBeta.png",
+};
+
+const modLoaderTypesToIcon: Record<string, string> = {
+  none: "",
+  Fabric: "/images/icons/Fabric.png",
+  Forge: "/images/icons/Anvil.png", // differ from that in mod-loader-selector
+  NeoForge: "/images/icons/NeoForge.png",
+};
 
 export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   ...modalProps
@@ -44,11 +62,10 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   const [selectedGameVersion, setSelectedGameVersion] =
     useState<GameResourceInfo>();
   const [selectedModLoader, setSelectedModLoader] =
-    useState<ModLoaderResourceInfo>({
-      type: "none",
-      version: "",
-      stable: false,
-    });
+    useState<ModLoaderResourceInfo>(defaultModLoaderResourceInfo);
+  const [instanceName, setInstanceName] = useState("");
+  const [instanceDescription, setInstanceDescription] = useState("");
+  const [instanceIconSrc, setInstanceIconSrc] = useState("");
 
   const Step1Content = useMemo(() => {
     return (
@@ -79,40 +96,45 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
 
   const Step2Content = useMemo(() => {
     return (
-      <>
-        <ModalBody>
-          {selectedGameVersion && (
+      selectedGameVersion && (
+        <>
+          <ModalBody>
             <ModLoaderSelector
               selectedGameVersion={selectedGameVersion}
               selectedModLoader={selectedModLoader}
               onSelectModLoader={setSelectedModLoader}
             />
-          )}
-        </ModalBody>
-        <ModalFooter>
-          <Button variant="ghost" onClick={modalProps.onClose}>
-            {t("General.cancel")}
-          </Button>
-          <Button variant="ghost" onClick={() => setActiveStep(0)}>
-            {t("General.previous")}
-          </Button>
-          <Button
-            colorScheme={primaryColor}
-            onClick={() => {
-              if (!selectedModLoader.version) {
-                setSelectedModLoader({
-                  type: "none",
-                  version: "",
-                  stable: false,
-                });
-              }
-              setActiveStep(2);
-            }}
-          >
-            {t("General.next")}
-          </Button>
-        </ModalFooter>
-      </>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="ghost" onClick={modalProps.onClose}>
+              {t("General.cancel")}
+            </Button>
+            <Button variant="ghost" onClick={() => setActiveStep(0)}>
+              {t("General.previous")}
+            </Button>
+            <Button
+              colorScheme={primaryColor}
+              onClick={() => {
+                if (!selectedModLoader.version) {
+                  setSelectedModLoader(defaultModLoaderResourceInfo); // if the user selected the loader but did not choose a version from the list
+                  setInstanceName(selectedGameVersion.id);
+                  setInstanceIconSrc(gameTypesToIcon[selectedGameVersion.type]);
+                } else {
+                  setInstanceName(
+                    `${selectedGameVersion.id}-${selectedModLoader.type}`
+                  );
+                  setInstanceIconSrc(
+                    modLoaderTypesToIcon[selectedModLoader.type]
+                  );
+                }
+                setActiveStep(2);
+              }}
+            >
+              {t("General.next")}
+            </Button>
+          </ModalFooter>
+        </>
+      )
     );
   }, [
     modalProps.onClose,
@@ -126,7 +148,16 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   const Step3Content = useMemo(() => {
     return (
       <>
-        <ModalBody>Step3 TBD</ModalBody>
+        <ModalBody>
+          <InstanceBasicSettings
+            name={instanceName}
+            setName={setInstanceName}
+            description={instanceDescription}
+            setDescription={setInstanceDescription}
+            iconSrc={instanceIconSrc}
+            setIconSrc={setInstanceIconSrc}
+          />
+        </ModalBody>
         <ModalFooter>
           <Button variant="ghost" onClick={modalProps.onClose}>
             {t("General.cancel")}
@@ -140,7 +171,15 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
         </ModalFooter>
       </>
     );
-  }, [modalProps.onClose, primaryColor, setActiveStep, t]);
+  }, [
+    instanceDescription,
+    instanceIconSrc,
+    instanceName,
+    modalProps.onClose,
+    primaryColor,
+    setActiveStep,
+    t,
+  ]);
 
   const steps = useMemo(
     () => [
@@ -218,10 +257,4 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
       </ModalContent>
     </Modal>
   );
-};
-
-export const gameTypesToIcon: Record<string, string> = {
-  release: "GrassBlock.png",
-  snapshot: "CommandBlock.png",
-  old_beta: "StoneOldBeta.png",
 };

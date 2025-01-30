@@ -32,10 +32,15 @@ import {
   VirtualOptionItemGroup,
 } from "@/components/common/option-item-virtual";
 import { Section } from "@/components/common/section";
-import { gameTypesToIcon } from "@/components/modals/create-instance-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { GameResourceInfo } from "@/models/resource";
 import { ISOToDatetime } from "@/utils/datetime";
+
+const gameTypesToIcon: Record<string, string> = {
+  release: "GrassBlock.png",
+  snapshot: "CommandBlock.png",
+  old_beta: "StoneOldBeta.png",
+};
 
 interface GameVersionSelectorProps extends BoxProps {
   selectedVersion: GameResourceInfo | undefined;

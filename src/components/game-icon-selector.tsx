@@ -44,6 +44,7 @@ export const GameIconSelector: React.FC<GameIconSelectorProps> = ({
             key={index}
             value={iconSrc}
             isSelected={iconSrc === value}
+            onClick={() => onIconSelect(iconSrc)}
             paddingX={0.5}
           >
             <Center w="100%">

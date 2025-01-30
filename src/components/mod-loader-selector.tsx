@@ -7,7 +7,7 @@ import {
   Tag,
   VStack,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BeatLoader } from "react-spinners";
 import Empty from "@/components/common/empty";
@@ -26,6 +26,13 @@ import {
 import { GameResourceInfo, ModLoaderResourceInfo } from "@/models/resource";
 import { ISOToDatetime } from "@/utils/datetime";
 
+const modLoaderTypesToIcon: Record<string, string> = {
+  none: "",
+  Fabric: "Fabric.png",
+  Forge: "Forge.png",
+  NeoForge: "NeoForge.png",
+};
+
 interface ModLoaderSelectorProps {
   selectedGameVersion: GameResourceInfo;
   selectedModLoader: ModLoaderResourceInfo;
@@ -43,16 +50,6 @@ export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
   const primaryColor = config.appearance.theme.primaryColor;
   const [modLoaders, setModLoaders] = useState<ModLoaderResourceInfo[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const modLoaderTypesToIcon = useMemo(
-    () => ({
-      none: "",
-      Fabric: "Fabric.png",
-      Forge: "Forge.png",
-      NeoForge: "NeoForge.png",
-    }),
-    []
-  );
 
   const fetchVersions = useCallback(async () => {
     setLoading(true);
@@ -154,7 +151,7 @@ export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
       ),
       children: <></>,
     }),
-    [modLoaderTypesToIcon, primaryColor, t]
+    [primaryColor, t]
   );
 
   return (
