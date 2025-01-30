@@ -28,6 +28,10 @@
           "title": "LittleSkin",
           "description": "Thanks to LittleSkin and @tnqzh123 for their help with the login process design"
         },
+        "sinter": {
+          "title": "Sinter",
+          "description": "Used as the interface font on Windows and Linux platforms, under the SIL License"
+        },
         "skinview3d": {
           "title": "bs-community / skinview3d",
           "description": "Our skin preview component is built based on this open-source project, under the MIT License"
