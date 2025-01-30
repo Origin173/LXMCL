@@ -466,6 +466,9 @@
       }
     }
   },
+  "InstanceBasicSettings": {
+    "selectDirectory": "选择游戏目录"
+  },
   "InstanceLayout": {
     "instanceTabList": {
       "overview": "概览",

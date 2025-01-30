@@ -466,6 +466,9 @@
       }
     }
   },
+  "InstanceBasicSettings": {
+    "selectDirectory": "Select Game Diretory"
+  },
   "InstanceLayout": {
     "instanceTabList": {
       "overview": "Overview",

@@ -28,6 +28,7 @@ import GameVersionSelector from "@/components/game-version-selector";
 import { InstanceBasicSettings } from "@/components/instance-basic-settings";
 import { ModLoaderSelector } from "@/components/mod-loader-selector";
 import { useLauncherConfig } from "@/contexts/config";
+import { GameDirectory } from "@/models/config";
 import {
   GameResourceInfo,
   ModLoaderResourceInfo,
@@ -66,6 +67,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   const [instanceName, setInstanceName] = useState("");
   const [instanceDescription, setInstanceDescription] = useState("");
   const [instanceIconSrc, setInstanceIconSrc] = useState("");
+  const [instanceDirectory, setInstanceDirectory] = useState<GameDirectory>();
 
   const Step1Content = useMemo(() => {
     return (
@@ -156,6 +158,8 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
             setDescription={setInstanceDescription}
             iconSrc={instanceIconSrc}
             setIconSrc={setInstanceIconSrc}
+            gameDirectory={instanceDirectory}
+            setGameDirectory={setInstanceDirectory}
           />
         </ModalBody>
         <ModalFooter>
@@ -165,7 +169,11 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
           <Button variant="ghost" onClick={() => setActiveStep(1)}>
             {t("General.previous")}
           </Button>
-          <Button colorScheme={primaryColor} onClick={modalProps.onClose}>
+          <Button
+            disabled={!instanceDirectory}
+            colorScheme={primaryColor}
+            onClick={modalProps.onClose}
+          >
             {t("General.finish")}
           </Button>
         </ModalFooter>
@@ -173,6 +181,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     );
   }, [
     instanceDescription,
+    instanceDirectory,
     instanceIconSrc,
     instanceName,
     modalProps.onClose,
