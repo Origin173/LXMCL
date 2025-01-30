@@ -23,7 +23,11 @@ import {
   mockForgeVersions,
   mockNeoForgeVersions,
 } from "@/models/mock/resource";
-import { GameResourceInfo, ModLoaderResourceInfo } from "@/models/resource";
+import {
+  GameResourceInfo,
+  ModLoaderResourceInfo,
+  defaultModLoaderResourceInfo,
+} from "@/models/resource";
 import { ISOToDatetime } from "@/utils/datetime";
 
 const modLoaderTypesToIcon: Record<string, string> = {
@@ -51,71 +55,70 @@ export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
   const [modLoaders, setModLoaders] = useState<ModLoaderResourceInfo[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchVersions = useCallback(async () => {
-    setLoading(true);
-    try {
-      switch (selectedModLoader.type) {
-        case "Fabric": {
-          let data = await new Promise<any[]>((resolve) => {
-            setTimeout(() => {
-              resolve(mockFabricVersions);
-            }, 1000);
-          });
-          setModLoaders(
-            data.map((v: any) => ({
-              type: "Fabric",
-              version: v.loader.version,
-              stable: v.loader.stable,
-            })) || []
-          );
-          break;
-        }
-        case "Forge": {
-          let data = await new Promise<any[]>((resolve) => {
-            setTimeout(() => {
-              resolve(mockForgeVersions);
-            }, 1000);
-          });
-          setModLoaders(
-            data.map((v: any) => ({
-              type: "Forge",
-              version: v.version,
-              stable: true,
-              description: t("ModLoaderSelector.releaseDate", {
-                date: ISOToDatetime(v.modified),
-              }),
-            })) || []
-          );
-          break;
-        }
-        case "NeoForge": {
-          let data = await new Promise<any[]>((resolve) => {
-            setTimeout(() => {
-              resolve(mockNeoForgeVersions);
-            }, 1000);
-          });
-          setModLoaders(
-            data.map((v: any) => ({
-              type: "NeoForge",
-              version: v.version,
-              stable: !(v.version as string).endsWith("beta"),
-            })) || []
-          );
-          break;
-        }
-        default:
-          setModLoaders([]);
-          break;
-      }
-    } catch (e) {
-      setModLoaders([]);
-    }
-    setLoading(false);
-  }, [selectedModLoader.type, t]);
-
   useEffect(() => {
-    fetchVersions();
-  }, [fetchVersions]);
+    (async () => {
+      try {
+        setLoading(true);
+        switch (selectedModLoader.type) {
+          case "Fabric": {
+            let data = await new Promise<any[]>((resolve) => {
+              setTimeout(() => {
+                resolve(mockFabricVersions);
+              }, 1000);
+            });
+            setModLoaders(
+              data.map((v: any) => ({
+                type: "Fabric",
+                version: v.loader.version,
+                stable: v.loader.stable,
+              })) || []
+            );
+            break;
+          }
+          case "Forge": {
+            let data = await new Promise<any[]>((resolve) => {
+              setTimeout(() => {
+                resolve(mockForgeVersions);
+              }, 1000);
+            });
+            setModLoaders(
+              data.map((v: any) => ({
+                type: "Forge",
+                version: v.version,
+                stable: true,
+                description: t("ModLoaderSelector.releaseDate", {
+                  date: ISOToDatetime(v.modified),
+                }),
+              })) || []
+            );
+            break;
+          }
+          case "NeoForge": {
+            let data = await new Promise<any[]>((resolve) => {
+              setTimeout(() => {
+                resolve(mockNeoForgeVersions);
+              }, 1000);
+            });
+            setModLoaders(
+              data.map((v: any) => ({
+                type: "NeoForge",
+                version: v.version,
+                stable: !(v.version as string).endsWith("beta"),
+              })) || []
+            );
+            break;
+          }
+          default:
+            setModLoaders([]);
+            break;
+        }
+      } catch (e) {
+        setModLoaders([]);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [selectedModLoader.type, t]);
 
   const onSelectModLoaderVersion = useCallback(
     (version: string) => {
@@ -160,6 +163,7 @@ export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
         currentType={selectedModLoader.type}
         currentVersion={selectedModLoader.version}
         displayMode="selector"
+        loading={loading}
         onTypeSelect={(type) => {
           if (type !== selectedModLoader.type) {
             onSelectModLoader({
@@ -167,6 +171,8 @@ export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
               version: "",
               stable: false,
             });
+          } else {
+            onSelectModLoader(defaultModLoaderResourceInfo);
           }
         }}
         w="100%"

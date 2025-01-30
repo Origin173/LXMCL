@@ -580,7 +580,8 @@
   "ModLoaderCards": {
     "installed": "Installed",
     "unInstalled": "Not Installed",
-    "notCompatibleWith": "Not compatible with {{modLoader}}"
+    "notCompatibleWith": "Not compatible with {{modLoader}}",
+    "versionNotSelected": "No version selected"
   },
   "ModLoaderSelector": {
     "stable": "Stable",

@@ -1,18 +1,7 @@
-import {
-  Box,
-  Button,
-  HStack,
-  IconButton,
-  Image,
-  Radio,
-  RadioGroup,
-} from "@chakra-ui/react";
+import { Box, HStack, Image, Radio, VStack } from "@chakra-ui/react";
 import { t } from "i18next";
-import { useRouter } from "next/router";
-import { LuArrowRight } from "react-icons/lu";
 import Editable from "@/components/common/editable";
 import {
-  OptionItem,
   OptionItemGroup,
   OptionItemGroupProps,
   OptionItemProps,
@@ -43,7 +32,6 @@ export const InstanceBasicSettings: React.FC<InstanceBasicSettingsProps> = ({
   setGameDirectory,
 }) => {
   const { config } = useLauncherConfig();
-  const router = useRouter();
 
   const instanceSpecSettingsGroups: OptionItemGroupProps[] = [
     {
@@ -96,9 +84,14 @@ export const InstanceBasicSettings: React.FC<InstanceBasicSettingsProps> = ({
       items: [
         ...config.localGameDirectories.map(
           (directory): OptionItemProps => ({
-            title: directory.name,
+            title:
+              directory.name === "CURRENT_DIR"
+                ? t(
+                    "GlobalGameSettingsPage.directories.settings.directories.currentDir"
+                  )
+                : directory.name,
             description: directory.dir,
-            children: (
+            prefixElement: (
               <Radio
                 isChecked={directory.dir === gameDirectory?.dir}
                 onChange={() => {
@@ -106,34 +99,25 @@ export const InstanceBasicSettings: React.FC<InstanceBasicSettingsProps> = ({
                 }}
               />
             ),
+            children: <></>,
           })
         ),
-        {
-          title: t(
-            `AddAndImportInstancePage.addAndImportOptions.manageDirs.title`
-          ),
-          description: t(
-            `AddAndImportInstancePage.addAndImportOptions.manageDirs.description`
-          ),
-          children: (
-            <IconButton
-              aria-label="manageDirs"
-              onClick={() => router.push("/settings/global-game")}
-              variant="ghost"
-              size="sm"
-              icon={<LuArrowRight />}
-            />
-          ),
-        },
       ],
     },
   ];
 
   return (
-    <Box height="100%" overflowY="auto">
-      {instanceSpecSettingsGroups.map((group, index) => (
-        <OptionItemGroup title={group.title} items={group.items} key={index} />
-      ))}
+    <Box h="100%" w="100%" overflowY="auto">
+      <VStack w="100%" spacing={4}>
+        {instanceSpecSettingsGroups.map((group, index) => (
+          <OptionItemGroup
+            title={group.title}
+            items={group.items}
+            key={index}
+            w="100%"
+          />
+        ))}
+      </VStack>
     </Box>
   );
 };

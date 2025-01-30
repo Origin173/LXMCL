@@ -1,4 +1,4 @@
-import { ModLoaderType } from "./resource";
+import { ModLoaderType } from "@/models/resource";
 
 export interface GameInstanceSummary {
   id: number;

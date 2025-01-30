@@ -19,6 +19,7 @@ interface ModLoaderCardsProps extends BoxProps {
   currentType: ModLoaderType;
   currentVersion?: string;
   displayMode: "entry" | "selector";
+  loading?: boolean;
   onTypeSelect?: (type: ModLoaderType) => void;
 }
 
@@ -26,6 +27,7 @@ const ModLoaderCards: React.FC<ModLoaderCardsProps> = ({
   currentType,
   currentVersion,
   displayMode,
+  loading = false,
   onTypeSelect,
   ...boxProps
 }) => {
@@ -73,11 +75,12 @@ const ModLoaderCards: React.FC<ModLoaderCardsProps> = ({
                     ? `${t("ModLoaderCards.installed")} ${currentVersion}`
                     : t("ModLoaderCards.unInstalled")
                   : isSelected
-                    ? currentVersion
-                    : currentType !== "none" &&
-                      t("ModLoaderCards.notCompatibleWith", {
-                        modLoader: currentType,
-                      })}
+                    ? currentVersion || t("ModLoaderCards.versionNotSelected")
+                    : currentType === "none"
+                      ? t("ModLoaderCards.versionNotSelected")
+                      : t("ModLoaderCards.notCompatibleWith", {
+                          modLoader: currentType,
+                        })}
               </Text>
             </VStack>
           </HStack>
@@ -95,6 +98,7 @@ const ModLoaderCards: React.FC<ModLoaderCardsProps> = ({
             }
             variant="ghost"
             size="xs"
+            disabled={loading}
             onClick={() => onTypeSelect?.(type)}
           />
         </Flex>

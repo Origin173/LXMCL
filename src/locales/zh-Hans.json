@@ -580,7 +580,8 @@
   "ModLoaderCards": {
     "installed": "已安装",
     "unInstalled": "未安装",
-    "notCompatibleWith": "与 {{modLoader}} 不兼容"
+    "notCompatibleWith": "与 {{modLoader}} 不兼容",
+    "versionNotSelected": "未选择版本"
   },
   "ModLoaderSelector": {
     "stable": "稳定版",
