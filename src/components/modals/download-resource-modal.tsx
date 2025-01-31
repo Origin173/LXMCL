@@ -1,6 +1,4 @@
 import {
-  Button,
-  Center,
   Flex,
   HStack,
   Icon,
@@ -8,7 +6,6 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   ModalOverlay,
   ModalProps,

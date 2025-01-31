@@ -2,6 +2,7 @@ import {
   Box,
   BoxProps,
   Card,
+  Center,
   Divider,
   Flex,
   HStack,
@@ -9,8 +10,9 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
+import InfiniteScroll from "react-infinite-scroller";
+import { BeatLoader } from "react-spinners";
 import { Section, SectionProps } from "@/components/common/section";
 
 export interface OptionItemProps extends BoxProps {
@@ -26,6 +28,9 @@ export interface OptionItemProps extends BoxProps {
 export interface OptionItemGroupProps extends SectionProps {
   items: (OptionItemProps | React.ReactNode)[];
   withDivider?: boolean;
+  useInfiniteScroll?: boolean;
+  hasMore?: boolean;
+  loadMore?: () => void;
 }
 
 export const OptionItem: React.FC<OptionItemProps> = ({
@@ -99,6 +104,9 @@ export const OptionItem: React.FC<OptionItemProps> = ({
 export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
   items,
   withDivider = true,
+  useInfiniteScroll = false,
+  hasMore = false,
+  loadMore = () => {},
   ...props
 }) => {
   function isOptionItemProps(item: any): item is OptionItemProps {
@@ -108,28 +116,43 @@ export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
     );
   }
 
+  const cardProps = useInfiniteScroll
+    ? { h: "100%", overflowY: "auto" as "auto" }
+    : {};
+
   return (
     <Section {...props}>
       {items.length > 0 && (
-        <Card className="content-card">
-          {items.map((item, index) => (
-            <React.Fragment key={index}>
-              {isOptionItemProps(item) ? (
-                <OptionItem
-                  title={item.title}
-                  description={item.description}
-                  titleExtra={item.titleExtra}
-                  prefixElement={item.prefixElement}
-                >
-                  {item.children}
-                </OptionItem>
-              ) : (
-                item
-              )}
-              {index !== items.length - 1 &&
-                (withDivider ? <Divider my={2} /> : <Box h={2} />)}
-            </React.Fragment>
-          ))}
+        <Card className="content-card" {...cardProps}>
+          <InfiniteScroll
+            loadMore={loadMore}
+            hasMore={hasMore}
+            useWindow={false}
+            loader={
+              <Center>
+                <BeatLoader size={16} color="gray" />
+              </Center>
+            }
+          >
+            {items.map((item, index) => (
+              <React.Fragment key={index}>
+                {isOptionItemProps(item) ? (
+                  <OptionItem
+                    title={item.title}
+                    description={item.description}
+                    titleExtra={item.titleExtra}
+                    prefixElement={item.prefixElement}
+                  >
+                    {item.children}
+                  </OptionItem>
+                ) : (
+                  item
+                )}
+                {index !== items.length - 1 &&
+                  (withDivider ? <Divider my={2} /> : <Box h={2} />)}
+              </React.Fragment>
+            ))}
+          </InfiniteScroll>
         </Card>
       )}
     </Section>

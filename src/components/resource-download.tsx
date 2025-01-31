@@ -1,6 +1,6 @@
 import {
+  Box,
   Button,
-  Flex,
   HStack,
   Input,
   MenuItemOption,
@@ -27,6 +27,7 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
   const primaryColor = config.appearance.theme.primaryColor;
 
   const [resourceList, setResourceList] = useState<OtherResourceInfo[]>([]);
+  const [hasMore, setHasMore] = useState<boolean>(true); // use for infinite scroll
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("all");
@@ -113,8 +114,15 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
     fetchData();
   }, [fetchData]);
 
+  const loadMore = async () => {
+    // TBD
+    if (!hasMore) return;
+    setResourceList((prev) => [...prev, ...mockDownloadResourceList]);
+    if (resourceList.length >= 24) setHasMore(false);
+  };
+
   return (
-    <VStack mt={1} fontSize="xs">
+    <VStack fontSize="xs" h="100%">
       <HStack gap={3}>
         <ResourceDownloadMenu
           label={t("DownloadResourceModal.label.type")}
@@ -193,7 +201,13 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
         </Button>
       </HStack>
 
-      <ResourceDownloadList list={resourceList} />
+      <Box overflow="auto" flexGrow={1}>
+        <ResourceDownloadList
+          list={resourceList}
+          hasMore={hasMore}
+          loadMore={loadMore}
+        />
+      </Box>
     </VStack>
   );
 };
