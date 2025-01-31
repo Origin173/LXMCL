@@ -66,7 +66,7 @@ structstruck::strike! {
         pub head_nav_style: String,
       },
       pub background: struct {
-        pub preset_choice: String,
+        pub choice: String,
       }
     },
     pub download: struct DownloadConfig {
@@ -143,7 +143,7 @@ impl Default for LauncherConfig {
           head_nav_style: "standard".to_string(),
         },
         background: Background {
-          preset_choice: "Jokull".to_string(),
+          choice: "%built-in:Jokull".to_string(),
         },
       },
       download: DownloadConfig {

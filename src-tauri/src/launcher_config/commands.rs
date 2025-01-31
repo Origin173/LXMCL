@@ -2,7 +2,7 @@ use super::models::{LauncherConfig, MemoryInfo};
 use crate::storage::Storage;
 use crate::{error::SJMCLResult, partial::PartialUpdate};
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use systemstat::{saturating_sub_bytes, Platform};
 use tauri::path::BaseDirectory;
@@ -59,4 +59,72 @@ pub fn get_memory_info() -> SJMCLResult<MemoryInfo> {
     total: mem.total.as_u64(),
     used: saturating_sub_bytes(mem.total, mem.free).as_u64(),
   })
+}
+
+#[tauri::command]
+pub fn retrive_custom_background_list(app: AppHandle) -> SJMCLResult<Vec<String>> {
+  let custom_bg_dir = app
+    .path()
+    .resolve::<PathBuf>("UserContent/Backgrounds".into(), BaseDirectory::AppData)?;
+
+  if !custom_bg_dir.exists() {
+    return Ok(Vec::new());
+  }
+
+  let valid_extensions = ["jpg", "jpeg", "png", "gif", "webp"];
+
+  let file_names: Vec<String> = fs::read_dir(custom_bg_dir)?
+    .filter_map(|entry| entry.ok())
+    .filter_map(|entry| {
+      let file_name = entry.file_name().into_string().ok()?;
+      let extension = Path::new(&file_name)
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .map(|ext| ext.to_lowercase());
+
+      if extension.is_some() && valid_extensions.contains(&extension.unwrap().as_str()) {
+        Some(file_name)
+      } else {
+        None
+      }
+    })
+    .collect();
+
+  Ok(file_names)
+}
+
+#[tauri::command]
+pub fn add_custom_background(app: AppHandle, source_src: String) -> SJMCLResult<String> {
+  let source_path = Path::new(&source_src);
+  if !source_path.exists() || !source_path.is_file() {
+    return Ok(String::new());
+  }
+
+  // Copy to custom background dir under tauri's pre-defined app_data dir
+  let custom_bg_dir = app
+    .path()
+    .resolve::<PathBuf>("UserContent/Backgrounds".into(), BaseDirectory::AppData)?;
+
+  if !custom_bg_dir.exists() {
+    fs::create_dir_all(&custom_bg_dir)?;
+  }
+
+  let file_name = source_path.file_name().unwrap();
+  let dest_path = custom_bg_dir.join(file_name);
+  fs::copy(&source_path, &dest_path)?;
+
+  Ok(file_name.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+pub fn delete_custom_background(app: AppHandle, file_name: String) -> SJMCLResult<()> {
+  let custom_bg_dir = app
+    .path()
+    .resolve::<PathBuf>("UserContent/Backgrounds".into(), BaseDirectory::AppData)?;
+  let file_path = custom_bg_dir.join(file_name);
+
+  if file_path.exists() && file_path.is_file() {
+    fs::remove_file(&file_path)?;
+  }
+  Ok(())
 }

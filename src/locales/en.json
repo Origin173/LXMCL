@@ -158,6 +158,10 @@
       "settings": {
         "preset": {
           "title": "Preset Images"
+        },
+        "custom": {
+          "title": "Custom Images",
+          "add": "Add"
         }
       },
       "presetBgList": {
@@ -347,6 +351,11 @@
     "close": "Close",
     "confirm": "Confirm",
     "delete": "Delete",
+    "dialog": {
+      "filterName": {
+        "image": "Image"
+      }
+    },
     "disable": "Disable",
     "enable": "Enable",
     "finish": "Finish",
