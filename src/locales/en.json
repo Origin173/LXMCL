@@ -297,6 +297,29 @@
       "3rdpartyShort": "3rd-party Auth"
     }
   },
+  "GameErrorPage": {
+    "title": "Game exited unexpectedly. Check the logs or seek assistance.",
+    "basicInfo": {
+      "arch": "Arch",
+      "launcherVersion": "Launcher Version",
+      "os": "OS"
+    },
+    "gameInfo": {
+      "gameVersion": "Minecraft Version"
+    },
+    "javaInfo": {
+      "javaVersion": "Java Version"
+    },
+    "crashDetails": {
+      "title": "Crash Details"
+    },
+    "button": {
+      "exportGameInfo": "Export Crash Report",
+      "gameLogs": "Game Logs",
+      "help": "Help"
+    },
+    "bottomAlert": "Export and send the crash report instead of a screenshot for help."
+  },
   "GameLogPage": {
     "placeholder": "Filter by Text",
     "exportLogs": "Export Logs",

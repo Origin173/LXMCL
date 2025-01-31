@@ -1,0 +1,160 @@
+import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Icon,
+  IconButton,
+  Stat,
+  StatNumber,
+  StatProps,
+  Text,
+  Tooltip,
+  VStack,
+} from "@chakra-ui/react";
+import { arch, platform, version } from "@tauri-apps/plugin-os";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { LuCircleAlert, LuFolderOpen } from "react-icons/lu";
+import { useLauncherConfig } from "@/contexts/config";
+import { capitalizeFirstLetter } from "@/utils/string";
+
+const GameErrorPage: React.FC = () => {
+  const { t } = useTranslation();
+  const { config } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
+
+  const [basicInfoParams, setBasicInfoParams] = useState(
+    new Map<string, string>()
+  );
+
+  const platformName = () => {
+    let name = platform().replace("os", "OS").replace("bsd", "BSD");
+    return name.includes("OS") ? name : capitalizeFirstLetter(name);
+  };
+
+  useEffect(() => {
+    // construct info maps
+    let infoList = new Map<string, string>();
+    infoList.set("launcherVersion", config.version);
+    infoList.set("os", `${platformName()} ${version()}`);
+    infoList.set("arch", arch());
+    setBasicInfoParams(infoList);
+  }, [config.version]);
+
+  const renderStats = ({
+    title,
+    value,
+    helper,
+    ...props
+  }: {
+    title: string;
+    value: string;
+    helper?: string | React.ReactNode;
+  } & StatProps) => {
+    return (
+      <Stat {...props}>
+        <Text fontSize="xs-sm">{title}</Text>
+        <StatNumber fontSize="xl">{value}</StatNumber>
+        {typeof helper === "string" ? (
+          <Text className="secondary-text" fontSize="sm">
+            {helper}
+          </Text>
+        ) : (
+          helper
+        )}
+      </Stat>
+    );
+  };
+
+  return (
+    <Flex direction="column" h="100vh">
+      <Alert status="error">
+        <AlertIcon />
+        <AlertTitle fontSize="md">{t("GameErrorPage.title")}</AlertTitle>
+      </Alert>
+      <Box flex="1" overflowY="auto">
+        <VStack align="stretch" spacing={4} p={4} pb={0}>
+          <HStack>
+            {[...basicInfoParams.entries()].map(([title, value]) =>
+              renderStats({
+                title: t(`GameErrorPage.basicInfo.${title}`),
+                value,
+                key: title,
+              })
+            )}
+          </HStack>
+
+          {renderStats({
+            title: t("GameErrorPage.gameInfo.gameVersion"),
+            value: "1.20.4 + Fabric 0.15.11", // TBD
+            helper: (
+              <HStack spacing={1}>
+                <Text className="secondary-text" fontSize="sm">
+                  /mock/path/to/minecraft/
+                </Text>
+                <Tooltip label={t("General.openFolder")}>
+                  <IconButton
+                    aria-label={"open"}
+                    icon={<LuFolderOpen />}
+                    variant="ghost"
+                    size="sm"
+                    h={21}
+                    // onClick={() => {}} TBD
+                  />
+                </Tooltip>
+              </HStack>
+            ),
+          })}
+          {renderStats({
+            title: t("GameErrorPage.javaInfo.javaVersion"),
+            value: "JDK 21.0.3", // TBD
+            helper: (
+              <HStack spacing={1}>
+                <Text className="secondary-text" fontSize="sm">
+                  /mock/path/to/java/
+                </Text>
+                <Tooltip label={t("General.openFolder")}>
+                  <IconButton
+                    aria-label={"open"}
+                    icon={<LuFolderOpen />}
+                    variant="ghost"
+                    size="sm"
+                    h={21}
+                    // onClick={() => {}} TBD
+                  />
+                </Tooltip>
+              </HStack>
+            ),
+          })}
+          <VStack spacing={1} align="stretch">
+            <Text fontSize="xs-sm">
+              {t("GameErrorPage.crashDetails.title")}
+            </Text>
+          </VStack>
+        </VStack>
+      </Box>
+
+      <HStack mt="auto" p={4}>
+        <Button colorScheme={primaryColor} variant="solid">
+          {t("GameErrorPage.button.exportGameInfo")}
+        </Button>
+        <Button colorScheme={primaryColor} variant="solid">
+          {t("GameErrorPage.button.gameLogs")}
+        </Button>
+        <Button colorScheme={primaryColor} variant="solid">
+          {t("GameErrorPage.button.help")}
+        </Button>
+        <Icon ml={2} as={LuCircleAlert} color="red.500" />
+        <Text fontSize="xs-sm" color="red.500">
+          {t("GameErrorPage.bottomAlert")}
+        </Text>
+      </HStack>
+    </Flex>
+  );
+};
+
+export default GameErrorPage;
