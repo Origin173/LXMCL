@@ -15,7 +15,7 @@ const AllGamesPage = () => {
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const selectedViewType = config.page.games.viewType;
+  const selectedViewType = config.states.allGamesPage.viewType;
 
   const { getSelectedGameInstance, getGameInstanceSummaryList } = useData();
   const [selectedGameInstance, setSelectedGameInstance] =
@@ -56,7 +56,7 @@ const AllGamesPage = () => {
           <SegmentedControl
             selected={selectedViewType}
             onSelectItem={(s) => {
-              update("page.games.viewType", s as string);
+              update("states.allGamesPage.viewType", s as string);
             }}
             size="2xs"
             items={viewTypeList.map((item) => ({
@@ -71,9 +71,11 @@ const AllGamesPage = () => {
             size="xs"
             colorScheme={primaryColor}
             variant={primaryColor === "gray" ? "subtle" : "outline"}
-            onClick={() => {}} // TODO
+            onClick={() => {
+              router.push("/games/add-import");
+            }}
           >
-            {t("AllGamesPage.Button.addAndImport")}
+            {t("AllGamesPage.button.addAndImport")}
           </Button>
           <Button
             leftIcon={<LuPlay />}
@@ -82,7 +84,7 @@ const AllGamesPage = () => {
             isDisabled={!selectedGameInstance}
             onClick={() => {}} // TODO
           >
-            {t("AllGamesPage.Button.launch")}
+            {t("AllGamesPage.button.launch")}
           </Button>
         </HStack>
       }

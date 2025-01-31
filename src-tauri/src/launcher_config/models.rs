@@ -1,5 +1,7 @@
+use crate::utils::sys_info;
 use partial_derive::Partial;
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -43,12 +45,21 @@ structstruck::strike! {
   }
 }
 
+#[derive(Partial, Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct GameDirectory {
+  pub name: String,
+  pub dir: PathBuf,
+}
+
 structstruck::strike! {
   #[strikethrough[derive(Partial, Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]]
   #[strikethrough[serde(rename_all = "camelCase", deny_unknown_fields)]]
   pub struct LauncherConfig {
     pub version: String,
+    // mocked: false when invoked from the backend, true when the frontend placeholder data is used during loading.
     pub mocked: bool,
+    pub run_count: usize,
     pub appearance: struct AppearanceConfig {
       pub theme: struct {
         pub primary_color: String,
@@ -62,14 +73,14 @@ structstruck::strike! {
       pub source: struct {
         pub strategy: String,
       },
-      pub download: struct {
+      pub transmission: struct {
         pub auto_concurrent: bool,
         pub concurrent_count: usize,
         pub enable_speed_limit: bool,
         pub speed_limit_value: usize,
       },
       pub cache: struct {
-        pub directory: String,
+        pub directory: PathBuf,
       }
     },
     pub general: struct GeneralConfig {
@@ -81,13 +92,17 @@ structstruck::strike! {
       }
     },
     pub global_game_config: GameConfig,
-    pub page: struct Page {
-      pub accounts: struct {
+    pub local_game_directories: Vec<GameDirectory>,
+    pub states: struct States {
+      pub accounts_page: struct {
         pub view_type: String
       },
-      pub games: struct {
+      pub all_games_page: struct {
         pub view_type: String
       },
+      pub game_version_selector: struct {
+        pub game_types: Vec<String>
+      }
     }
   }
 }
@@ -121,6 +136,7 @@ impl Default for LauncherConfig {
     Self {
       version: "dev".to_string(),
       mocked: false,
+      run_count: 0,
       appearance: AppearanceConfig {
         theme: Theme {
           primary_color: "blue".to_string(),
@@ -134,29 +150,36 @@ impl Default for LauncherConfig {
         source: Source {
           strategy: "auto".to_string(),
         },
-        download: Download {
+        transmission: Transmission {
           auto_concurrent: true,
           concurrent_count: 64,
           enable_speed_limit: false,
           speed_limit_value: 1024,
         },
         cache: Cache {
-          directory: "/mock/path/to/cache/".to_string(),
+          directory: PathBuf::default(),
         },
       },
       general: GeneralConfig {
         general: General {
-          language: "zh-Hans".to_string(),
+          language: sys_info::get_mapped_locale(),
         },
         optional_functions: OptionalFunctions { discover: false },
       },
       global_game_config: GameConfig::default(),
-      page: Page {
-        accounts: Accounts {
+      local_game_directories: vec![GameDirectory {
+        name: "CURRENT_DIR".to_string(),
+        dir: PathBuf::from(".minecraft"),
+      }],
+      states: States {
+        accounts_page: AccountsPage {
           view_type: "grid".to_string(),
         },
-        games: Games {
+        all_games_page: AllGamesPage {
           view_type: "list".to_string(),
+        },
+        game_version_selector: GameVersionSelector {
+          game_types: ["release".to_string()].to_vec(),
         },
       },
     }

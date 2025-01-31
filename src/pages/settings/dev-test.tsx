@@ -1,7 +1,7 @@
 import { Alert, AlertIcon, Button, VStack } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import SkinPreview from "@/components/common/skin-preview";
+import SkinPreview from "@/components/skin-preview";
 import { isProd } from "@/utils/env";
 import { createWindow } from "@/utils/window";
 
@@ -29,8 +29,8 @@ const DevTestPage = () => {
       {/* Use this button to navigate to pages awaiting testing but not directly accessible (e.g. game-log) */}
       <Button
         onClick={() => {
-          createWindow("", "/standalone/game-log", {
-            title: "Game Log",
+          createWindow("", "/standalone/game-error", {
+            title: "Game Error",
             minWidth: 640,
             minHeight: 440,
           });

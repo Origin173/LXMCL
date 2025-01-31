@@ -16,7 +16,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
@@ -34,6 +34,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const { isOpen, onClose } = modalProps;
+  const initialRef = useRef(null);
 
   const [serverUrl, setServerUrl] = useState<string>("");
   const [serverName, setServerName] = useState<string>("");
@@ -99,7 +100,11 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   };
 
   return (
-    <Modal {...modalProps}>
+    <Modal
+      size={{ base: "md", lg: "lg", xl: "xl" }}
+      initialFocusRef={initialRef}
+      {...modalProps}
+    >
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{t("AddAuthServerModal.header.title")}</ModalHeader>
@@ -120,6 +125,8 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
                 value={serverUrl}
                 onChange={(e) => setServerUrl(e.target.value)}
                 onBlur={() => setIsServerUrlTouched(true)}
+                ref={initialRef}
+                focusBorderColor={`${primaryColor}.500`}
               />
               {isServerUrlInvalid && (
                 <FormErrorMessage>
@@ -146,34 +153,32 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
         </ModalBody>
 
         <ModalFooter>
-          <HStack spacing={3} ml="auto">
-            <Button variant="ghost" onClick={onClose}>
-              {t("AddAuthServerModal.button.cancel")}
-            </Button>
-            {isNextStep ? (
-              <>
-                <Button variant="ghost" onClick={() => setIsNextStep(false)}>
-                  {t("AddAuthServerModal.button.previous")}
-                </Button>
-                <Button
-                  colorScheme={primaryColor}
-                  onClick={handleFinish}
-                  isLoading={isLoading}
-                >
-                  {t("AddAuthServerModal.button.finish")}
-                </Button>
-              </>
-            ) : (
+          <Button variant="ghost" onClick={onClose}>
+            {t("General.cancel")}
+          </Button>
+          {isNextStep ? (
+            <>
+              <Button variant="ghost" onClick={() => setIsNextStep(false)}>
+                {t("General.previous")}
+              </Button>
               <Button
                 colorScheme={primaryColor}
-                onClick={handleNextStep}
+                onClick={handleFinish}
                 isLoading={isLoading}
-                isDisabled={!serverUrl}
               >
-                {t("AddAuthServerModal.button.next")}
+                {t("General.finish")}
               </Button>
-            )}
-          </HStack>
+            </>
+          ) : (
+            <Button
+              colorScheme={primaryColor}
+              onClick={handleNextStep}
+              isLoading={isLoading}
+              isDisabled={!serverUrl}
+            >
+              {t("General.next")}
+            </Button>
+          )}
         </ModalFooter>
       </ModalContent>
     </Modal>

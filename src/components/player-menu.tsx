@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { LuEllipsis, LuTrash } from "react-icons/lu";
 import { TbHanger } from "react-icons/tb";
 import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
+import ManageSkinModal from "@/components/modals/manage-skin-modal";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
 import { Player } from "@/models/account";
@@ -28,13 +29,18 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
   variant = "dropdown",
 }) => {
   const { t } = useTranslation();
+  const toast = useToast();
   const {
     isOpen: isDeleteOpen,
     onOpen: onDeleteOpen,
     onClose: onDeleteClose,
   } = useDisclosure();
+  const {
+    isOpen: isManageSkinModalOpen,
+    onOpen: onManageSkinModalOpen,
+    onClose: onManageSkinModalClose,
+  } = useDisclosure();
   const { getPlayerList, getSelectedPlayer } = useData();
-  const toast = useToast();
 
   const handleDelete = () => {
     AccountService.deletePlayer(player.uuid).then((response) => {
@@ -60,9 +66,7 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
     {
       key: "skin",
       icon: TbHanger,
-      onClick: () => {
-        console.log("Skin operation clicked");
-      },
+      onClick: onManageSkinModalOpen,
     },
     {
       key: "delete",
@@ -125,10 +129,14 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
         body={t("DeletePlayerAlertDialog.dialog.content", {
           name: player.name,
         })}
-        btnOK={t("GenericConfirmModal.Button.delete")}
-        btnCancel={t("GenericConfirmModal.Button.cancel")}
+        btnOK={t("General.delete")}
+        btnCancel={t("General.cancel")}
         onOKCallback={handleDelete}
         isAlert
+      />
+      <ManageSkinModal
+        isOpen={isManageSkinModalOpen}
+        onClose={onManageSkinModalClose}
       />
     </>
   );

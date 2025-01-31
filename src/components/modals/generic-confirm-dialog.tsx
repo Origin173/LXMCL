@@ -55,7 +55,6 @@ const GenericConfirmDialog: React.FC<GenericConfirmDialogProps> = ({
             <Button
               colorScheme={isAlert ? "red" : primaryColor}
               onClick={onOKCallback}
-              ml={2}
             >
               {btnOK}
             </Button>

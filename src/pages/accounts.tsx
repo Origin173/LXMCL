@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuCirclePlus,
+  LuGrid2X2,
   LuHouse,
   LuLayoutGrid,
   LuLayoutList,
@@ -46,7 +47,7 @@ const AccountsPage = () => {
   const { config, update } = useLauncherConfig();
   const toast = useToast();
   const primaryColor = config.appearance.theme.primaryColor;
-  const selectedViewType = config.page.accounts.viewType;
+  const selectedViewType = config.states.accountsPage.viewType;
 
   const [selectedPlayerType, setSelectedPlayerType] = useState<string>("all");
   const [playerList, setPlayerList] = useState<Player[]>([]);
@@ -85,6 +86,11 @@ const AccountsPage = () => {
       label: t("AccountsPage.playerTypeList.all"),
     },
     { key: "offline", icon: LuLink2Off, label: t("Enums.playerTypes.offline") },
+    {
+      key: "microsoft",
+      icon: LuGrid2X2,
+      label: t("Enums.playerTypes.microsoft"),
+    },
     ...authServerList.map((server) => ({
       key: server.authUrl,
       icon: LuServer,
@@ -110,6 +116,8 @@ const AccountsPage = () => {
       return playerList;
     } else if (type === "offline") {
       return playerList.filter((player) => player.playerType === "offline");
+    } else if (type === "microsoft") {
+      return playerList.filter((player) => player.playerType === "microsoft");
     } else {
       return playerList.filter(
         (player) =>
@@ -178,7 +186,7 @@ const AccountsPage = () => {
               <HStack spacing={2}>
                 <Icon as={LuCirclePlus} />
                 <Text fontSize="sm">
-                  {t("AccountsPage.Button.add3rdPartyServer")}
+                  {t("AccountsPage.button.add3rdPartyServer")}
                 </Text>
               </HStack>
             </SelectableButton>
@@ -194,14 +202,16 @@ const AccountsPage = () => {
                 ?.label
             }
             description={
-              !["all", "offline"].includes(selectedPlayerType)
+              !["all", "offline", "microsoft"].includes(selectedPlayerType)
                 ? selectedPlayerType
                 : undefined
             }
             headExtra={
               <HStack spacing={2} alignItems="flex-start">
-                {!["all", "offline"].includes(selectedPlayerType) && (
-                  <Tooltip label={t("AccountsPage.Button.sourceHomepage")}>
+                {!["all", "offline", "microsoft"].includes(
+                  selectedPlayerType
+                ) && (
+                  <Tooltip label={t("AccountsPage.button.sourceHomepage")}>
                     <IconButton
                       aria-label="home"
                       size="xs"
@@ -218,8 +228,10 @@ const AccountsPage = () => {
                     />
                   </Tooltip>
                 )}
-                {!["all", "offline"].includes(selectedPlayerType) && (
-                  <Tooltip label={t("AccountsPage.Button.deleteServer")}>
+                {!["all", "offline", "microsoft"].includes(
+                  selectedPlayerType
+                ) && (
+                  <Tooltip label={t("AccountsPage.button.deleteServer")}>
                     <IconButton
                       aria-label="home"
                       size="xs"
@@ -233,7 +245,7 @@ const AccountsPage = () => {
                 <SegmentedControl
                   selected={selectedViewType}
                   onSelectItem={(s) => {
-                    update("page.accounts.viewType", s as string);
+                    update("states.accountsPage.viewType", s as string);
                   }}
                   size="2xs"
                   items={viewTypeList.map((item) => ({
@@ -249,7 +261,7 @@ const AccountsPage = () => {
                   colorScheme={primaryColor}
                   onClick={onAddPlayerModalOpen}
                 >
-                  {t("AccountsPage.Button.addPlayer")}
+                  {t("AccountsPage.button.addPlayer")}
                 </Button>
               </HStack>
             }
@@ -266,7 +278,6 @@ const AccountsPage = () => {
       <AddAuthServerModal
         isOpen={isAddAuthServerModalOpen}
         onClose={onAddAuthServerModalClose}
-        isCentered
       />
       <GenericConfirmDialog
         isAlert
@@ -278,8 +289,8 @@ const AccountsPage = () => {
             (server) => server.authUrl === selectedPlayerType
           )?.name,
         })}
-        btnOK={t("GenericConfirmModal.Button.delete")}
-        btnCancel={t("GenericConfirmModal.Button.cancel")}
+        btnOK={t("General.delete")}
+        btnCancel={t("General.cancel")}
         onOKCallback={handleDeleteAuthServer}
       />
       <AddPlayerModal
@@ -288,14 +299,15 @@ const AccountsPage = () => {
         initialPlayerType={
           selectedPlayerType === "all" || selectedPlayerType === "offline"
             ? "offline"
-            : "3rdparty"
+            : selectedPlayerType === "microsoft"
+              ? "microsoft"
+              : "3rdparty"
         }
         initialAuthServerUrl={
-          selectedPlayerType === "all" || selectedPlayerType === "offline"
+          ["all", "offline", "microsoft"].includes(selectedPlayerType)
             ? ""
             : selectedPlayerType
         }
-        isCentered
       />
     </>
   );

@@ -2,6 +2,7 @@ import {
   Button,
   Flex,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Icon,
   Input,
@@ -21,9 +22,15 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuChevronDown, LuLink2Off, LuPlus, LuServer } from "react-icons/lu";
+import {
+  LuChevronDown,
+  LuGrid2X2,
+  LuLink2Off,
+  LuPlus,
+  LuServer,
+} from "react-icons/lu";
 import SegmentedControl from "@/components/common/segmented";
 import AddAuthServerModal from "@/components/modals/add-auth-server-modal";
 import { useLauncherConfig } from "@/contexts/config";
@@ -33,7 +40,7 @@ import { AuthServer } from "@/models/account";
 import { AccountService } from "@/services/account";
 
 interface AddPlayerModalProps extends Omit<ModalProps, "children"> {
-  initialPlayerType?: "offline" | "3rdparty";
+  initialPlayerType?: "offline" | "microsoft" | "3rdparty";
   initialAuthServerUrl?: string;
 }
 
@@ -49,15 +56,16 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     setAuthServerList(getAuthServerList() || []);
   }, [getAuthServerList]);
   const toast = useToast();
-  const [playerType, setPlayerType] = useState<"offline" | "3rdparty">(
-    "offline"
-  );
+  const [playerType, setPlayerType] = useState<
+    "offline" | "microsoft" | "3rdparty"
+  >("offline");
   const [playername, setPlayername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [authServerUrl, setAuthServerUrl] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const initialRef = useRef(null);
 
   const {
     isOpen: isAddAuthServerModalOpen,
@@ -79,6 +87,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   useEffect(() => {
     setPassword("");
   }, [playerType]);
+
+  const isOfflinePlayernameValid = /^[a-zA-Z0-9_]{0,16}$/.test(playername);
 
   const handleLogin = () => {
     setIsLoading(true);
@@ -112,14 +122,23 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
       label: t("Enums.playerTypes.offline"),
     },
     {
+      key: "microsoft",
+      icon: LuGrid2X2,
+      label: t("Enums.playerTypes.microsoft"),
+    },
+    {
       key: "3rdparty",
       icon: LuServer,
-      label: t("Enums.playerTypes.3rdparty"),
+      label: t("Enums.playerTypes.3rdpartyShort"),
     },
   ];
 
   return (
-    <Modal {...modalProps}>
+    <Modal
+      size={{ base: "md", lg: "lg", xl: "xl" }}
+      initialFocusRef={initialRef}
+      {...modalProps}
+    >
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{t("AddPlayerModal.modal.header")}</ModalHeader>
@@ -131,7 +150,9 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
               <FormLabel>{t("AddPlayerModal.label.playerType")}</FormLabel>
               <SegmentedControl
                 selected={playerType}
-                onSelectItem={(s) => setPlayerType(s as "offline" | "3rdparty")}
+                onSelectItem={(s) =>
+                  setPlayerType(s as "offline" | "microsoft" | "3rdparty")
+                }
                 size="sm"
                 items={playerTypeList.map((item) => ({
                   label: item.key,
@@ -146,17 +167,29 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
               />
             </FormControl>
 
-            {playerType === "offline" ? (
-              <FormControl isRequired>
+            {playerType === "offline" && (
+              <FormControl isRequired isInvalid={!isOfflinePlayernameValid}>
                 <FormLabel>{t("AddPlayerModal.label.playerName")}</FormLabel>
                 <Input
                   placeholder={t("AddPlayerModal.placeholder.playerName")}
                   value={playername}
                   onChange={(e) => setPlayername(e.target.value)}
                   required
+                  ref={initialRef}
+                  focusBorderColor={`${primaryColor}.500`}
                 />
+                {!isOfflinePlayernameValid && (
+                  <FormErrorMessage>
+                    {t("AddPlayerModal.errorMessage.playerName")}
+                  </FormErrorMessage>
+                )}
               </FormControl>
-            ) : (
+            )}
+
+            {playerType === "microsoft" && (
+              <FormControl>{/*TODO*/}</FormControl>
+            )}
+            {playerType === "3rdparty" && (
               <>
                 {authServerList.length === 0 ? (
                   <Stack direction="row" align="center">
@@ -219,6 +252,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                             value={playername}
                             onChange={(e) => setPlayername(e.target.value)}
                             required
+                            ref={initialRef}
+                            focusBorderColor={`${primaryColor}.500`}
                           />
                         </FormControl>
                         <FormControl isRequired>
@@ -233,6 +268,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
+                            focusBorderColor={`${primaryColor}.500`}
                           />
                         </FormControl>
                       </>
@@ -246,28 +282,27 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
 
         <ModalFooter>
           <Button variant="ghost" onClick={modalProps.onClose}>
-            {t("AddPlayerModal.modal.cancel")}
+            {t("General.cancel")}
           </Button>
           <Button
             colorScheme={primaryColor}
             onClick={handleLogin}
-            ml={3}
             isLoading={isLoading}
             isDisabled={
               !playername ||
+              (playerType === "offline" && !isOfflinePlayernameValid) ||
               (playerType === "3rdparty" &&
                 authServerList.length > 0 &&
                 (!authServerUrl || !password))
             }
           >
-            {t("AddPlayerModal.modal.confirm")}
+            {t("General.confirm")}
           </Button>
         </ModalFooter>
       </ModalContent>
       <AddAuthServerModal
         isOpen={isAddAuthServerModalOpen}
         onClose={onAddAuthServerModalClose}
-        isCentered
       />
     </Modal>
   );

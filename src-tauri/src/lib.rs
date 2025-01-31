@@ -1,10 +1,12 @@
 mod account;
 mod error;
+mod instance;
 mod launcher_config;
 mod partial;
 mod storage;
 mod utils;
 
+use std::fs;
 use std::path::PathBuf;
 use std::sync::{LazyLock, Mutex};
 
@@ -13,6 +15,7 @@ use storage::Storage;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use tauri::menu::MenuBuilder;
+use tauri::path::BaseDirectory;
 use tauri::Manager;
 
 static EXE_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
@@ -25,6 +28,7 @@ static EXE_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
 
 pub async fn run() {
   tauri::Builder::default()
+    .plugin(tauri_plugin_process::init())
     .plugin(tauri_plugin_window_state::Builder::new().build())
     .plugin(tauri_plugin_http::init())
     .plugin(tauri_plugin_os::init())
@@ -44,6 +48,7 @@ pub async fn run() {
       account::commands::retrive_auth_server_info,
       account::commands::add_auth_server,
       account::commands::delete_auth_server,
+      instance::commands::get_game_servers,
     ])
     .setup(|app| {
       let is_dev = cfg!(debug_assertions);
@@ -59,19 +64,36 @@ pub async fn run() {
 
       // Set the launcher config
       let mut launcher_config: LauncherConfig = LauncherConfig::load().unwrap_or_default();
+
+      // Set default download cache dir if not exists, create dir
+      if launcher_config.download.cache.directory == PathBuf::default() {
+        launcher_config.download.cache.directory = app
+          .handle()
+          .path()
+          .resolve::<PathBuf>("Download".into(), BaseDirectory::AppCache)
+          .unwrap();
+      }
+
+      if !launcher_config.download.cache.directory.exists() {
+        fs::create_dir_all(&launcher_config.download.cache.directory).unwrap();
+      }
+
       launcher_config.version = version.clone();
       launcher_config.save().unwrap();
 
       app.manage(Mutex::new(launcher_config));
 
+      // On platforms other than macOS, set the menu to empty to hide the default menu.
+      // On macOS, some shortcuts depend on default menu: https://github.com/tauri-apps/tauri/issues/12458
+      if os.clone() != "macos" {
+        let menu = MenuBuilder::new(app).build()?;
+        app.set_menu(menu)?;
+      };
+
       // send statistics
       tokio::spawn(async move {
-        let _ = utils::send_statistics(version, os).await;
+        utils::sys_info::send_statistics(version, os).await;
       });
-
-      // Set up menu
-      let menu = MenuBuilder::new(app).build()?;
-      app.set_menu(menu)?;
 
       // Log in debug mode
       if is_dev {

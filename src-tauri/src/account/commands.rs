@@ -71,6 +71,23 @@ pub async fn add_player(
       state.save()?;
       Ok(())
     }
+    "microsoft" => {
+      let player = PlayerInfo {
+        name: username,
+        uuid,
+        player_type,
+        // this url for avatar_src is a mock.
+        avatar_src: "https://littleskin.cn/avatar/0?size=72&png=1".to_string(),
+        auth_account: "".to_string(),
+        password: "".to_string(),
+        auth_server_url: "".to_string(),
+      };
+
+      state.selected_player_id = uuid.to_string();
+      state.players.push(player);
+      state.save()?;
+      Ok(())
+    }
     "3rdparty" => {
       // todo: real login
       let player = PlayerInfo {

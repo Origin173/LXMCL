@@ -1,3 +1,5 @@
+import { ModLoaderType } from "@/models/resource";
+
 export interface GameInstanceSummary {
   id: number;
   uuid: string;
@@ -6,7 +8,7 @@ export interface GameInstanceSummary {
   description?: string;
   version: string;
   modLoader: {
-    type: "none" | "Fabric" | "Forge" | "NeoForge";
+    type: ModLoaderType;
     version?: string;
   };
 }
@@ -20,18 +22,22 @@ export interface Screenshot {
 export interface WorldInfo {
   name: string;
   lastPlayedAt: string;
-  iconUrl: string;
+  iconSrc: string;
   fileDir: string;
 }
 
 export interface GameServerInfo {
-  icon: string;
+  iconSrc: string;
   ip: string;
   name: string;
+  isQueried: boolean;
+  playersOnline?: number;
+  playersMax?: number;
+  online: boolean;
 }
 
 export interface LocalModInfo {
-  icon: string;
+  iconSrc: string;
   enabled: boolean;
   name: string;
   transltedName?: string;
@@ -44,7 +50,7 @@ export interface LocalModInfo {
 export interface ResourcePacksInfo {
   name: string;
   description?: string;
-  iconUrl?: string;
+  iconSrc?: string;
   fileDir: string;
 }
 

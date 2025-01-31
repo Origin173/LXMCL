@@ -19,10 +19,15 @@ export interface GameConfig {
     enabled: boolean;
   };
 }
+export interface GameDirectory {
+  name: string;
+  dir: string;
+}
 
 export interface LauncherConfig {
   version: string;
   mocked: boolean;
+  runCount: number;
   appearance: {
     theme: {
       primaryColor: string;
@@ -36,7 +41,7 @@ export interface LauncherConfig {
     source: {
       strategy: string;
     };
-    download: {
+    transmission: {
       autoConcurrent: boolean;
       concurrentCount: number;
       enableSpeedLimit: boolean;
@@ -54,13 +59,17 @@ export interface LauncherConfig {
       discover: boolean;
     };
   };
+  localGameDirectories: GameDirectory[];
   globalGameConfig: GameConfig;
-  page: {
-    accounts: {
+  states: {
+    accountsPage: {
       viewType: string;
     };
-    games: {
+    allGamesPage: {
       viewType: string;
+    };
+    gameVersionSelector: {
+      gameTypes: string[];
     };
   };
 }
@@ -90,6 +99,7 @@ export const defaultGameConfig: GameConfig = {
 export const defaultConfig: LauncherConfig = {
   version: "dev",
   mocked: true,
+  runCount: -1,
   appearance: {
     theme: {
       primaryColor: "blue",
@@ -103,7 +113,7 @@ export const defaultConfig: LauncherConfig = {
     source: {
       strategy: "auto",
     },
-    download: {
+    transmission: {
       autoConcurrent: true,
       concurrentCount: 64,
       enableSpeedLimit: false,
@@ -121,13 +131,17 @@ export const defaultConfig: LauncherConfig = {
       discover: false,
     },
   },
+  localGameDirectories: [{ name: "Current", dir: ".minecraft/" }],
   globalGameConfig: defaultGameConfig,
-  page: {
-    accounts: {
+  states: {
+    accountsPage: {
       viewType: "grid",
     },
-    games: {
+    allGamesPage: {
       viewType: "list",
+    },
+    gameVersionSelector: {
+      gameTypes: ["release"],
     },
   },
 };

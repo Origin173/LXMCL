@@ -1,4 +1,5 @@
 import {
+  Box,
   BoxProps,
   Card,
   Divider,
@@ -18,12 +19,13 @@ export interface OptionItemProps extends BoxProps {
   titleExtra?: React.ReactNode;
   description?: React.ReactNode;
   isLoading?: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   childrenOnHover?: boolean;
 }
 
 export interface OptionItemGroupProps extends SectionProps {
   items: (OptionItemProps | React.ReactNode)[];
+  withDivider?: boolean;
 }
 
 export const OptionItem: React.FC<OptionItemProps> = ({
@@ -41,7 +43,7 @@ export const OptionItem: React.FC<OptionItemProps> = ({
   return (
     <Flex
       justify="space-between"
-      alignItems="self-start"
+      alignItems="center"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       {...boxProps}
@@ -57,9 +59,16 @@ export const OptionItem: React.FC<OptionItemProps> = ({
                 {title}
               </Text>
             </Skeleton>
-            {titleExtra && (
-              <Skeleton isLoaded={!isLoading}>{titleExtra}</Skeleton>
-            )}
+            {titleExtra &&
+              (isLoading ? (
+                <Skeleton isLoaded={!isLoading}>
+                  <Text fontSize="xs-sm">
+                    PLACEHOLDER {/*width holder for skeleton*/}
+                  </Text>
+                </Skeleton>
+              ) : (
+                titleExtra
+              ))}
           </HStack>
           {description &&
             (typeof description === "string" ? (
@@ -89,6 +98,7 @@ export const OptionItem: React.FC<OptionItemProps> = ({
 
 export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
   items,
+  withDivider = true,
   ...props
 }) => {
   function isOptionItemProps(item: any): item is OptionItemProps {
@@ -116,7 +126,8 @@ export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
               ) : (
                 item
               )}
-              {index !== items.length - 1 && <Divider my={2} />}
+              {index !== items.length - 1 &&
+                (withDivider ? <Divider my={2} /> : <Box h={2} />)}
             </React.Fragment>
           ))}
         </Card>

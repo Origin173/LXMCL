@@ -101,17 +101,17 @@ const DownloadSettingsPage = () => {
           children: (
             <Switch
               colorScheme={primaryColor}
-              isChecked={downloadConfigs.download.autoConcurrent}
+              isChecked={downloadConfigs.transmission.autoConcurrent}
               onChange={(event) => {
                 update(
-                  "download.download.autoConcurrent",
+                  "download.transmission.autoConcurrent",
                   event.target.checked
                 );
               }}
             />
           ),
         },
-        ...(downloadConfigs.download.autoConcurrent
+        ...(downloadConfigs.transmission.autoConcurrent
           ? []
           : [
               {
@@ -126,9 +126,9 @@ const DownloadSettingsPage = () => {
                       step={1}
                       w={32}
                       colorScheme={primaryColor}
-                      value={downloadConfigs.download.concurrentCount}
+                      value={downloadConfigs.transmission.concurrentCount}
                       onChange={(value) => {
-                        update("download.download.concurrentCount", value);
+                        update("download.transmission.concurrentCount", value);
                       }}
                     >
                       <SliderTrack>
@@ -141,10 +141,11 @@ const DownloadSettingsPage = () => {
                       max={128}
                       size="xs"
                       maxW={16}
-                      value={downloadConfigs.download.concurrentCount}
+                      focusBorderColor={`${primaryColor}.500`}
+                      value={downloadConfigs.transmission.concurrentCount}
                       onChange={(value) => {
                         update(
-                          "download.download.concurrentCount",
+                          "download.transmission.concurrentCount",
                           Number(value)
                         );
                       }}
@@ -170,17 +171,17 @@ const DownloadSettingsPage = () => {
           children: (
             <Switch
               colorScheme={primaryColor}
-              isChecked={downloadConfigs.download.enableSpeedLimit}
+              isChecked={downloadConfigs.transmission.enableSpeedLimit}
               onChange={(event) => {
                 update(
-                  "download.download.enableSpeedLimit",
+                  "download.transmission.enableSpeedLimit",
                   event.target.checked
                 );
               }}
             />
           ),
         },
-        ...(downloadConfigs.download.enableSpeedLimit
+        ...(downloadConfigs.transmission.enableSpeedLimit
           ? [
               {
                 title: t(
@@ -192,10 +193,11 @@ const DownloadSettingsPage = () => {
                       min={1}
                       size="xs"
                       maxW={16}
-                      value={downloadConfigs.download.speedLimitValue}
+                      focusBorderColor={`${primaryColor}.500`}
+                      value={downloadConfigs.transmission.speedLimitValue}
                       onChange={(value) => {
                         update(
-                          "download.download.speedLimitValue",
+                          "download.transmission.speedLimitValue",
                           Number(value)
                         );
                       }}

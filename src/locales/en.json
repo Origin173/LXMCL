@@ -24,6 +24,14 @@
           "title": "BMCLAPI",
           "description": "Thanks to @bangbang93 for providing the high-speed download source mirror"
         },
+        "littleskin": {
+          "title": "LittleSkin",
+          "description": "Thanks to LittleSkin and @tnqzh123 for their help with the login process design"
+        },
+        "sinter": {
+          "title": "Sinter",
+          "description": "Used as the interface font on Windows and Linux platforms, under the SIL License"
+        },
         "skinview3d": {
           "title": "bs-community / skinview3d",
           "description": "Our skin preview component is built based on this open-source project, under the MIT License"
@@ -35,7 +43,7 @@
       "settings": {
         "copyright": {
           "title": "Copyright",
-          "description": "Copyright © 2024 SJMCL Team."
+          "description": "Copyright © 2024-2025 SJMCL Team."
         },
         "userAgreement": {
           "title": "User Agreement"
@@ -48,7 +56,7 @@
     }
   },
   "AccountsPage": {
-    "Button": {
+    "button": {
       "addPlayer": "Add Player",
       "add3rdPartyServer": "Add 3rd-party Auth",
       "sourceHomepage": "View Homepage",
@@ -60,6 +68,22 @@
     "viewTypeList": {
       "grid": "Grid View",
       "list": "List View"
+    }
+  },
+  "AddAndImportInstancePage": {
+    "addAndImportOptions": {
+      "new": {
+        "title": "Install New Instance",
+        "description": "Choose and install game versions, loaders and mods"
+      },
+      "modpack": {
+        "title": "Import Modpack",
+        "description": "Import a modpack (CurseForge, Modrinth or HMCL formats) from local files or the internet"
+      },
+      "manageDirs": {
+        "title": "Manage Game Directories",
+        "description": "Manage local game storage directories to add installed instances"
+      }
     }
   },
   "AddAuthServerModal": {
@@ -76,19 +100,11 @@
     "page2": {
       "name": "Name",
       "serverUrl": "Server URL"
-    },
-    "button": {
-      "cancel": "Cancel",
-      "previous": "Previous",
-      "finish": "Finish",
-      "next": "Next"
     }
   },
   "AddPlayerModal": {
     "modal": {
-      "header": "Add Player",
-      "confirm": "Add",
-      "cancel": "Cancel"
+      "header": "Add Player"
     },
     "label": {
       "playerType": "Player Type",
@@ -104,10 +120,13 @@
     "placeholder": {
       "playerName": "Player Name",
       "password": "Password"
+    },
+    "errorMessage": {
+      "playerName": "Can only contain letters, numbers, and underscores, within 16 characters."
     }
   },
   "AllGamesPage": {
-    "Button": {
+    "button": {
       "addAndImport": "Add & Import",
       "globalSettings": "Global Game Settings",
       "launch": "Launch Game"
@@ -167,6 +186,17 @@
       "design": "Visual Design"
     }
   },
+  "CreateInstanceModal": {
+    "header": {
+      "title": "Create New Instance"
+    },
+    "stepper": {
+      "game": "Game",
+      "loader": "Loader",
+      "skipped": "Skipped",
+      "info": "Basic Settings"
+    }
+  },
   "DeleteGameAlertDialog": {
     "dialog": {
       "title": "Delete Game Instance",
@@ -187,13 +217,12 @@
   },
   "DiscoverPage": {
     "title": "Discover",
-    "Button": {
-      "sources": "Manage Sources",
-      "refresh": "Refresh"
+    "button": {
+      "sources": "Manage Sources"
     }
   },
   "DiscoverSourcesPage": {
-    "Button": {
+    "button": {
       "addSource": "Add Source",
       "deleteSource": "Delete"
     },
@@ -241,6 +270,11 @@
       }
     }
   },
+  "Editable": {
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
   "Empty": {
     "noData": "No Data"
   },
@@ -258,10 +292,34 @@
       "pink": "Pink"
     },
     "playerTypes": {
+      "microsoft": "Microsoft",
       "offline": "Offline Mode",
       "3rdparty": "3rd-party Authentication",
       "3rdpartyShort": "3rd-party Auth"
     }
+  },
+  "GameErrorPage": {
+    "title": "Game exited unexpectedly. Check the logs or seek assistance.",
+    "basicInfo": {
+      "arch": "Arch",
+      "launcherVersion": "Launcher Version",
+      "os": "OS"
+    },
+    "gameInfo": {
+      "gameVersion": "Minecraft Version"
+    },
+    "javaInfo": {
+      "javaVersion": "Java Version"
+    },
+    "crashDetails": {
+      "title": "Crash Details"
+    },
+    "button": {
+      "exportGameInfo": "Export Crash Report",
+      "gameLogs": "Game Logs",
+      "help": "Help"
+    },
+    "bottomAlert": "Export and send the crash report instead of a screenshot for help."
   },
   "GameLogPage": {
     "placeholder": "Filter by Text",
@@ -274,12 +332,31 @@
       "delete": "Delete"
     }
   },
+  "GameVersionSelector": {
+    "old_beta": "Old Beta",
+    "release": "Release",
+    "snapshot": "Snapshot",
+    "wikiKey": {
+      "release": "Java_Edition_",
+      "snapshot": "",
+      "old_beta": "Java_Edition_Beta_"
+    }
+  },
   "General": {
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "delete": "Delete",
     "disable": "Disable",
     "enable": "Enable",
+    "finish": "Finish",
+    "next": "Next",
     "open": "Open",
     "openFolder": "Open Folder",
-    "openInFolder": "Open in Folder"
+    "openInFolder": "Open in Folder",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "viewOnWiki": "View on Minecraft Wiki"
   },
   "GeneralSettingsPage": {
     "general": {
@@ -299,13 +376,17 @@
       }
     }
   },
-  "GenericConfirmModal": {
-    "Button": {
-      "delete": "Delete",
-      "cancel": "Cancel"
-    }
-  },
   "GlobalGameSettingsPage": {
+    "directories": {
+      "title": "Game Directories",
+      "settings": {
+        "directories": {
+          "title": "Manage Local Game Storage Directories",
+          "add": "Add",
+          "currentDir": "Current"
+        }
+      }
+    },
     "performance": {
       "title": "Performance",
       "settings": {
@@ -413,6 +494,9 @@
       }
     }
   },
+  "InstanceBasicSettings": {
+    "selectDirectory": "Select Game Diretory"
+  },
   "InstanceLayout": {
     "instanceTabList": {
       "overview": "Overview",
@@ -423,7 +507,7 @@
       "screenshots": "Screenshots",
       "settings": "Settings"
     },
-    "Button": {
+    "button": {
       "launch": "Launch Instance"
     }
   },
@@ -439,15 +523,6 @@
       }
     }
   },
-  "InstanceWorldsPage": {
-    "worldList": {
-      "title": "Worlds",
-      "lastPlayedAt": "Last played"
-    },
-    "serverList": {
-      "title": "Servers"
-    }
-  },
   "InstanceResourcePacksPage": {
     "resourcePackList": {
       "title": "Global Resource Packs"
@@ -456,13 +531,56 @@
       "title": "Server Resource Packs"
     }
   },
+  "InstanceSettingsPage": {
+    "name": "Instance Name",
+    "description": "Instance Description",
+    "icon": "Instance Icon",
+    "applySettings": "Apply the following specific settings",
+    "restoreSettings": "Restore to default settings",
+    "restoreSettingsDesc": "Restore the following specific settings to their default values",
+    "restore": "Restore",
+    "errorMessage": {
+      "error-1": "Instance name cannot be empty"
+    }
+  },
   "InstanceShaderPacksPage": {
     "shaderPackList": {
       "title": "Shader Packs"
     }
   },
+  "InstanceWidgets": {
+    "basicInfo": {
+      "title": "Basic Info",
+      "gameVersion": "Version",
+      "playTime": "Playtime"
+    },
+    "screenshots": {
+      "title": "Screenshots"
+    }
+  },
+  "InstanceWorldsPage": {
+    "worldList": {
+      "title": "Worlds",
+      "lastPlayedAt": "Last played"
+    },
+    "serverList": {
+      "title": "Servers",
+      "players": "Players",
+      "tag": {
+        "online": "Online",
+        "offline": "Offline"
+      }
+    }
+  },
+  "JavaSettingsPage":{
+    "javaList":{
+      "title":"Java Management",
+      "download":"Download Java",
+      "add":"Add Java"
+    }
+  },
   "LaunchPage": {
-    "Button": {
+    "button": {
       "launch": "Launch Game"
     },
     "SwitchButton": {
@@ -476,6 +594,12 @@
       "noSelectedGame": "No game instance selected"
     }
   },
+  "ManageSkinModal": {
+    "skinManage": "Manage Skin",
+    "default": "Default",
+    "steve": "Steve",
+    "alex": "Alex"
+  },
   "MemoryStatusProgress": {
     "title": "Memory Status",
     "info": "{{used}} / {{total}} GB used",
@@ -486,7 +610,14 @@
   },
   "ModLoaderCards": {
     "installed": "Installed",
-    "unInstalled": "Not Installed"
+    "unInstalled": "Not Installed",
+    "notCompatibleWith": "Not compatible with {{modLoader}}",
+    "versionNotSelected": "No version selected"
+  },
+  "ModLoaderSelector": {
+    "stable": "Stable",
+    "beta": "Beta",
+    "releaseDate": "Released at {{date}}"
   },
   "NotFoundPage": {
     "text": "Page not found, redirecting to launch page in {{seconds}} seconds..."
@@ -499,8 +630,7 @@
   },
   "RestoreConfigConfirmDialog": {
     "title": "Restore Launcher Settings",
-    "body": "This action will restore all launcher settings to their default values. Are you sure you want to proceed?",
-    "btnOk": "Confirm"
+    "body": "This action will restore all launcher settings to their default values. Are you sure you want to proceed?"
   },
   "Services": {
     "config": {
@@ -580,7 +710,7 @@
       "dev-test": "Dev - Test Page"
     }
   },
-  "SkinPreview":{
+  "SkinPreview": {
     "cape": "Cape",
     "animation": {
       "idle": "Idle",
@@ -588,11 +718,21 @@
       "run": "Run",
       "wave": "Wave"
     },
-    "Button": {
+    "button": {
       "enableRotation": "Enable Rotation",
       "disableRotation": "Disable Rotation",
       "play": "Play",
       "pause": "Pause"
+    }
+  },
+  "StarUsModal": {
+    "header": {
+      "title": "Star Us on GitHub"
+    },
+    "body": "If you love our product and would like to support us, could you give us a star on GitHub? This small action means a lot to us and will motivate us to continue delivering new features and experiences for you.",
+    "button": {
+      "later": "Later",
+      "starUs": "Star Us"
     }
   },
   "SyncAndRestoreSettingsPage": {
@@ -620,10 +760,7 @@
       "token": "Token"
     },
     "helper": "Enter the token above into the device to be synced",
-    "countdown": "{{seconds}} seconds until refresh",
-    "button": {
-      "close": "Close"
-    }
+    "countdown": "{{seconds}} seconds until refresh"
   },
   "SyncConfigImportModal": {
     "header": {
@@ -632,11 +769,7 @@
     "label": {
       "token": "Token"
     },
-    "helper": "Enter the token generated by the device to be synced",
-    "button": {
-      "cancel": "Cancel",
-      "finish": "Finish"
-    }
+    "helper": "Enter the token generated by the device to be synced"
   },
   "Utils": {
     "datetime": {
@@ -655,6 +788,23 @@
           "title": "System's webview version is outdated. Some UI elements may not display correctly."
         }
       }
+    },
+    "wiki": {
+      "baseUrl": "https://minecraft.wiki/"
+    }
+  },
+  "WelcomeAndTermsModal": {
+    "header": {
+      "title": "Welcome!"
+    },
+    "body": {
+      "part1": "Welcome to SJMCL! Before you start, please be sure to read and agree to our ",
+      "terms": "User Agreement",
+      "periods": "."
+    },
+    "button": {
+      "exit": "Exit",
+      "agree": "Agree"
     }
   }
 }

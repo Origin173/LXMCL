@@ -98,20 +98,18 @@ const SyncAndRestoreSettingsPage = () => {
       <SyncConfigExportModal
         isOpen={isSyncConfigExportModalOpen}
         onClose={onSyncConfigExportModalClose}
-        isCentered
       />
       <SyncConfigImportModal
         isOpen={isSyncConfigImportModalOpen}
         onClose={onSyncConfigImportModalClose}
-        isCentered
       />
       <GenericConfirmDialog
         isOpen={isRestoreConfirmDialogOpen}
         onClose={onRestoreConfirmDialogClose}
         title={t("RestoreConfigConfirmDialog.title")}
         body={t("RestoreConfigConfirmDialog.body")}
-        btnOK={t("RestoreConfigConfirmDialog.btnOk")}
-        btnCancel={t("GenericConfirmModal.Button.cancel")}
+        btnOK={t("General.confirm")}
+        btnCancel={t("General.cancel")}
         onOKCallback={() => {
           restoreAll();
           onRestoreConfirmDialogClose();

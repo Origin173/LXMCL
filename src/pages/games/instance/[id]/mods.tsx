@@ -83,8 +83,9 @@ const InstanceModsPage = () => {
     <>
       <Section title={t("InstanceModsPage.modLoaderList.title")} isAccordion>
         <ModLoaderCards
-          installedType={summary?.modLoader.type || "none"}
-          installedVersion={summary?.modLoader.version}
+          currentType={summary?.modLoader.type || "none"}
+          currentVersion={summary?.modLoader.version}
+          displayMode="entry"
         />
       </Section>
       <Section
@@ -119,7 +120,8 @@ const InstanceModsPage = () => {
                 }
                 prefixElement={
                   <Avatar
-                    src={mod.icon}
+                    src={mod.iconSrc}
+                    name={mod.name}
                     boxSize="28px"
                     borderRadius="4px"
                     style={{

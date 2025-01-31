@@ -111,6 +111,8 @@ const chakraExtendTheme = extendTheme({
           },
           footer: {
             fontSize: "sm",
+            gap: 3,
+            marginTop: "auto",
             paddingX: 4,
             paddingTop: 2,
             paddingBottom: 4,
@@ -129,11 +131,7 @@ const chakraExtendTheme = extendTheme({
         },
       },
       defaultProps: {
-        size: {
-          base: "md",
-          lg: "lg",
-          xl: "xl",
-        },
+        isCentered: true,
       },
     },
     Switch: {

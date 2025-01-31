@@ -1,7 +1,7 @@
 name: Feature Request
 description: Suggest an idea for SJMCL.
 title: "[Feature] "
-labels: 📝 Feature Request
+labels: 💡 Feature Request
 body:
   - type: markdown
     attributes:
