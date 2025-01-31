@@ -18,16 +18,17 @@ export const InstanceContextProvider: React.FC<{
   const [instanceSummary, setInstanceSummary] = useState<
     GameInstanceSummary | undefined
   >(undefined);
-  const { gameInstanceSummaryList } = useData();
+  const { getGameInstanceSummaryList } = useData();
 
   useEffect(() => {
+    const gameInstanceSummaryList = getGameInstanceSummaryList() ?? [];
     const instanceId = Number(router.query.id);
     if (instanceId) {
       setInstanceSummary(
         gameInstanceSummaryList.find((instance) => instance.id === instanceId)
       );
     }
-  }, [router.query.id, gameInstanceSummaryList]);
+  }, [router.query.id, getGameInstanceSummaryList]);
 
   return (
     <InstanceContext.Provider value={{ summary: instanceSummary }}>

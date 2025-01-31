@@ -22,7 +22,7 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuChevronDown,
@@ -34,10 +34,10 @@ import {
 import SegmentedControl from "@/components/common/segmented";
 import AddAuthServerModal from "@/components/modals/add-auth-server-modal";
 import { useLauncherConfig } from "@/contexts/config";
-import { useData, useDataDispatch } from "@/contexts/data";
+import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
-import { AuthServer, PlayerInfo } from "@/models/account";
-import { addPlayer, getPlayerList } from "@/services/account";
+import { AuthServer } from "@/models/account";
+import { AccountService } from "@/services/account";
 
 interface AddPlayerModalProps extends Omit<ModalProps, "children"> {
   initialPlayerType?: "offline" | "microsoft" | "3rdparty";
@@ -50,8 +50,11 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   ...modalProps
 }) => {
   const { t } = useTranslation();
-  const { authServerList } = useData();
-  const { setPlayerList } = useDataDispatch();
+  const { getAuthServerList, getPlayerList, getSelectedPlayer } = useData();
+  const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
+  useEffect(() => {
+    setAuthServerList(getAuthServerList() || []);
+  }, [getAuthServerList]);
   const toast = useToast();
   const [playerType, setPlayerType] = useState<
     "offline" | "microsoft" | "3rdparty"
@@ -79,7 +82,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
       initialAuthServerUrl ||
         (authServerList.length > 0 ? authServerList[0].authUrl : "")
     );
-  }, [initialAuthServerUrl, authServerList]);
+  }, [initialAuthServerUrl, getAuthServerList, authServerList]);
 
   useEffect(() => {
     setPassword("");
@@ -87,54 +90,30 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
 
   const isOfflinePlayernameValid = /^[a-zA-Z0-9_]{0,16}$/.test(playername);
 
-  const handleLogin = useCallback(() => {
-    let player: PlayerInfo = {
-      name: "",
-      playerType: playerType,
-      password: password,
-      uuid: "",
-      avatarSrc: "",
-      authServerUrl,
-    };
-    if (playerType === "offline" || playerType === "microsoft") {
-      player.name = playername;
-    } else {
-      player.authAccount = playername;
-    }
-    (async () => {
-      try {
-        setIsLoading(true);
-        await addPlayer(player);
-        const players = await getPlayerList();
-        setPlayerList(players);
+  const handleLogin = () => {
+    setIsLoading(true);
+    AccountService.addPlayer(playerType, playername, password, authServerUrl)
+      .then((response) => {
+        if (response.status === "success") {
+          getPlayerList(true);
+          getSelectedPlayer(true);
+          toast({
+            title: response.message,
+            status: "success",
+          });
+          modalProps.onClose();
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+        }
+      })
+      .finally(() => {
         setIsLoading(false);
-        toast({
-          title: t("Services.account.addPlayer.success"),
-          status: "success",
-        });
-        modalProps.onClose();
-      } catch (error) {
-        setIsLoading(false);
-        toast({
-          title: t("Services.account.addPlayer.error"),
-          status: "error",
-        });
-      } finally {
-        setPlayername("");
-        setPassword("");
-      }
-    })();
-  }, [
-    playername,
-    playerType,
-    password,
-    authServerUrl,
-    setPlayerList,
-    setIsLoading,
-    toast,
-    t,
-    modalProps,
-  ]);
+      });
+  };
 
   const playerTypeList = [
     {

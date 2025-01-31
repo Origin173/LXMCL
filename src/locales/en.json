@@ -648,13 +648,23 @@
     "account": {
       "addPlayer": {
         "success": "Successfully added player",
-        "error": "Failed to add player"
+        "error": {
+          "title": "Failed to add player",
+          "description": {
+            "invalid": "Invalid player type"
+          }
+        }
       },
       "deletePlayer": {
         "success": "Successfully deleted player",
-        "error": "Failed to delete player"
+        "error": {
+          "title": "Failed to delete player",
+          "description": {
+            "notFound": "The player does not exist"
+          }
+        }
       },
-      "getAuthServerInfo": {
+      "retriveAuthServerInfo": {
         "error": {
           "title": "Failed to get authentication server information",
           "description": {

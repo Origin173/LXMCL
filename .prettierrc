@@ -9,6 +9,11 @@
     "^[./].*$"
   ],
   "importOrderSortSpecifiers": true,
+  "importOrderParserPlugins": [
+    "typescript",
+    "jsx",
+    "decorators"
+  ],
   "plugins": [
     "@trivago/prettier-plugin-sort-imports"
   ],
