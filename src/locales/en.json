@@ -294,7 +294,7 @@
     }
   },
   "GameErrorPage": {
-    "title": "Game exited unexpectedly",
+    "title": "Game exited unexpectedly. Check the logs or seek assistance.",
     "basicInfo": {
       "arch": "Arch",
       "launcherVersion": "Launcher Version",
@@ -313,7 +313,8 @@
       "exportGameInfo": "Export Crash Report",
       "gameLogs": "Game Logs",
       "help": "Help"
-    }
+    },
+    "bottomAlert": "Export and send the crash report instead of a screenshot for help."
   },
   "GameLogPage": {
     "placeholder": "Filter by Text",

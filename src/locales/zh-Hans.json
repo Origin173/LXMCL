@@ -294,7 +294,7 @@
     }
   },
   "GameErrorPage": {
-    "title": "游戏非正常退出",
+    "title": "游戏非正常退出，请查看日志，或寻求他人帮助",
     "basicInfo": {
       "arch": "架构",
       "launcherVersion": "启动器版本",
@@ -313,7 +313,8 @@
       "exportGameInfo": "导出游戏崩溃报告",
       "gameLogs": "游戏日志",
       "help": "帮助"
-    }
+    },
+    "bottomAlert": "如需寻求他人帮助，请导出并发送崩溃报告，而非这个窗口的截图"
   },
   "GameLogPage": {
     "placeholder": "输入关键词筛选",

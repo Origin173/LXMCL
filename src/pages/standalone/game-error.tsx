@@ -6,6 +6,7 @@ import {
   Button,
   Flex,
   HStack,
+  Icon,
   IconButton,
   Stat,
   StatNumber,
@@ -15,10 +16,9 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { arch, platform, version } from "@tauri-apps/plugin-os";
-import { open } from "@tauri-apps/plugin-shell";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuFolderOpen } from "react-icons/lu";
+import { LuCircleAlert, LuFolderOpen } from "react-icons/lu";
 import { useLauncherConfig } from "@/contexts/config";
 import { capitalizeFirstLetter } from "@/utils/string";
 
@@ -148,6 +148,10 @@ const GameErrorPage: React.FC = () => {
         <Button colorScheme={primaryColor} variant="solid">
           {t("GameErrorPage.button.help")}
         </Button>
+        <Icon ml={2} as={LuCircleAlert} color="red.500" />
+        <Text fontSize="xs-sm" color="red.500">
+          {t("GameErrorPage.bottomAlert")}
+        </Text>
       </HStack>
     </Flex>
   );
