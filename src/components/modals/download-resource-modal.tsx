@@ -44,36 +44,38 @@ export const DownloadResourceModal: React.FC<Omit<ModalProps, "children">> = ({
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>{t("DownloadResourceModal.header.title")}</ModalHeader>
+        <ModalHeader>
+          <HStack w="100%" justify="flex-start" align="center">
+            <Text>{t("DownloadResourceModal.header.title")}</Text>
+            <NavMenu
+              className="no-scrollbar"
+              overflowX="auto"
+              selectedKeys={[selectedResourceType]}
+              onClick={(value) => setSelectedResourceType(value)}
+              direction="row"
+              size="xs"
+              spacing={3}
+              mr={4}
+              flex={1}
+              display="flex"
+              justify="center"
+              items={resourceTypeList.map((item) => ({
+                value: item.key,
+                label: (
+                  <HStack spacing={1.5} fontSize="sm">
+                    <Icon as={item.icon} />
+                    <Text>
+                      {t(`DownloadResourceModal.resourceTypeList.${item.key}`)}
+                    </Text>
+                  </HStack>
+                ),
+              }))}
+            />
+          </HStack>
+        </ModalHeader>
         <ModalCloseButton />
         <Flex h="60vh" flexDir="column">
           <ModalBody>
-            <Center>
-              <NavMenu
-                className="no-scrollbar"
-                overflowX="auto"
-                selectedKeys={[selectedResourceType]}
-                onClick={(value) => setSelectedResourceType(value)}
-                direction="row"
-                size="xs"
-                spacing={2}
-                mt={-2}
-                mb={2}
-                items={resourceTypeList.map((item) => ({
-                  value: item.key,
-                  label: (
-                    <HStack spacing={1.5} fontSize="sm">
-                      <Icon as={item.icon} />
-                      <Text>
-                        {t(
-                          `DownloadResourceModal.resourceTypeList.${item.key}`
-                        )}
-                      </Text>
-                    </HStack>
-                  ),
-                }))}
-              />
-            </Center>
             <ResourceDownload
               key={selectedResourceType}
               resourceType={selectedResourceType}

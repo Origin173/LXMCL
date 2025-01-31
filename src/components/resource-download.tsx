@@ -115,7 +115,7 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
 
   return (
     <VStack mt={1} fontSize="xs">
-      <Flex align="center" gap={6}>
+      <HStack gap={3}>
         <ResourceDownloadMenu
           label={t("DownloadResourceModal.label.type")}
           displayText={t(
@@ -140,10 +140,9 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
               {item}
             </MenuItemOption>
           ))}
+          width={20}
         />
-      </Flex>
 
-      <Flex align="center" gap={6}>
         <ResourceDownloadMenu
           label={t("DownloadResourceModal.label.source")}
           displayText={downloadSource}
@@ -154,6 +153,7 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
               {item}
             </MenuItemOption>
           ))}
+          width={28}
         />
 
         <ResourceDownloadMenu
@@ -166,19 +166,19 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
               {t(`DownloadResourceModal.sortedByList.${item}`)}
             </MenuItemOption>
           ))}
+          width={24}
         />
-      </Flex>
+      </HStack>
 
-      <HStack gap={3} mb={1}>
-        <Text whiteSpace="nowrap" w={8} textAlign="right">
-          {t("DownloadResourceModal.label.name")}
-        </Text>
+      <HStack gap={3}>
+        <Text whiteSpace="nowrap">{t("DownloadResourceModal.label.name")}</Text>
         <Input
           placeholder={t("DownloadResourceModal.label.name")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           focusBorderColor={`${primaryColor}.500`}
           size="xs"
+          w={72}
         />
         <Button
           colorScheme={primaryColor}

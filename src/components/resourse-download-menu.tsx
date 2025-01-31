@@ -15,6 +15,7 @@ interface ResourceDownloadMenuProps {
   onChange: (value: string) => void;
   defaultValue: string;
   options: React.ReactNode;
+  width?: number;
 }
 
 const ResourceDownloadMenu: React.FC<ResourceDownloadMenuProps> = ({
@@ -23,17 +24,16 @@ const ResourceDownloadMenu: React.FC<ResourceDownloadMenuProps> = ({
   onChange,
   defaultValue,
   options,
+  width = 28,
 }) => {
   return (
-    <HStack gap={3}>
-      <Text w={16} textAlign="right">
-        {label}
-      </Text>
+    <HStack>
+      <Text>{label}</Text>
       <Menu>
         <MenuButton
           as={Button}
           size="xs"
-          w={36}
+          w={width}
           variant="outline"
           fontSize="xs"
           textAlign="left"
@@ -41,7 +41,7 @@ const ResourceDownloadMenu: React.FC<ResourceDownloadMenuProps> = ({
         >
           {displayText}
         </MenuButton>
-        <MenuList maxH="40vh" w={36} overflow="auto">
+        <MenuList maxH="40vh" w={width} overflow="auto">
           <MenuOptionGroup
             defaultValue={defaultValue}
             type="radio"
