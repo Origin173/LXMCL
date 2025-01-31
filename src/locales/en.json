@@ -28,6 +28,10 @@
           "title": "LittleSkin",
           "description": "Thanks to LittleSkin and @tnqzh123 for their help with the login process design"
         },
+        "sinter": {
+          "title": "Sinter",
+          "description": "Used as the interface font on Windows and Linux platforms, under the SIL License"
+        },
         "skinview3d": {
           "title": "bs-community / skinview3d",
           "description": "Our skin preview component is built based on this open-source project, under the MIT License"
@@ -189,6 +193,7 @@
     "stepper": {
       "game": "Game",
       "loader": "Loader",
+      "skipped": "Skipped",
       "info": "Basic Settings"
     }
   },
@@ -361,6 +366,29 @@
       "3rdparty": "3rd-party Authentication",
       "3rdpartyShort": "3rd-party Auth"
     }
+  },
+  "GameErrorPage": {
+    "title": "Game exited unexpectedly. Check the logs or seek assistance.",
+    "basicInfo": {
+      "arch": "Arch",
+      "launcherVersion": "Launcher Version",
+      "os": "OS"
+    },
+    "gameInfo": {
+      "gameVersion": "Minecraft Version"
+    },
+    "javaInfo": {
+      "javaVersion": "Java Version"
+    },
+    "crashDetails": {
+      "title": "Crash Details"
+    },
+    "button": {
+      "exportGameInfo": "Export Crash Report",
+      "gameLogs": "Game Logs",
+      "help": "Help"
+    },
+    "bottomAlert": "Export and send the crash report instead of a screenshot for help."
   },
   "GameLogPage": {
     "placeholder": "Filter by Text",
@@ -535,6 +563,9 @@
       }
     }
   },
+  "InstanceBasicSettings": {
+    "selectDirectory": "Select Game Diretory"
+  },
   "InstanceLayout": {
     "instanceTabList": {
       "overview": "Overview",
@@ -576,11 +607,24 @@
     "applySettings": "Apply the following specific settings",
     "restoreSettings": "Restore to default settings",
     "restoreSettingsDesc": "Restore the following specific settings to their default values",
-    "restore": "Restore"
+    "restore": "Restore",
+    "errorMessage": {
+      "error-1": "Instance name cannot be empty"
+    }
   },
   "InstanceShaderPacksPage": {
     "shaderPackList": {
       "title": "Shader Packs"
+    }
+  },
+  "InstanceWidgets": {
+    "basicInfo": {
+      "title": "Basic Info",
+      "gameVersion": "Version",
+      "playTime": "Playtime"
+    },
+    "screenshots": {
+      "title": "Screenshots"
     }
   },
   "InstanceWorldsPage": {
@@ -635,7 +679,14 @@
   },
   "ModLoaderCards": {
     "installed": "Installed",
-    "unInstalled": "Not Installed"
+    "unInstalled": "Not Installed",
+    "notCompatibleWith": "Not compatible with {{modLoader}}",
+    "versionNotSelected": "No version selected"
+  },
+  "ModLoaderSelector": {
+    "stable": "Stable",
+    "beta": "Beta",
+    "releaseDate": "Released at {{date}}"
   },
   "NotFoundPage": {
     "text": "Page not found, redirecting to launch page in {{seconds}} seconds..."

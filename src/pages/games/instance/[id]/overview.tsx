@@ -1,5 +1,27 @@
+import { Section } from "@/components/common/section";
+import { WrapCardGroup } from "@/components/common/wrap-card";
+import {
+  InstanceBasicInfoWidget,
+  InstanceScreenshotsWidget,
+} from "@/components/instance-widgets";
+
 const InstanceOverviewPage = () => {
-  return null;
+  const widgetList = [
+    { content: <InstanceBasicInfoWidget />, colSpan: 1 },
+    { content: <InstanceScreenshotsWidget />, colSpan: 1 },
+  ];
+
+  return (
+    <Section>
+      <WrapCardGroup
+        cardAspectRatio={1.1}
+        items={widgetList.map((widget) => ({
+          cardContent: widget.content,
+          colSpan: widget.colSpan,
+        }))}
+      />
+    </Section>
+  );
 };
 
 export default InstanceOverviewPage;

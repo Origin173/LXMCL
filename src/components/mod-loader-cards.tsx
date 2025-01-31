@@ -11,38 +11,45 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { LuChevronRight } from "react-icons/lu";
+import { LuChevronRight, LuX } from "react-icons/lu";
 import { useLauncherConfig } from "@/contexts/config";
+import { ModLoaderType } from "@/models/resource";
 
 interface ModLoaderCardsProps extends BoxProps {
-  installedType: "none" | "Fabric" | "Forge" | "NeoForge";
-  installedVersion?: string;
+  currentType: ModLoaderType;
+  currentVersion?: string;
+  displayMode: "entry" | "selector";
+  loading?: boolean;
+  onTypeSelect?: (type: ModLoaderType) => void;
 }
 
 const ModLoaderCards: React.FC<ModLoaderCardsProps> = ({
-  installedType,
-  installedVersion,
+  currentType,
+  currentVersion,
+  displayMode,
+  loading = false,
+  onTypeSelect,
   ...boxProps
 }) => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 
-  const baseTypes = ["Fabric", "Forge", "NeoForge"];
+  const baseTypes: ModLoaderType[] = ["Fabric", "Forge", "NeoForge"];
   const loaderTypes =
-    installedType === "none"
+    currentType === "none" || displayMode === "selector"
       ? baseTypes
-      : [installedType, ...baseTypes.filter((type) => type !== installedType)];
+      : [currentType, ...baseTypes.filter((type) => type !== currentType)];
 
-  const renderCard = (type: string) => {
-    const isInstalled = type === installedType && installedType !== "none";
+  const renderCard = (type: ModLoaderType) => {
+    const isSelected = type === currentType && currentType !== "none";
     return (
       <Card
         key={type}
         className="content-card"
         pr={1.5}
-        variant={isInstalled ? "outline" : "elevated"}
-        borderColor={isInstalled ? `${primaryColor}.500` : "transparent"}
+        variant={isSelected ? "outline" : "elevated"}
+        borderColor={isSelected ? `${primaryColor}.500` : "transparent"}
       >
         <Flex justify="space-between" alignItems="center">
           <HStack spacing={2}>
@@ -56,24 +63,43 @@ const ModLoaderCards: React.FC<ModLoaderCardsProps> = ({
               <Text
                 fontSize="xs-sm"
                 className="no-select"
-                fontWeight={isInstalled ? "bold" : "normal"}
-                color={isInstalled ? `${primaryColor}.600` : "inherit"}
-                mt={isInstalled ? -0.5 : 0}
+                fontWeight={isSelected ? "bold" : "normal"}
+                color={isSelected ? `${primaryColor}.600` : "inherit"}
+                mt={displayMode === "entry" && isSelected ? -0.5 : 0}
               >
                 {type}
               </Text>
               <Text fontSize="xs" className="secondary-text no-select">
-                {isInstalled
-                  ? `${t("ModLoaderCards.installed")} ${installedVersion}`
-                  : t("ModLoaderCards.unInstalled")}
+                {displayMode === "entry"
+                  ? isSelected
+                    ? `${t("ModLoaderCards.installed")} ${currentVersion}`
+                    : t("ModLoaderCards.unInstalled")
+                  : isSelected
+                    ? currentVersion || t("ModLoaderCards.versionNotSelected")
+                    : currentType === "none"
+                      ? t("ModLoaderCards.versionNotSelected")
+                      : t("ModLoaderCards.notCompatibleWith", {
+                          modLoader: currentType,
+                        })}
               </Text>
             </VStack>
           </HStack>
           <IconButton
             aria-label={type}
-            icon={<Icon as={LuChevronRight} boxSize={3.5} />}
+            icon={
+              <Icon
+                as={
+                  displayMode === "selector" && isSelected
+                    ? LuX
+                    : LuChevronRight
+                }
+                boxSize={3.5}
+              />
+            }
             variant="ghost"
             size="xs"
+            disabled={loading}
+            onClick={() => onTypeSelect?.(type)}
           />
         </Flex>
       </Card>
@@ -83,7 +109,9 @@ const ModLoaderCards: React.FC<ModLoaderCardsProps> = ({
   return (
     <Grid
       templateColumns={
-        installedType === "none" ? "repeat(3, 1fr)" : "1.35fr 1fr 1fr"
+        displayMode === "entry" && currentType !== "none"
+          ? "1.35fr 1fr 1fr"
+          : "repeat(3, 1fr)"
       }
       gap={3.5}
       {...boxProps}

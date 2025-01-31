@@ -111,6 +111,18 @@ const AboutSettingsPage = () => {
             />
           ),
         },
+        {
+          title: t("AboutSettingsPage.ack.settings.sinter.title"),
+          description: t("AboutSettingsPage.ack.settings.sinter.description"),
+          children: (
+            <LinkIconButton
+              url="https://m.ui.cn/details/615564"
+              aria-label="sinter"
+              isExternal
+              showTooltip
+            />
+          ),
+        },
       ],
     },
     {

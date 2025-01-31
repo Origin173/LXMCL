@@ -110,7 +110,7 @@ const LaunchPage = () => {
           tooltip={t("LaunchPage.SwitchButton.tooltip.switchGame")}
           aria-label="switch-game"
           colorScheme="blackAlpha"
-          onClick={() => router.push("/games")}
+          onClick={() => router.push("/games/all")}
         />
       </Box>
     </HStack>

@@ -3,6 +3,7 @@ import {
   BoxProps,
   FormControl,
   FormErrorMessage,
+  FormErrorMessageProps,
   HStack,
   IconButton,
   Input,
@@ -29,6 +30,7 @@ interface EditableProps extends BoxProps {
   onBlur?: () => void;
   textProps?: TextProps;
   inputProps?: InputProps | TextareaProps;
+  formErrMsgProps?: FormErrorMessageProps;
 }
 
 const Editable: React.FC<EditableProps> = ({
@@ -42,6 +44,7 @@ const Editable: React.FC<EditableProps> = ({
   onBlur = () => {},
   textProps = {},
   inputProps = {},
+  formErrMsgProps = {},
   ...boxProps
 }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -134,7 +137,7 @@ const Editable: React.FC<EditableProps> = ({
               {...(inputProps as TextareaProps)}
             />
             <HStack>
-              <FormErrorMessage>
+              <FormErrorMessage {...formErrMsgProps}>
                 {localeKey &&
                   (isInvalid && isEditing
                     ? t(`${localeKey}.error-${checkError(tempValue)}`)
@@ -166,7 +169,7 @@ const Editable: React.FC<EditableProps> = ({
               />
               {EditButtons()}
             </HStack>
-            <FormErrorMessage>
+            <FormErrorMessage {...formErrMsgProps}>
               {localeKey &&
                 (isInvalid && isEditing
                   ? t(`${localeKey}.error-${checkError(tempValue)}`)

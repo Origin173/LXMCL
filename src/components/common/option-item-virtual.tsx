@@ -17,13 +17,13 @@ export const VirtualOptionItemGroup: React.FC<VirtualOptionItemGroupProps> = ({
   withDivider = true,
   ...props
 }) => {
-  const testItemRef = useRef<HTMLDivElement>(null);
+  const offscreenItemRef = useRef<HTMLDivElement>(null);
   const [itemHeight, setItemHeight] = useState(0);
   const [isHeightCalculated, setIsHeightCalculated] = useState(false);
 
   useEffect(() => {
-    if (testItemRef.current) {
-      setItemHeight(testItemRef.current.clientHeight);
+    if (offscreenItemRef.current) {
+      setItemHeight(offscreenItemRef.current.clientHeight);
       setIsHeightCalculated(true);
     }
   }, []);
@@ -38,7 +38,7 @@ export const VirtualOptionItemGroup: React.FC<VirtualOptionItemGroupProps> = ({
   const rowRenderer = ({ index, style }: ListRowProps) => {
     const item = items[index];
     return (
-      <div style={style}>
+      <div style={style} key={index}>
         {isOptionItemProps(item) ? (
           <OptionItem
             title={item.title}
@@ -62,7 +62,7 @@ export const VirtualOptionItemGroup: React.FC<VirtualOptionItemGroupProps> = ({
       {items.length > 0 && (
         <Card className="content-card" h="100%">
           <Box
-            ref={testItemRef}
+            ref={offscreenItemRef}
             position="absolute"
             visibility="hidden"
             pointerEvents="none"
