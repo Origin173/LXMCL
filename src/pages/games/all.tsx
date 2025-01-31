@@ -1,5 +1,6 @@
 import { Box, Button, HStack, Icon } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuLayoutGrid, LuLayoutList, LuPlay, LuPlus } from "react-icons/lu";
 import { Section } from "@/components/common/section";
@@ -7,6 +8,7 @@ import SegmentedControl from "@/components/common/segmented";
 import GamesView from "@/components/games-view";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
+import { GameInstanceSummary } from "@/models/game-instance";
 
 const AllGamesPage = () => {
   const router = useRouter();
@@ -16,8 +18,19 @@ const AllGamesPage = () => {
   const selectedViewType = config.page.games.viewType;
 
   const { getSelectedGameInstance, getGameInstanceSummaryList } = useData();
-  const selectedGameInstance = getSelectedGameInstance();
-  const gameInstanceSummaryList = getGameInstanceSummaryList();
+  const [selectedGameInstance, setSelectedGameInstance] =
+    useState<GameInstanceSummary>();
+  const [gameInstanceSummaryList, setGameInstanceSummaryList] = useState<
+    GameInstanceSummary[]
+  >([]);
+
+  useEffect(() => {
+    setSelectedGameInstance(getSelectedGameInstance());
+  }, [getSelectedGameInstance]);
+
+  useEffect(() => {
+    setGameInstanceSummaryList(getGameInstanceSummaryList() || []);
+  }, [getGameInstanceSummaryList]);
 
   const viewTypeList = [
     {

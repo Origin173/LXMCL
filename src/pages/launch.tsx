@@ -12,10 +12,13 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuArrowLeftRight } from "react-icons/lu";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
+import { Player } from "@/models/account";
+import { GameInstanceSummary } from "@/models/game-instance";
 import styles from "@/styles/launch.module.css";
 
 interface SwitchButtonProps extends IconButtonProps {
@@ -43,8 +46,17 @@ const LaunchPage = () => {
   const { getSelectedPlayer, getSelectedGameInstance } = useData();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const selectedPlayer = getSelectedPlayer();
-  const selectedGameInstance = getSelectedGameInstance();
+  const [selectedPlayer, setSelectedPlayer] = useState<Player>();
+  const [selectedGameInstance, setSelectedGameInstance] =
+    useState<GameInstanceSummary>();
+
+  useEffect(() => {
+    setSelectedPlayer(getSelectedPlayer());
+  }, [getSelectedPlayer]);
+
+  useEffect(() => {
+    setSelectedGameInstance(getSelectedGameInstance());
+  }, [getSelectedGameInstance]);
 
   return (
     <HStack position="absolute" bottom={7} right={7} spacing={4}>

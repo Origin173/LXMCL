@@ -21,7 +21,7 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuChevronDown, LuLink2Off, LuPlus, LuServer } from "react-icons/lu";
 import SegmentedControl from "@/components/common/segmented";
@@ -44,7 +44,10 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { getAuthServerList, getPlayerList, getSelectedPlayer } = useData();
-  const authServerList = getAuthServerList();
+  const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
+  useEffect(() => {
+    setAuthServerList(getAuthServerList() || []);
+  }, [getAuthServerList]);
   const toast = useToast();
   const [playerType, setPlayerType] = useState<"offline" | "3rdparty">(
     "offline"

@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-shell";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuCirclePlus,
@@ -37,6 +37,7 @@ import PlayersView from "@/components/players-view";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
+import { AuthServer, Player } from "@/models/account";
 import { AccountService } from "@/services/account";
 
 const AccountsPage = () => {
@@ -48,11 +49,16 @@ const AccountsPage = () => {
   const selectedViewType = config.page.accounts.viewType;
 
   const [selectedPlayerType, setSelectedPlayerType] = useState<string>("all");
+  const [playerList, setPlayerList] = useState<Player[]>([]);
+  const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
   const { getPlayerList, getAuthServerList, getSelectedPlayer } = useData();
 
-  const playerList = getPlayerList();
-  const authServerList = getAuthServerList();
-  const selectedPlayer = getSelectedPlayer();
+  useEffect(() => {
+    setPlayerList(getPlayerList() || []);
+  }, [getPlayerList]);
+  useEffect(() => {
+    setAuthServerList(getAuthServerList() || []);
+  }, [getAuthServerList]);
 
   const {
     isOpen: isAddAuthServerModalOpen,

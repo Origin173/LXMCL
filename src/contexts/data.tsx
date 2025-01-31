@@ -6,17 +6,20 @@ import React, {
   useState,
 } from "react";
 import { useToast } from "@/contexts/toast";
+import { useGetState } from "@/hooks/get-state";
 import { AuthServer, Player } from "@/models/account";
 import { GameInstanceSummary } from "@/models/game-instance";
 import { mockGameInstanceSummaryList } from "@/models/mock/game-instance";
 import { AccountService } from "@/services/account";
 
 interface DataContextType {
-  getPlayerList: (sync?: boolean) => Player[];
+  getPlayerList: (sync?: boolean) => Player[] | undefined;
   getSelectedPlayer: (sync?: boolean) => Player | undefined;
-  getGameInstanceSummaryList: (sync?: boolean) => GameInstanceSummary[];
+  getGameInstanceSummaryList: (
+    sync?: boolean
+  ) => GameInstanceSummary[] | undefined;
   getSelectedGameInstance: (sync?: boolean) => GameInstanceSummary | undefined;
-  getAuthServerList: (sync?: boolean) => AuthServer[];
+  getAuthServerList: (sync?: boolean) => AuthServer[] | undefined;
 }
 
 interface DataDispatchContextType {
@@ -36,14 +39,13 @@ const DataDispatchContext = createContext<DataDispatchContextType | undefined>(
 export const DataContextProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const [playerList, setPlayerList] = useState<Player[]>([]);
+  const [playerList, setPlayerList] = useState<Player[]>();
   const [selectedPlayer, setSelectedPlayer] = useState<Player>();
-  const [gameInstanceSummaryList, setGameInstanceSummaryList] = useState<
-    GameInstanceSummary[]
-  >([]);
+  const [gameInstanceSummaryList, setGameInstanceSummaryList] =
+    useState<GameInstanceSummary[]>();
   const [selectedGameInstance, setSelectedGameInstance] =
     useState<GameInstanceSummary>();
-  const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
+  const [authServerList, setAuthServerList] = useState<AuthServer[]>();
   const toast = useToast();
 
   const handleRetrivePlayerList = useCallback(() => {
@@ -82,53 +84,24 @@ export const DataContextProvider: React.FC<{
     });
   }, [setAuthServerList, toast]);
 
-  const getPlayerList = useCallback(
-    (sync = false) => {
-      if (sync || !playerList.length) handleRetrivePlayerList();
-
-      return playerList;
-    },
-    [handleRetrivePlayerList, playerList]
-  ); //
-
-  const getSelectedPlayer = useCallback(
-    (sync = false) => {
-      if (sync || !selectedPlayer) handleRetriveSelectedPlayer();
-
-      return selectedPlayer;
-    },
-    [handleRetriveSelectedPlayer, selectedPlayer]
+  const getPlayerList = useGetState(playerList, handleRetrivePlayerList);
+  const getSelectedPlayer = useGetState(
+    selectedPlayer,
+    handleRetriveSelectedPlayer
   );
-
-  const getAuthServerList = useCallback(
-    (sync = false) => {
-      if (sync || !authServerList.length) handleRetriveAuthServerList();
-
-      return authServerList;
-    },
-    [handleRetriveAuthServerList, authServerList]
+  const getGameInstanceSummaryList = useGetState(
+    gameInstanceSummaryList,
+    () => {
+      setGameInstanceSummaryList(mockGameInstanceSummaryList);
+    }
   );
-
-  const getGameInstanceSummaryList = useCallback(
-    (sync = false) => {
-      // todo
-      return gameInstanceSummaryList;
-    },
-    [gameInstanceSummaryList]
+  const getSelectedGameInstance = useGetState(selectedGameInstance, () =>
+    setSelectedGameInstance(mockGameInstanceSummaryList[0])
   );
-
-  const getSelectedGameInstance = useCallback(
-    (sync = false) => {
-      // todo
-      return selectedGameInstance;
-    },
-    [selectedGameInstance]
+  const getAuthServerList = useGetState(
+    authServerList,
+    handleRetriveAuthServerList
   );
-
-  useEffect(() => {
-    setGameInstanceSummaryList(mockGameInstanceSummaryList);
-    setSelectedGameInstance(mockGameInstanceSummaryList[0]);
-  }, []);
 
   return (
     <DataContext.Provider
