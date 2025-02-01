@@ -42,7 +42,7 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
   } = useDisclosure();
   const { getPlayerList, getSelectedPlayer } = useData();
 
-  const handleDelete = () => {
+  const handleDeletePlayer = () => {
     AccountService.deletePlayer(player.uuid).then((response) => {
       if (response.status === "success") {
         getPlayerList(true);
@@ -131,7 +131,7 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
         })}
         btnOK={t("General.delete")}
         btnCancel={t("General.cancel")}
-        onOKCallback={handleDelete}
+        onOKCallback={handleDeletePlayer}
         isAlert
       />
       <ManageSkinModal

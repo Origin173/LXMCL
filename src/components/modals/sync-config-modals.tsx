@@ -39,7 +39,7 @@ export const SyncConfigExportModal: React.FC<SyncConfigModalProps> = ({
   const [fadeFlag, setFadeFlag] = useState<boolean>(true);
 
   // only for mock
-  const fetchToken = useCallback(async () => {
+  const handleExportLauncherConfig = useCallback(async () => {
     setFadeFlag(false);
     const response = await ConfigService.exportLauncherConfig();
 
@@ -57,9 +57,9 @@ export const SyncConfigExportModal: React.FC<SyncConfigModalProps> = ({
 
   useEffect(() => {
     if (modalProps.isOpen && token === undefined) {
-      fetchToken();
+      handleExportLauncherConfig();
     }
-  }, [fetchToken, modalProps.isOpen, token]);
+  }, [handleExportLauncherConfig, modalProps.isOpen, token]);
 
   useEffect(() => {
     if (!modalProps.isOpen || token === undefined) return;
@@ -67,7 +67,7 @@ export const SyncConfigExportModal: React.FC<SyncConfigModalProps> = ({
     const interval = setInterval(() => {
       setCountdown((prevCountdown) => {
         if (prevCountdown <= 1) {
-          fetchToken();
+          handleExportLauncherConfig();
           return 60;
         }
         return prevCountdown - 1;
@@ -75,7 +75,7 @@ export const SyncConfigExportModal: React.FC<SyncConfigModalProps> = ({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [fetchToken, modalProps.isOpen, token]);
+  }, [handleExportLauncherConfig, modalProps.isOpen, token]);
 
   return (
     <Modal size={{ base: "md", lg: "lg", xl: "xl" }} {...modalProps}>
@@ -121,7 +121,7 @@ export const SyncConfigImportModal: React.FC<SyncConfigModalProps> = ({
 
   const fields = new Array(6).fill(null);
 
-  const handleImportConfig = useCallback(async () => {
+  const handleImportLauncherConfig = useCallback(async () => {
     setIsLoading(true);
     const response = await ConfigService.importLauncherConfig(token);
     if (response.status === "success") {
@@ -172,7 +172,7 @@ export const SyncConfigImportModal: React.FC<SyncConfigModalProps> = ({
           <Button
             isLoading={isLoading}
             colorScheme={primaryColor}
-            onClick={handleImportConfig}
+            onClick={handleImportLauncherConfig}
           >
             {t("General.finish")}
           </Button>
