@@ -636,27 +636,18 @@
     "config": {
       "getLauncherConfig": {
         "error": {
-          "title": "获取启动器设置失败",
-          "description": {
-            "unknown": "未知错误"
-          }
+          "title": "获取启动器设置失败"
         }
       },
       "updateLauncherConfig": {
         "error": {
-          "title": "更新启动器设置失败",
-          "description": {
-            "unknown": "未知错误"
-          }
+          "title": "更新启动器设置失败"
         }
       },
       "restoreLauncherConfig": {
         "success": "设置已成功还原",
         "error": {
-          "title": "还原设置失败，请重试",
-          "description": {
-            "unknown": "未知错误"
-          }
+          "title": "还原设置失败，请重试"
         }
       },
       "exportLauncherConfig": {
@@ -664,8 +655,7 @@
         "error": {
           "title": "启动器设置导出失败",
           "description": {
-            "fetchError": "与服务器通信失败",
-            "unknown": "未知错误"
+            "fetchError": "与服务器通信失败"
           }
         }
       },
@@ -677,8 +667,7 @@
             "fetchError": "与服务器通信失败",
             "invalidCode": "无效的代码",
             "codeExpired": "代码已过期",
-            "versionMismatch": "启动器版本不匹配",
-            "unknown": "未知错误"
+            "versionMismatch": "启动器版本不匹配"
           }
         }
       }
@@ -689,8 +678,7 @@
         "error": {
           "title": "角色添加失败",
           "description": {
-            "invalid": "无效的角色的类型",
-            "unknown": "未知错误"
+            "invalid": "无效的角色的类型"
           }
         }
       },
@@ -699,8 +687,7 @@
         "error": {
           "title": "角色删除失败",
           "description": {
-            "notFound": "角色不存在",
-            "unknown": "未知错误"
+            "notFound": "角色不存在"
           }
         }
       },
@@ -709,8 +696,7 @@
           "title": "获取认证服务器信息失败",
           "description": {
             "duplicate": "认证服务器已存在",
-            "invalid": "无效的认证服务器地址",
-            "unknown": "未知错误"
+            "invalid": "无效的认证服务器地址"
           }
         }
       },
@@ -720,8 +706,7 @@
           "title": "认证服务器添加失败",
           "description": {
             "duplicate": "认证服务器已存在",
-            "invalid": "无效的认证服务器地址",
-            "unknown": "未知错误"
+            "invalid": "无效的认证服务器地址"
           }
         }
       },
@@ -730,8 +715,7 @@
         "error": {
           "title": "认证服务器删除失败",
           "description": {
-            "notFound": "认证服务器不存在",
-            "unknown": "未知错误"
+            "notFound": "认证服务器不存在"
           }
         }
       }
