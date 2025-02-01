@@ -26,7 +26,7 @@ export function responseHandler(
           `Services.${serviceDomain}.${String(propertyKey)}.error.title`
         );
         const details = t(
-          `Services.${serviceDomain}.${String(propertyKey)}.error.description.${errorToLocaleKey[error.message] || "unknown"}`
+          `Services.${serviceDomain}.${String(propertyKey)}.error.description.${errorToLocaleKey[String(error)] || "unknown"}`
         );
         return { status: "error", message, details, raw_error: error };
       }
