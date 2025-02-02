@@ -1,6 +1,8 @@
 import { Card, Center, Flex, useDisclosure } from "@chakra-ui/react";
+import { convertFileSrc } from "@tauri-apps/api/core";
+import { appDataDir } from "@tauri-apps/api/path";
 import { useRouter } from "next/router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BeatLoader } from "react-spinners";
 import HeadNavBar from "@/components/head-navbar";
 import StarUsModal from "@/components/modals/star-us-modal";
@@ -15,6 +17,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const router = useRouter();
   const { config, update } = useLauncherConfig();
 
+  const [bgImgSrc, setBgImgSrc] = useState<string>("");
   const isCheckedRunCount = useRef(false);
   const isStandAlone = router.pathname.startsWith("/standalone");
 
@@ -56,6 +59,24 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     update,
   ]);
 
+  useEffect(() => {
+    const constructBgImgSrc = async () => {
+      const bgKey = config.appearance.background.choice;
+      if (bgKey.startsWith("%built-in:")) {
+        setBgImgSrc(
+          `/images/backgrounds/${bgKey.replace("%built-in:", "")}.jpg`
+        );
+      } else {
+        const _appDataDir = await appDataDir();
+        setBgImgSrc(
+          convertFileSrc(`${_appDataDir}/UserContent/Backgrounds/${bgKey}`)
+        );
+      }
+    };
+
+    constructBgImgSrc();
+  }, [config.appearance.background.choice]);
+
   if (isStandAlone) return children;
 
   if (config.mocked)
@@ -69,7 +90,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     <Flex
       direction="column"
       h="100vh"
-      bgImg={`url('/images/backgrounds/${config.appearance.background.presetChoice}.jpg')`}
+      bgImg={`url('${bgImgSrc}')`}
       bgSize="cover"
       bgPosition="center"
       bgRepeat="no-repeat"

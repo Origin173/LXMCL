@@ -158,6 +158,10 @@
       "settings": {
         "preset": {
           "title": "Preset Images"
+        },
+        "custom": {
+          "title": "Custom Images",
+          "add": "Add"
         }
       },
       "presetBgList": {
@@ -347,6 +351,11 @@
     "close": "Close",
     "confirm": "Confirm",
     "delete": "Delete",
+    "dialog": {
+      "filterName": {
+        "image": "Image"
+      }
+    },
     "disable": "Disable",
     "enable": "Enable",
     "finish": "Finish",
@@ -669,6 +678,24 @@
             "codeExpired": "Code expired",
             "versionMismatch": "Launcher version mismatch"
           }
+        }
+      },
+      "retriveCustomBackgroundList": {
+        "success": "Successfully retrieved custom background list",
+        "error": {
+          "title": "Failed to retrieve custom background list"
+        }
+      },
+      "addCustomBackground": {
+        "success": "Successfully added custom background",
+        "error": {
+          "title": "Failed to add custom background"
+        }
+      },
+      "deleteCustomBackground": {
+        "success": "Successfully deleted custom background",
+        "error": {
+          "title": "Failed to delete custom background"
         }
       }
     },

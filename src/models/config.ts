@@ -34,7 +34,7 @@ export interface LauncherConfig {
       headNavStyle: string;
     };
     background: {
-      presetChoice: string;
+      choice: string;
     };
   };
   download: {
@@ -106,7 +106,7 @@ export const defaultConfig: LauncherConfig = {
       headNavStyle: "standard",
     },
     background: {
-      presetChoice: "Jokull",
+      choice: "%built-in:Jokull",
     },
   },
   download: {

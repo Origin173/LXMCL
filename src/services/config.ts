@@ -70,4 +70,39 @@ export class ConfigService {
   ): Promise<InvokeResponse<LauncherConfig>> {
     return await invoke("import_launcher_config", { code });
   }
+
+  /**
+   * RETRIVE the list of custom background files.
+   * @returns {Promise<InvokeResponse<string[]>>} A list of background file names.
+   */
+  @responseHandler("config", errorToLocaleKey)
+  static async retriveCustomBackgroundList(): Promise<
+    InvokeResponse<string[]>
+  > {
+    return await invoke("retrive_custom_background_list");
+  }
+
+  /**
+   * ADD a custom background image.
+   * @param {string} sourceSrc The file path of the background image.
+   * @returns {Promise<InvokeResponse<string>>} The saved background file name.
+   */
+  @responseHandler("config", errorToLocaleKey)
+  static async addCustomBackground(
+    sourceSrc: string
+  ): Promise<InvokeResponse<string>> {
+    return await invoke("add_custom_background", { sourceSrc });
+  }
+
+  /**
+   * DELETE a custom background image.
+   * @param {string} fileName The name of the background image to delete.
+   * @returns {Promise<InvokeResponse<void>>}
+   */
+  @responseHandler("config", errorToLocaleKey)
+  static async deleteCustomBackground(
+    fileName: string
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("delete_custom_background", { fileName });
+  }
 }

@@ -158,6 +158,10 @@
       "settings": {
         "preset": {
           "title": "選擇預設"
+        },
+        "custom": {
+          "title": "自定義圖像",
+          "add": "添加"
         }
       },
       "presetBgList": {
@@ -347,6 +351,11 @@
     "close": "關閉",
     "confirm": "確定",
     "delete": "刪除",
+    "dialog": {
+      "filterName": {
+        "image": "圖片文件"
+      }
+    },
     "disable": "禁用",
     "enable": "啓用",
     "finish": "完成",
@@ -635,14 +644,59 @@
   "Services": {
     "config": {
       "getLauncherConfig": {
-        "error": "獲取啟動器設定失敗"
+        "error": {
+          "title": "獲取啟動器設定失敗"
+        }
       },
       "updateLauncherConfig": {
-        "error": "更新啟動器設定失敗"
+        "error": {
+          "title": "更新啟動器設定失敗"
+        }
       },
       "restoreLauncherConfig": {
         "success": "設置已成功還原",
-        "error": "還原設置失敗，請重試"
+        "error": {
+          "title": "還原設置失敗，請重試"
+        }
+      },
+      "exportLauncherConfig": {
+        "success": "啟動器設置導出成功",
+        "error": {
+          "title": "啟動器設置導出失敗",
+          "description": {
+        "fetchError": "與伺服器通信失敗"
+          }
+        }
+      },
+      "importLauncherConfig": {
+        "success": "啟動器設置導入成功",
+        "error": {
+          "title": "啟動器設置導入失敗",
+          "description": {
+        "fetchError": "與伺服器通信失敗",
+        "invalidCode": "無效的代碼",
+        "codeExpired": "代碼已過期",
+        "versionMismatch": "啟動器版本不匹配"
+          }
+        }
+      },
+      "retriveCustomBackgroundList": {
+        "success": "自定義背景列表獲取成功",
+        "error": {
+          "title": "自定義背景列表獲取失敗"
+        }
+      },
+      "addCustomBackground": {
+        "success": "自定義背景添加成功",
+        "error": {
+          "title": "自定義背景添加失敗"
+        }
+      },
+      "deleteCustomBackground": {
+        "success": "自定義背景刪除成功",
+        "error": {
+          "title": "自定義背景刪除失敗"
+        }
       }
     },
     "account": {
@@ -669,8 +723,7 @@
           "title": "獲取認證伺服器信息失敗",
           "description": {
             "duplicate": "認證伺服器已存在",
-            "invalid": "無效的認證伺服器地址",
-            "unknown": "未知錯誤"
+            "invalid": "無效的認證伺服器地址"
           }
         }
       },
@@ -680,8 +733,7 @@
           "title": "認證伺服器添加失敗",
           "description": {
             "duplicate": "認證伺服器已存在",
-            "invalid": "無效的認證伺服器地址",
-            "unknown": "未知錯誤"
+            "invalid": "無效的認證伺服器地址"
           }
         }
       },
@@ -690,8 +742,7 @@
         "error": {
           "title": "認證伺服器刪除失敗",
           "description": {
-            "notFound": "認證伺服器不存在",
-            "unknown": "未知錯誤"
+            "notFound": "認證伺服器不存在"
           }
         }
       }

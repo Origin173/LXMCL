@@ -157,7 +157,11 @@
       "title": "背景",
       "settings": {
         "preset": {
-          "title": "选择预设"
+          "title": "预设图像"
+        },
+        "custom": {
+          "title": "自定义图像",
+          "add": "添加"
         }
       },
       "presetBgList": {
@@ -347,6 +351,11 @@
     "close": "关闭",
     "confirm": "确定",
     "delete": "删除",
+    "dialog": {
+      "filterName": {
+        "image": "图片文件"
+      }
+    },
     "disable": "禁用",
     "enable": "启用",
     "finish": "完成",
@@ -669,6 +678,24 @@
             "codeExpired": "代码已过期",
             "versionMismatch": "启动器版本不匹配"
           }
+        }
+      },
+      "retriveCustomBackgroundList": {
+        "success": "自定义背景列表获取成功",
+        "error": {
+          "title": "自定义背景列表获取失败"
+        }
+      },
+      "addCustomBackground": {
+        "success": "自定义背景添加成功",
+        "error": {
+          "title": "自定义背景添加失败"
+        }
+      },
+      "deleteCustomBackground": {
+        "success": "自定义背景删除成功",
+        "error": {
+          "title": "自定义背景删除失败"
         }
       }
     },
