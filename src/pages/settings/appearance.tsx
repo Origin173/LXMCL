@@ -122,9 +122,25 @@ const AppearanceSettingsPage = () => {
           title: t("Services.config.deleteCustomBackground.success"),
           status: "success",
         });
+
+        // set the next bgKey (custom+1 > custom-1 > default) after delete
+        const deletedIndex = customBgList.findIndex(
+          (bg) => bg.fileName === fileName
+        );
+
+        let newSelectedBgKey;
+        if (customBgList.length === 1) {
+          newSelectedBgKey = "%built-in:Jokull";
+        } else {
+          newSelectedBgKey =
+            deletedIndex < customBgList.length - 1
+              ? customBgList[deletedIndex + 1].fileName
+              : customBgList[deletedIndex - 1].fileName;
+        }
+        update("appearance.background.choice", newSelectedBgKey);
+
+        // refresh custom bg list state
         handleRetriveCustomBackgroundList();
-        // set to default built-in one. (TODO: 先设置为 custom 列表的下一个，如果无再设置到 %built-in:Jokull)
-        update("appearance.background.choice", "%built-in:Jokull");
       })
       .catch((error) => {
         toast({
@@ -205,6 +221,7 @@ const AppearanceSettingsPage = () => {
     onSelect: () => void;
     label: string;
     extra?: React.ReactNode;
+    extraOnHover?: React.ReactNode;
   }
 
   const BackgroundCard: React.FC<BackgroundCardProps> = ({
@@ -214,7 +231,10 @@ const AppearanceSettingsPage = () => {
     onSelect,
     label,
     extra,
+    extraOnHover,
   }) => {
+    const [isHovered, setIsHovered] = useState(false);
+
     return (
       <VStack spacing={1}>
         <Card
@@ -225,6 +245,8 @@ const AppearanceSettingsPage = () => {
           variant={selected ? "outline" : "elevated"}
           overflow="hidden"
           cursor="pointer"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
         >
           <Image
             w="100%"
@@ -237,6 +259,7 @@ const AppearanceSettingsPage = () => {
             onClick={onSelect}
           />
           {extra}
+          {isHovered && extraOnHover}
         </Card>
         <Text
           maxW="6rem"
@@ -288,7 +311,7 @@ const AppearanceSettingsPage = () => {
                 update("appearance.background.choice", bg.fileName)
               }
               label={extractFileName(bg.fileName)}
-              extra={
+              extraOnHover={
                 <Tooltip label={t("General.delete")} placement="top">
                   <IconButton
                     icon={<Icon as={LuTrash} />}
