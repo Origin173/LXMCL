@@ -12,8 +12,10 @@ import { OptionItemGroup } from "@/components/common/option-item";
 import { WrapCardGroup } from "@/components/common/wrap-card";
 import PlayerMenu from "@/components/player-menu";
 import { useLauncherConfig } from "@/contexts/config";
-import { useData, useDataDispatch } from "@/contexts/data";
+import { useData } from "@/contexts/data";
+import { useToast } from "@/contexts/toast";
 import { Player } from "@/models/account";
+import { AccountService } from "@/services/account";
 
 interface PlayersViewProps extends BoxProps {
   players: Player[];
@@ -28,8 +30,23 @@ const PlayersView: React.FC<PlayersViewProps> = ({
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const { selectedPlayer } = useData();
-  const { setSelectedPlayer } = useDataDispatch();
+  const { getSelectedPlayer } = useData();
+  const selectedPlayer = getSelectedPlayer();
+  const toast = useToast();
+
+  const handleUpdateSelectedPlayer = (uuid: string) => {
+    AccountService.updateSelectedPlayer(uuid).then((response) => {
+      if (response.status === "success") {
+        getSelectedPlayer(true);
+      } else {
+        toast({
+          title: response.message,
+          description: response.details,
+          status: "error",
+        });
+      }
+    });
+  };
 
   const listItems = players.map((player) => ({
     title: player.name,
@@ -41,7 +58,7 @@ const PlayersView: React.FC<PlayersViewProps> = ({
       <HStack spacing={2.5}>
         <Radio
           value={player.uuid}
-          onClick={() => setSelectedPlayer(player)}
+          onClick={() => handleUpdateSelectedPlayer(player.uuid)}
           colorScheme={primaryColor}
         />
         <Image
@@ -70,7 +87,7 @@ const PlayersView: React.FC<PlayersViewProps> = ({
       ),
     },
     isSelected: selectedPlayer?.uuid === player.uuid,
-    onSelect: () => setSelectedPlayer(player),
+    onSelect: () => handleUpdateSelectedPlayer(player.uuid),
     radioValue: player.uuid,
   }));
 

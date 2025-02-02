@@ -1,4 +1,3 @@
-import { useToast } from "@chakra-ui/react";
 import React, {
   createContext,
   useCallback,
@@ -6,18 +5,21 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { useTranslation } from "react-i18next";
+import { useToast } from "@/contexts/toast";
+import { useGetState } from "@/hooks/get-state";
 import { AuthServer, Player } from "@/models/account";
 import { GameInstanceSummary } from "@/models/game-instance";
 import { mockGameInstanceSummaryList } from "@/models/mock/game-instance";
-import { getAuthServerList, getPlayerList } from "@/services/account";
+import { AccountService } from "@/services/account";
 
 interface DataContextType {
-  playerList: Player[];
-  selectedPlayer: Player | undefined;
-  gameInstanceSummaryList: GameInstanceSummary[];
-  selectedGameInstance: GameInstanceSummary | undefined;
-  authServerList: AuthServer[];
+  getPlayerList: (sync?: boolean) => Player[] | undefined;
+  getSelectedPlayer: (sync?: boolean) => Player | undefined;
+  getGameInstanceSummaryList: (
+    sync?: boolean
+  ) => GameInstanceSummary[] | undefined;
+  getSelectedGameInstance: (sync?: boolean) => GameInstanceSummary | undefined;
+  getAuthServerList: (sync?: boolean) => AuthServer[] | undefined;
 }
 
 interface DataDispatchContextType {
@@ -37,73 +39,84 @@ const DataDispatchContext = createContext<DataDispatchContextType | undefined>(
 export const DataContextProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const [playerList, setPlayerList] = useState<Player[]>([]);
+  const [playerList, setPlayerList] = useState<Player[]>();
   const [selectedPlayer, setSelectedPlayer] = useState<Player>();
-  const [gameInstanceSummaryList, setGameInstanceSummaryList] = useState<
-    GameInstanceSummary[]
-  >([]);
+  const [gameInstanceSummaryList, setGameInstanceSummaryList] =
+    useState<GameInstanceSummary[]>();
   const [selectedGameInstance, setSelectedGameInstance] =
     useState<GameInstanceSummary>();
-  const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
+  const [authServerList, setAuthServerList] = useState<AuthServer[]>();
   const toast = useToast();
-  const { t } = useTranslation();
 
-  const fetchPlayerList = useCallback(() => {
-    getPlayerList()
-      .then((playerList) => {
-        setPlayerList(playerList);
-        if (playerList.length > 0) {
-          setSelectedPlayer(playerList[0]);
+  const handleRetrivePlayerList = useCallback(() => {
+    AccountService.retrivePlayerList().then((response) => {
+      if (response.status === "success") {
+        setPlayerList(response.data);
+        if (response.data.length > 0) {
+          setSelectedPlayer(response.data[0]);
         }
-      })
-      .catch((error) => {
+      } else {
         toast({
-          title: t("Services.account.getPlayerList.error"),
+          title: response.message,
+          description: response.details,
           status: "error",
         });
-      });
-  }, [setPlayerList, toast, t]);
+      }
+    });
+  }, [toast]);
 
-  const fetchAuthServerList = useCallback(() => {
-    getAuthServerList()
-      .then((authServerList) => {
-        setAuthServerList(authServerList);
-      })
-      .catch((error) => {
+  const handleRetriveSelectedPlayer = useCallback(() => {
+    AccountService.retriveSelectedPlayer().then((response) => {
+      if (response.status === "success") setSelectedPlayer(response.data);
+      else setSelectedPlayer(undefined);
+    });
+  }, [setSelectedPlayer]);
+
+  const handleRetriveAuthServerList = useCallback(() => {
+    AccountService.retriveAuthServerList().then((response) => {
+      if (response.status === "success") setAuthServerList(response.data);
+      else
         toast({
-          title: t("Services.auth_server.getAuthServerList.error"),
+          title: response.message,
+          description: response.details,
           status: "error",
         });
-      });
-  }, [setAuthServerList, toast, t]);
+    });
+  }, [setAuthServerList, toast]);
 
-  useEffect(() => {
-    fetchPlayerList();
-  }, [fetchPlayerList]);
-
-  useEffect(() => {
-    fetchAuthServerList();
-  }, [fetchAuthServerList]);
-
-  useEffect(() => {
-    setGameInstanceSummaryList(mockGameInstanceSummaryList);
-    setSelectedGameInstance(mockGameInstanceSummaryList[0]);
-  }, []);
+  const getPlayerList = useGetState(playerList, handleRetrivePlayerList);
+  const getSelectedPlayer = useGetState(
+    selectedPlayer,
+    handleRetriveSelectedPlayer
+  );
+  const getGameInstanceSummaryList = useGetState(
+    gameInstanceSummaryList,
+    () => {
+      setGameInstanceSummaryList(mockGameInstanceSummaryList);
+    }
+  );
+  const getSelectedGameInstance = useGetState(selectedGameInstance, () =>
+    setSelectedGameInstance(mockGameInstanceSummaryList[0])
+  );
+  const getAuthServerList = useGetState(
+    authServerList,
+    handleRetriveAuthServerList
+  );
 
   return (
     <DataContext.Provider
       value={{
-        playerList: playerList,
-        selectedPlayer: selectedPlayer,
-        gameInstanceSummaryList,
-        selectedGameInstance,
-        authServerList,
+        getPlayerList,
+        getSelectedPlayer,
+        getGameInstanceSummaryList,
+        getSelectedGameInstance,
+        getAuthServerList,
       }}
     >
       <DataDispatchContext.Provider
         value={{
-          setPlayerList: setPlayerList,
-          setSelectedPlayer: setSelectedPlayer,
+          setPlayerList,
+          setSelectedPlayer,
           setGameInstanceSummaryList,
           setSelectedGameInstance,
           setAuthServerList,

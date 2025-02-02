@@ -28,6 +28,10 @@
           "title": "LittleSkin",
           "description": "感謝 LittleSkin 和 @tnqzh123 對登錄流程設計的幫助"
         },
+        "sinter": {
+          "title": "Sinter",
+          "description": "在 Windows 和 Linux 平臺作為啟動器界面字體，遵循 SIL 協議使用"
+        },
         "skinview3d": {
           "title": "bs-community / skinview3d",
           "description": "皮膚預覽組件基於此開源項目實現，遵循 MIT 協議使用"
@@ -154,6 +158,10 @@
       "settings": {
         "preset": {
           "title": "選擇預設"
+        },
+        "custom": {
+          "title": "自定義圖像",
+          "add": "添加"
         }
       },
       "presetBgList": {
@@ -189,6 +197,7 @@
     "stepper": {
       "game": "選擇遊戲版本",
       "loader": "選擇加載器",
+      "skipped": "不安裝",
       "info": "基本設置"
     }
   },
@@ -293,6 +302,29 @@
       "3rdpartyShort": "第三方認證"
     }
   },
+  "GameErrorPage": {
+    "title": "遊戲非正常退出，請查看日誌，或尋求他人幫助",
+    "basicInfo": {
+      "arch": "架構",
+      "launcherVersion": "啟動器版本",
+      "os": "作業系統"
+    },
+    "gameInfo": {
+      "gameVersion": "遊戲版本"
+    },
+    "javaInfo": {
+      "javaVersion": "Java 版本"
+    },
+    "crashDetails": {
+      "title": "崩潰信息"
+    },
+    "button": {
+      "exportGameInfo": "導出遊戲崩潰報告",
+      "gameLogs": "遊戲日誌",
+      "help": "幫助"
+    },
+    "bottomAlert": "如需尋求他人幫助，請導出並發送崩潰報告，而非這個窗口的截圖"
+  },
   "GameLogPage": {
     "placeholder": "輸入關鍵字篩選",
     "exportLogs": "匯出日誌",
@@ -319,6 +351,11 @@
     "close": "關閉",
     "confirm": "確定",
     "delete": "刪除",
+    "dialog": {
+      "filterName": {
+        "image": "圖片文件"
+      }
+    },
     "disable": "禁用",
     "enable": "啓用",
     "finish": "完成",
@@ -466,6 +503,9 @@
       }
     }
   },
+  "InstanceBasicSettings": {
+    "selectDirectory": "選擇遊戲目錄"
+  },
   "InstanceLayout": {
     "instanceTabList": {
       "overview": "概覽",
@@ -507,7 +547,20 @@
     "applySettings": "啓動特定遊戲設置",
     "restoreSettings": "重置以下特定設置",
     "restoreSettingsDesc": "將以下特定設置重置爲全局遊戲設置",
-    "restore": "重置"
+    "restore": "重置",
+    "errorMessage": {
+      "error-1": "實例名稱不能為空"
+    }
+  },
+  "InstanceWidgets": {
+    "basicInfo": {
+      "title": "基本信息",
+      "gameVersion": "遊戲版本",
+      "playTime": "遊戲時長"
+    },
+    "screenshots": {
+      "title": "截圖"
+    }
   },
   "InstanceShaderPacksPage": {
     "shaderPackList": {
@@ -566,7 +619,14 @@
   },
   "ModLoaderCards": {
     "installed": "已安裝",
-    "unInstalled": "未安裝"
+    "unInstalled": "未安裝",
+    "notCompatibleWith": "與 {{modLoader}} 不兼容",
+    "versionNotSelected": "未選擇版本"
+  },
+  "ModLoaderSelector": {
+    "stable": "穩定版",
+    "beta": "測試版",
+    "releaseDate": "發佈於 {{date}}"
   },
   "NotFoundPage": {
     "text": "頁面不存在，即將在 {{seconds}} 秒後跳轉"
@@ -584,32 +644,86 @@
   "Services": {
     "config": {
       "getLauncherConfig": {
-        "error": "獲取啟動器設定失敗"
+        "error": {
+          "title": "獲取啟動器設定失敗"
+        }
       },
       "updateLauncherConfig": {
-        "error": "更新啟動器設定失敗"
+        "error": {
+          "title": "更新啟動器設定失敗"
+        }
       },
       "restoreLauncherConfig": {
         "success": "設置已成功還原",
-        "error": "還原設置失敗，請重試"
+        "error": {
+          "title": "還原設置失敗，請重試"
+        }
+      },
+      "exportLauncherConfig": {
+        "success": "啟動器設置導出成功",
+        "error": {
+          "title": "啟動器設置導出失敗",
+          "description": {
+        "fetchError": "與伺服器通信失敗"
+          }
+        }
+      },
+      "importLauncherConfig": {
+        "success": "啟動器設置導入成功",
+        "error": {
+          "title": "啟動器設置導入失敗",
+          "description": {
+        "fetchError": "與伺服器通信失敗",
+        "invalidCode": "無效的代碼",
+        "codeExpired": "代碼已過期",
+        "versionMismatch": "啟動器版本不匹配"
+          }
+        }
+      },
+      "retriveCustomBackgroundList": {
+        "success": "自定義背景列表獲取成功",
+        "error": {
+          "title": "自定義背景列表獲取失敗"
+        }
+      },
+      "addCustomBackground": {
+        "success": "自定義背景添加成功",
+        "error": {
+          "title": "自定義背景添加失敗"
+        }
+      },
+      "deleteCustomBackground": {
+        "success": "自定義背景刪除成功",
+        "error": {
+          "title": "自定義背景刪除失敗"
+        }
       }
     },
     "account": {
       "addPlayer": {
         "success": "角色添加成功",
-        "error": "角色添加失敗"
+        "error": {
+          "title": "角色添加失敗",
+          "description": {
+            "invalid": "無效的角色類型"
+          }
+        }
       },
       "deletePlayer": {
         "success": "角色刪除成功",
-        "error": "角色刪除失敗"
+        "error": {
+          "title": "角色刪除失敗",
+          "description": {
+            "notFound": "角色不存在"
+          }
+        }
       },
-      "getAuthServerInfo": {
+      "retriveAuthServerInfo": {
         "error": {
           "title": "獲取認證伺服器信息失敗",
           "description": {
             "duplicate": "認證伺服器已存在",
-            "invalid": "無效的認證伺服器地址",
-            "unknown": "未知錯誤"
+            "invalid": "無效的認證伺服器地址"
           }
         }
       },
@@ -619,8 +733,7 @@
           "title": "認證伺服器添加失敗",
           "description": {
             "duplicate": "認證伺服器已存在",
-            "invalid": "無效的認證伺服器地址",
-            "unknown": "未知錯誤"
+            "invalid": "無效的認證伺服器地址"
           }
         }
       },
@@ -629,8 +742,7 @@
         "error": {
           "title": "認證伺服器刪除失敗",
           "description": {
-            "notFound": "認證伺服器不存在",
-            "unknown": "未知錯誤"
+            "notFound": "認證伺服器不存在"
           }
         }
       }

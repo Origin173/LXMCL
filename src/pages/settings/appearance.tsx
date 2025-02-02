@@ -33,11 +33,7 @@ import {
 } from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
-import {
-  addCustomBackground,
-  deleteCustomBackground,
-  retriveCustomBackgroundList,
-} from "@/services/config";
+import { ConfigService } from "@/services/config";
 import { extractFileName } from "@/utils/string";
 
 const AppearanceSettingsPage = () => {
@@ -58,26 +54,28 @@ const AppearanceSettingsPage = () => {
   const handleRetriveCustomBackgroundList = useCallback(() => {
     appDataDir()
       .then((_appDataDir) => {
-        retriveCustomBackgroundList()
-          .then((list) => {
+        ConfigService.retriveCustomBackgroundList().then((response) => {
+          if (response.status === "success") {
+            const list = response.data;
             const updatedList = list.map((bg) => ({
               fileName: bg,
               fullPath: `${_appDataDir}/UserContent/Backgrounds/${bg}`,
             }));
             setCustomBgList(updatedList);
-          })
-          .catch((error) => {
+          } else {
             toast({
-              title: t("Services.config.retriveCustomBackgroundList.error"),
+              title: response.message,
+              description: response.details,
               status: "error",
             });
             setCustomBgList([]);
-          });
+          }
+        });
       })
       .catch(() => {
         setCustomBgList([]);
       });
-  }, [t, toast]);
+  }, [toast]);
 
   useEffect(() => {
     handleRetriveCustomBackgroundList();
@@ -95,34 +93,34 @@ const AppearanceSettingsPage = () => {
     })
       .then((selectedPath) => {
         if (!selectedPath) return;
-        addCustomBackground(selectedPath)
-          .then((fileName) => {
-            toast({
-              title: t("Services.config.addCustomBackground.success"),
-              status: "success",
-            });
+        ConfigService.addCustomBackground(selectedPath).then((response) => {
+          if (response.status === "success") {
             handleRetriveCustomBackgroundList();
             // set selected background to the new added one.
-            update("appearance.background.choice", fileName);
-          })
-          .catch(() => {
+            update("appearance.background.choice", response.data);
             toast({
-              title: t("Services.config.addCustomBackground.error"),
+              title: response.message,
+              status: "success",
+            });
+          } else {
+            toast({
+              title: response.message,
+              description: response.details,
               status: "error",
             });
-          });
+          }
+        });
       })
       .catch(() => {});
   };
 
   const handleDeleteCustomBackground = (fileName: string) => {
-    deleteCustomBackground(fileName)
-      .then(() => {
+    ConfigService.deleteCustomBackground(fileName).then((response) => {
+      if (response.status === "success") {
         toast({
-          title: t("Services.config.deleteCustomBackground.success"),
+          title: response.message,
           status: "success",
         });
-
         // set the next bgKey (custom+1 > custom-1 > default) after delete
         const deletedIndex = customBgList.findIndex(
           (bg) => bg.fileName === fileName
@@ -141,13 +139,14 @@ const AppearanceSettingsPage = () => {
 
         // refresh custom bg list state
         handleRetriveCustomBackgroundList();
-      })
-      .catch((error) => {
+      } else {
         toast({
-          title: t("Services.config.deleteCustomBackground.error"),
+          title: response.message,
+          description: response.details,
           status: "error",
         });
-      });
+      }
+    });
   };
 
   const ColorSelectPopover = () => {

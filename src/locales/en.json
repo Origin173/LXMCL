@@ -581,11 +581,11 @@
       }
     }
   },
-  "JavaSettingsPage":{
-    "javaList":{
-      "title":"Java Management",
-      "download":"Download Java",
-      "add":"Add Java"
+  "JavaSettingsPage": {
+    "javaList": {
+      "title": "Java Management",
+      "download": "Download Java",
+      "add": "Add Java"
     }
   },
   "LaunchPage": {
@@ -644,32 +644,86 @@
   "Services": {
     "config": {
       "getLauncherConfig": {
-        "error": "Failed to get launcher settings"
+        "error": {
+          "title": "Failed to get launcher settings"
+        }
       },
       "updateLauncherConfig": {
-        "error": "Failed to update launcher settings"
+        "error": {
+          "title": "Failed to update launcher settings"
+        }
       },
       "restoreLauncherConfig": {
         "success": "Successfully restored launcher settings",
-        "error": "Failed to restore launcher settings"
+        "error": {
+          "title": "Failed to restore launcher settings"
+        }
+      },
+      "exportLauncherConfig": {
+        "success": "Successfully exported launcher settings",
+        "error": {
+          "title": "Failed to export launcher settings",
+          "description": {
+            "fetchError": "Failed to fetch the meta server"
+          }
+        }
+      },
+      "importLauncherConfig": {
+        "success": "Successfully imported launcher settings",
+        "error": {
+          "title": "Failed to import launcher settings",
+          "description": {
+            "fetchError": "Failed to fetch the meta server",
+            "invalidCode": "Invalid code",
+            "codeExpired": "Code expired",
+            "versionMismatch": "Launcher version mismatch"
+          }
+        }
+      },
+      "retriveCustomBackgroundList": {
+        "success": "Successfully retrieved custom background list",
+        "error": {
+          "title": "Failed to retrieve custom background list"
+        }
+      },
+      "addCustomBackground": {
+        "success": "Successfully added custom background",
+        "error": {
+          "title": "Failed to add custom background"
+        }
+      },
+      "deleteCustomBackground": {
+        "success": "Successfully deleted custom background",
+        "error": {
+          "title": "Failed to delete custom background"
+        }
       }
     },
     "account": {
       "addPlayer": {
         "success": "Successfully added player",
-        "error": "Failed to add player"
+        "error": {
+          "title": "Failed to add player",
+          "description": {
+            "invalid": "Invalid player type"
+          }
+        }
       },
       "deletePlayer": {
         "success": "Successfully deleted player",
-        "error": "Failed to delete player"
+        "error": {
+          "title": "Failed to delete player",
+          "description": {
+            "notFound": "The player does not exist"
+          }
+        }
       },
-      "getAuthServerInfo": {
+      "retriveAuthServerInfo": {
         "error": {
           "title": "Failed to get authentication server information",
           "description": {
             "duplicate": "The server has already been added",
-            "invalid": "Invalid server URL",
-            "unknown": "Unknown error"
+            "invalid": "Invalid server URL"
           }
         }
       },
@@ -679,8 +733,7 @@
           "title": "Failed to add authentication server",
           "description": {
             "duplicate": "The server has already been added",
-            "invalid": "Invalid server URL",
-            "unknown": "Unknown error"
+            "invalid": "Invalid server URL"
           }
         }
       },
@@ -689,8 +742,7 @@
         "error": {
           "title": "Failed to delete authentication server",
           "description": {
-            "notFound": "The authentication server does not exist",
-            "unknown": "Unknown error"
+            "notFound": "The authentication server does not exist"
           }
         }
       }

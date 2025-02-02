@@ -139,14 +139,13 @@ const AboutSettingsPage = () => {
           title: t("AboutSettingsPage.legalInfo.settings.userAgreement.title"),
           children: (
             <LinkIconButton
-              url="about:blank"
+              url="https://mc.sjtu.cn/sjmcl-tos/"
               aria-label="userAgreement"
               isExternal
               showTooltip
               h={18}
-              isDisabled
             />
-          ), // TBD
+          ),
         },
         {
           title: t(

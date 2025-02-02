@@ -1,7 +1,7 @@
 use crate::utils::sys_info;
 use partial_derive::Partial;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::{fmt, path::PathBuf};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -185,3 +185,24 @@ impl Default for LauncherConfig {
     }
   }
 }
+
+#[derive(Debug)]
+pub enum LauncherConfigError {
+  FetchError,
+  InvalidCode,
+  CodeExpired,
+  VersionMismatch,
+}
+
+impl fmt::Display for LauncherConfigError {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match self {
+      LauncherConfigError::FetchError => write!(f, "FETCH_ERROR"),
+      LauncherConfigError::InvalidCode => write!(f, "INVALID_CODE"),
+      LauncherConfigError::CodeExpired => write!(f, "CODE_EXPIRED"),
+      LauncherConfigError::VersionMismatch => write!(f, "VERSION_MISMATCH"),
+    }
+  }
+}
+
+impl std::error::Error for LauncherConfigError {}
