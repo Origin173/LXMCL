@@ -10,7 +10,7 @@ const errorToLocaleKey: { [key: string]: string } = {
 };
 
 /**
- * Service class formanaging accounts, players, and authentication servers.
+ * Service class for managing accounts, players, and authentication servers.
  */
 export class AccountService {
   /**

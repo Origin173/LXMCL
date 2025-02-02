@@ -34,7 +34,7 @@ const PlayersView: React.FC<PlayersViewProps> = ({
   const selectedPlayer = getSelectedPlayer();
   const toast = useToast();
 
-  const handlePlayerSelect = (uuid: string) => {
+  const handleUpdateSelectedPlayer = (uuid: string) => {
     AccountService.updateSelectedPlayer(uuid).then((response) => {
       if (response.status === "success") {
         getSelectedPlayer(true);
@@ -58,7 +58,7 @@ const PlayersView: React.FC<PlayersViewProps> = ({
       <HStack spacing={2.5}>
         <Radio
           value={player.uuid}
-          onClick={() => handlePlayerSelect(player.uuid)}
+          onClick={() => handleUpdateSelectedPlayer(player.uuid)}
           colorScheme={primaryColor}
         />
         <Image
@@ -87,7 +87,7 @@ const PlayersView: React.FC<PlayersViewProps> = ({
       ),
     },
     isSelected: selectedPlayer?.uuid === player.uuid,
-    onSelect: () => handlePlayerSelect(player.uuid),
+    onSelect: () => handleUpdateSelectedPlayer(player.uuid),
     radioValue: player.uuid,
   }));
 

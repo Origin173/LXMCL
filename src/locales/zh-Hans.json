@@ -572,11 +572,11 @@
       }
     }
   },
-  "JavaSettingsPage":{
-    "javaList":{
-      "title":"Java 管理",
-      "download":"下载 Java",
-      "add":"添加 Java"
+  "JavaSettingsPage": {
+    "javaList": {
+      "title": "Java 管理",
+      "download": "下载 Java",
+      "add": "添加 Java"
     }
   },
   "LaunchPage": {
@@ -635,14 +635,41 @@
   "Services": {
     "config": {
       "getLauncherConfig": {
-        "error": "获取启动器设置失败"
+        "error": {
+          "title": "获取启动器设置失败"
+        }
       },
       "updateLauncherConfig": {
-        "error": "更新启动器设置失败"
+        "error": {
+          "title": "更新启动器设置失败"
+        }
       },
       "restoreLauncherConfig": {
         "success": "设置已成功还原",
-        "error": "还原设置失败，请重试"
+        "error": {
+          "title": "还原设置失败，请重试"
+        }
+      },
+      "exportLauncherConfig": {
+        "success": "启动器设置导出成功",
+        "error": {
+          "title": "启动器设置导出失败",
+          "description": {
+            "fetchError": "与服务器通信失败"
+          }
+        }
+      },
+      "importLauncherConfig": {
+        "success": "启动器设置导入成功",
+        "error": {
+          "title": "启动器设置导入失败",
+          "description": {
+            "fetchError": "与服务器通信失败",
+            "invalidCode": "无效的代码",
+            "codeExpired": "代码已过期",
+            "versionMismatch": "启动器版本不匹配"
+          }
+        }
       }
     },
     "account": {
@@ -669,8 +696,7 @@
           "title": "获取认证服务器信息失败",
           "description": {
             "duplicate": "认证服务器已存在",
-            "invalid": "无效的认证服务器地址",
-            "unknown": "未知错误"
+            "invalid": "无效的认证服务器地址"
           }
         }
       },
@@ -680,8 +706,7 @@
           "title": "认证服务器添加失败",
           "description": {
             "duplicate": "认证服务器已存在",
-            "invalid": "无效的认证服务器地址",
-            "unknown": "未知错误"
+            "invalid": "无效的认证服务器地址"
           }
         }
       },
@@ -690,8 +715,7 @@
         "error": {
           "title": "认证服务器删除失败",
           "description": {
-            "notFound": "认证服务器不存在",
-            "unknown": "未知错误"
+            "notFound": "认证服务器不存在"
           }
         }
       }
@@ -789,7 +813,7 @@
         }
       }
     },
-    "wiki":{
+    "wiki": {
       "baseUrl": "https://zh.minecraft.wiki/w/"
     }
   },
