@@ -38,7 +38,6 @@ export const SyncConfigExportModal: React.FC<SyncConfigModalProps> = ({
   const [countdown, setCountdown] = useState<number>(60);
   const [fadeFlag, setFadeFlag] = useState<boolean>(true);
 
-  // only for mock
   const handleExportLauncherConfig = useCallback(async () => {
     setFadeFlag(false);
     const response = await ConfigService.exportLauncherConfig();
@@ -130,6 +129,7 @@ export const SyncConfigImportModal: React.FC<SyncConfigModalProps> = ({
         title: response.message,
         status: "success",
       });
+      setToken("");
       modalProps.onClose();
     } else {
       toast({
@@ -153,7 +153,7 @@ export const SyncConfigImportModal: React.FC<SyncConfigModalProps> = ({
             <HStack>
               <PinInput
                 value={token}
-                onComplete={setToken}
+                onChange={(newToken) => setToken(newToken)}
                 placeholder=""
                 focusBorderColor={`${primaryColor}.500`}
               >
@@ -173,6 +173,7 @@ export const SyncConfigImportModal: React.FC<SyncConfigModalProps> = ({
             isLoading={isLoading}
             colorScheme={primaryColor}
             onClick={handleImportLauncherConfig}
+            isDisabled={!/^[0-9]{6}$/.test(token)}
           >
             {t("General.finish")}
           </Button>

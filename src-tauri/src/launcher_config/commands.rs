@@ -1,4 +1,3 @@
-use super::helpers::get_app_version;
 use super::models::{LauncherConfig, LauncherConfigError, MemoryInfo};
 use crate::storage::Storage;
 use crate::{error::SJMCLResult, partial::PartialUpdate};
@@ -47,14 +46,13 @@ pub fn restore_launcher_config(app: AppHandle) -> SJMCLResult<LauncherConfig> {
 #[tauri::command]
 pub async fn export_launcher_config(app: AppHandle) -> SJMCLResult<String> {
   let state: LauncherConfig = Storage::load().unwrap_or_default();
-  let version = get_app_version(app);
   let client = reqwest::Client::new();
   match client
     .post("https://mc.sjtu.cn/api-sjmcl/settings")
     .header("Content-Type", "application/json")
     .body(
       serde_json::json!({
-        "version": version,
+        "version": app.package_info().version.to_string(),
         "json_data": state.clone(),
       })
       .to_string(),
@@ -85,14 +83,13 @@ pub async fn export_launcher_config(app: AppHandle) -> SJMCLResult<String> {
 
 #[tauri::command]
 pub async fn import_launcher_config(app: AppHandle, code: String) -> SJMCLResult<LauncherConfig> {
-  let version = get_app_version(app);
   let client = reqwest::Client::new();
   match client
     .post("https://mc.sjtu.cn/api-sjmcl/validate")
     .header("Content-Type", "application/json")
     .body(
       serde_json::json!({
-        "version": version,
+        "version": app.package_info().version.to_string(),
         "code": code,
       })
       .to_string(),
