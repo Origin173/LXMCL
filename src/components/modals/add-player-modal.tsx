@@ -111,6 +111,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
         }
       })
       .finally(() => {
+        setPlayername("");
+        setPassword("");
         setIsLoading(false);
       });
   };
