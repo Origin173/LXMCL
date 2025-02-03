@@ -20,10 +20,10 @@ const InstanceOverviewPage = () => {
   return (
     <Section>
       <WrapCardGroup
-        cardAspectRatio={1.1}
         items={widgetList.map((widget) => ({
           cardContent: widget.content,
           colSpan: widget.colSpan,
+          h: 152, // 41.8 / 1.1 * 4px
         }))}
       />
     </Section>

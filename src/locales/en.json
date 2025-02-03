@@ -596,7 +596,7 @@
         "adventure": "Adventure Mode",
         "spectator": "Spectator Mode"
       },
-      "moreDesc": "{{gamemode}}, (Difficulty: {{difficulty}})"
+      "moreDesc": ", {{gamemode}} (Difficulty: {{difficulty}})"
     },
     "serverList": {
       "title": "Servers",

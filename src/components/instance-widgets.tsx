@@ -60,6 +60,7 @@ const InstanceWidgetBase: React.FC<InstanceWidgetBaseProps> = ({
     <VStack align="stretch" spacing={2} {...props}>
       {title && (
         <Text
+          className="no-select"
           fontSize="md"
           fontWeight="bold"
           lineHeight="16px" // the same as fontSize 'md'
@@ -191,11 +192,11 @@ export const InstanceModsWidget = () => {
             {t("InstanceWidgets.mods.summary", { totalMods, enabledMods })}
           </Text>
           <Button
-            fontSize="xs"
+            size="xs"
             variant="ghost"
             position="absolute"
-            left={3}
-            bottom={3}
+            left={2}
+            bottom={2}
             justifyContent="flex-start"
             colorScheme={primaryColor}
             onClick={() => {
@@ -272,12 +273,12 @@ export const InstanceLastPlayedWidget = () => {
           />
           <HStack spacing={1.5}>
             <Button
-              fontSize="xs"
+              size="xs"
               variant="ghost"
               colorScheme={primaryColor}
               position="absolute"
-              left={3}
-              bottom={3}
+              left={2}
+              bottom={2}
               justifyContent="flex-start"
             >
               <HStack spacing={1.5}>
@@ -310,11 +311,12 @@ export const InstanceMoreWidget = () => {
 
   return (
     <InstanceWidgetBase title={t("InstanceWidgets.more.title")} icon={LuShapes}>
-      <Grid templateColumns="repeat(3, 1fr)" gap={5} mt={2}>
+      <Grid templateColumns="repeat(3, 1fr)" rowGap={2}>
         {Object.entries(features).map(([key, icon]) => (
           <Button
             key={key}
             variant="ghost"
+            size="lg"
             colorScheme={primaryColor}
             onClick={() => router.push(`/games/instance/${id}/${key}`)}
           >

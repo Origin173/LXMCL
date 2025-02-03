@@ -63,7 +63,7 @@ const InstanceWorldsPage = () => {
                   title={world.name}
                   description={`${t(
                     "InstanceWorldsPage.worldList.lastPlayedAt"
-                  )} ${formatRelativeTime(world.lastPlayedAt, t)} ${t("InstanceWorldsPage.worldList.moreDesc", { gamemode, difficulty })}`}
+                  )} ${formatRelativeTime(world.lastPlayedAt, t)}${t("InstanceWorldsPage.worldList.moreDesc", { gamemode, difficulty })}`}
                   prefixElement={
                     <Image
                       src={world.iconSrc}
