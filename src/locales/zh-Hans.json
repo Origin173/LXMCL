@@ -565,12 +565,38 @@
     },
     "screenshots": {
       "title": "截图"
+    },
+    "mods": {
+      "title": "模组",
+      "summary": "{{totalMods}} 个模组, {{enabledMods}} 个已启用",
+      "manage": "前往管理"
+    },
+    "lastPlayed": {
+      "title": "上次游玩",
+      "continuePlaying": "继续游玩"
+    },
+    "more": {
+      "title": "更多"
     }
   },
   "InstanceWorldsPage": {
     "worldList": {
       "title": "本地世界",
-      "lastPlayedAt": "上次游玩于"
+      "lastPlayedAt": "上次游玩于",
+      "difficulty": {
+        "peaceful": "和平",
+        "easy": "简单",
+        "normal": "普通",
+        "hard": "困难",
+        "hardcore": "极限生存"
+      },
+      "gamemode": {
+        "survival": "生存模式",
+        "creative": "创造模式",
+        "adventure": "冒险模式",
+        "spectator": "观察者模式"
+      },
+      "moreDesc":"{{gamemode}}，（难度：{{difficulty}}）"
     },
     "serverList": {
       "title": "服务器",

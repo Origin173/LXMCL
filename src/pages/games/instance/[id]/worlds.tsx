@@ -49,33 +49,42 @@ const InstanceWorldsPage = () => {
       >
         {worlds.length > 0 ? (
           <OptionItemGroup
-            items={worlds.map((world) => (
-              <OptionItem
-                key={world.name}
-                title={world.name}
-                description={`${t(
-                  "InstanceWorldsPage.worldList.lastPlayedAt"
-                )} ${formatRelativeTime(world.lastPlayedAt, t)}`}
-                prefixElement={
-                  <Image
-                    src={world.iconSrc}
-                    alt={world.name}
-                    boxSize="28px"
-                    style={{ borderRadius: "4px" }}
-                  />
-                }
-              >
-                <Tooltip label={t("General.openFolder")}>
-                  <IconButton
-                    aria-label={"open"}
-                    icon={<LuFolderOpen />}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => open(world.fileDir)}
-                  />
-                </Tooltip>
-              </OptionItem>
-            ))}
+            items={worlds.map((world) => {
+              const difficulty = t(
+                `InstanceWorldsPage.worldList.difficulty.${world.difficulty}`
+              );
+              const gamemode = t(
+                `InstanceWorldsPage.worldList.gamemode.${world.gamemode}`
+              );
+
+              return (
+                <OptionItem
+                  key={world.name}
+                  title={world.name}
+                  description={`${t(
+                    "InstanceWorldsPage.worldList.lastPlayedAt"
+                  )} ${formatRelativeTime(world.lastPlayedAt, t)} ${t("InstanceWorldsPage.worldList.moreDesc", { gamemode, difficulty })}`}
+                  prefixElement={
+                    <Image
+                      src={world.iconSrc}
+                      alt={world.name}
+                      boxSize="28px"
+                      style={{ borderRadius: "4px" }}
+                    />
+                  }
+                >
+                  <Tooltip label={t("General.openFolder")}>
+                    <IconButton
+                      aria-label={"open"}
+                      icon={<LuFolderOpen />}
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => open(world.fileDir)}
+                    />
+                  </Tooltip>
+                </OptionItem>
+              );
+            })}
           />
         ) : (
           <Empty withIcon={false} size="sm" />
