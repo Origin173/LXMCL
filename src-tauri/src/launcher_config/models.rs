@@ -13,8 +13,9 @@ pub struct MemoryInfo {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct JavaInfo {
-  pub name: String,    // JDK/JRE + full version
-  pub version: String, // major version + LTS flag
+  pub name: String,       // JDK/JRE + full version
+  pub major_version: i32, // major version + LTS flag
+  pub is_lts: bool,
   pub exec_dir: String,
   pub vendor: String,
 }

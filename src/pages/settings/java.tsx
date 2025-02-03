@@ -110,7 +110,7 @@ const JavaSettingsPage = () => {
                       variant="subtle"
                       colorScheme={primaryColor}
                     >
-                      {info.version}
+                      {`Java ${info.majorVersion}${info.isLts ? " (LTS)" : ""}`}
                     </Tag>
                     <Text fontSize="xs" color={`${primaryColor}.500`}>
                       {info.vendor}

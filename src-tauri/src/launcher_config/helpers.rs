@@ -126,20 +126,25 @@ pub fn get_java_info_from_command(java_path: &str) -> Option<(String, String)> {
   Some((vendor, full_version))
 }
 
-pub fn parse_java_major_version(full_version: &str) -> String {
+pub fn parse_java_major_version(full_version: &str) -> (i32, bool) {
   let major_version = if full_version.starts_with("1.") {
-    // Java 1.x (1.8 -> 8, 1.7 -> 7)
-    full_version.split('.').nth(1).unwrap_or("0").to_string()
+    // Java 1.x (e.g., 1.8 -> 8, 1.7 -> 7)
+    full_version
+      .split('.')
+      .nth(1)
+      .unwrap_or("0")
+      .parse::<i32>()
+      .unwrap_or(0)
   } else {
     // Java 9+
-    full_version.split('.').next().unwrap_or("0").to_string()
+    full_version
+      .split('.')
+      .next()
+      .unwrap_or("0")
+      .parse::<i32>()
+      .unwrap_or(0)
   };
 
-  let is_lts = ["8", "11", "17", "21", "25"].contains(&major_version.as_str());
-
-  if is_lts {
-    format!("Java {} (LTS)", major_version)
-  } else {
-    format!("Java {}", major_version)
-  }
+  let is_lts = [8, 11, 17, 21, 25].contains(&major_version);
+  (major_version, is_lts)
 }

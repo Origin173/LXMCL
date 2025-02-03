@@ -230,13 +230,18 @@ pub fn retrive_java_list() -> SJMCLResult<Vec<JavaInfo>> {
       .to_path_buf();
     let is_jdk = java_bin_path.join("javac").exists();
 
+    let (major_version, is_lts) = parse_java_major_version(&full_version);
+
     java_list.push(JavaInfo {
       name: format!("{} {}", if is_jdk { "JDK" } else { "JRE" }, full_version),
+      major_version,
+      is_lts,
       exec_dir: java_exec_path,
       vendor,
-      version: parse_java_major_version(&full_version),
     });
   }
+
+  java_list.sort_by(|a, b| b.major_version.cmp(&a.major_version));
 
   Ok(java_list)
 }
