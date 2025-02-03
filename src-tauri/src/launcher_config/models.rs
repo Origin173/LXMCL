@@ -10,6 +10,15 @@ pub struct MemoryInfo {
   pub used: u64,
 }
 
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct JavaInfo {
+  pub name: String,    // JDK/JRE + full version
+  pub version: String, // major version + LTS flag
+  pub exec_dir: String,
+  pub vendor: String,
+}
+
 // Partial Derive is used for these structs and we can use it for key value storage.
 // And partially update some fields for better performance and hygiene.
 //

@@ -28,6 +28,7 @@ static EXE_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
 
 pub async fn run() {
   tauri::Builder::default()
+    .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_process::init())
     .plugin(tauri_plugin_window_state::Builder::new().build())
     .plugin(tauri_plugin_http::init())
@@ -44,6 +45,7 @@ pub async fn run() {
       launcher_config::commands::retrive_custom_background_list,
       launcher_config::commands::add_custom_background,
       launcher_config::commands::delete_custom_background,
+      launcher_config::commands::retrive_java_list,
       account::commands::retrive_player_list,
       account::commands::retrive_selected_player,
       account::commands::update_selected_player,
