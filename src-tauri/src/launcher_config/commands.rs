@@ -241,7 +241,11 @@ pub fn retrive_java_list() -> SJMCLResult<Vec<JavaInfo>> {
     });
   }
 
-  java_list.sort_by(|a, b| b.major_version.cmp(&a.major_version));
+  java_list.sort_by(|a, b| {
+    b.major_version
+      .cmp(&a.major_version)
+      .then_with(|| a.exec_dir.len().cmp(&b.exec_dir.len()))
+  });
 
   Ok(java_list)
 }

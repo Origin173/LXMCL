@@ -3,12 +3,50 @@ use std::collections::HashSet;
 use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
+use tauri::path::BaseDirectory;
+use tauri::{AppHandle, Manager};
 
-use super::models::LauncherConfig;
+use super::models::{GameDirectory, LauncherConfig};
 
 impl Storage for LauncherConfig {
   fn file_path() -> PathBuf {
     EXE_DIR.join("sjmcl.conf.json")
+  }
+}
+
+pub fn get_official_minecraft_directory(app: &AppHandle) -> GameDirectory {
+  let minecraft_dir: PathBuf;
+
+  #[cfg(target_os = "windows")]
+  {
+    // Windows: {FOLDERID_RoamingAppData}\.minecraft
+    minecraft_dir = app
+      .path()
+      .resolve::<PathBuf>(".minecraft".into(), BaseDirectory::Data)
+      .unwrap_or_else(|_| PathBuf::from(r"C:\Users\Default\AppData\Roaming\.minecraft"));
+  }
+
+  #[cfg(target_os = "macos")]
+  {
+    // macOS: ~/Library/Application Support/minecraft
+    minecraft_dir = app
+      .path()
+      .resolve::<PathBuf>("minecraft".into(), BaseDirectory::Data)
+      .unwrap_or_else(|_| PathBuf::from("/Users/Shared/Library/Application Support/minecraft"));
+  }
+
+  #[cfg(target_os = "linux")]
+  {
+    // Linux: ~/.minecraft
+    minecraft_dir = app
+      .path()
+      .resolve::<PathBuf>(".minecraft".into(), BaseDirectory::Home)
+      .unwrap_or_else(|_| PathBuf::from("/home/user/.minecraft"));
+  }
+
+  GameDirectory {
+    name: "OFFICIAL_DIR".to_string(),
+    dir: minecraft_dir,
   }
 }
 
