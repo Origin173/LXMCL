@@ -340,10 +340,12 @@
     "old_beta": "远古版",
     "release": "正式版",
     "snapshot": "测试版",
+    "april_fools": "愚人节版",
     "wikiKey": {
       "release": "Java版",
       "snapshot": "",
-      "old_beta": "Java版Beta_"
+      "old_beta": "Java版Beta_",
+      "april_fools": ""
     }
   },
   "General": {
@@ -596,7 +598,7 @@
         "adventure": "冒险模式",
         "spectator": "观察者模式"
       },
-      "moreDesc":"，{{gamemode}}（难度：{{difficulty}}）"
+      "moreDesc": "，{{gamemode}}（难度：{{difficulty}}）"
     },
     "serverList": {
       "title": "服务器",
@@ -769,6 +771,17 @@
           "title": "认证服务器删除失败",
           "description": {
             "notFound": "认证服务器不存在"
+          }
+        }
+      }
+    },
+    "resource": {
+      "retriveGameVersionList": {
+        "error": {
+          "title": "获取游戏版本列表失败",
+          "description": {
+            "parseError": "服务器返回数据格式错误",
+            "noDownloadApi": "无可用的下载策略，请检查网络连接"
           }
         }
       }

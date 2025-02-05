@@ -340,10 +340,12 @@
     "old_beta": "Old Beta",
     "release": "Release",
     "snapshot": "Snapshot",
+    "april_fools": "April Fools Snapshot",
     "wikiKey": {
       "release": "Java_Edition_",
       "snapshot": "",
-      "old_beta": "Java_Edition_Beta_"
+      "old_beta": "Java_Edition_Beta_",
+      "april_fools": ""
     }
   },
   "General": {
@@ -769,6 +771,17 @@
           "title": "Failed to delete authentication server",
           "description": {
             "notFound": "The authentication server does not exist"
+          }
+        }
+      }
+    },
+    "resource": {
+      "retriveGameVersionList": {
+        "error": {
+          "title": "Failed to retrieve game version list",
+          "description": {
+            "parseError": "The server returned data in an incorrect format",
+            "noDownloadApi": "No download strategy available, please check internet connection"
           }
         }
       }
