@@ -36,7 +36,7 @@ const gameTypesToIcon: Record<string, string> = {
   release: "GrassBlock.png",
   snapshot: "CommandBlock.png",
   old_beta: "StoneOldBeta.png",
-  april_fools: "WhiteGlazedTerracotta.png",
+  april_fools: "YellowGlazedTerracotta.png",
 };
 
 interface GameVersionSelectorProps extends BoxProps {
@@ -165,7 +165,7 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
             borderColor="gray.400"
           >
             <HStack spacing={2} alignItems="center">
-              <Text fontWeight="bold" fontSize="sm" className="no-select">
+              <Text fontSize="sm" className="no-select">
                 {t(`GameVersionSelector.${gameType}`)}
               </Text>
               <CountTag count={counts ? counts.get(gameType) || 0 : 0} />

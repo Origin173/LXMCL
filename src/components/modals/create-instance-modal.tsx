@@ -39,6 +39,7 @@ const gameTypesToIcon: Record<string, string> = {
   release: "/images/icons/GrassBlock.png",
   snapshot: "/images/icons/CommandBlock.png",
   old_beta: "/images/icons/StoneOldBeta.png",
+  april_fools: "/images/icons/YellowGlazedTerracotta.png",
 };
 
 const modLoaderTypesToIcon: Record<string, string> = {

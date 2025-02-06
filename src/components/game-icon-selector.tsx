@@ -28,6 +28,7 @@ export const GameIconSelector: React.FC<GameIconSelectorProps> = ({
     "/images/icons/CraftingTable.png",
     "/images/icons/GrassBlock.png",
     "/images/icons/StoneOldBeta.png",
+    "/images/icons/YellowGlazedTerracotta.png",
     "divider",
     "/images/icons/Fabric.png",
     "/images/icons/Anvil.png",
