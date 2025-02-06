@@ -67,6 +67,10 @@ structstruck::strike! {
       },
       pub background: struct {
         pub choice: String,
+      },
+      pub accessibility: struct {
+        pub invert_colors: bool,
+        pub enhance_contrast: bool,
       }
     },
     pub download: struct DownloadConfig {
@@ -144,6 +148,10 @@ impl Default for LauncherConfig {
         },
         background: Background {
           choice: "%built-in:Jokull".to_string(),
+        },
+        accessibility: Accessibility {
+          invert_colors: false,
+          enhance_contrast: false,
         },
       },
       download: DownloadConfig {

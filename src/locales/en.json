@@ -179,6 +179,17 @@
           "name": "Jokull"
         }
       }
+    },
+    "accessibility": {
+      "title": "Display Accessibility",
+      "settings": {
+        "invertColors": {
+          "title": "Invert Colors"
+        },
+        "enhanceContrast": {
+          "title": "Enhance Contrast"
+        }
+      }
     }
   },
   "ComingSoonSign": {

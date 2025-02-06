@@ -36,6 +36,10 @@ export interface LauncherConfig {
     background: {
       choice: string;
     };
+    accessibility: {
+      invertColors: boolean;
+      enhanceContrast: boolean;
+    };
   };
   download: {
     source: {
@@ -107,6 +111,10 @@ export const defaultConfig: LauncherConfig = {
     },
     background: {
       choice: "%built-in:Jokull",
+    },
+    accessibility: {
+      invertColors: false,
+      enhanceContrast: false,
     },
   },
   download: {

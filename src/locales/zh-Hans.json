@@ -179,6 +179,17 @@
           "name": "SJTU 紫气东来门"
         }
       }
+    },
+    "accessibility": {
+      "title": "显示辅助",
+      "settings": {
+        "invertColors": {
+          "title": "反转颜色"
+        },
+        "enhanceContrast": {
+          "title": "增强对比度"
+        }
+      }
     }
   },
   "ComingSoonSign": {
