@@ -84,6 +84,13 @@
         "title": "Manage Game Directories",
         "description": "Manage local game storage directories to add installed instances"
       }
+    },
+    "moreOptions": {
+      "title": "More",
+      "server": {
+        "title": "Download Game Server",
+        "description": "Download game server files for different versions"
+      }
     }
   },
   "AddAuthServerModal": {

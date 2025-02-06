@@ -84,6 +84,13 @@
         "title": "管理游戏目录",
         "description": "管理本地游戏存储目录，以添加已安装实例"
       }
+    },
+    "moreOptions": {
+      "title": "更多",
+      "server": {
+        "title": "下载服务端",
+        "description": "下载各版本原版游戏服务端文件"
+      }
     }
   },
   "AddAuthServerModal": {
