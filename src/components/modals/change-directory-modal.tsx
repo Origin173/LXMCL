@@ -137,7 +137,7 @@ const ChangeDirectoryModal: React.FC<ChangeDirectoryModalProps> = ({
 
             <FormControl
               isRequired
-              isInvalid={!isDirPathValid || !isDirPathUnique}
+              isInvalid={!isDirPathValid || (!isDirPathUnique && add)}
             >
               <FormLabel>{t("ChangeDirectoryModal.label.dirPath")}</FormLabel>
               <InputGroup>
@@ -184,7 +184,7 @@ const ChangeDirectoryModal: React.FC<ChangeDirectoryModalProps> = ({
               !dirName ||
               !isDirNameValid ||
               !isDirPathValid ||
-              !isDirPathUnique
+              (!isDirPathUnique && add)
             }
             colorScheme={primaryColor}
             onClick={handleUpdateDir}
