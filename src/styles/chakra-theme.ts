@@ -1,4 +1,4 @@
-import { CloseButton, extendTheme } from "@chakra-ui/react";
+import { extendTheme } from "@chakra-ui/react";
 
 const subtleButtonVariant = (props: any) => ({
   bg: `${props.colorScheme}.100`,
@@ -147,6 +147,13 @@ const chakraExtendTheme = extendTheme({
     Tooltip: {
       baseStyle: {
         fontSize: "xs-sm",
+      },
+    },
+    Popover: {
+      baseStyle: {
+        content: {
+          boxShadow: "md",
+        },
       },
     },
   },
