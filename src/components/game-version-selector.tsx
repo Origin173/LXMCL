@@ -55,6 +55,9 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   const primaryColor = config.appearance.theme.primaryColor;
 
   const [versions, setVersions] = useState<GameResourceInfo[]>([]);
+  const [filteredVersions, setFilteredVersions] = useState<GameResourceInfo[]>(
+    []
+  );
   const [counts, setCounts] = useState<Map<string, number>>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(
@@ -65,20 +68,14 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
     setIsLoading(true);
     const response = await ResourceService.retriveGameVersionList();
     if (response.status === "success") {
-      console.log(response.data);
       const versionData = response.data;
+      setVersions(versionData);
       const newCounts = new Map<string, number>();
       versionData.forEach((version: GameResourceInfo) => {
         let oldCount = newCounts.get(version.gameType) || 0;
         newCounts.set(version.gameType, oldCount + 1);
       });
       setCounts(newCounts);
-
-      setVersions(
-        versionData.filter((version: GameResourceInfo) =>
-          selectedTypes.has(version.gameType)
-        )
-      );
     } else {
       setVersions([]);
       toast({
@@ -88,7 +85,13 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
       });
     }
     setIsLoading(false);
-  }, [selectedTypes, toast]);
+  }, [toast]);
+
+  useEffect(() => {
+    setFilteredVersions(
+      versions.filter((version) => selectedTypes.has(version.gameType))
+    );
+  }, [versions, selectedTypes]);
 
   useEffect(() => {
     fetchData();
@@ -209,7 +212,7 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
           <Center>
             <BeatLoader size={16} color="gray" />
           </Center>
-        ) : selectedTypes.size === 0 || versions.length === 0 ? (
+        ) : selectedTypes.size === 0 || filteredVersions.length === 0 ? (
           <Empty withIcon={false} size="sm" />
         ) : (
           <RadioGroup
@@ -219,7 +222,7 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
           >
             <VirtualOptionItemGroup
               h="100%"
-              items={versions.map(buildOptionItems)}
+              items={filteredVersions.map(buildOptionItems)}
             />
           </RadioGroup>
         )}

@@ -70,7 +70,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   const [instanceIconSrc, setInstanceIconSrc] = useState("");
   const [instanceDirectory, setInstanceDirectory] = useState<GameDirectory>();
 
-  const Step1Content = useMemo(() => {
+  const step1Content = useMemo(() => {
     return (
       <>
         <ModalBody>
@@ -97,7 +97,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     );
   }, [modalProps.onClose, primaryColor, selectedGameVersion, setActiveStep, t]);
 
-  const Step2Content = useMemo(() => {
+  const step2Content = useMemo(() => {
     return (
       selectedGameVersion && (
         <>
@@ -126,10 +126,10 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
                   );
                 } else {
                   setInstanceName(
-                    `${selectedGameVersion.id}-${selectedModLoader.type}`
+                    `${selectedGameVersion.id}-${selectedModLoader.loaderType}`
                   );
                   setInstanceIconSrc(
-                    modLoaderTypesToIcon[selectedModLoader.type]
+                    modLoaderTypesToIcon[selectedModLoader.loaderType]
                   );
                 }
                 setActiveStep(2);
@@ -150,7 +150,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     t,
   ]);
 
-  const Step3Content = useMemo(() => {
+  const step3Content = useMemo(() => {
     return (
       <>
         <ModalBody>
@@ -197,31 +197,31 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     () => [
       {
         key: "game",
-        content: Step1Content,
+        content: step1Content,
         description:
           selectedGameVersion &&
           `${selectedGameVersion.id} ${t(`GameVersionSelector.${selectedGameVersion.gameType}`)}`,
       },
       {
         key: "loader",
-        content: Step2Content,
+        content: step2Content,
         description:
-          selectedModLoader.type === "none"
+          selectedModLoader.loaderType === "none"
             ? t("CreateInstanceModal.stepper.skipped")
-            : `${selectedModLoader.type} ${selectedModLoader.version}`,
+            : `${selectedModLoader.loaderType} ${selectedModLoader.version}`,
       },
       {
         key: "info",
-        content: Step3Content,
+        content: step3Content,
         description: "",
       },
     ],
     [
-      Step1Content,
-      Step2Content,
-      Step3Content,
+      step1Content,
+      step2Content,
+      step3Content,
       selectedGameVersion,
-      selectedModLoader.type,
+      selectedModLoader.loaderType,
       selectedModLoader.version,
       t,
     ]

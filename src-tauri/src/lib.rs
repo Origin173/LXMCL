@@ -56,6 +56,7 @@ pub async fn run() {
       account::commands::fetch_auth_server_info,
       instance::commands::retrive_game_server_list,
       resource::commands::retrive_game_version_list,
+      resource::commands::retrive_mod_loader_version_list,
     ])
     .setup(|app| {
       let is_dev = cfg!(debug_assertions);

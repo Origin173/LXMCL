@@ -28,6 +28,7 @@ import {
   ModLoaderResourceInfo,
   defaultModLoaderResourceInfo,
 } from "@/models/resource";
+import { ResourceService } from "@/services/resource";
 import { ISOToDatetime } from "@/utils/datetime";
 
 const modLoaderTypesToIcon: Record<string, string> = {
@@ -56,69 +57,30 @@ export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        switch (selectedModLoader.type) {
-          case "Fabric": {
-            let data = await new Promise<any[]>((resolve) => {
-              setTimeout(() => {
-                resolve(mockFabricVersions);
-              }, 1000);
-            });
-            setModLoaders(
-              data.map((v: any) => ({
-                type: "Fabric",
-                version: v.loader.version,
-                stable: v.loader.stable,
-              })) || []
-            );
-            break;
-          }
-          case "Forge": {
-            let data = await new Promise<any[]>((resolve) => {
-              setTimeout(() => {
-                resolve(mockForgeVersions);
-              }, 1000);
-            });
-            setModLoaders(
-              data.map((v: any) => ({
-                type: "Forge",
-                version: v.version,
-                stable: true,
-                description: t("ModLoaderSelector.releaseDate", {
-                  date: ISOToDatetime(v.modified),
+    setLoading(true);
+    ResourceService.retriveModLoaderVersionList(
+      selectedGameVersion.id,
+      selectedModLoader.loaderType
+    )
+      .then((res) => {
+        if (res.status === "success") {
+          setModLoaders(
+            res.data.map((loader) => ({
+              ...loader,
+              description:
+                loader.description &&
+                t("ModLoaderSelector.releaseDate", {
+                  date: ISOToDatetime(loader.description),
                 }),
-              })) || []
-            );
-            break;
-          }
-          case "NeoForge": {
-            let data = await new Promise<any[]>((resolve) => {
-              setTimeout(() => {
-                resolve(mockNeoForgeVersions);
-              }, 1000);
-            });
-            setModLoaders(
-              data.map((v: any) => ({
-                type: "NeoForge",
-                version: v.version,
-                stable: !(v.version as string).endsWith("beta"),
-              })) || []
-            );
-            break;
-          }
-          default:
-            setModLoaders([]);
-            break;
+            }))
+          );
+        } else {
+          console.log(res.raw_error);
+          setModLoaders([]);
         }
-      } catch (e) {
-        setModLoaders([]);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [selectedModLoader.type, t]);
+      })
+      .finally(() => setLoading(false));
+  }, [selectedGameVersion.id, selectedModLoader.loaderType, t]);
 
   const onSelectModLoaderVersion = useCallback(
     (version: string) => {
@@ -142,8 +104,8 @@ export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
         <HStack spacing={2.5}>
           <Radio value={version.version} colorScheme={primaryColor} />
           <Image
-            src={`/images/icons/${modLoaderTypesToIcon[version.type]}`}
-            alt={version.type}
+            src={`/images/icons/${modLoaderTypesToIcon[version.loaderType]}`}
+            alt={version.loaderType}
             boxSize="28px"
             borderRadius="4px"
           />
@@ -162,14 +124,14 @@ export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
   return (
     <VStack {...props} w="100%" h="100%" spacing={4}>
       <ModLoaderCards
-        currentType={selectedModLoader.type}
+        currentType={selectedModLoader.loaderType}
         currentVersion={selectedModLoader.version}
         displayMode="selector"
         loading={loading}
-        onTypeSelect={(type) => {
-          if (type !== selectedModLoader.type) {
+        onTypeSelect={(loaderType) => {
+          if (loaderType !== selectedModLoader.loaderType) {
             onSelectModLoader({
-              type,
+              loaderType,
               version: "",
               stable: false,
             });

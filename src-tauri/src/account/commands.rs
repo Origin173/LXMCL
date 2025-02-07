@@ -8,11 +8,7 @@ use uuid::Uuid;
 #[tauri::command]
 pub fn retrive_player_list() -> SJMCLResult<Vec<Player>> {
   let state: AccountInfo = Storage::load().unwrap_or_default();
-  let player_list: Vec<Player> = state
-    .players
-    .into_iter()
-    .map(|player_info| Player::from(player_info))
-    .collect();
+  let player_list: Vec<Player> = state.players.into_iter().map(Player::from).collect();
   Ok(player_list)
 }
 

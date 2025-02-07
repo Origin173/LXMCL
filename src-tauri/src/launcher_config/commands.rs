@@ -74,7 +74,7 @@ pub async fn export_launcher_config(app: AppHandle) -> SJMCLResult<String> {
       if status.is_success() {
         let code = json["code"]
           .as_str()
-          .ok_or_else(|| LauncherConfigError::FetchError)?
+          .ok_or(LauncherConfigError::FetchError)?
           .to_string();
 
         Ok(code)
@@ -118,7 +118,7 @@ pub async fn import_launcher_config(app: AppHandle, code: String) -> SJMCLResult
       } else {
         let message = json["message"]
           .as_str()
-          .ok_or_else(|| LauncherConfigError::FetchError)?;
+          .ok_or(LauncherConfigError::FetchError)?;
         match message {
           "Invalid code" => Err(LauncherConfigError::InvalidCode.into()),
           "Code expired" => Err(LauncherConfigError::CodeExpired.into()),
@@ -191,7 +191,7 @@ pub fn add_custom_background(app: AppHandle, source_src: String) -> SJMCLResult<
 
   let file_name = source_path.file_name().unwrap();
   let dest_path = custom_bg_dir.join(file_name);
-  fs::copy(&source_path, &dest_path)?;
+  fs::copy(source_path, &dest_path)?;
 
   Ok(file_name.to_string_lossy().to_string())
 }
