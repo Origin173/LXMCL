@@ -7,9 +7,8 @@ import {
   Text,
   Tooltip,
 } from "@chakra-ui/react";
-import { open } from "@tauri-apps/plugin-shell";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import { revealItemInDir } from "@tauri-apps/plugin-opener";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuArrowDownToLine,
@@ -21,19 +20,36 @@ import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
-import { mockJavaInfo } from "@/models/mock/system-info";
+import { useToast } from "@/contexts/toast";
 import { JavaInfo } from "@/models/system-info";
+import { ConfigService } from "@/services/config";
 
 const JavaSettingsPage = () => {
-  const [javaInfos, setJavaInfos] = useState<JavaInfo[]>([]);
+  const { t } = useTranslation();
+  const toast = useToast();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const router = useRouter();
-  const { t } = useTranslation();
+
+  const [javaInfos, setJavaInfos] = useState<JavaInfo[]>([]);
+
+  const handleRetriveJavaList = useCallback(() => {
+    ConfigService.retriveJavaList().then((response) => {
+      if (response.status === "success") {
+        setJavaInfos(response.data);
+      } else {
+        toast({
+          title: response.message,
+          description: response.details,
+          status: "error",
+        });
+        setJavaInfos([]);
+      }
+    });
+  }, [toast]);
 
   useEffect(() => {
-    setJavaInfos(mockJavaInfo);
-  }, []);
+    handleRetriveJavaList();
+  }, [handleRetriveJavaList]);
 
   return (
     <Section
@@ -56,9 +72,7 @@ const JavaSettingsPage = () => {
               size="xs"
               h={21}
               variant="ghost"
-              onClick={() => {
-                router.push("/settings/java");
-              }}
+              onClick={handleRetriveJavaList}
             />
           </Tooltip>
           <Tooltip label={t("JavaSettingsPage.javaList.add")}>
@@ -79,20 +93,25 @@ const JavaSettingsPage = () => {
             <OptionItem
               key={info.name}
               title={info.name}
-              description={info.fileDir}
+              description={
+                <Text
+                  fontSize="xs"
+                  className="secondary-text no-select"
+                  wordBreak="break-all"
+                >
+                  {info.execDir}
+                </Text>
+              }
               titleExtra={
                 <Flex>
-                  <HStack spacing={1}>
+                  <HStack spacing={2}>
                     <Tag
                       className="tag-xs"
                       variant="subtle"
                       colorScheme={primaryColor}
                     >
-                      {info.version}
+                      {`Java ${info.majorVersion}${info.isLts ? " (LTS)" : ""}`}
                     </Tag>
-                    <Text fontSize="xs" color={`${primaryColor}.500`}>
-                      {info.architecture}
-                    </Text>
                     <Text fontSize="xs" color={`${primaryColor}.500`}>
                       {info.vendor}
                     </Text>
@@ -106,7 +125,7 @@ const JavaSettingsPage = () => {
                   icon={<LuFolderOpen />}
                   variant="ghost"
                   size="sm"
-                  onClick={() => open(info.fileDir)}
+                  onClick={async () => await revealItemInDir(info.execDir)}
                 />
               </Tooltip>
             </OptionItem>

@@ -1,9 +1,9 @@
 export interface JavaInfo {
   name: string;
-  fileDir: string;
-  architecture: string;
+  execDir: string;
   vendor: string;
-  version: string;
+  majorVersion: number;
+  isLts: boolean;
 }
 
 export interface MemoryInfo {

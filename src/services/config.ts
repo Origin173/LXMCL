@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { LauncherConfig } from "@/models/config";
 import { InvokeResponse } from "@/models/response";
+import { JavaInfo } from "@/models/system-info";
 import { responseHandler } from "@/utils/response";
 
 const errorToLocaleKey: { [key: string]: string } = {
@@ -106,5 +107,14 @@ export class ConfigService {
     fileName: string
   ): Promise<InvokeResponse<void>> {
     return await invoke("delete_custom_background", { fileName });
+  }
+
+  /**
+   * RETRIEVE the list of installed Java versions.
+   * @returns {Promise<InvokeResponse<JavaInfo[]>>} A list of installed Java versions.
+   */
+  @responseHandler("config", errorToLocaleKey)
+  static async retriveJavaList(): Promise<InvokeResponse<JavaInfo[]>> {
+    return await invoke("retrive_java_list");
   }
 }

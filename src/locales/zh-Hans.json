@@ -758,6 +758,11 @@
         "error": {
           "title": "自定义背景删除失败"
         }
+      },
+      "retriveJavaList": {
+        "error": {
+          "title": "Java 列表获取失败"
+        }
       }
     },
     "account": {

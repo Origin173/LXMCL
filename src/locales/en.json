@@ -758,6 +758,11 @@
         "error": {
           "title": "Failed to delete custom background"
         }
+      },
+      "retriveJavaList": {
+        "error": {
+          "title": "Failed to retrieve installed Java list"
+        }
       }
     },
     "account": {
