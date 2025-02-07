@@ -683,6 +683,21 @@
       "delete": "Delete"
     }
   },
+  "ReLogin3rdPartyPlayerModal": {
+    "modal": {
+      "title": "Re-login"
+    },
+    "label": {
+      "user": "Username",
+      "password": "Password"
+    },
+    "placeholder": {
+      "password": "Password"
+    },
+    "button": {
+      "login": "Login"
+    }
+  },
   "RestoreConfigConfirmDialog": {
     "title": "Restore Launcher Settings",
     "body": "This action will restore all launcher settings to their default values. Are you sure you want to proceed?"
