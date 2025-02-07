@@ -1,5 +1,6 @@
 use crate::{storage::Storage, EXE_DIR};
 use std::collections::HashSet;
+use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
@@ -64,17 +65,22 @@ pub fn get_java_paths() -> Vec<String> {
     if output.status.success() {
       let stdout = String::from_utf8_lossy(&output.stdout);
       for line in stdout.lines() {
-        if !line.trim().is_empty() {
-          let path = line.trim().to_string();
-
-          // solve symbol link to get real path
-          let resolved_path = fs::canonicalize(&path)
-            .map(|p| p.to_string_lossy().into_owned())
-            .unwrap_or(path);
-
-          paths.insert(resolved_path);
+        let path = line.trim();
+        if path.is_empty() {
+          continue;
+        }
+        if let Ok(resolved_path) = fs::canonicalize(path) {
+          paths.insert(resolved_path.to_string_lossy().into_owned());
         }
       }
+    }
+  }
+
+  // For windows, try to get java path from registry
+  #[cfg(target_os = "windows")]
+  {
+    if let Ok(java_path) = get_java_path_from_windows_registry() {
+      paths.insert(java_path);
     }
   }
 
@@ -91,8 +97,8 @@ pub fn get_java_paths() -> Vec<String> {
             let path_part = &trimmed[idx + 1..].trim();
             if !path_part.is_empty() {
               let java_bin = PathBuf::from(path_part).join("bin/java");
-              if java_bin.exists() {
-                paths.insert(java_bin.to_string_lossy().to_string());
+              if let Ok(resolved_path) = fs::canonicalize(java_bin) {
+                paths.insert(resolved_path.to_string_lossy().into_owned());
               }
             }
           }
@@ -101,7 +107,32 @@ pub fn get_java_paths() -> Vec<String> {
     }
   }
 
-  paths.into_iter().collect()
+  // For Windows, remove "\\?\" prefix from paths
+  #[cfg(target_os = "windows")]
+  {
+    paths
+      .into_iter()
+      .map(|path| path.trim_start_matches(r"\\?\").to_string())
+      .collect()
+  }
+
+  #[cfg(not(target_os = "windows"))]
+  {
+    paths.into_iter().collect()
+  }
+}
+
+// Get canonicalized java path from Windows registry
+#[cfg(target_os = "windows")]
+fn get_java_path_from_windows_registry() -> Result<String, Box<dyn Error>> {
+  let hklm = winreg::RegKey::predef(winreg::enums::HKEY_LOCAL_MACHINE);
+  let base_path = r"SOFTWARE\JavaSoft\Java Runtime Environment";
+  let current_version: String = hklm.open_subkey(base_path)?.get_value("CurrentVersion")?;
+  let java_home: String = hklm
+    .open_subkey(format!(r"{}\{}", base_path, current_version))?
+    .get_value("JavaHome")?;
+  let java_bin = PathBuf::from(java_home).join(r"bin\java.exe");
+  Ok(fs::canonicalize(java_bin)?.to_string_lossy().into_owned())
 }
 
 pub fn get_java_info_from_release_file(java_path: &str) -> Option<(String, String)> {
@@ -151,7 +182,7 @@ pub fn get_java_info_from_command(java_path: &str) -> Option<(String, String)> {
   let mut vendor = "Unknown".to_string();
   let mut full_version = "0".to_string();
 
-  if let Some(first_line) = lines.get(0) {
+  if let Some(first_line) = lines.first() {
     if first_line.contains("version") {
       if let Some(v) = first_line.split_whitespace().nth(2) {
         let cleaned = v.trim_matches('"');
