@@ -192,6 +192,40 @@
       }
     }
   },
+  "ChangeDirectoryModal": {
+    "header": {
+      "title": {
+        "add": "添加游戏目录",
+        "edit": "编辑游戏目录"
+      }
+    },
+    "label": {
+      "dirName": "目录名称",
+      "dirPath": "目录路径"
+    },
+    "placeholder": {
+      "dirName": "请输入目录名称",
+      "dirPath": "请选择目录路径"
+    },
+    "button": {
+      "browse": "浏览"
+    },
+    "dialog": {
+      "title": "选择目录"
+    },
+    "toast":{
+      "error": {
+        "title": "添加游戏目录失败"
+      }
+    },
+    "errorMessage": {
+      "dirName": "目录名称不能超过16个字符",
+      "dirPath": {
+        "invalid": "请选择有效的游戏目录",
+        "exist": "目录路径已存在"
+      }
+    }
+  },
   "ComingSoonSign": {
     "text": "该页面暂未开放，敬请期待"
   },
@@ -377,6 +411,7 @@
       }
     },
     "disable": "禁用",
+    "edit": "编辑",
     "enable": "启用",
     "finish": "完成",
     "next": "下一步",
@@ -414,6 +449,10 @@
           "add": "添加",
           "currentDir": "当前文件夹"
         }
+      },
+      "deleteDialog": {
+        "title": "删除游戏目录",
+        "content": "确定要删除游戏目录 {{dirName}} 吗？（仅从启动器删除，不会删除实际目录文件）"
       }
     },
     "performance": {

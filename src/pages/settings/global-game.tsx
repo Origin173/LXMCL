@@ -6,19 +6,61 @@ import {
   Text,
   Tooltip,
   VStack,
+  useDisclosure,
 } from "@chakra-ui/react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuFolder, LuFolderOpen, LuPlus, LuTrash } from "react-icons/lu";
+import {
+  LuFolder,
+  LuFolderOpen,
+  LuPenLine,
+  LuPlus,
+  LuTrash,
+} from "react-icons/lu";
 import {
   OptionItemGroup,
   OptionItemGroupProps,
 } from "@/components/common/option-item";
 import GameSettingsGroups from "@/components/game-settings-groups";
+import ChangeDirectoryModal from "@/components/modals/change-directory-modal";
+import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
 import { useLauncherConfig } from "@/contexts/config";
+import { GameDirectory } from "@/models/config";
 
 const GlobalGameSettingsPage = () => {
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
+
+  const [selectedDir, setSelectedDir] = useState<GameDirectory>({
+    name: "",
+    dir: "",
+  });
+
+  const {
+    isOpen: isDeleteDirDialogOpen,
+    onOpen: onDeleteDirDialogOpen,
+    onClose: onDeleteDirDialogClose,
+  } = useDisclosure();
+
+  const {
+    isOpen: isAddDirModalOpen,
+    onOpen: onAddDirModalOpen,
+    onClose: onAddDirModalClose,
+  } = useDisclosure();
+
+  const {
+    isOpen: isEditDirModalOpen,
+    onOpen: onEditDirModalOpen,
+    onClose: onEditDirModalClose,
+  } = useDisclosure();
+
+  const handleDeleteDir = () => {
+    update(
+      "localGameDirectories",
+      config.localGameDirectories.filter((dir) => dir.dir !== selectedDir.dir)
+    );
+    onDeleteDirDialogClose();
+  };
 
   const globalSpecSettingsGroups: OptionItemGroupProps[] = [
     {
@@ -29,20 +71,28 @@ const GlobalGameSettingsPage = () => {
             "GlobalGameSettingsPage.directories.settings.directories.title"
           ),
           children: (
-            <Tooltip
-              label={t(
-                "GlobalGameSettingsPage.directories.settings.directories.add"
-              )}
-              placement="top"
-            >
-              <IconButton // TBD
-                aria-label="add"
-                variant="ghost"
-                size="xs"
-                icon={<Icon as={LuPlus} boxSize={3.5} />}
-                h={21}
+            <>
+              <Tooltip
+                label={t(
+                  "GlobalGameSettingsPage.directories.settings.directories.add"
+                )}
+                placement="top"
+              >
+                <IconButton
+                  aria-label="add"
+                  variant="ghost"
+                  size="xs"
+                  icon={<Icon as={LuPlus} boxSize={3.5} />}
+                  h={21}
+                  onClick={onAddDirModalOpen}
+                />
+              </Tooltip>
+              <ChangeDirectoryModal
+                isOpen={isAddDirModalOpen}
+                onClose={onAddDirModalClose}
+                add
               />
-            </Tooltip>
+            </>
           ),
         },
         <VStack key="dir-list" ml={1.5} spacing={0.5}>
@@ -71,19 +121,62 @@ const GlobalGameSettingsPage = () => {
                     h={21}
                   />
                 </Tooltip>
-                <Tooltip label={t("General.delete")}>
-                  <IconButton // TBD
-                    aria-label="openFolder"
-                    variant="ghost"
-                    size="xs"
-                    icon={<LuTrash />}
-                    h={21}
-                    colorScheme="red"
-                  />
-                </Tooltip>
+
+                {directory.name !== "CURRENT_DIR" && (
+                  <Tooltip label={t("General.edit")}>
+                    <IconButton
+                      aria-label="editDir"
+                      variant="ghost"
+                      size="xs"
+                      icon={<LuPenLine />}
+                      h={21}
+                      onClick={() => {
+                        setSelectedDir(directory);
+                        onEditDirModalOpen();
+                      }}
+                    />
+                  </Tooltip>
+                )}
+
+                {directory.name !== "CURRENT_DIR" && (
+                  <Tooltip label={t("General.delete")}>
+                    <IconButton
+                      aria-label="deleteDir"
+                      variant="ghost"
+                      size="xs"
+                      icon={<LuTrash />}
+                      h={21}
+                      colorScheme="red"
+                      onClick={() => {
+                        setSelectedDir(directory);
+                        onDeleteDirDialogOpen();
+                      }}
+                    />
+                  </Tooltip>
+                )}
               </HStack>
             </Flex>
           ))}
+
+          <ChangeDirectoryModal
+            isOpen={isEditDirModalOpen}
+            onClose={onEditDirModalClose}
+            currentName={selectedDir.name}
+            currentPath={selectedDir.dir}
+          />
+
+          <GenericConfirmDialog
+            isAlert
+            isOpen={isDeleteDirDialogOpen}
+            onClose={onDeleteDirDialogClose}
+            title={t("GlobalGameSettingsPage.directories.deleteDialog.title")}
+            body={t("GlobalGameSettingsPage.directories.deleteDialog.content", {
+              dirName: selectedDir.name,
+            })}
+            btnOK={t("General.delete")}
+            btnCancel={t("General.cancel")}
+            onOKCallback={handleDeleteDir}
+          />
         </VStack>,
       ],
     },

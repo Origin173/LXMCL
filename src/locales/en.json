@@ -192,6 +192,40 @@
       }
     }
   },
+  "ChangeDirectoryModal": {
+    "header": {
+      "title": {
+        "add": "Add Game Directory",
+        "edit": "Edit Game Directory"
+      }
+    },
+    "label": {
+      "dirName": "Directory Name",
+      "dirPath": "Directory Path"
+    },
+    "placeholder": {
+      "dirName": "Directory Name",
+      "dirPath": "Directory Path"
+    },
+    "button": {
+      "browse": "Browse"
+    },
+    "dialog": {
+      "title": "Select Directory"
+    },
+    "toast":{
+      "error": {
+        "title": "Failed to add game directory"
+      }
+    },
+    "errorMessage": {
+      "dirName": "Directory name cannot be longer than 16 characters",
+      "dirPath": {
+        "invalid": "Invalid directory path",
+        "exist": "Directory already exists"
+      }
+    }
+  },
   "ComingSoonSign": {
     "text": "This page is not available yet, coming soon!"
   },
@@ -377,6 +411,7 @@
       }
     },
     "disable": "Disable",
+    "edit": "Edit",
     "enable": "Enable",
     "finish": "Finish",
     "next": "Next",
@@ -414,6 +449,10 @@
           "add": "Add",
           "currentDir": "Current"
         }
+      },
+      "deleteDialog": {
+        "title": "Delete Game Directory",
+        "content": "Are you sure you want to delete the game directory {{dirName}} ? (only from the launcher, not the actual directory files)"
       }
     },
     "performance": {
