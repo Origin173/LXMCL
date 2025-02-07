@@ -200,12 +200,12 @@
       }
     },
     "label": {
-      "dirName": "目录名称",
-      "dirPath": "目录路径"
+      "dirName": "名称",
+      "dirPath": "游戏目录路径"
     },
     "placeholder": {
-      "dirName": "请输入目录名称",
-      "dirPath": "请选择目录路径"
+      "dirName": "请输入名称",
+      "dirPath": "请选择游戏目录"
     },
     "button": {
       "browse": "浏览"
@@ -219,7 +219,7 @@
       }
     },
     "errorMessage": {
-      "dirName": "目录名称不能超过16个字符",
+      "dirName": "目录名称不能超过 20 个字符",
       "dirPath": {
         "invalid": "请选择有效的游戏目录",
         "exist": "目录路径已存在"
@@ -447,7 +447,10 @@
         "directories": {
           "title": "本地游戏存储目录",
           "add": "添加",
-          "currentDir": "当前文件夹"
+          "special": {
+            "CURRENT_DIR": "当前文件夹",
+            "OFFICIAL_DIR": "官方启动器文件夹"
+          }
         }
       },
       "deleteDialog": {

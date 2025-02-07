@@ -94,12 +94,11 @@ export const InstanceBasicSettings: React.FC<InstanceBasicSettingsProps> = ({
       items: [
         ...config.localGameDirectories.map(
           (directory): OptionItemProps => ({
-            title:
-              directory.name === "CURRENT_DIR"
-                ? t(
-                    "GlobalGameSettingsPage.directories.settings.directories.currentDir"
-                  )
-                : directory.name,
+            title: ["CURRENT_DIR", "OFFICIAL_DIR"].includes(directory.name)
+              ? t(
+                  `GlobalGameSettingsPage.directories.settings.directories.special.${directory.name}`
+                )
+              : directory.name,
             description: directory.dir,
             prefixElement: (
               <Radio

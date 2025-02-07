@@ -200,12 +200,12 @@
       }
     },
     "label": {
-      "dirName": "Directory Name",
-      "dirPath": "Directory Path"
+      "dirName": "Name",
+      "dirPath": "Game Directory"
     },
     "placeholder": {
       "dirName": "Directory Name",
-      "dirPath": "Directory Path"
+      "dirPath": "Select a game directory"
     },
     "button": {
       "browse": "Browse"
@@ -219,7 +219,7 @@
       }
     },
     "errorMessage": {
-      "dirName": "Directory name cannot be longer than 16 characters",
+      "dirName": "Directory name cannot be longer than 20 characters",
       "dirPath": {
         "invalid": "Invalid directory path",
         "exist": "Directory already exists"
@@ -447,7 +447,10 @@
         "directories": {
           "title": "Manage Local Game Storage Directories",
           "add": "Add",
-          "currentDir": "Current"
+          "special": {
+            "CURRENT_DIR": "Current",
+            "OFFICIAL_DIR": "Minecraft Launcher"
+          }
         }
       },
       "deleteDialog": {

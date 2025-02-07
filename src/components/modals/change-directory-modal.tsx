@@ -45,7 +45,7 @@ const ChangeDirectoryModal: React.FC<ChangeDirectoryModalProps> = ({
   const [isDirPathUnique, setIsDirPathUnique] = useState<boolean>(true);
   const [isDirPathValid, setIsDirPathValid] = useState<boolean>(true);
 
-  const isDirNameValid = dirName.length <= 16;
+  const isDirNameValid = dirName.length <= 20;
 
   const handleBrowseGameDir = async () => {
     try {

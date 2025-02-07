@@ -102,9 +102,9 @@ const GlobalGameSettingsPage = () => {
                 <LuFolder size={12} />
                 <Text fontSize="xs" className="ellipsis-text" flex={1}>
                   <span>
-                    {directory.name === "CURRENT_DIR"
+                    {["CURRENT_DIR", "OFFICIAL_DIR"].includes(directory.name)
                       ? t(
-                          "GlobalGameSettingsPage.directories.settings.directories.currentDir"
+                          `GlobalGameSettingsPage.directories.settings.directories.special.${directory.name}`
                         )
                       : directory.name}
                   </span>
@@ -122,7 +122,7 @@ const GlobalGameSettingsPage = () => {
                   />
                 </Tooltip>
 
-                {directory.name !== "CURRENT_DIR" && (
+                {!["CURRENT_DIR", "OFFICIAL_DIR"].includes(directory.name) && (
                   <Tooltip label={t("General.edit")}>
                     <IconButton
                       aria-label="editDir"
@@ -138,7 +138,7 @@ const GlobalGameSettingsPage = () => {
                   </Tooltip>
                 )}
 
-                {directory.name !== "CURRENT_DIR" && (
+                {!["CURRENT_DIR", "OFFICIAL_DIR"].includes(directory.name) && (
                   <Tooltip label={t("General.delete")}>
                     <IconButton
                       aria-label="deleteDir"
