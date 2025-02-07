@@ -40,15 +40,12 @@ pub fn update_launcher_config(app: AppHandle, key_path: String, value: String) -
 
 #[tauri::command]
 pub fn restore_launcher_config(app: AppHandle) -> SJMCLResult<LauncherConfig> {
+  let mut default_config = LauncherConfig::default();
+  default_config.setup_with_app(&app)?;
+
   let binding = app.state::<Mutex<LauncherConfig>>();
   let mut state = binding.lock()?;
-  // Set and create default download cache dir
-  state.download.cache.directory = app
-    .path()
-    .resolve::<PathBuf>("Download".into(), BaseDirectory::AppCache)?;
-  if !state.download.cache.directory.exists() {
-    fs::create_dir_all(&state.download.cache.directory).unwrap();
-  }
+  *state = default_config;
   state.save()?;
   Ok(state.clone())
 }
@@ -56,7 +53,7 @@ pub fn restore_launcher_config(app: AppHandle) -> SJMCLResult<LauncherConfig> {
 #[tauri::command]
 pub async fn export_launcher_config(app: AppHandle) -> SJMCLResult<String> {
   let binding = app.state::<Mutex<LauncherConfig>>();
-  let state = binding.lock()?.clone();
+  let state = { binding.lock()?.clone() };
   let client = reqwest::Client::new();
   match client
     .post("https://mc.sjtu.cn/api-sjmcl/settings")
@@ -80,7 +77,7 @@ pub async fn export_launcher_config(app: AppHandle) -> SJMCLResult<String> {
       if status.is_success() {
         let code = json["code"]
           .as_str()
-          .ok_or_else(|| LauncherConfigError::FetchError)?
+          .ok_or(LauncherConfigError::FetchError)?
           .to_string();
 
         Ok(code)
@@ -124,7 +121,7 @@ pub async fn import_launcher_config(app: AppHandle, code: String) -> SJMCLResult
       } else {
         let message = json["message"]
           .as_str()
-          .ok_or_else(|| LauncherConfigError::FetchError)?;
+          .ok_or(LauncherConfigError::FetchError)?;
         match message {
           "Invalid code" => Err(LauncherConfigError::InvalidCode.into()),
           "Code expired" => Err(LauncherConfigError::CodeExpired.into()),
@@ -197,7 +194,7 @@ pub fn add_custom_background(app: AppHandle, source_src: String) -> SJMCLResult<
 
   let file_name = source_path.file_name().unwrap();
   let dest_path = custom_bg_dir.join(file_name);
-  fs::copy(&source_path, &dest_path)?;
+  fs::copy(source_path, &dest_path)?;
 
   Ok(file_name.to_string_lossy().to_string())
 }

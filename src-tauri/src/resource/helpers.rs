@@ -1,10 +1,9 @@
-use crate::{error::SJMCLResult, launcher_config::models::LauncherConfig, storage::Storage};
+use crate::{error::SJMCLResult, launcher_config::models::LauncherConfig};
 
 use super::models::{ResourceError, ResourceType};
 
-pub fn get_source_priority_list() -> Vec<String> {
-  let state: LauncherConfig = Storage::load().unwrap_or_default();
-  match state.download.source.strategy.as_str() {
+pub fn get_source_priority_list(launcher_config: &LauncherConfig) -> Vec<String> {
+  match launcher_config.download.source.strategy.as_str() {
     "official" => vec!["official".to_string(), "mirror".to_string()],
     "mirror" => vec!["mirror".to_string(), "official".to_string()],
     _ => vec!["mirror".to_string(), "official".to_string()],

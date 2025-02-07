@@ -185,10 +185,7 @@ impl Default for LauncherConfig {
         optional_functions: OptionalFunctions { discover: false },
       },
       global_game_config: GameConfig::default(),
-      local_game_directories: vec![GameDirectory {
-        name: "CURRENT_DIR".to_string(),
-        dir: PathBuf::from(".minecraft"),
-      }],
+      local_game_directories: vec![],
       states: States {
         accounts_page: AccountsPage {
           view_type: "grid".to_string(),

@@ -1,3 +1,4 @@
+use crate::error::SJMCLResult;
 use crate::{storage::Storage, EXE_DIR};
 use std::collections::HashSet;
 use std::error::Error;
@@ -12,6 +13,50 @@ use super::models::{GameDirectory, LauncherConfig};
 impl Storage for LauncherConfig {
   fn file_path() -> PathBuf {
     EXE_DIR.join("sjmcl.conf.json")
+  }
+}
+
+impl LauncherConfig {
+  pub fn setup_with_app(&mut self, app: &AppHandle) -> SJMCLResult<()> {
+    // same as lib.rs
+    // TODO: unify version
+    let is_dev = cfg!(debug_assertions);
+    let version = if is_dev {
+      "dev".to_string()
+    } else {
+      app.package_info().version.to_string()
+    };
+
+    // Set default download cache dir if not exists, create dir
+    if self.download.cache.directory == PathBuf::default() {
+      self.download.cache.directory = app
+        .path()
+        .resolve::<PathBuf>("Download".into(), BaseDirectory::AppCache)?;
+    }
+    if !self.download.cache.directory.exists() {
+      fs::create_dir_all(&self.download.cache.directory)?;
+    }
+
+    // Set default local game directories
+    if self.local_game_directories.is_empty() {
+      self.local_game_directories = vec![
+        get_official_minecraft_directory(app),
+        GameDirectory {
+          name: "CURRENT_DIR".to_string(),
+          dir: PathBuf::default(),
+        },
+      ];
+    }
+
+    // Update CURRENT_DIR
+    for game_dir in &mut self.local_game_directories {
+      if game_dir.name == "CURRENT_DIR" {
+        game_dir.dir = EXE_DIR.join(".minecraft");
+      }
+    }
+
+    self.version = version.clone();
+    Ok(())
   }
 }
 

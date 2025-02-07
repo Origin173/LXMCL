@@ -122,7 +122,7 @@ const GlobalGameSettingsPage = () => {
                   />
                 </Tooltip>
 
-                {!["CURRENT_DIR", "OFFICIAL_DIR"].includes(directory.name) && (
+                {directory.name !== "CURRENT_DIR" && (
                   <Tooltip label={t("General.edit")}>
                     <IconButton
                       aria-label="editDir"
@@ -138,7 +138,7 @@ const GlobalGameSettingsPage = () => {
                   </Tooltip>
                 )}
 
-                {!["CURRENT_DIR", "OFFICIAL_DIR"].includes(directory.name) && (
+                {directory.name !== "CURRENT_DIR" && (
                   <Tooltip label={t("General.delete")}>
                     <IconButton
                       aria-label="deleteDir"

@@ -1,7 +1,10 @@
+use std::sync::Mutex;
+use tauri::State;
+
 use serde_json::Value;
 use tauri_plugin_http::reqwest;
 
-use crate::error::SJMCLResult;
+use crate::{error::SJMCLResult, launcher_config::models::LauncherConfig};
 
 use super::{
   helpers::{get_download_api, get_source_priority_list},
@@ -9,8 +12,13 @@ use super::{
 };
 
 #[tauri::command]
-pub async fn retrive_game_version_list() -> SJMCLResult<Vec<GameResourceInfo>> {
-  let priority_list = get_source_priority_list();
+pub async fn retrive_game_version_list(
+  state: State<'_, Mutex<LauncherConfig>>,
+) -> SJMCLResult<Vec<GameResourceInfo>> {
+  let priority_list = {
+    let state = state.lock()?;
+    get_source_priority_list(&state)
+  };
   for source in priority_list {
     let url = format!(
       "{}/mc/game/version_manifest.json",
@@ -26,25 +34,25 @@ pub async fn retrive_game_version_list() -> SJMCLResult<Vec<GameResourceInfo>> {
               for version in versions {
                 let release_time = version["releaseTime"]
                   .as_str()
-                  .ok_or_else(|| ResourceError::ParseError)?
+                  .ok_or(ResourceError::ParseError)?
                   .to_string();
                 game_version_list.push(GameResourceInfo {
                   id: version["id"]
                     .as_str()
-                    .ok_or_else(|| ResourceError::ParseError)?
+                    .ok_or(ResourceError::ParseError)?
                     .to_string(),
-                  game_type: if release_time.find("04-01").is_some() {
+                  game_type: if release_time.contains("04-01") {
                     "april_fools".to_string()
                   } else {
                     version["type"]
                       .as_str()
-                      .ok_or_else(|| ResourceError::ParseError)?
+                      .ok_or(ResourceError::ParseError)?
                       .to_string()
                   },
                   release_time,
                   url: version["url"]
                     .as_str()
-                    .ok_or_else(|| ResourceError::ParseError)?
+                    .ok_or(ResourceError::ParseError)?
                     .to_string(),
                 })
               }
@@ -59,5 +67,5 @@ pub async fn retrive_game_version_list() -> SJMCLResult<Vec<GameResourceInfo>> {
       Err(_) => continue,
     }
   }
-  return Err(ResourceError::NoDownloadApi.into());
+  Err(ResourceError::NoDownloadApi.into())
 }
