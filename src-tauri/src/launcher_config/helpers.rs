@@ -7,6 +7,9 @@ use std::process::Command;
 use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager};
 
+#[cfg(target_os = "windows")]
+use std::error::Error;
+
 use super::models::{GameDirectory, LauncherConfig};
 
 impl Storage for LauncherConfig {
