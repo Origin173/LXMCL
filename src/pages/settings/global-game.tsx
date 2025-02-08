@@ -8,6 +8,7 @@ import {
   VStack,
   useDisclosure,
 } from "@chakra-ui/react";
+import { open } from "@tauri-apps/plugin-shell";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -113,12 +114,15 @@ const GlobalGameSettingsPage = () => {
               </HStack>
               <HStack spacing={1} ml="auto">
                 <Tooltip label={t("General.openFolder")}>
-                  <IconButton // TBD
+                  <IconButton
                     aria-label="openFolder"
                     variant="ghost"
                     size="xs"
                     icon={<LuFolderOpen />}
                     h={21}
+                    onClick={() => {
+                      open(directory.dir);
+                    }}
                   />
                 </Tooltip>
 

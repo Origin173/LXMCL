@@ -4,6 +4,7 @@ import React, { useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { IconType } from "react-icons";
 import {
+  LuBookDashed,
   LuEarth,
   LuFullscreen,
   LuHaze,
@@ -42,6 +43,9 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
     { key: "worlds", icon: LuEarth },
     { key: "mods", icon: LuSquareLibrary },
     { key: "resourcepacks", icon: LuPackage },
+    ...(summary?.hasSchemFolder
+      ? [{ key: "schematics", icon: LuBookDashed }]
+      : []),
     { key: "shaderpacks", icon: LuHaze },
     { key: "screenshots", icon: LuFullscreen },
     { key: "settings", icon: LuSettings },
@@ -70,7 +74,7 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
         onClick={(value) => router.push(value)}
         direction="row"
         size="xs"
-        spacing={1}
+        spacing={summary?.hasSchemFolder ? "0.075rem" : 1}
         mt={-1.5}
         items={instanceTabList.map((item) => ({
           value: `/games/instance/${router.query.id}/${item.key}`,

@@ -19,6 +19,7 @@ export const mockGameInstanceSummaryList: GameInstanceSummary[] = [
       type: "Fabric",
       version: "0.15.6",
     },
+    hasSchemFolder: false,
   },
   {
     id: 2,
@@ -31,6 +32,7 @@ export const mockGameInstanceSummaryList: GameInstanceSummary[] = [
       type: "Forge",
       version: "47.2.17",
     },
+    hasSchemFolder: true,
   },
 ];
 

@@ -11,6 +11,7 @@ export interface GameInstanceSummary {
     type: ModLoaderType;
     version?: string;
   };
+  hasSchemFolder: boolean;
 }
 
 export interface Screenshot {

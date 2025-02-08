@@ -130,6 +130,9 @@
     },
     "errorMessage": {
       "playerName": "Can only contain letters, numbers, and underscores, within 16 characters."
+    },
+    "button": {
+      "buyMinecraft": "Buy Minecraft"
     }
   },
   "AllGamesPage": {
@@ -574,6 +577,7 @@
       "worlds": "Worlds",
       "mods": "Mods",
       "resourcepacks": "Resourcepacks",
+      "schematics": "Schematics",
       "shaderpacks": "Shaderpacks",
       "screenshots": "Screenshots",
       "settings": "Settings"

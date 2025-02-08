@@ -1,7 +1,6 @@
 use crate::error::SJMCLResult;
 use crate::{storage::Storage, EXE_DIR};
 use std::collections::HashSet;
-use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
@@ -40,11 +39,11 @@ impl LauncherConfig {
     // Set default local game directories
     if self.local_game_directories.is_empty() {
       self.local_game_directories = vec![
-        get_official_minecraft_directory(app),
         GameDirectory {
           name: "CURRENT_DIR".to_string(),
           dir: PathBuf::default(),
         },
+        get_official_minecraft_directory(app),
       ];
     }
 
@@ -60,7 +59,7 @@ impl LauncherConfig {
   }
 }
 
-pub fn get_official_minecraft_directory(app: &AppHandle) -> GameDirectory {
+fn get_official_minecraft_directory(app: &AppHandle) -> GameDirectory {
   let minecraft_dir: PathBuf;
 
   #[cfg(target_os = "windows")]
