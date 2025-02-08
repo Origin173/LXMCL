@@ -3,6 +3,7 @@ import {
   GameServerInfo,
   LocalModInfo,
   ResourcePacksInfo,
+  SchematicsInfo,
   Screenshot,
   ShaderPacksInfo,
   WorldInfo,
@@ -133,5 +134,16 @@ export const mockLocalMods: LocalModInfo[] = [
     fileName: "jei-1.20.1-fabric-15.20.0.106",
     description: "View items and recipes",
     potentialIncompatibility: true,
+  },
+];
+
+export const mockSchematics: SchematicsInfo[] = [
+  {
+    name: "TestFile.schematic",
+    filePath: "/.minecraft/schematics",
+  },
+  {
+    name: "McDonalds-Minhang-Campus.litematic",
+    filePath: "/.minecraft/schematics",
   },
 ];

@@ -57,6 +57,11 @@ export interface ResourcePacksInfo {
   filePath: string;
 }
 
+export interface SchematicsInfo {
+  name: string;
+  filePath: string;
+}
+
 export interface ShaderPacksInfo {
   name: string;
   filePath: string;

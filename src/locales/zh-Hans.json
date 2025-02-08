@@ -216,7 +216,7 @@
     "dialog": {
       "title": "选择目录"
     },
-    "toast":{
+    "toast": {
       "error": {
         "title": "添加游戏目录失败"
       }
@@ -621,6 +621,12 @@
   "InstanceShaderPacksPage": {
     "shaderPackList": {
       "title": "光影包"
+    }
+  },
+  "InstanceSchematicsPage": {
+    "schematicList": {
+      "title": "原理图",
+      "preview": "预览"
     }
   },
   "InstanceWidgets": {
