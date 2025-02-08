@@ -68,7 +68,7 @@ export const mockWorlds: WorldInfo[] = [
     difficulty: "normal",
     gamemode: "survival",
     iconSrc: "/images/icons/GrassBlock.png",
-    fileDir: "/.minecraft/saves",
+    filePath: "/.minecraft/saves",
   },
   {
     name: "SMP-SJMC",
@@ -76,7 +76,7 @@ export const mockWorlds: WorldInfo[] = [
     difficulty: "hard",
     gamemode: "creative",
     iconSrc: "/images/icons/Anvil.png",
-    fileDir: "/.minecraft/saves",
+    filePath: "/.minecraft/saves",
   },
 ];
 
@@ -86,28 +86,28 @@ export const mockResourcePacks: ResourcePacksInfo[] = [
     description: "The go-to 32x resource pack.\n§8November 2024 Pre-release",
     iconSrc:
       "https://media.forgecdn.net/avatars/546/645/637882030837320187.png",
-    fileDir: "/.minecraft/resourcepacks",
+    filePath: "/.minecraft/resourcepacks",
   },
   {
     name: "空白资源包",
     description: "测试空白资源包",
     iconSrc: "",
-    fileDir: "/.minecraft/resourcepacks",
+    filePath: "/.minecraft/resourcepacks",
   },
 ];
 
 export const mockShaderPacks: ShaderPacksInfo[] = [
   {
     name: "Kappa_v5.2",
-    fileDir: "/.minecraft/shaderpacks",
+    filePath: "/.minecraft/shaderpacks",
   },
   {
     name: "rethinking-voxels_r0.1_beta2",
-    fileDir: "/.minecraft/shaderpacks",
+    filePath: "/.minecraft/shaderpacks",
   },
   {
     name: "§r§lAstra§4§lLex§r§l_By_LexBoosT_§4§lV93.0§r§l",
-    fileDir: "/.minecraft/shaderpacks",
+    filePath: "/.minecraft/shaderpacks",
   },
 ];
 

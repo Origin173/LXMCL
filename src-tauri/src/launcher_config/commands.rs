@@ -239,7 +239,7 @@ pub fn retrive_java_list() -> SJMCLResult<Vec<JavaInfo>> {
       name: format!("{} {}", if is_jdk { "JDK" } else { "JRE" }, full_version),
       major_version,
       is_lts,
-      exec_dir: java_exec_path,
+      exec_path: java_exec_path,
       vendor,
     });
   }
@@ -247,7 +247,7 @@ pub fn retrive_java_list() -> SJMCLResult<Vec<JavaInfo>> {
   java_list.sort_by(|a, b| {
     b.major_version
       .cmp(&a.major_version)
-      .then_with(|| a.exec_dir.len().cmp(&b.exec_dir.len()))
+      .then_with(|| a.exec_path.len().cmp(&b.exec_path.len()))
   });
 
   Ok(java_list)
