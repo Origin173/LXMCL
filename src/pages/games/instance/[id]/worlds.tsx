@@ -79,7 +79,7 @@ const InstanceWorldsPage = () => {
                       icon={<LuFolderOpen />}
                       variant="ghost"
                       size="sm"
-                      onClick={() => open(world.fileDir)}
+                      onClick={() => open(world.filePath)}
                     />
                   </Tooltip>
                 </OptionItem>

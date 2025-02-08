@@ -1,6 +1,6 @@
 export interface JavaInfo {
   name: string;
-  execDir: string;
+  execPath: string;
   vendor: string;
   majorVersion: number;
   isLts: boolean;

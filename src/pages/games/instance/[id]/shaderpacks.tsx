@@ -34,7 +34,7 @@ const InstanceShaderPacksPage = () => {
                   variant="ghost"
                   size="sm"
                   h={18}
-                  onClick={() => open(pack.fileDir)}
+                  onClick={() => open(pack.filePath)}
                 />
               </Tooltip>
             </OptionItem>

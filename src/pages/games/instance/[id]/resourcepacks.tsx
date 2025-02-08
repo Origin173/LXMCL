@@ -71,7 +71,7 @@ const InstanceResourcePacksPage = () => {
                         icon={<LuFolderOpen />}
                         variant="ghost"
                         size="sm"
-                        onClick={() => open(pack.fileDir)}
+                        onClick={() => open(pack.filePath)}
                       />
                     </Tooltip>
                   </OptionItem>

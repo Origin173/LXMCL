@@ -216,7 +216,7 @@
     "dialog": {
       "title": "Select Directory"
     },
-    "toast":{
+    "toast": {
       "error": {
         "title": "Failed to add game directory"
       }
@@ -621,6 +621,12 @@
   "InstanceShaderPacksPage": {
     "shaderPackList": {
       "title": "Shader Packs"
+    }
+  },
+  "InstanceSchematicsPage": {
+    "schematicList": {
+      "title": "Schematics",
+      "preview": "Preview"
     }
   },
   "InstanceWidgets": {

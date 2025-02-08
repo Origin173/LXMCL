@@ -99,7 +99,7 @@ const JavaSettingsPage = () => {
                   className="secondary-text no-select"
                   wordBreak="break-all"
                 >
-                  {info.execDir}
+                  {info.execPath}
                 </Text>
               }
               titleExtra={
@@ -125,7 +125,7 @@ const JavaSettingsPage = () => {
                   icon={<LuFolderOpen />}
                   variant="ghost"
                   size="sm"
-                  onClick={async () => await revealItemInDir(info.execDir)}
+                  onClick={async () => await revealItemInDir(info.execPath)}
                 />
               </Tooltip>
             </OptionItem>
