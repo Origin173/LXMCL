@@ -26,6 +26,7 @@ export class ResourceService {
   > {
     return await invoke("retrive_game_version_list");
   }
+
   /**
    * RETRIVE the list of mode loader versions.
    * @returns {Promise<InvokeResponse<ModLoaderResourceInfo[]>>}
