@@ -19,41 +19,45 @@ pub async fn retrive_game_version_list() -> SJMCLResult<Vec<GameResourceInfo>> {
     match reqwest::get(url).await {
       Ok(response) => {
         if response.status().is_success() {
-          match response.json::<Value>().await {
-            Ok(data) => {
-              let versions = data["versions"]
-                .as_array()
-                .ok_or(ResourceError::ParseError)?;
-              let mut game_version_list: Vec<GameResourceInfo> = vec![];
-              for version in versions {
-                let release_time = version["releaseTime"]
+          let data = response
+            .json::<Value>()
+            .await
+            .or(Err(ResourceError::ParseError))?;
+
+          let versions = data["versions"]
+            .as_array()
+            .ok_or(ResourceError::ParseError)?;
+
+          let mut game_version_list: Vec<GameResourceInfo> = vec![];
+
+          for version in versions {
+            let release_time = version["releaseTime"]
+              .as_str()
+              .ok_or(ResourceError::ParseError)?
+              .to_string();
+
+            game_version_list.push(GameResourceInfo {
+              id: version["id"]
+                .as_str()
+                .ok_or(ResourceError::ParseError)?
+                .to_string(),
+              game_type: if release_time.contains("04-01") {
+                "april_fools".to_string()
+              } else {
+                version["type"]
                   .as_str()
                   .ok_or(ResourceError::ParseError)?
-                  .to_string();
-                game_version_list.push(GameResourceInfo {
-                  id: version["id"]
-                    .as_str()
-                    .ok_or(ResourceError::ParseError)?
-                    .to_string(),
-                  game_type: if release_time.contains("04-01") {
-                    "april_fools".to_string()
-                  } else {
-                    version["type"]
-                      .as_str()
-                      .ok_or(ResourceError::ParseError)?
-                      .to_string()
-                  },
-                  release_time,
-                  url: version["url"]
-                    .as_str()
-                    .ok_or(ResourceError::ParseError)?
-                    .to_string(),
-                })
-              }
-              return Ok(game_version_list);
-            }
-            Err(_) => continue,
+                  .to_string()
+              },
+              release_time,
+              url: version["url"]
+                .as_str()
+                .ok_or(ResourceError::ParseError)?
+                .to_string(),
+            })
           }
+
+          return Ok(game_version_list);
         } else {
           continue;
         }
@@ -77,28 +81,31 @@ pub async fn retrive_mod_loader_version_list(
       match reqwest::get(url).await {
         Ok(response) => {
           if response.status().is_success() {
-            match response.json::<Value>().await {
-              Ok(data) => {
-                let versions = data.as_array().ok_or(ResourceError::ParseError)?;
-                let mut mod_loader_version_list: Vec<ModLoaderResourceInfo> = vec![];
-                for version in versions {
-                  mod_loader_version_list.push(ModLoaderResourceInfo {
-                    loader_type: mod_loader_type.clone(),
-                    version: version["version"]
-                      .as_str()
-                      .ok_or(ResourceError::ParseError)?
-                      .to_string(),
-                    description: version["modified"]
-                      .as_str()
-                      .ok_or(ResourceError::ParseError)?
-                      .to_string(),
-                    stable: true,
-                  })
-                }
-                Ok(mod_loader_version_list)
-              }
-              Err(_) => Err(ResourceError::NoDownloadApi.into()),
+            let data = response
+              .json::<Value>()
+              .await
+              .or(Err(ResourceError::ParseError))?;
+
+            let versions = data.as_array().ok_or(ResourceError::ParseError)?;
+
+            let mut mod_loader_version_list: Vec<ModLoaderResourceInfo> = vec![];
+
+            for version in versions {
+              mod_loader_version_list.push(ModLoaderResourceInfo {
+                loader_type: mod_loader_type.clone(),
+                version: version["version"]
+                  .as_str()
+                  .ok_or(ResourceError::ParseError)?
+                  .to_string(),
+                description: version["modified"]
+                  .as_str()
+                  .ok_or(ResourceError::ParseError)?
+                  .to_string(),
+                stable: true,
+              })
             }
+
+            Ok(mod_loader_version_list)
           } else {
             Err(ResourceError::NoDownloadApi.into())
           }
@@ -119,28 +126,30 @@ pub async fn retrive_mod_loader_version_list(
         match reqwest::get(url).await {
           Ok(response) => {
             if response.status().is_success() {
-              match response.json::<Value>().await {
-                Ok(data) => {
-                  let versions = data.as_array().ok_or(ResourceError::ParseError)?;
-                  let mut mod_loader_version_list: Vec<ModLoaderResourceInfo> = vec![];
-                  for version in versions {
-                    mod_loader_version_list.push(ModLoaderResourceInfo {
-                      loader_type: mod_loader_type.clone(),
-                      version: version["loader"]["version"]
-                        .as_str()
-                        .ok_or(ResourceError::ParseError)?
-                        .to_string(),
-                      description: "".to_string(),
-                      stable: version["loader"]["stable"]
-                        .as_bool()
-                        .ok_or(ResourceError::ParseError)?,
-                    });
-                  }
+              let data = response
+                .json::<Value>()
+                .await
+                .or(Err(ResourceError::ParseError))?;
 
-                  return Ok(mod_loader_version_list);
-                }
-                Err(_) => continue,
+              let versions = data.as_array().ok_or(ResourceError::ParseError)?;
+
+              let mut mod_loader_version_list: Vec<ModLoaderResourceInfo> = vec![];
+
+              for version in versions {
+                mod_loader_version_list.push(ModLoaderResourceInfo {
+                  loader_type: mod_loader_type.clone(),
+                  version: version["loader"]["version"]
+                    .as_str()
+                    .ok_or(ResourceError::ParseError)?
+                    .to_string(),
+                  description: "".to_string(),
+                  stable: version["loader"]["stable"]
+                    .as_bool()
+                    .ok_or(ResourceError::ParseError)?,
+                });
               }
+
+              return Ok(mod_loader_version_list);
             } else {
               continue;
             }
@@ -157,24 +166,26 @@ pub async fn retrive_mod_loader_version_list(
       match reqwest::get(url).await {
         Ok(response) => {
           if response.status().is_success() {
-            match response.json::<Value>().await {
-              Ok(data) => {
-                let versions = data.as_array().ok_or(ResourceError::ParseError)?;
-                let mut mod_loader_version_list: Vec<ModLoaderResourceInfo> = vec![];
-                for v in versions {
-                  let version = v["version"].as_str().ok_or(ResourceError::ParseError)?;
-                  mod_loader_version_list.push(ModLoaderResourceInfo {
-                    loader_type: mod_loader_type.clone(),
-                    version: version.to_string(),
-                    description: "".to_string(),
-                    stable: !version.ends_with("beta"),
-                  })
-                }
+            let data = response
+              .json::<Value>()
+              .await
+              .or(Err(ResourceError::ParseError))?;
 
-                Ok(mod_loader_version_list)
-              }
-              Err(_) => Err(ResourceError::NoDownloadApi.into()),
+            let versions = data.as_array().ok_or(ResourceError::ParseError)?;
+
+            let mut mod_loader_version_list: Vec<ModLoaderResourceInfo> = vec![];
+
+            for v in versions {
+              let version = v["version"].as_str().ok_or(ResourceError::ParseError)?;
+              mod_loader_version_list.push(ModLoaderResourceInfo {
+                loader_type: mod_loader_type.clone(),
+                version: version.to_string(),
+                description: "".to_string(),
+                stable: !version.ends_with("beta"),
+              })
             }
+
+            Ok(mod_loader_version_list)
           } else {
             Err(ResourceError::NoDownloadApi.into())
           }
