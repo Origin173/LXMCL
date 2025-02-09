@@ -8,14 +8,14 @@ export interface GameResourceInfo {
 export type ModLoaderType = "none" | "Fabric" | "Forge" | "NeoForge";
 
 export interface ModLoaderResourceInfo {
-  type: ModLoaderType;
+  loaderType: ModLoaderType;
   version: string;
   description?: string;
   stable: boolean;
 }
 
 export const defaultModLoaderResourceInfo: ModLoaderResourceInfo = {
-  type: "none",
+  loaderType: "none",
   version: "",
   stable: true,
 };

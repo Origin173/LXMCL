@@ -1,5 +1,4 @@
 import {
-  Box,
   BoxProps,
   Center,
   Checkbox,
@@ -8,6 +7,9 @@ import {
   Icon,
   IconButton,
   Image,
+  Input,
+  InputGroup,
+  InputLeftElement,
   Radio,
   RadioGroup,
   Tag,
@@ -17,7 +19,7 @@ import {
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuEarth, LuRefreshCcw } from "react-icons/lu";
+import { LuEarth, LuRefreshCcw, LuSearch } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
 import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
@@ -55,30 +57,29 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   const primaryColor = config.appearance.theme.primaryColor;
 
   const [versions, setVersions] = useState<GameResourceInfo[]>([]);
+  const [filteredVersions, setFilteredVersions] = useState<GameResourceInfo[]>(
+    []
+  );
   const [counts, setCounts] = useState<Map<string, number>>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(
     new Set(config.states.gameVersionSelector.gameTypes)
   );
 
+  const [searchText, setSearchText] = useState("");
+
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     const response = await ResourceService.retriveGameVersionList();
     if (response.status === "success") {
-      console.log(response.data);
       const versionData = response.data;
+      setVersions(versionData);
       const newCounts = new Map<string, number>();
       versionData.forEach((version: GameResourceInfo) => {
         let oldCount = newCounts.get(version.gameType) || 0;
         newCounts.set(version.gameType, oldCount + 1);
       });
       setCounts(newCounts);
-
-      setVersions(
-        versionData.filter((version: GameResourceInfo) =>
-          selectedTypes.has(version.gameType)
-        )
-      );
     } else {
       setVersions([]);
       toast({
@@ -88,7 +89,15 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
       });
     }
     setIsLoading(false);
-  }, [selectedTypes, toast]);
+  }, [toast]);
+
+  useEffect(() => {
+    setFilteredVersions(
+      versions
+        .filter((version) => selectedTypes.has(version.gameType))
+        .filter((version) => version.id.includes(searchText))
+    );
+  }, [versions, selectedTypes, searchText]);
 
   useEffect(() => {
     fetchData();
@@ -155,7 +164,7 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
 
   const gameTypeTogglers = useMemo(() => {
     return (
-      <HStack spacing={4}>
+      <>
         {Object.keys(gameTypesToIcon).map((gameType) => (
           <Checkbox
             key={gameType}
@@ -164,7 +173,7 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
             colorScheme={primaryColor}
             borderColor="gray.400"
           >
-            <HStack spacing={2} alignItems="center">
+            <HStack spacing={1} alignItems="center" w="max-content">
               <Text fontWeight="bold" fontSize="sm" className="no-select">
                 {t(`GameVersionSelector.${gameType}`)}
               </Text>
@@ -172,7 +181,7 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
             </HStack>
           </Checkbox>
         ))}
-      </HStack>
+      </>
     );
   }, [counts, handleTypeToggle, primaryColor, selectedTypes, t]);
 
@@ -192,24 +201,33 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
       width="100%"
       height="100%"
     >
-      <Flex justifyContent="space-between" flexShrink={0} padding={1} mb={2.5}>
+      <HStack py={1} gap={2}>
         {gameTypeTogglers}
+        <InputGroup flexGrow={1} size="xs">
+          <InputLeftElement h="100%" pointerEvents="none">
+            <LuSearch />
+          </InputLeftElement>
+          <Input
+            borderRadius="md"
+            placeholder={t("GameVersionSelector.searchPlaceholder")}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+        </InputGroup>
         <IconButton
           aria-label="refresh"
           icon={<Icon as={LuRefreshCcw} boxSize={3.5} />}
           onClick={fetchData}
-          size="sm"
-          h={21}
+          size="xs"
           variant="ghost"
           colorScheme="gray"
         />
-      </Flex>
+      </HStack>
       <Section overflow="auto" flexGrow={1} h="100%">
         {isLoading ? (
           <Center>
             <BeatLoader size={16} color="gray" />
           </Center>
-        ) : selectedTypes.size === 0 || versions.length === 0 ? (
+        ) : selectedTypes.size === 0 || filteredVersions.length === 0 ? (
           <Empty withIcon={false} size="sm" />
         ) : (
           <RadioGroup
@@ -219,7 +237,7 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
           >
             <VirtualOptionItemGroup
               h="100%"
-              items={versions.map(buildOptionItems)}
+              items={filteredVersions.map(buildOptionItems)}
             />
           </RadioGroup>
         )}

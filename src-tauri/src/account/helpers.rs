@@ -17,15 +17,15 @@ pub async fn fetch_auth_server(auth_url: String) -> SJMCLResult<AuthServer> {
       let json: serde_json::Value = response.json().await.map_err(|_| AccountError::Invalid)?;
       let server_name = json["meta"]["serverName"]
         .as_str()
-        .ok_or_else(|| AccountError::Invalid)?
+        .ok_or(AccountError::Invalid)?
         .to_string();
       let homepage_url = json["meta"]["links"]["homepage"]
         .as_str()
-        .ok_or_else(|| AccountError::Invalid)?
+        .ok_or(AccountError::Invalid)?
         .to_string();
       let register_url = json["meta"]["links"]["register"]
         .as_str()
-        .ok_or_else(|| AccountError::Invalid)?
+        .ok_or(AccountError::Invalid)?
         .to_string();
 
       let new_server = AuthServer {
