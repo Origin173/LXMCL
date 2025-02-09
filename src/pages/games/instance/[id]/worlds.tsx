@@ -1,13 +1,15 @@
-import { IconButton, Image, Tooltip } from "@chakra-ui/react";
+import { Image } from "@chakra-ui/react";
 import { HStack, Tag, TagLabel, Text } from "@chakra-ui/react";
-import { open } from "@tauri-apps/plugin-shell";
+import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuCheck, LuFolderOpen, LuX } from "react-icons/lu";
+import { LuCheck, LuX } from "react-icons/lu";
+import { CommonIconButton } from "@/components/common/common-icon-button";
 import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
+import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { GameServerInfo, WorldInfo } from "@/models/game-instance";
 import { mockWorlds } from "@/models/mock/game-instance";
@@ -16,7 +18,8 @@ import { formatRelativeTime } from "@/utils/datetime";
 
 const InstanceWorldsPage = () => {
   const { t } = useTranslation();
-
+  const { config, update } = useLauncherConfig();
+  const accordionStates = config.states.instanceWorldsPage.accordionStates;
   const [worlds, setWorlds] = useState<WorldInfo[]>([]);
   const [gameServers, setGameServers] = useState<GameServerInfo[]>([]);
   const { summary } = useInstanceSharedData();
@@ -40,12 +43,32 @@ const InstanceWorldsPage = () => {
     return () => clearInterval(intervalId);
   }, [summary?.id]);
 
+  const worldItemMenuOperations = (save: WorldInfo) => [
+    {
+      label: "",
+      icon: "copyOrMove",
+      onClick: () => {},
+    },
+    {
+      label: "",
+      icon: "revealFile",
+      onClick: () => revealItemInDir(save.filePath),
+    },
+  ];
+
   return (
     <>
       <Section
         isAccordion
         title={t("InstanceWorldsPage.worldList.title")}
+        initialIsOpen={accordionStates[0]}
         titleExtra={<CountTag count={worlds.length} />}
+        onAccordionToggle={(isOpen) => {
+          update(
+            "states.instanceWorldsPage.accordionStates",
+            accordionStates.toSpliced(0, 1, isOpen)
+          );
+        }}
       >
         {worlds.length > 0 ? (
           <OptionItemGroup
@@ -73,15 +96,16 @@ const InstanceWorldsPage = () => {
                     />
                   }
                 >
-                  <Tooltip label={t("General.openFolder")}>
-                    <IconButton
-                      aria-label={"open"}
-                      icon={<LuFolderOpen />}
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => open(world.fileDir)}
-                    />
-                  </Tooltip>
+                  <HStack spacing={0}>
+                    {worldItemMenuOperations(world).map((item, index) => (
+                      <CommonIconButton
+                        key={index}
+                        icon={item.icon}
+                        label={item.label}
+                        onClick={item.onClick}
+                      />
+                    ))}
+                  </HStack>
                 </OptionItem>
               );
             })}
@@ -94,7 +118,14 @@ const InstanceWorldsPage = () => {
       <Section
         isAccordion
         title={t("InstanceWorldsPage.serverList.title")}
+        initialIsOpen={accordionStates[1]}
         titleExtra={<CountTag count={gameServers.length} />}
+        onAccordionToggle={(isOpen) => {
+          update(
+            "states.instanceWorldsPage.accordionStates",
+            accordionStates.toSpliced(1, 1, isOpen)
+          );
+        }}
       >
         {gameServers.length > 0 ? (
           <OptionItemGroup

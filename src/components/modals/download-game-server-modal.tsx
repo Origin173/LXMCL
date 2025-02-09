@@ -38,7 +38,7 @@ export const DownloadGameServerModal: React.FC<
           {t("AddAndImportInstancePage.moreOptions.server.title")}
         </ModalHeader>
         <ModalCloseButton />
-        <Flex h="60vh" flexDir="column">
+        <Flex h="80vh" flexDir="column">
           <ModalBody>
             <GameVersionSelector
               selectedVersion={selectedGameVersion}

@@ -10,6 +10,16 @@ pub struct MemoryInfo {
   pub used: u64,
 }
 
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct JavaInfo {
+  pub name: String,       // JDK/JRE + full version
+  pub major_version: i32, // major version + LTS flag
+  pub is_lts: bool,
+  pub exec_path: String,
+  pub vendor: String,
+}
+
 // Partial Derive is used for these structs and we can use it for key value storage.
 // And partially update some fields for better performance and hygiene.
 //
@@ -67,6 +77,10 @@ structstruck::strike! {
       },
       pub background: struct {
         pub choice: String,
+      },
+      pub accessibility: struct {
+        pub invert_colors: bool,
+        pub enhance_contrast: bool,
       }
     },
     pub download: struct DownloadConfig {
@@ -102,7 +116,16 @@ structstruck::strike! {
       },
       pub game_version_selector: struct {
         pub game_types: Vec<String>
-      }
+      },
+      pub instance_mods_page: struct {
+        pub accordion_states: [bool; 2],
+      },
+      pub instance_resourcepack_page: struct {
+        pub accordion_states: [bool; 2],
+      },
+      pub instance_worlds_page: struct {
+        pub accordion_states: [bool; 2],
+      },
     }
   }
 }
@@ -145,6 +168,10 @@ impl Default for LauncherConfig {
         background: Background {
           choice: "%built-in:Jokull".to_string(),
         },
+        accessibility: Accessibility {
+          invert_colors: false,
+          enhance_contrast: false,
+        },
       },
       download: DownloadConfig {
         source: Source {
@@ -167,10 +194,7 @@ impl Default for LauncherConfig {
         optional_functions: OptionalFunctions { discover: false },
       },
       global_game_config: GameConfig::default(),
-      local_game_directories: vec![GameDirectory {
-        name: "CURRENT_DIR".to_string(),
-        dir: PathBuf::from(".minecraft"),
-      }],
+      local_game_directories: vec![],
       states: States {
         accounts_page: AccountsPage {
           view_type: "grid".to_string(),
@@ -180,6 +204,15 @@ impl Default for LauncherConfig {
         },
         game_version_selector: GameVersionSelector {
           game_types: ["release".to_string()].to_vec(),
+        },
+        instance_mods_page: InstanceModsPage {
+          accordion_states: [true, true],
+        },
+        instance_resourcepack_page: InstanceResourcepackPage {
+          accordion_states: [true, true],
+        },
+        instance_worlds_page: InstanceWorldsPage {
+          accordion_states: [true, true],
         },
       },
     }

@@ -77,11 +77,30 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     constructBgImgSrc();
   }, [config.appearance.background.choice]);
 
-  if (isStandAlone) return children;
+  const getGlobalExtraStyle = (config: any) => {
+    const isInvertColors = config.appearance.accessibility.invertColors;
+    const enhanceContrast = config.appearance.accessibility.enhanceContrast;
+
+    const filters = [];
+    if (isInvertColors) filters.push("invert(1)");
+    if (enhanceContrast) filters.push("contrast(1.2)");
+
+    return {
+      filter: filters.length > 0 ? filters.join(" ") : "none",
+    };
+  };
+
+  if (isStandAlone) {
+    return (
+      <div style={{ ...getGlobalExtraStyle(config), backgroundColor: "white" }}>
+        {children}
+      </div>
+    );
+  }
 
   if (config.mocked)
     return (
-      <Center h="100%">
+      <Center h="100%" style={getGlobalExtraStyle(config)}>
         <BeatLoader size={16} color="gray" />
       </Center>
     );
@@ -94,6 +113,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       bgSize="cover"
       bgPosition="center"
       bgRepeat="no-repeat"
+      style={getGlobalExtraStyle(config)}
     >
       <HeadNavBar />
       {router.pathname === "/launch" ? (

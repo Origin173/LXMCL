@@ -11,6 +11,7 @@ export interface GameInstanceSummary {
     type: ModLoaderType;
     version?: string;
   };
+  hasSchemFolder: boolean;
 }
 
 export interface Screenshot {
@@ -25,7 +26,7 @@ export interface WorldInfo {
   difficulty: string;
   gamemode: string;
   iconSrc: string;
-  fileDir: string;
+  filePath: string;
 }
 
 export interface GameServerInfo {
@@ -53,10 +54,15 @@ export interface ResourcePacksInfo {
   name: string;
   description?: string;
   iconSrc?: string;
-  fileDir: string;
+  filePath: string;
+}
+
+export interface SchematicsInfo {
+  name: string;
+  filePath: string;
 }
 
 export interface ShaderPacksInfo {
   name: string;
-  fileDir: string;
+  filePath: string;
 }

@@ -130,6 +130,9 @@
     },
     "errorMessage": {
       "playerName": "只能包含英文字母、数字和下划线，不超过16个字符。"
+    },
+    "button": {
+      "buyMinecraft": "购买 Minecraft"
     }
   },
   "AllGamesPage": {
@@ -178,6 +181,51 @@
         "SJTU-eastgate": {
           "name": "SJTU 紫气东来门"
         }
+      }
+    },
+    "accessibility": {
+      "title": "显示辅助",
+      "settings": {
+        "invertColors": {
+          "title": "反转颜色"
+        },
+        "enhanceContrast": {
+          "title": "增强对比度"
+        }
+      }
+    }
+  },
+  "ChangeDirectoryModal": {
+    "header": {
+      "title": {
+        "add": "添加游戏目录",
+        "edit": "编辑游戏目录"
+      }
+    },
+    "label": {
+      "dirName": "名称",
+      "dirPath": "游戏目录路径"
+    },
+    "placeholder": {
+      "dirName": "请输入名称",
+      "dirPath": "请选择游戏目录"
+    },
+    "button": {
+      "browse": "浏览"
+    },
+    "dialog": {
+      "title": "选择目录"
+    },
+    "toast": {
+      "error": {
+        "title": "添加游戏目录失败"
+      }
+    },
+    "errorMessage": {
+      "dirName": "目录名称不能超过 20 个字符",
+      "dirPath": {
+        "invalid": "请选择有效的游戏目录",
+        "exist": "目录路径已存在"
       }
     }
   },
@@ -307,6 +355,11 @@
       "offline": "离线模式",
       "3rdparty": "第三方认证",
       "3rdpartyShort": "第三方认证"
+    },
+    "systemFileManager": {
+      "linux": "文件管理器",
+      "macos": "访达",
+      "windows": "文件资源管理器"
     }
   },
   "GameErrorPage": {
@@ -360,6 +413,11 @@
     "cancel": "取消",
     "close": "关闭",
     "confirm": "确定",
+    "copyOrMove": {
+      "linux": "复制或移动",
+      "macos": "拷贝或移动",
+      "windows": "复制或移动"
+    },
     "delete": "删除",
     "dialog": {
       "filterName": {
@@ -367,14 +425,15 @@
       }
     },
     "disable": "禁用",
+    "edit": "编辑",
     "enable": "启用",
     "finish": "完成",
     "next": "下一步",
     "open": "打开",
     "openFolder": "打开文件夹",
-    "openInFolder": "打开文件位置",
     "previous": "上一步",
     "refresh": "刷新",
+    "revealFile": "在{{opener}}中显示",
     "viewOnWiki": "在 Minecraft Wiki 中查看"
   },
   "GeneralSettingsPage": {
@@ -402,8 +461,15 @@
         "directories": {
           "title": "本地游戏存储目录",
           "add": "添加",
-          "currentDir": "当前文件夹"
+          "special": {
+            "CURRENT_DIR": "当前文件夹",
+            "OFFICIAL_DIR": "官方启动器文件夹"
+          }
         }
+      },
+      "deleteDialog": {
+        "title": "删除游戏目录",
+        "content": "确定要删除游戏目录 {{dirName}} 吗？（仅从启动器删除，不会删除实际目录文件）"
       }
     },
     "performance": {
@@ -522,6 +588,7 @@
       "worlds": "世界",
       "mods": "模组",
       "resourcepacks": "资源包",
+      "schematics": "原理图",
       "shaderpacks": "光影",
       "screenshots": "截图",
       "settings": "设置"
@@ -565,6 +632,12 @@
   "InstanceShaderPacksPage": {
     "shaderPackList": {
       "title": "光影包"
+    }
+  },
+  "InstanceSchematicsPage": {
+    "schematicList": {
+      "title": "原理图",
+      "preview": "预览"
     }
   },
   "InstanceWidgets": {
@@ -677,6 +750,21 @@
     "title": "还原启动器设置",
     "body": "此操作将会还原启动器的所有设置为默认值，您确定要继续吗？"
   },
+  "ReLogin3rdPartyPlayerModal": {
+    "modal": {
+      "title": "重新登录"
+    },
+    "label": {
+      "user": "用户名",
+      "password": "密码"
+    },
+    "placeholder": {
+      "password": "请输入密码"
+    },
+    "button": {
+      "login": "登录"
+    }
+  },
   "Services": {
     "config": {
       "retriveLauncherConfig": {
@@ -732,6 +820,11 @@
         "success": "自定义背景删除成功",
         "error": {
           "title": "自定义背景删除失败"
+        }
+      },
+      "retriveJavaList": {
+        "error": {
+          "title": "Java 列表获取失败"
         }
       }
     },

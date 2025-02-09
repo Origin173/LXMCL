@@ -1,7 +1,10 @@
+use std::sync::Mutex;
+use tauri::State;
+
 use serde_json::Value;
 use tauri_plugin_http::reqwest;
 
-use crate::error::SJMCLResult;
+use crate::{error::SJMCLResult, launcher_config::models::LauncherConfig};
 
 use super::{
   helpers::{get_download_api, get_source_priority_list},
@@ -9,8 +12,13 @@ use super::{
 };
 
 #[tauri::command]
-pub async fn retrive_game_version_list() -> SJMCLResult<Vec<GameResourceInfo>> {
-  let priority_list = get_source_priority_list();
+pub async fn retrive_game_version_list(
+  state: State<'_, Mutex<LauncherConfig>>,
+) -> SJMCLResult<Vec<GameResourceInfo>> {
+  let priority_list = {
+    let state = state.lock()?;
+    get_source_priority_list(&state)
+  };
   for source in priority_list {
     let url = format!(
       "{}/mc/game/version_manifest.json",

@@ -7,7 +7,6 @@ mod resource;
 mod storage;
 mod utils;
 
-use std::fs;
 use std::path::PathBuf;
 use std::sync::{LazyLock, Mutex};
 
@@ -16,7 +15,6 @@ use storage::Storage;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use tauri::menu::MenuBuilder;
-use tauri::path::BaseDirectory;
 use tauri::Manager;
 
 static EXE_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
@@ -29,6 +27,7 @@ static EXE_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
 
 pub async fn run() {
   tauri::Builder::default()
+    .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_process::init())
     .plugin(tauri_plugin_window_state::Builder::new().build())
     .plugin(tauri_plugin_http::init())
@@ -45,6 +44,7 @@ pub async fn run() {
       launcher_config::commands::retrive_custom_background_list,
       launcher_config::commands::add_custom_background,
       launcher_config::commands::delete_custom_background,
+      launcher_config::commands::retrive_java_list,
       account::commands::retrive_player_list,
       account::commands::add_player,
       account::commands::delete_player,
@@ -72,21 +72,7 @@ pub async fn run() {
 
       // Set the launcher config
       let mut launcher_config: LauncherConfig = LauncherConfig::load().unwrap_or_default();
-
-      // Set default download cache dir if not exists, create dir
-      if launcher_config.download.cache.directory == PathBuf::default() {
-        launcher_config.download.cache.directory = app
-          .handle()
-          .path()
-          .resolve::<PathBuf>("Download".into(), BaseDirectory::AppCache)
-          .unwrap();
-      }
-
-      if !launcher_config.download.cache.directory.exists() {
-        fs::create_dir_all(&launcher_config.download.cache.directory).unwrap();
-      }
-
-      launcher_config.version = version.clone();
+      launcher_config.setup_with_app(app.handle()).unwrap();
       launcher_config.save().unwrap();
 
       app.manage(Mutex::new(launcher_config));

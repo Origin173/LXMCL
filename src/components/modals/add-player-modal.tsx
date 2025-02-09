@@ -4,8 +4,10 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
+  HStack,
   Icon,
   Input,
+  Link,
   Menu,
   MenuButton,
   MenuItem,
@@ -18,14 +20,16 @@ import {
   ModalHeader,
   ModalOverlay,
   ModalProps,
-  Stack,
   Text,
+  VStack,
   useDisclosure,
 } from "@chakra-ui/react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { openUrl } from "@tauri-apps/plugin-opener";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuChevronDown,
+  LuExternalLink,
   LuGrid2X2,
   LuLink2Off,
   LuPlus,
@@ -147,7 +151,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
         <ModalCloseButton />
 
         <ModalBody>
-          <Stack direction="column" spacing={3.5}>
+          <VStack spacing={3.5}>
             <FormControl>
               <FormLabel>{t("AddPlayerModal.label.playerType")}</FormLabel>
               <SegmentedControl
@@ -194,7 +198,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
             {playerType === "3rdparty" && (
               <>
                 {authServerList.length === 0 ? (
-                  <Stack direction="row" align="center">
+                  <HStack>
                     <Text>{t("AddPlayerModal.authServer.noSource")}</Text>
                     <Button
                       variant="ghost"
@@ -206,14 +210,14 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                         {t("AddPlayerModal.authServer.addSource")}
                       </Text>
                     </Button>
-                  </Stack>
+                  </HStack>
                 ) : (
                   <>
                     <FormControl>
                       <FormLabel>
                         {t("AddPlayerModal.label.authServer")}
                       </FormLabel>
-                      <Stack direction="row" align="center">
+                      <HStack>
                         <Menu>
                           <MenuButton
                             as={Button}
@@ -239,7 +243,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                         <Text className="secondary-text ellipsis-text">
                           {authServerUrl}
                         </Text>
-                      </Stack>
+                      </HStack>
                     </FormControl>
                     {authServerUrl && (
                       <>
@@ -279,27 +283,44 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                 )}
               </>
             )}
-          </Stack>
+          </VStack>
         </ModalBody>
 
-        <ModalFooter>
-          <Button variant="ghost" onClick={modalProps.onClose}>
-            {t("General.cancel")}
-          </Button>
-          <Button
-            colorScheme={primaryColor}
-            onClick={handleLogin}
-            isLoading={isLoading}
-            isDisabled={
-              !playername ||
-              (playerType === "offline" && !isOfflinePlayernameValid) ||
-              (playerType === "3rdparty" &&
-                authServerList.length > 0 &&
-                (!authServerUrl || !password))
-            }
-          >
-            {t("General.confirm")}
-          </Button>
+        <ModalFooter w="100%">
+          {playerType === "offline" && (
+            <HStack spacing={2}>
+              <LuExternalLink />
+              <Link
+                color={`${primaryColor}.500`}
+                onClick={() => {
+                  openUrl(
+                    "https://www.microsoft.com/store/productId/9NXP44L49SHJ"
+                  );
+                }}
+              >
+                {t("AddPlayerModal.button.buyMinecraft")}
+              </Link>
+            </HStack>
+          )}
+          <HStack spacing={3} ml="auto">
+            <Button variant="ghost" onClick={modalProps.onClose}>
+              {t("General.cancel")}
+            </Button>
+            <Button
+              colorScheme={primaryColor}
+              onClick={handleLogin}
+              isLoading={isLoading}
+              isDisabled={
+                !playername ||
+                (playerType === "offline" && !isOfflinePlayernameValid) ||
+                (playerType === "3rdparty" &&
+                  authServerList.length > 0 &&
+                  (!authServerUrl || !password))
+              }
+            >
+              {t("General.confirm")}
+            </Button>
+          </HStack>
         </ModalFooter>
       </ModalContent>
       <AddAuthServerModal

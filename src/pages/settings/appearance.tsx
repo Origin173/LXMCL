@@ -14,6 +14,7 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
+  Switch,
   Text,
   Tooltip,
   VStack,
@@ -378,6 +379,45 @@ const AppearanceSettingsPage = () => {
         {
           title: t("AppearanceSettingsPage.background.settings.custom.title"),
           children: <CustomBackgroundList />,
+        },
+      ],
+    },
+    {
+      title: t("AppearanceSettingsPage.accessibility.title"),
+      items: [
+        {
+          title: t(
+            "AppearanceSettingsPage.accessibility.settings.invertColors.title"
+          ),
+          children: (
+            <Switch
+              colorScheme={primaryColor}
+              isChecked={appearanceConfigs.accessibility.invertColors}
+              onChange={(e) => {
+                update(
+                  "appearance.accessibility.invertColors",
+                  e.target.checked
+                );
+              }}
+            />
+          ),
+        },
+        {
+          title: t(
+            "AppearanceSettingsPage.accessibility.settings.enhanceContrast.title"
+          ),
+          children: (
+            <Switch
+              colorScheme={primaryColor}
+              isChecked={appearanceConfigs.accessibility.enhanceContrast}
+              onChange={(e) => {
+                update(
+                  "appearance.accessibility.enhanceContrast",
+                  e.target.checked
+                );
+              }}
+            />
+          ),
         },
       ],
     },

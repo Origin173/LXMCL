@@ -130,6 +130,9 @@
     },
     "errorMessage": {
       "playerName": "Can only contain letters, numbers, and underscores, within 16 characters."
+    },
+    "button": {
+      "buyMinecraft": "Buy Minecraft"
     }
   },
   "AllGamesPage": {
@@ -178,6 +181,51 @@
         "SJTU-eastgate": {
           "name": "Jokull"
         }
+      }
+    },
+    "accessibility": {
+      "title": "Display Accessibility",
+      "settings": {
+        "invertColors": {
+          "title": "Invert Colors"
+        },
+        "enhanceContrast": {
+          "title": "Enhance Contrast"
+        }
+      }
+    }
+  },
+  "ChangeDirectoryModal": {
+    "header": {
+      "title": {
+        "add": "Add Game Directory",
+        "edit": "Edit Game Directory"
+      }
+    },
+    "label": {
+      "dirName": "Name",
+      "dirPath": "Game Directory"
+    },
+    "placeholder": {
+      "dirName": "Directory Name",
+      "dirPath": "Select a game directory"
+    },
+    "button": {
+      "browse": "Browse"
+    },
+    "dialog": {
+      "title": "Select Directory"
+    },
+    "toast": {
+      "error": {
+        "title": "Failed to add game directory"
+      }
+    },
+    "errorMessage": {
+      "dirName": "Directory name cannot be longer than 20 characters",
+      "dirPath": {
+        "invalid": "Invalid directory path",
+        "exist": "Directory already exists"
       }
     }
   },
@@ -307,6 +355,11 @@
       "offline": "Offline Mode",
       "3rdparty": "3rd-party Authentication",
       "3rdpartyShort": "3rd-party Auth"
+    },
+    "systemFileManager": {
+      "linux": "File Manager",
+      "macos": "Finder",
+      "windows": "File Explorer"
     }
   },
   "GameErrorPage": {
@@ -360,6 +413,11 @@
     "cancel": "Cancel",
     "close": "Close",
     "confirm": "Confirm",
+    "copyOrMove": {
+      "linux": "Copy / Move",
+      "macos": "Copy / Move",
+      "windows": "Copy / Move"
+    },
     "delete": "Delete",
     "dialog": {
       "filterName": {
@@ -367,14 +425,15 @@
       }
     },
     "disable": "Disable",
+    "edit": "Edit",
     "enable": "Enable",
     "finish": "Finish",
     "next": "Next",
     "open": "Open",
     "openFolder": "Open Folder",
-    "openInFolder": "Open in Folder",
     "previous": "Previous",
     "refresh": "Refresh",
+    "revealFile": "Reveal in {{opener}}",
     "viewOnWiki": "View on Minecraft Wiki"
   },
   "GeneralSettingsPage": {
@@ -402,8 +461,15 @@
         "directories": {
           "title": "Manage Local Game Storage Directories",
           "add": "Add",
-          "currentDir": "Current"
+          "special": {
+            "CURRENT_DIR": "Current",
+            "OFFICIAL_DIR": "Minecraft Launcher"
+          }
         }
+      },
+      "deleteDialog": {
+        "title": "Delete Game Directory",
+        "content": "Are you sure you want to delete the game directory {{dirName}} ? (only from the launcher, not the actual directory files)"
       }
     },
     "performance": {
@@ -521,8 +587,9 @@
       "overview": "Overview",
       "worlds": "Worlds",
       "mods": "Mods",
-      "resourcepacks": "Resourcepacks",
-      "shaderpacks": "Shaderpacks",
+      "resourcepacks": "Resource Packs",
+      "schematics": "Schematics",
+      "shaderpacks": "Shader Packs",
       "screenshots": "Screenshots",
       "settings": "Settings"
     },
@@ -565,6 +632,12 @@
   "InstanceShaderPacksPage": {
     "shaderPackList": {
       "title": "Shader Packs"
+    }
+  },
+  "InstanceSchematicsPage": {
+    "schematicList": {
+      "title": "Schematics",
+      "preview": "Preview"
     }
   },
   "InstanceWidgets": {
@@ -673,6 +746,21 @@
       "delete": "Delete"
     }
   },
+  "ReLogin3rdPartyPlayerModal": {
+    "modal": {
+      "title": "Re-login"
+    },
+    "label": {
+      "user": "Username",
+      "password": "Password"
+    },
+    "placeholder": {
+      "password": "Password"
+    },
+    "button": {
+      "login": "Login"
+    }
+  },
   "RestoreConfigConfirmDialog": {
     "title": "Restore Launcher Settings",
     "body": "This action will restore all launcher settings to their default values. Are you sure you want to proceed?"
@@ -732,6 +820,11 @@
         "success": "Successfully deleted custom background",
         "error": {
           "title": "Failed to delete custom background"
+        }
+      },
+      "retriveJavaList": {
+        "error": {
+          "title": "Failed to retrieve installed Java list"
         }
       }
     },

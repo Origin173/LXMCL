@@ -30,8 +30,8 @@ try {
   base = "zh-Hans";
 }
 
-let targets = process.argv.slice(4) || [];
-if (targets != null) {
+let targets = process.argv.slice(4);
+if (targets !== null && targets.length !== 0) {
   for (let i = 0; i < targets.length; i++) {
     let target = targets[i];
     if (target.includes("/") || target.match(/\.json$/)) {
@@ -42,6 +42,12 @@ if (targets != null) {
 
   targets = targets.filter((target) => target !== base); // delete item same as base
   targets = [...new Set(targets)]; // delete duplicate item
+  if (targets.length === 0) {
+    console.log(
+      "The target language is provided, but it is identical to the base language. Exiting..."
+    );
+    process.exit(0);
+  }
 }
 
 function flattenDict(obj, parentKey = "") {

@@ -4,13 +4,13 @@ import {
   BoxProps,
   Button,
   Center,
-  Fade,
   Grid,
-  GridItem,
   HStack,
   Icon,
+  IconButton,
   Image,
   Text,
+  Tooltip,
   VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import { IconType } from "react-icons";
 import {
   LuArrowRight,
+  LuBookDashed,
   LuBox,
   LuCalendarClock,
   LuClock4,
@@ -299,12 +300,15 @@ export const InstanceMoreWidget = () => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const language = config.general.general.language;
   const router = useRouter();
   const { id } = router.query;
+  const { summary } = useInstanceSharedData();
 
   const features: Record<string, IconType> = {
     worlds: LuEarth,
     resourcepacks: LuPackage,
+    ...(summary?.hasSchemFolder ? { schematics: LuBookDashed } : {}),
     shaderpacks: LuHaze,
     settings: LuSettings,
   };
@@ -312,22 +316,38 @@ export const InstanceMoreWidget = () => {
   return (
     <InstanceWidgetBase title={t("InstanceWidgets.more.title")} icon={LuShapes}>
       <Grid templateColumns="repeat(3, 1fr)" rowGap={2}>
-        {Object.entries(features).map(([key, icon]) => (
-          <Button
-            key={key}
-            variant="ghost"
-            size="lg"
-            colorScheme={primaryColor}
-            onClick={() => router.push(`/games/instance/${id}/${key}`)}
-          >
-            <VStack spacing={1} align="center">
-              <Icon as={icon} boxSize="24px" />
-              <Text fontSize="xs">
-                {t(`InstanceLayout.instanceTabList.${key}`)}
-              </Text>
-            </VStack>
-          </Button>
-        ))}
+        {Object.entries(features).map(([key, icon]) =>
+          language.startsWith("zh") ? (
+            <Button
+              key={key}
+              variant="ghost"
+              size="lg"
+              colorScheme={primaryColor}
+              onClick={() => router.push(`/games/instance/${id}/${key}`)}
+            >
+              <VStack spacing={1} align="center">
+                <Icon as={icon} boxSize="24px" />
+                <Text fontSize="xs">
+                  {t(`InstanceLayout.instanceTabList.${key}`)}
+                </Text>
+              </VStack>
+            </Button>
+          ) : (
+            <Tooltip
+              key={key}
+              label={t(`InstanceLayout.instanceTabList.${key}`)}
+            >
+              <IconButton
+                icon={<Icon as={icon} boxSize="32px" />}
+                variant="ghost"
+                size="lg"
+                colorScheme={primaryColor}
+                onClick={() => router.push(`/games/instance/${id}/${key}`)}
+                aria-label={t(`InstanceLayout.instanceTabList.${key}`)}
+              />
+            </Tooltip>
+          )
+        )}
       </Grid>
     </InstanceWidgetBase>
   );
