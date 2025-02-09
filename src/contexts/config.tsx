@@ -9,14 +9,11 @@ import React, {
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/contexts/toast";
 import { LauncherConfig, defaultConfig } from "@/models/config";
-import {
-  getLauncherConfig,
-  restoreLauncherConfig,
-  updateLauncherConfig,
-} from "@/services/config";
+import { ConfigService } from "@/services/config";
 
 interface LauncherConfigContextType {
   config: LauncherConfig;
+  setConfig: React.Dispatch<React.SetStateAction<LauncherConfig>>;
   update: (path: string, value: any) => void;
   fetchAll: () => void;
   restoreAll: () => void;
@@ -33,22 +30,23 @@ export const LauncherConfigContextProvider: React.FC<{
   const { t } = useTranslation();
   const toast = useToast();
 
-  const fetchAll = useCallback(() => {
-    getLauncherConfig()
-      .then((config) => {
-        setConfig(config);
-      })
-      .catch((error) => {
+  const handleRetriveLauncherConfig = useCallback(() => {
+    ConfigService.retriveLauncherConfig().then((response) => {
+      if (response.status === "success") {
+        setConfig(response.data);
+      } else {
         toast({
-          title: t("Services.config.getLauncherConfig.error"),
+          title: response.message,
+          description: response.details,
           status: "error",
         });
-      });
-  }, [setConfig, toast, t]);
+      }
+    });
+  }, [setConfig, toast]);
 
   useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
+    handleRetriveLauncherConfig();
+  }, [handleRetriveLauncherConfig]);
 
   useEffect(() => {
     i18n.changeLanguage(config.general.general.language);
@@ -67,43 +65,51 @@ export const LauncherConfigContextProvider: React.FC<{
     current[keys[keys.length - 1]] = value;
   };
 
-  const update = (path: string, value: any) => {
+  const handleUpdateLauncherConfig = (path: string, value: any) => {
     const newConfig = { ...config };
     updateByKeyPath(newConfig, path, value);
 
     // Save to the backend
-    updateLauncherConfig(path, value)
-      .then(() => {
+    ConfigService.updateLauncherConfig(path, value).then((response) => {
+      if (response.status === "success") {
         setConfig(newConfig); // update frontend state if successful
-      })
-      .catch((error) => {
+      } else {
         toast({
-          title: t("Services.config.updateLauncherConfig.error"),
+          title: response.message,
+          description: response.details,
           status: "error",
         });
-      });
+      }
+    });
   };
 
-  const restoreAll = () => {
-    restoreLauncherConfig()
-      .then((cfg) => {
-        setConfig(cfg);
+  const handleRestoreLauncherConfig = () => {
+    ConfigService.restoreLauncherConfig().then((response) => {
+      if (response.status === "success") {
+        setConfig(response.data);
         toast({
-          title: t("Services.config.restoreLauncherConfig.success"),
+          title: response.message,
           status: "success",
         });
-      })
-      .catch((error) => {
+      } else {
         toast({
-          title: t("Services.config.restoreLauncherConfig.error"),
+          title: response.message,
+          description: response.details,
           status: "error",
         });
-      });
+      }
+    });
   };
 
   return (
     <LauncherConfigContext.Provider
-      value={{ config, update, fetchAll, restoreAll }}
+      value={{
+        config,
+        setConfig,
+        update: handleUpdateLauncherConfig,
+        fetchAll: handleRetriveLauncherConfig,
+        restoreAll: handleRestoreLauncherConfig,
+      }}
     >
       {children}
     </LauncherConfigContext.Provider>

@@ -24,7 +24,7 @@ import {
 } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import GameVersionSelector from "@/components/game-version-selector";
+import { GameVersionSelector } from "@/components/game-version-selector";
 import { InstanceBasicSettings } from "@/components/instance-basic-settings";
 import { ModLoaderSelector } from "@/components/mod-loader-selector";
 import { useLauncherConfig } from "@/contexts/config";
@@ -39,6 +39,7 @@ const gameTypesToIcon: Record<string, string> = {
   release: "/images/icons/GrassBlock.png",
   snapshot: "/images/icons/CommandBlock.png",
   old_beta: "/images/icons/StoneOldBeta.png",
+  april_fools: "/images/icons/YellowGlazedTerracotta.png",
 };
 
 const modLoaderTypesToIcon: Record<string, string> = {
@@ -69,7 +70,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   const [instanceIconSrc, setInstanceIconSrc] = useState("");
   const [instanceDirectory, setInstanceDirectory] = useState<GameDirectory>();
 
-  const Step1Content = useMemo(() => {
+  const step1Content = useMemo(() => {
     return (
       <>
         <ModalBody>
@@ -96,7 +97,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     );
   }, [modalProps.onClose, primaryColor, selectedGameVersion, setActiveStep, t]);
 
-  const Step2Content = useMemo(() => {
+  const step2Content = useMemo(() => {
     return (
       selectedGameVersion && (
         <>
@@ -120,13 +121,15 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
                 if (!selectedModLoader.version) {
                   setSelectedModLoader(defaultModLoaderResourceInfo); // if the user selected the loader but did not choose a version from the list
                   setInstanceName(selectedGameVersion.id);
-                  setInstanceIconSrc(gameTypesToIcon[selectedGameVersion.type]);
+                  setInstanceIconSrc(
+                    gameTypesToIcon[selectedGameVersion.gameType]
+                  );
                 } else {
                   setInstanceName(
-                    `${selectedGameVersion.id}-${selectedModLoader.type}`
+                    `${selectedGameVersion.id}-${selectedModLoader.loaderType}`
                   );
                   setInstanceIconSrc(
-                    modLoaderTypesToIcon[selectedModLoader.type]
+                    modLoaderTypesToIcon[selectedModLoader.loaderType]
                   );
                 }
                 setActiveStep(2);
@@ -147,7 +150,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     t,
   ]);
 
-  const Step3Content = useMemo(() => {
+  const step3Content = useMemo(() => {
     return (
       <>
         <ModalBody>
@@ -194,31 +197,31 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     () => [
       {
         key: "game",
-        content: Step1Content,
+        content: step1Content,
         description:
           selectedGameVersion &&
-          `${selectedGameVersion.id} ${t(`GameVersionSelector.${selectedGameVersion.type}`)}`,
+          `${selectedGameVersion.id} ${t(`GameVersionSelector.${selectedGameVersion.gameType}`)}`,
       },
       {
         key: "loader",
-        content: Step2Content,
+        content: step2Content,
         description:
-          selectedModLoader.type === "none"
+          selectedModLoader.loaderType === "none"
             ? t("CreateInstanceModal.stepper.skipped")
-            : `${selectedModLoader.type} ${selectedModLoader.version}`,
+            : `${selectedModLoader.loaderType} ${selectedModLoader.version}`,
       },
       {
         key: "info",
-        content: Step3Content,
+        content: step3Content,
         description: "",
       },
     ],
     [
-      Step1Content,
-      Step2Content,
-      Step3Content,
+      step1Content,
+      step2Content,
+      step3Content,
       selectedGameVersion,
-      selectedModLoader.type,
+      selectedModLoader.loaderType,
       selectedModLoader.version,
       t,
     ]

@@ -4,8 +4,10 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
+  HStack,
   Icon,
   Input,
+  Link,
   Menu,
   MenuButton,
   MenuItem,
@@ -18,14 +20,16 @@ import {
   ModalHeader,
   ModalOverlay,
   ModalProps,
-  Stack,
   Text,
+  VStack,
   useDisclosure,
 } from "@chakra-ui/react";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { openUrl } from "@tauri-apps/plugin-opener";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuChevronDown,
+  LuExternalLink,
   LuGrid2X2,
   LuLink2Off,
   LuPlus,
@@ -34,10 +38,10 @@ import {
 import SegmentedControl from "@/components/common/segmented";
 import AddAuthServerModal from "@/components/modals/add-auth-server-modal";
 import { useLauncherConfig } from "@/contexts/config";
-import { useData, useDataDispatch } from "@/contexts/data";
+import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
-import { AuthServer, PlayerInfo } from "@/models/account";
-import { addPlayer, getPlayerList } from "@/services/account";
+import { AuthServer } from "@/models/account";
+import { AccountService } from "@/services/account";
 
 interface AddPlayerModalProps extends Omit<ModalProps, "children"> {
   initialPlayerType?: "offline" | "microsoft" | "3rdparty";
@@ -50,8 +54,11 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   ...modalProps
 }) => {
   const { t } = useTranslation();
-  const { authServerList } = useData();
-  const { setPlayerList } = useDataDispatch();
+  const { getAuthServerList, getPlayerList, getSelectedPlayer } = useData();
+  const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
+  useEffect(() => {
+    setAuthServerList(getAuthServerList() || []);
+  }, [getAuthServerList]);
   const toast = useToast();
   const [playerType, setPlayerType] = useState<
     "offline" | "microsoft" | "3rdparty"
@@ -79,7 +86,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
       initialAuthServerUrl ||
         (authServerList.length > 0 ? authServerList[0].authUrl : "")
     );
-  }, [initialAuthServerUrl, authServerList]);
+  }, [initialAuthServerUrl, getAuthServerList, authServerList]);
 
   useEffect(() => {
     setPassword("");
@@ -87,54 +94,32 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
 
   const isOfflinePlayernameValid = /^[a-zA-Z0-9_]{0,16}$/.test(playername);
 
-  const handleLogin = useCallback(() => {
-    let player: PlayerInfo = {
-      name: "",
-      playerType: playerType,
-      password: password,
-      uuid: "",
-      avatarSrc: "",
-      authServerUrl,
-    };
-    if (playerType === "offline" || playerType === "microsoft") {
-      player.name = playername;
-    } else {
-      player.authAccount = playername;
-    }
-    (async () => {
-      try {
-        setIsLoading(true);
-        await addPlayer(player);
-        const players = await getPlayerList();
-        setPlayerList(players);
-        setIsLoading(false);
-        toast({
-          title: t("Services.account.addPlayer.success"),
-          status: "success",
-        });
-        modalProps.onClose();
-      } catch (error) {
-        setIsLoading(false);
-        toast({
-          title: t("Services.account.addPlayer.error"),
-          status: "error",
-        });
-      } finally {
+  const handleLogin = () => {
+    setIsLoading(true);
+    AccountService.addPlayer(playerType, playername, password, authServerUrl)
+      .then((response) => {
+        if (response.status === "success") {
+          getPlayerList(true);
+          getSelectedPlayer(true);
+          toast({
+            title: response.message,
+            status: "success",
+          });
+          modalProps.onClose();
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+        }
+      })
+      .finally(() => {
         setPlayername("");
         setPassword("");
-      }
-    })();
-  }, [
-    playername,
-    playerType,
-    password,
-    authServerUrl,
-    setPlayerList,
-    setIsLoading,
-    toast,
-    t,
-    modalProps,
-  ]);
+        setIsLoading(false);
+      });
+  };
 
   const playerTypeList = [
     {
@@ -166,7 +151,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
         <ModalCloseButton />
 
         <ModalBody>
-          <Stack direction="column" spacing={3.5}>
+          <VStack spacing={3.5}>
             <FormControl>
               <FormLabel>{t("AddPlayerModal.label.playerType")}</FormLabel>
               <SegmentedControl
@@ -213,7 +198,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
             {playerType === "3rdparty" && (
               <>
                 {authServerList.length === 0 ? (
-                  <Stack direction="row" align="center">
+                  <HStack>
                     <Text>{t("AddPlayerModal.authServer.noSource")}</Text>
                     <Button
                       variant="ghost"
@@ -225,14 +210,14 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                         {t("AddPlayerModal.authServer.addSource")}
                       </Text>
                     </Button>
-                  </Stack>
+                  </HStack>
                 ) : (
                   <>
                     <FormControl>
                       <FormLabel>
                         {t("AddPlayerModal.label.authServer")}
                       </FormLabel>
-                      <Stack direction="row" align="center">
+                      <HStack>
                         <Menu>
                           <MenuButton
                             as={Button}
@@ -258,7 +243,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                         <Text className="secondary-text ellipsis-text">
                           {authServerUrl}
                         </Text>
-                      </Stack>
+                      </HStack>
                     </FormControl>
                     {authServerUrl && (
                       <>
@@ -298,27 +283,44 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                 )}
               </>
             )}
-          </Stack>
+          </VStack>
         </ModalBody>
 
-        <ModalFooter>
-          <Button variant="ghost" onClick={modalProps.onClose}>
-            {t("General.cancel")}
-          </Button>
-          <Button
-            colorScheme={primaryColor}
-            onClick={handleLogin}
-            isLoading={isLoading}
-            isDisabled={
-              !playername ||
-              (playerType === "offline" && !isOfflinePlayernameValid) ||
-              (playerType === "3rdparty" &&
-                authServerList.length > 0 &&
-                (!authServerUrl || !password))
-            }
-          >
-            {t("General.confirm")}
-          </Button>
+        <ModalFooter w="100%">
+          {playerType === "offline" && (
+            <HStack spacing={2}>
+              <LuExternalLink />
+              <Link
+                color={`${primaryColor}.500`}
+                onClick={() => {
+                  openUrl(
+                    "https://www.microsoft.com/store/productId/9NXP44L49SHJ"
+                  );
+                }}
+              >
+                {t("AddPlayerModal.button.buyMinecraft")}
+              </Link>
+            </HStack>
+          )}
+          <HStack spacing={3} ml="auto">
+            <Button variant="ghost" onClick={modalProps.onClose}>
+              {t("General.cancel")}
+            </Button>
+            <Button
+              colorScheme={primaryColor}
+              onClick={handleLogin}
+              isLoading={isLoading}
+              isDisabled={
+                !playername ||
+                (playerType === "offline" && !isOfflinePlayernameValid) ||
+                (playerType === "3rdparty" &&
+                  authServerList.length > 0 &&
+                  (!authServerUrl || !password))
+              }
+            >
+              {t("General.confirm")}
+            </Button>
+          </HStack>
         </ModalFooter>
       </ModalContent>
       <AddAuthServerModal

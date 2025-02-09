@@ -34,7 +34,11 @@ export interface LauncherConfig {
       headNavStyle: string;
     };
     background: {
-      presetChoice: string;
+      choice: string;
+    };
+    accessibility: {
+      invertColors: boolean;
+      enhanceContrast: boolean;
     };
   };
   download: {
@@ -71,6 +75,15 @@ export interface LauncherConfig {
     gameVersionSelector: {
       gameTypes: string[];
     };
+    instanceModsPage: {
+      accordionStates: boolean[];
+    };
+    instanceResourcepackPage: {
+      accordionStates: boolean[];
+    };
+    instanceWorldsPage: {
+      accordionStates: boolean[];
+    };
   };
 }
 
@@ -106,7 +119,11 @@ export const defaultConfig: LauncherConfig = {
       headNavStyle: "standard",
     },
     background: {
-      presetChoice: "Jokull",
+      choice: "%built-in:Jokull",
+    },
+    accessibility: {
+      invertColors: false,
+      enhanceContrast: false,
     },
   },
   download: {
@@ -142,6 +159,15 @@ export const defaultConfig: LauncherConfig = {
     },
     gameVersionSelector: {
       gameTypes: ["release"],
+    },
+    instanceModsPage: {
+      accordionStates: [true, true],
+    },
+    instanceResourcepackPage: {
+      accordionStates: [true, true],
+    },
+    instanceWorldsPage: {
+      accordionStates: [true, true],
     },
   },
 };

@@ -1,5 +1,5 @@
 import { Icon, IconButton, IconButtonProps, Tooltip } from "@chakra-ui/react";
-import { open } from "@tauri-apps/plugin-shell";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import { useRouter } from "next/router";
 import React from "react";
 import { LuArrowRight, LuExternalLink } from "react-icons/lu";
@@ -8,13 +8,13 @@ interface LinkIconButtonProps extends IconButtonProps {
   url: string;
   isExternal?: boolean;
   size?: string;
-  showTooltip?: boolean;
+  withTooltip?: boolean;
 }
 
 const LinkIconButton: React.FC<LinkIconButtonProps> = ({
   url,
   isExternal = false,
-  showTooltip = false,
+  withTooltip = false,
   size = "xs",
   ...buttonProps
 }) => {
@@ -24,13 +24,13 @@ const LinkIconButton: React.FC<LinkIconButtonProps> = ({
     <Tooltip
       label={url}
       fontSize={size}
-      isDisabled={!showTooltip || buttonProps.isDisabled}
+      isDisabled={!withTooltip || buttonProps.isDisabled}
       aria-label={url}
       placement="bottom-end"
     >
       <IconButton
         onClick={() => {
-          isExternal ? open(url) : router.push(url);
+          isExternal ? openUrl(url) : router.push(url);
         }}
         variant="ghost"
         size="xs"

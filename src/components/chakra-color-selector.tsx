@@ -6,6 +6,7 @@ import {
   Spacer,
   Tooltip,
 } from "@chakra-ui/react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { FaCircleCheck, FaRegCircle } from "react-icons/fa6";
 import { ChakraColorEnums, ColorSelectorType } from "@/models/misc";
@@ -28,10 +29,9 @@ const ChakraColorSelector: React.FC<ChakraColorSelectorProps> = ({
     <Box w="100%" {...boxProps}>
       <Flex>
         {ChakraColorEnums.map((color: ColorSelectorType, index: number) => (
-          <>
+          <React.Fragment key={color}>
             <Tooltip label={t(`Enums.chakraColors.${color}`)}>
               <IconButton
-                key={color}
                 size={size}
                 variant={current === color ? "solid" : "subtle"}
                 colorScheme={color}
@@ -47,7 +47,7 @@ const ChakraColorSelector: React.FC<ChakraColorSelectorProps> = ({
               />
             </Tooltip>
             {index < ChakraColorEnums.length - 1 && <Spacer />}
-          </>
+          </React.Fragment>
         ))}
       </Flex>
     </Box>

@@ -14,10 +14,10 @@ import { LuEllipsis, LuTrash } from "react-icons/lu";
 import { TbHanger } from "react-icons/tb";
 import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
 import ManageSkinModal from "@/components/modals/manage-skin-modal";
-import { useData, useDataDispatch } from "@/contexts/data";
+import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
 import { Player } from "@/models/account";
-import { deletePlayer, getPlayerList } from "@/services/account";
+import { AccountService } from "@/services/account";
 
 interface PlayerMenuProps {
   player: Player;
@@ -40,32 +40,26 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
     onOpen: onManageSkinModalOpen,
     onClose: onManageSkinModalClose,
   } = useDisclosure();
-  const { selectedPlayer } = useData();
-  const { setPlayerList, setSelectedPlayer } = useDataDispatch();
+  const { getPlayerList, getSelectedPlayer } = useData();
 
-  const handleDelete = () => {
-    (async () => {
-      try {
-        let uuid = player.uuid;
-        await deletePlayer(uuid);
-        const players = await getPlayerList();
-        setPlayerList(players);
-        if (selectedPlayer?.uuid === uuid) {
-          setSelectedPlayer(undefined);
-        }
+  const handleDeletePlayer = () => {
+    AccountService.deletePlayer(player.uuid).then((response) => {
+      if (response.status === "success") {
+        getPlayerList(true);
+        getSelectedPlayer(true);
         toast({
-          title: t("Services.account.deletePlayer.success"),
+          title: response.message,
           status: "success",
         });
-      } catch (error) {
+      } else {
         toast({
-          title: t("Services.account.deletePlayer.error"),
+          title: response.message,
+          description: response.details,
           status: "error",
         });
-      } finally {
-        onDeleteClose();
       }
-    })();
+      onDeleteClose();
+    });
   };
 
   const playerMenuOperations = [
@@ -137,7 +131,7 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
         })}
         btnOK={t("General.delete")}
         btnCancel={t("General.cancel")}
-        onOKCallback={handleDelete}
+        onOKCallback={handleDeletePlayer}
         isAlert
       />
       <ManageSkinModal

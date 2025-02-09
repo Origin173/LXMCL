@@ -4,6 +4,7 @@ import React, { useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { IconType } from "react-icons";
 import {
+  LuBookDashed,
   LuEarth,
   LuFullscreen,
   LuHaze,
@@ -15,7 +16,10 @@ import {
 } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import { useLauncherConfig } from "@/contexts/config";
-import { InstanceContext, InstanceContextProvider } from "@/contexts/instance";
+import {
+  InstanceContextProvider,
+  useInstanceSharedData,
+} from "@/contexts/instance";
 
 const InstanceLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -33,7 +37,7 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
   const router = useRouter();
   const { t } = useTranslation();
 
-  const { summary } = useContext(InstanceContext);
+  const { summary } = useInstanceSharedData();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 
@@ -42,6 +46,9 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
     { key: "worlds", icon: LuEarth },
     { key: "mods", icon: LuSquareLibrary },
     { key: "resourcepacks", icon: LuPackage },
+    ...(summary?.hasSchemFolder
+      ? [{ key: "schematics", icon: LuBookDashed }]
+      : []),
     { key: "shaderpacks", icon: LuHaze },
     { key: "screenshots", icon: LuFullscreen },
     { key: "settings", icon: LuSettings },
@@ -65,12 +72,12 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
       </Flex>
       <NavMenu
         className="no-scrollbar"
-        overflowX="auto"
+        overflowX="scroll"
         selectedKeys={[router.asPath]}
         onClick={(value) => router.push(value)}
         direction="row"
         size="xs"
-        spacing={1}
+        spacing={summary?.hasSchemFolder ? "0.05rem" : 1}
         mt={-1.5}
         items={instanceTabList.map((item) => ({
           value: `/games/instance/${router.query.id}/${item.key}`,

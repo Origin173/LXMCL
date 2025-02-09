@@ -84,6 +84,13 @@
         "title": "管理游戏目录",
         "description": "管理本地游戏存储目录，以添加已安装实例"
       }
+    },
+    "moreOptions": {
+      "title": "更多",
+      "server": {
+        "title": "下载服务端",
+        "description": "下载各版本原版游戏服务端文件"
+      }
     }
   },
   "AddAuthServerModal": {
@@ -123,6 +130,9 @@
     },
     "errorMessage": {
       "playerName": "只能包含英文字母、数字和下划线，不超过16个字符。"
+    },
+    "button": {
+      "buyMinecraft": "购买 Minecraft"
     }
   },
   "AllGamesPage": {
@@ -157,7 +167,11 @@
       "title": "背景",
       "settings": {
         "preset": {
-          "title": "选择预设"
+          "title": "预设图像"
+        },
+        "custom": {
+          "title": "自定义图像",
+          "add": "添加"
         }
       },
       "presetBgList": {
@@ -166,6 +180,17 @@
         },
         "SJTU-eastgate": {
           "name": "SJTU 紫气东来门"
+        }
+      }
+    },
+    "accessibility": {
+      "title": "显示辅助",
+      "settings": {
+        "invertColors": {
+          "title": "反转颜色"
+        },
+        "enhanceContrast": {
+          "title": "增强对比度"
         }
       }
     }
@@ -344,6 +369,43 @@
     "save": "保存",
     "cancel": "取消"
   },
+  "EditGameDirectoryModal": {
+    "header": {
+      "title": {
+        "add": "添加游戏目录",
+        "edit": "编辑游戏目录"
+      }
+    },
+    "label": {
+      "dirName": "名称",
+      "dirPath": "游戏目录路径"
+    },
+    "placeholder": {
+      "dirName": "请输入名称",
+      "dirPath": "请选择游戏目录"
+    },
+    "button": {
+      "browse": "浏览"
+    },
+    "dialog": {
+      "title": "选择目录"
+    },
+    "toast": {
+      "error": {
+        "title": "添加游戏目录失败"
+      }
+    },
+    "errorMessage": {
+      "dirName": {
+        "empty": "目录名称不能为空",
+        "tooLong": "目录名称不能超过 20 个字符",
+        "exist": "目录名称已存在"
+      },
+      "dirPath": {
+        "exist": "目录路径已存在"
+      }
+    }
+  },
   "Empty": {
     "noData": "无数据"
   },
@@ -365,6 +427,11 @@
       "offline": "离线模式",
       "3rdparty": "第三方认证",
       "3rdpartyShort": "第三方认证"
+    },
+    "systemFileManager": {
+      "linux": "文件管理器",
+      "macos": "访达",
+      "windows": "文件资源管理器"
     }
   },
   "GameErrorPage": {
@@ -405,26 +472,40 @@
     "old_beta": "远古版",
     "release": "正式版",
     "snapshot": "测试版",
+    "april_fools": "愚人节版",
+    "searchPlaceholder": "搜索版本",
     "wikiKey": {
       "release": "Java版",
       "snapshot": "",
-      "old_beta": "Java版Beta_"
+      "old_beta": "Java版Beta_",
+      "april_fools": ""
     }
   },
   "General": {
     "cancel": "取消",
     "close": "关闭",
     "confirm": "确定",
+    "copyOrMove": {
+      "linux": "复制或移动",
+      "macos": "拷贝或移动",
+      "windows": "复制或移动"
+    },
     "delete": "删除",
+    "dialog": {
+      "filterName": {
+        "image": "图片文件"
+      }
+    },
     "disable": "禁用",
+    "edit": "编辑",
     "enable": "启用",
     "finish": "完成",
     "next": "下一步",
     "open": "打开",
     "openFolder": "打开文件夹",
-    "openInFolder": "打开文件位置",
     "previous": "上一步",
     "refresh": "刷新",
+    "revealFile": "在{{opener}}中显示",
     "viewOnWiki": "在 Minecraft Wiki 中查看"
   },
   "GeneralSettingsPage": {
@@ -452,8 +533,15 @@
         "directories": {
           "title": "本地游戏存储目录",
           "add": "添加",
-          "currentDir": "当前文件夹"
+          "special": {
+            "CURRENT_DIR": "当前文件夹",
+            "OFFICIAL_DIR": "官方启动器文件夹"
+          }
         }
+      },
+      "deleteDialog": {
+        "title": "删除游戏目录",
+        "content": "确定要删除游戏目录 {{dirName}} 吗？（仅从启动器删除，不会删除实际目录文件）"
       }
     },
     "performance": {
@@ -529,11 +617,11 @@
       "title": "高校玩家社区",
       "settings": {
         "MUA": {
-          "title": "Minecraft 高校联盟 (MUA)",
+          "title": "Minecraft 高校联盟（MUA）",
           "description": "和全国各高校的玩家一起游玩"
         },
         "SJMC": {
-          "title": "上海交通大学 Minecraft 社 (SJMC)"
+          "title": "上海交通大学 Minecraft 社（SJMC）"
         }
       }
     },
@@ -572,6 +660,7 @@
       "worlds": "世界",
       "mods": "模组",
       "resourcepacks": "资源包",
+      "schematics": "原理图",
       "shaderpacks": "光影",
       "screenshots": "截图",
       "settings": "设置"
@@ -617,6 +706,12 @@
       "title": "光影包"
     }
   },
+  "InstanceSchematicsPage": {
+    "schematicList": {
+      "title": "原理图",
+      "preview": "预览"
+    }
+  },
   "InstanceWidgets": {
     "basicInfo": {
       "title": "基本信息",
@@ -625,12 +720,38 @@
     },
     "screenshots": {
       "title": "截图"
+    },
+    "mods": {
+      "title": "模组",
+      "summary": "{{totalMods}} 个模组, {{enabledMods}} 个已启用",
+      "manage": "前往管理"
+    },
+    "lastPlayed": {
+      "title": "上次游玩",
+      "continuePlaying": "继续游玩"
+    },
+    "more": {
+      "title": "更多"
     }
   },
   "InstanceWorldsPage": {
     "worldList": {
       "title": "本地世界",
-      "lastPlayedAt": "上次游玩于"
+      "lastPlayedAt": "上次游玩于",
+      "difficulty": {
+        "peaceful": "和平",
+        "easy": "简单",
+        "normal": "普通",
+        "hard": "困难",
+        "hardcore": "极限生存"
+      },
+      "gamemode": {
+        "survival": "生存模式",
+        "creative": "创造模式",
+        "adventure": "冒险模式",
+        "spectator": "观察者模式"
+      },
+      "moreDesc": "，{{gamemode}}（难度：{{difficulty}}）"
     },
     "serverList": {
       "title": "服务器",
@@ -701,35 +822,109 @@
     "title": "还原启动器设置",
     "body": "此操作将会还原启动器的所有设置为默认值，您确定要继续吗？"
   },
+  "ReLogin3rdPartyPlayerModal": {
+    "modal": {
+      "title": "重新登录"
+    },
+    "label": {
+      "user": "用户名",
+      "password": "密码"
+    },
+    "placeholder": {
+      "password": "请输入密码"
+    },
+    "button": {
+      "login": "登录"
+    }
+  },
   "Services": {
     "config": {
-      "getLauncherConfig": {
-        "error": "获取启动器设置失败"
+      "retriveLauncherConfig": {
+        "error": {
+          "title": "获取启动器设置失败"
+        }
       },
       "updateLauncherConfig": {
-        "error": "更新启动器设置失败"
+        "error": {
+          "title": "更新启动器设置失败"
+        }
       },
       "restoreLauncherConfig": {
         "success": "设置已成功还原",
-        "error": "还原设置失败，请重试"
+        "error": {
+          "title": "还原设置失败，请重试"
+        }
+      },
+      "exportLauncherConfig": {
+        "success": "启动器设置导出成功",
+        "error": {
+          "title": "启动器设置导出失败",
+          "description": {
+            "fetchError": "与服务器通信失败"
+          }
+        }
+      },
+      "importLauncherConfig": {
+        "success": "启动器设置导入成功",
+        "error": {
+          "title": "启动器设置导入失败",
+          "description": {
+            "fetchError": "与服务器通信失败",
+            "invalidCode": "无效的代码",
+            "codeExpired": "代码已过期",
+            "versionMismatch": "启动器版本不匹配"
+          }
+        }
+      },
+      "retriveCustomBackgroundList": {
+        "success": "自定义背景列表获取成功",
+        "error": {
+          "title": "自定义背景列表获取失败"
+        }
+      },
+      "addCustomBackground": {
+        "success": "自定义背景添加成功",
+        "error": {
+          "title": "自定义背景添加失败"
+        }
+      },
+      "deleteCustomBackground": {
+        "success": "自定义背景删除成功",
+        "error": {
+          "title": "自定义背景删除失败"
+        }
+      },
+      "retriveJavaList": {
+        "error": {
+          "title": "Java 列表获取失败"
+        }
       }
     },
     "account": {
       "addPlayer": {
         "success": "角色添加成功",
-        "error": "角色添加失败"
+        "error": {
+          "title": "角色添加失败",
+          "description": {
+            "invalid": "无效的角色的类型"
+          }
+        }
       },
       "deletePlayer": {
         "success": "角色删除成功",
-        "error": "角色删除失败"
+        "error": {
+          "title": "角色删除失败",
+          "description": {
+            "notFound": "角色不存在"
+          }
+        }
       },
-      "getAuthServerInfo": {
+      "fetchAuthServerInfo": {
         "error": {
           "title": "获取认证服务器信息失败",
           "description": {
             "duplicate": "认证服务器已存在",
-            "invalid": "无效的认证服务器地址",
-            "unknown": "未知错误"
+            "invalid": "无效的认证服务器地址"
           }
         }
       },
@@ -739,8 +934,7 @@
           "title": "认证服务器添加失败",
           "description": {
             "duplicate": "认证服务器已存在",
-            "invalid": "无效的认证服务器地址",
-            "unknown": "未知错误"
+            "invalid": "无效的认证服务器地址"
           }
         }
       },
@@ -749,8 +943,18 @@
         "error": {
           "title": "认证服务器删除失败",
           "description": {
-            "notFound": "认证服务器不存在",
-            "unknown": "未知错误"
+            "notFound": "认证服务器不存在"
+          }
+        }
+      }
+    },
+    "resource": {
+      "retriveGameVersionList": {
+        "error": {
+          "title": "获取游戏版本列表失败",
+          "description": {
+            "parseError": "服务器返回数据格式错误",
+            "noDownloadApi": "无可用的下载策略，请检查网络连接"
           }
         }
       }

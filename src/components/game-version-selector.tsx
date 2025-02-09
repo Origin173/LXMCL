@@ -1,5 +1,4 @@
 import {
-  Box,
   BoxProps,
   Center,
   Checkbox,
@@ -8,22 +7,19 @@ import {
   Icon,
   IconButton,
   Image,
+  Input,
+  InputGroup,
+  InputLeftElement,
   Radio,
   RadioGroup,
   Tag,
   Text,
   Tooltip,
 } from "@chakra-ui/react";
-import { open } from "@tauri-apps/plugin-shell";
-import {
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { openUrl } from "@tauri-apps/plugin-opener";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuEarth, LuRefreshCcw } from "react-icons/lu";
+import { LuEarth, LuRefreshCcw, LuSearch } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
 import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
@@ -33,13 +29,16 @@ import {
 } from "@/components/common/option-item-virtual";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
+import { useToast } from "@/contexts/toast";
 import { GameResourceInfo } from "@/models/resource";
+import { ResourceService } from "@/services/resource";
 import { ISOToDatetime } from "@/utils/datetime";
 
 const gameTypesToIcon: Record<string, string> = {
   release: "GrassBlock.png",
   snapshot: "CommandBlock.png",
   old_beta: "StoneOldBeta.png",
+  april_fools: "YellowGlazedTerracotta.png",
 };
 
 interface GameVersionSelectorProps extends BoxProps {
@@ -47,65 +46,71 @@ interface GameVersionSelectorProps extends BoxProps {
   onVersionSelect: (version: GameResourceInfo) => void;
 }
 
-const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
+export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   selectedVersion,
   onVersionSelect,
   ...props
 }) => {
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
+  const toast = useToast();
   const primaryColor = config.appearance.theme.primaryColor;
 
   const [versions, setVersions] = useState<GameResourceInfo[]>([]);
+  const [filteredVersions, setFilteredVersions] = useState<GameResourceInfo[]>(
+    []
+  );
   const [counts, setCounts] = useState<Map<string, number>>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(
     new Set(config.states.gameVersionSelector.gameTypes)
   );
 
-  const defferedVersions = useDeferredValue(versions);
-  const defferedCounts = useDeferredValue(counts);
+  const [searchText, setSearchText] = useState("");
 
-  const loading = versions !== defferedVersions;
-
-  // @TODO: move this logic to backend and get data by invoke
   const fetchData = useCallback(async () => {
-    try {
-      const response = await fetch(
-        "https://launchermeta.mojang.com/mc/game/version_manifest.json"
-      );
-      const data = await response.json();
-
-      const versionData = data.versions as GameResourceInfo[];
-
+    setIsLoading(true);
+    const response = await ResourceService.retriveGameVersionList();
+    if (response.status === "success") {
+      const versionData = response.data;
+      setVersions(versionData);
       const newCounts = new Map<string, number>();
       versionData.forEach((version: GameResourceInfo) => {
-        let oldCount = newCounts.get(version.type) || 0;
-        newCounts.set(version.type, oldCount + 1);
+        let oldCount = newCounts.get(version.gameType) || 0;
+        newCounts.set(version.gameType, oldCount + 1);
       });
       setCounts(newCounts);
-
-      setVersions(
-        versionData.filter((version: GameResourceInfo) =>
-          selectedTypes.has(version.type)
-        )
-      );
-    } catch (error) {
-      console.error("Error fetching versions:", error);
+    } else {
+      setVersions([]);
+      toast({
+        title: response.message,
+        description: response.details,
+        status: "error",
+      });
     }
-  }, [selectedTypes]);
+    setIsLoading(false);
+  }, [toast]);
+
+  useEffect(() => {
+    setFilteredVersions(
+      versions
+        .filter((version) => selectedTypes.has(version.gameType))
+        .filter((version) => version.id.includes(searchText))
+    );
+  }, [versions, selectedTypes, searchText]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
   const handleTypeToggle = useCallback(
-    (type: string) => {
+    (gameType: string) => {
       setSelectedTypes((prevSelectedTypes) => {
         const newSelectedTypes = new Set(prevSelectedTypes);
-        if (newSelectedTypes.has(type)) {
-          newSelectedTypes.delete(type);
+        if (newSelectedTypes.has(gameType)) {
+          newSelectedTypes.delete(gameType);
         } else {
-          newSelectedTypes.add(type);
+          newSelectedTypes.add(gameType);
         }
         update(
           "states.gameVersionSelector.gameTypes",
@@ -124,8 +129,8 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
       <HStack spacing={2.5}>
         <Radio value={version.id} colorScheme={primaryColor} />
         <Image
-          src={`/images/icons/${gameTypesToIcon[version.type]}`}
-          alt={version.type}
+          src={`/images/icons/${gameTypesToIcon[version.gameType]}`}
+          alt={version.gameType}
           boxSize="28px"
           borderRadius="4px"
         />
@@ -133,7 +138,7 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
     ),
     titleExtra: (
       <Tag colorScheme={primaryColor} className="tag-xs">
-        {t(`GameVersionSelector.${version.type}`)}
+        {t(`GameVersionSelector.${version.gameType}`)}
       </Tag>
     ),
     children: (
@@ -144,8 +149,12 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
           icon={<LuEarth />}
           variant="ghost"
           onClick={() => {
-            open(
-              `${t("Utils.wiki.baseUrl")}${t(`GameVersionSelector.wikiKey.${version.type}`)}${version.id.replace("b", "")}`
+            openUrl(
+              `${t("Utils.wiki.baseUrl")}${t(`GameVersionSelector.wikiKey.${version.gameType}`)}${
+                version.gameType === "snapshot"
+                  ? version.id.replace("b", "")
+                  : version.id
+              }`
             );
           }}
         />
@@ -153,37 +162,35 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
     ),
   });
 
-  const typeTogglers = useMemo(() => {
+  const gameTypeTogglers = useMemo(() => {
     return (
-      <HStack spacing={4}>
-        {Object.keys(gameTypesToIcon).map((type) => (
+      <>
+        {Object.keys(gameTypesToIcon).map((gameType) => (
           <Checkbox
-            key={type}
-            isChecked={selectedTypes.has(type)}
-            onChange={() => handleTypeToggle(type)}
+            key={gameType}
+            isChecked={selectedTypes.has(gameType)}
+            onChange={() => handleTypeToggle(gameType)}
             colorScheme={primaryColor}
             borderColor="gray.400"
           >
-            <HStack spacing={2} alignItems="center">
+            <HStack spacing={1} alignItems="center" w="max-content">
               <Text fontWeight="bold" fontSize="sm" className="no-select">
-                {t(`GameVersionSelector.${type}`)}
+                {t(`GameVersionSelector.${gameType}`)}
               </Text>
-              <CountTag
-                count={defferedCounts ? defferedCounts.get(type) || 0 : 0}
-              />
+              <CountTag count={counts ? counts.get(gameType) || 0 : 0} />
             </HStack>
           </Checkbox>
         ))}
-      </HStack>
+      </>
     );
-  }, [defferedCounts, handleTypeToggle, primaryColor, selectedTypes, t]);
+  }, [counts, handleTypeToggle, primaryColor, selectedTypes, t]);
 
   const onVersionIdSelect = useCallback(
     (versionId: string) => {
-      let _versions = defferedVersions.filter((v) => v.id === versionId);
+      let _versions = versions.filter((v) => v.id === versionId);
       if (_versions.length > 0) onVersionSelect(_versions[0]);
     },
-    [defferedVersions, onVersionSelect]
+    [versions, onVersionSelect]
   );
 
   return (
@@ -194,24 +201,33 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
       width="100%"
       height="100%"
     >
-      <Flex justifyContent="space-between" flexShrink={0} padding={1} mb={2.5}>
-        {typeTogglers}
+      <HStack py={1} gap={2}>
+        {gameTypeTogglers}
+        <InputGroup flexGrow={1} size="xs">
+          <InputLeftElement h="100%" pointerEvents="none">
+            <LuSearch />
+          </InputLeftElement>
+          <Input
+            borderRadius="md"
+            placeholder={t("GameVersionSelector.searchPlaceholder")}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+        </InputGroup>
         <IconButton
           aria-label="refresh"
           icon={<Icon as={LuRefreshCcw} boxSize={3.5} />}
           onClick={fetchData}
-          size="sm"
-          h={21}
+          size="xs"
           variant="ghost"
           colorScheme="gray"
         />
-      </Flex>
+      </HStack>
       <Section overflow="auto" flexGrow={1} h="100%">
-        {loading ? (
+        {isLoading ? (
           <Center>
             <BeatLoader size={16} color="gray" />
           </Center>
-        ) : selectedTypes.size === 0 ? (
+        ) : selectedTypes.size === 0 || filteredVersions.length === 0 ? (
           <Empty withIcon={false} size="sm" />
         ) : (
           <RadioGroup
@@ -221,7 +237,7 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
           >
             <VirtualOptionItemGroup
               h="100%"
-              items={defferedVersions.map(buildOptionItems)}
+              items={filteredVersions.map(buildOptionItems)}
             />
           </RadioGroup>
         )}
@@ -229,5 +245,3 @@ const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
     </Flex>
   );
 };
-
-export default GameVersionSelector;

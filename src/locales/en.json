@@ -84,6 +84,13 @@
         "title": "Manage Game Directories",
         "description": "Manage local game storage directories to add installed instances"
       }
+    },
+    "moreOptions": {
+      "title": "More",
+      "server": {
+        "title": "Download Game Server",
+        "description": "Download game server files for different versions"
+      }
     }
   },
   "AddAuthServerModal": {
@@ -123,6 +130,9 @@
     },
     "errorMessage": {
       "playerName": "Can only contain letters, numbers, and underscores, within 16 characters."
+    },
+    "button": {
+      "buyMinecraft": "Buy Minecraft"
     }
   },
   "AllGamesPage": {
@@ -158,6 +168,10 @@
       "settings": {
         "preset": {
           "title": "Preset Images"
+        },
+        "custom": {
+          "title": "Custom Images",
+          "add": "Add"
         }
       },
       "presetBgList": {
@@ -166,6 +180,17 @@
         },
         "SJTU-eastgate": {
           "name": "Jokull"
+        }
+      }
+    },
+    "accessibility": {
+      "title": "Display Accessibility",
+      "settings": {
+        "invertColors": {
+          "title": "Invert Colors"
+        },
+        "enhanceContrast": {
+          "title": "Enhance Contrast"
         }
       }
     }
@@ -191,8 +216,8 @@
       "title": "Create New Instance"
     },
     "stepper": {
-      "game": "Game",
-      "loader": "Loader",
+      "game": "Game Client",
+      "loader": "Mod Loader",
       "skipped": "Skipped",
       "info": "Basic Settings"
     }
@@ -344,6 +369,43 @@
     "save": "Save",
     "cancel": "Cancel"
   },
+  "EditGameDirectoryModal": {
+    "header": {
+      "title": {
+        "add": "Add Game Directory",
+        "edit": "Edit Game Directory"
+      }
+    },
+    "label": {
+      "dirName": "Name",
+      "dirPath": "Game Directory"
+    },
+    "placeholder": {
+      "dirName": "Directory Name",
+      "dirPath": "Select a game directory"
+    },
+    "button": {
+      "browse": "Browse"
+    },
+    "dialog": {
+      "title": "Select Directory"
+    },
+    "toast": {
+      "error": {
+        "title": "Failed to add game directory"
+      }
+    },
+    "errorMessage": {
+      "dirName": {
+        "tooLong": "Directory name cannot be longer than 20 characters",
+        "empty": "Directory name cannot be empty",
+        "exist": "Directory name already exists"
+      },
+      "dirPath": {
+        "exist": "Directory already exists"
+      }
+    }
+  },
   "Empty": {
     "noData": "No Data"
   },
@@ -365,6 +427,11 @@
       "offline": "Offline Mode",
       "3rdparty": "3rd-party Authentication",
       "3rdpartyShort": "3rd-party Auth"
+    },
+    "systemFileManager": {
+      "linux": "File Manager",
+      "macos": "Finder",
+      "windows": "File Explorer"
     }
   },
   "GameErrorPage": {
@@ -405,26 +472,40 @@
     "old_beta": "Old Beta",
     "release": "Release",
     "snapshot": "Snapshot",
+    "april_fools": "April Fools",
+    "searchPlaceholder": "Search",
     "wikiKey": {
       "release": "Java_Edition_",
       "snapshot": "",
-      "old_beta": "Java_Edition_Beta_"
+      "old_beta": "Java_Edition_Beta_",
+      "april_fools": ""
     }
   },
   "General": {
     "cancel": "Cancel",
     "close": "Close",
     "confirm": "Confirm",
+    "copyOrMove": {
+      "linux": "Copy / Move",
+      "macos": "Copy / Move",
+      "windows": "Copy / Move"
+    },
     "delete": "Delete",
+    "dialog": {
+      "filterName": {
+        "image": "Image"
+      }
+    },
     "disable": "Disable",
+    "edit": "Edit",
     "enable": "Enable",
     "finish": "Finish",
     "next": "Next",
     "open": "Open",
     "openFolder": "Open Folder",
-    "openInFolder": "Open in Folder",
     "previous": "Previous",
     "refresh": "Refresh",
+    "revealFile": "Reveal in {{opener}}",
     "viewOnWiki": "View on Minecraft Wiki"
   },
   "GeneralSettingsPage": {
@@ -452,8 +533,15 @@
         "directories": {
           "title": "Manage Local Game Storage Directories",
           "add": "Add",
-          "currentDir": "Current"
+          "special": {
+            "CURRENT_DIR": "Current",
+            "OFFICIAL_DIR": "Minecraft Launcher"
+          }
         }
+      },
+      "deleteDialog": {
+        "title": "Delete Game Directory",
+        "content": "Are you sure you want to delete the game directory {{dirName}} ? (only from the launcher, not the actual directory files)"
       }
     },
     "performance": {
@@ -571,8 +659,9 @@
       "overview": "Overview",
       "worlds": "Worlds",
       "mods": "Mods",
-      "resourcepacks": "Resourcepacks",
-      "shaderpacks": "Shaderpacks",
+      "resourcepacks": "Resource Packs",
+      "schematics": "Schematics",
+      "shaderpacks": "Shader Packs",
       "screenshots": "Screenshots",
       "settings": "Settings"
     },
@@ -617,6 +706,12 @@
       "title": "Shader Packs"
     }
   },
+  "InstanceSchematicsPage": {
+    "schematicList": {
+      "title": "Schematics",
+      "preview": "Preview"
+    }
+  },
   "InstanceWidgets": {
     "basicInfo": {
       "title": "Basic Info",
@@ -625,12 +720,38 @@
     },
     "screenshots": {
       "title": "Screenshots"
+    },
+    "mods": {
+      "title": "Mods",
+      "summary": "{{totalMods}} mods, {{enabledMods}} enabled",
+      "manage": "Manage"
+    },
+    "lastPlayed": {
+      "title": "Last Played",
+      "continuePlaying": "Continue"
+    },
+    "more": {
+      "title": "More"
     }
   },
   "InstanceWorldsPage": {
     "worldList": {
       "title": "Worlds",
-      "lastPlayedAt": "Last played"
+      "lastPlayedAt": "Last played",
+      "difficulty": {
+        "peaceful": "Peaceful",
+        "easy": "Easy",
+        "normal": "Normal",
+        "hard": "Hard",
+        "hardcore": "Hardcore"
+      },
+      "gamemode": {
+        "survival": "Survival Mode",
+        "creative": "Creative Mode",
+        "adventure": "Adventure Mode",
+        "spectator": "Spectator Mode"
+      },
+      "moreDesc": ", {{gamemode}} (Difficulty: {{difficulty}})"
     },
     "serverList": {
       "title": "Servers",
@@ -697,39 +818,113 @@
       "delete": "Delete"
     }
   },
+  "ReLogin3rdPartyPlayerModal": {
+    "modal": {
+      "title": "Re-login"
+    },
+    "label": {
+      "user": "Username",
+      "password": "Password"
+    },
+    "placeholder": {
+      "password": "Password"
+    },
+    "button": {
+      "login": "Login"
+    }
+  },
   "RestoreConfigConfirmDialog": {
     "title": "Restore Launcher Settings",
     "body": "This action will restore all launcher settings to their default values. Are you sure you want to proceed?"
   },
   "Services": {
     "config": {
-      "getLauncherConfig": {
-        "error": "Failed to get launcher settings"
+      "retriveLauncherConfig": {
+        "error": {
+          "title": "Failed to get launcher settings"
+        }
       },
       "updateLauncherConfig": {
-        "error": "Failed to update launcher settings"
+        "error": {
+          "title": "Failed to update launcher settings"
+        }
       },
       "restoreLauncherConfig": {
         "success": "Successfully restored launcher settings",
-        "error": "Failed to restore launcher settings"
+        "error": {
+          "title": "Failed to restore launcher settings"
+        }
+      },
+      "exportLauncherConfig": {
+        "success": "Successfully exported launcher settings",
+        "error": {
+          "title": "Failed to export launcher settings",
+          "description": {
+            "fetchError": "Failed to fetch the meta server"
+          }
+        }
+      },
+      "importLauncherConfig": {
+        "success": "Successfully imported launcher settings",
+        "error": {
+          "title": "Failed to import launcher settings",
+          "description": {
+            "fetchError": "Failed to fetch the meta server",
+            "invalidCode": "Invalid code",
+            "codeExpired": "Code expired",
+            "versionMismatch": "Launcher version mismatch"
+          }
+        }
+      },
+      "retriveCustomBackgroundList": {
+        "success": "Successfully retrieved custom background list",
+        "error": {
+          "title": "Failed to retrieve custom background list"
+        }
+      },
+      "addCustomBackground": {
+        "success": "Successfully added custom background",
+        "error": {
+          "title": "Failed to add custom background"
+        }
+      },
+      "deleteCustomBackground": {
+        "success": "Successfully deleted custom background",
+        "error": {
+          "title": "Failed to delete custom background"
+        }
+      },
+      "retriveJavaList": {
+        "error": {
+          "title": "Failed to retrieve installed Java list"
+        }
       }
     },
     "account": {
       "addPlayer": {
         "success": "Successfully added player",
-        "error": "Failed to add player"
+        "error": {
+          "title": "Failed to add player",
+          "description": {
+            "invalid": "Invalid player type"
+          }
+        }
       },
       "deletePlayer": {
         "success": "Successfully deleted player",
-        "error": "Failed to delete player"
+        "error": {
+          "title": "Failed to delete player",
+          "description": {
+            "notFound": "The player does not exist"
+          }
+        }
       },
-      "getAuthServerInfo": {
+      "fetchAuthServerInfo": {
         "error": {
           "title": "Failed to get authentication server information",
           "description": {
             "duplicate": "The server has already been added",
-            "invalid": "Invalid server URL",
-            "unknown": "Unknown error"
+            "invalid": "Invalid server URL"
           }
         }
       },
@@ -739,8 +934,7 @@
           "title": "Failed to add authentication server",
           "description": {
             "duplicate": "The server has already been added",
-            "invalid": "Invalid server URL",
-            "unknown": "Unknown error"
+            "invalid": "Invalid server URL"
           }
         }
       },
@@ -749,8 +943,18 @@
         "error": {
           "title": "Failed to delete authentication server",
           "description": {
-            "notFound": "The authentication server does not exist",
-            "unknown": "Unknown error"
+            "notFound": "The authentication server does not exist"
+          }
+        }
+      }
+    },
+    "resource": {
+      "retriveGameVersionList": {
+        "error": {
+          "title": "Failed to retrieve game version list",
+          "description": {
+            "parseError": "The server returned data in an incorrect format",
+            "noDownloadApi": "No download strategy available, please check internet connection"
           }
         }
       }

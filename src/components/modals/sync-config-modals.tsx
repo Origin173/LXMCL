@@ -18,9 +18,11 @@ import {
   PinInputField,
   Text,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
+import { useToast } from "@/contexts/toast";
+import { ConfigService } from "@/services/config";
 
 interface SyncConfigModalProps extends Omit<ModalProps, "children"> {}
 
@@ -28,33 +30,43 @@ export const SyncConfigExportModal: React.FC<SyncConfigModalProps> = ({
   ...modalProps
 }) => {
   const { t } = useTranslation();
+  const toast = useToast();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 
-  const [token, setToken] = useState<string>("");
+  const [token, setToken] = useState<string>();
   const [countdown, setCountdown] = useState<number>(60);
   const [fadeFlag, setFadeFlag] = useState<boolean>(true);
 
-  // only for mock
-  const generateToken = () => {
-    return Math.floor(Math.random() * 1000000)
-      .toString()
-      .padStart(6, "0");
-  };
+  const handleExportLauncherConfig = useCallback(async () => {
+    setFadeFlag(false);
+    const response = await ConfigService.exportLauncherConfig();
+
+    if (response.status === "success") {
+      setToken(response.data);
+    } else {
+      toast({
+        title: response.message,
+        description: response.details,
+        status: "error",
+      });
+    }
+    setFadeFlag(true);
+  }, [toast]);
 
   useEffect(() => {
-    setToken(generateToken());
-  }, []);
+    if (modalProps.isOpen && token === undefined) {
+      handleExportLauncherConfig();
+    }
+  }, [handleExportLauncherConfig, modalProps.isOpen, token]);
 
   useEffect(() => {
+    if (!modalProps.isOpen || token === undefined) return;
+
     const interval = setInterval(() => {
       setCountdown((prevCountdown) => {
         if (prevCountdown <= 1) {
-          setFadeFlag(false);
-          setTimeout(() => {
-            setToken(generateToken());
-            setFadeFlag(true);
-          }, 300);
+          handleExportLauncherConfig();
           return 60;
         }
         return prevCountdown - 1;
@@ -62,7 +74,7 @@ export const SyncConfigExportModal: React.FC<SyncConfigModalProps> = ({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [handleExportLauncherConfig, modalProps.isOpen, token]);
 
   return (
     <Modal size={{ base: "md", lg: "lg", xl: "xl" }} {...modalProps}>
@@ -100,10 +112,34 @@ export const SyncConfigImportModal: React.FC<SyncConfigModalProps> = ({
   ...modalProps
 }) => {
   const { t } = useTranslation();
-  const { config } = useLauncherConfig();
+  const toast = useToast();
+  const { config, setConfig } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const [token, setToken] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const fields = new Array(6).fill(null);
+
+  const handleImportLauncherConfig = useCallback(async () => {
+    setIsLoading(true);
+    const response = await ConfigService.importLauncherConfig(token);
+    if (response.status === "success") {
+      setConfig(response.data);
+      toast({
+        title: response.message,
+        status: "success",
+      });
+      setToken("");
+      modalProps.onClose();
+    } else {
+      toast({
+        title: response.message,
+        description: response.details,
+        status: "error",
+      });
+    }
+    setIsLoading(false);
+  }, [modalProps, setConfig, toast, token]);
 
   return (
     <Modal size={{ base: "md", lg: "lg", xl: "xl" }} {...modalProps}>
@@ -115,7 +151,12 @@ export const SyncConfigImportModal: React.FC<SyncConfigModalProps> = ({
           <FormControl>
             <FormLabel>{t("SyncConfigImportModal.label.token")}</FormLabel>
             <HStack>
-              <PinInput placeholder="" focusBorderColor={`${primaryColor}.500`}>
+              <PinInput
+                value={token}
+                onChange={(newToken) => setToken(newToken)}
+                placeholder=""
+                focusBorderColor={`${primaryColor}.500`}
+              >
                 {fields.map((_, index) => (
                   <PinInputField key={index} autoFocus={index === 0} />
                 ))}
@@ -128,7 +169,12 @@ export const SyncConfigImportModal: React.FC<SyncConfigModalProps> = ({
           <Button variant="ghost" onClick={modalProps.onClose}>
             {t("General.cancel")}
           </Button>
-          <Button colorScheme={primaryColor} onClick={modalProps.onClose}>
+          <Button
+            isLoading={isLoading}
+            colorScheme={primaryColor}
+            onClick={handleImportLauncherConfig}
+            isDisabled={!/^[0-9]{6}$/.test(token)}
+          >
             {t("General.finish")}
           </Button>
         </ModalFooter>
