@@ -255,6 +255,9 @@
       "online": "在线"
     }
   },
+  "DownloadFloatButton": {
+    "tooltip": "正在下载"
+  },
   "DownloadSettingPage": {
     "source": {
       "title": "源",

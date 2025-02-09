@@ -255,6 +255,9 @@
       "online": "Online"
     }
   },
+  "DownloadFloatButton": {
+    "tooltip": "Downloading"
+  },
   "DownloadSettingPage": {
     "source": {
       "title": "Source",

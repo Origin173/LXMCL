@@ -27,7 +27,6 @@ export const LauncherConfigContextProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const [config, setConfig] = useState<LauncherConfig>(defaultConfig);
-  const { t } = useTranslation();
   const toast = useToast();
 
   const handleRetriveLauncherConfig = useCallback(() => {
