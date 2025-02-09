@@ -16,7 +16,10 @@ import {
 } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import { useLauncherConfig } from "@/contexts/config";
-import { InstanceContext, InstanceContextProvider } from "@/contexts/instance";
+import {
+  InstanceContextProvider,
+  useInstanceSharedData,
+} from "@/contexts/instance";
 
 const InstanceLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -34,7 +37,7 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
   const router = useRouter();
   const { t } = useTranslation();
 
-  const { summary } = useContext(InstanceContext);
+  const { summary } = useInstanceSharedData();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 

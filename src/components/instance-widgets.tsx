@@ -4,9 +4,7 @@ import {
   BoxProps,
   Button,
   Center,
-  Fade,
   Grid,
-  GridItem,
   HStack,
   Icon,
   IconButton,
@@ -21,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import { IconType } from "react-icons";
 import {
   LuArrowRight,
+  LuBookDashed,
   LuBox,
   LuCalendarClock,
   LuClock4,
@@ -298,15 +297,18 @@ export const InstanceLastPlayedWidget = () => {
 };
 
 export const InstanceMoreWidget = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const language = config.general.general.language;
   const router = useRouter();
   const { id } = router.query;
+  const { summary } = useInstanceSharedData();
 
   const features: Record<string, IconType> = {
     worlds: LuEarth,
     resourcepacks: LuPackage,
+    ...(summary?.hasSchemFolder ? { schematics: LuBookDashed } : {}),
     shaderpacks: LuHaze,
     settings: LuSettings,
   };
@@ -315,7 +317,7 @@ export const InstanceMoreWidget = () => {
     <InstanceWidgetBase title={t("InstanceWidgets.more.title")} icon={LuShapes}>
       <Grid templateColumns="repeat(3, 1fr)" rowGap={2}>
         {Object.entries(features).map(([key, icon]) =>
-          i18n.language.startsWith("zh") ? (
+          language.startsWith("zh") ? (
             <Button
               key={key}
               variant="ghost"
