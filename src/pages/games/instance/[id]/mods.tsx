@@ -20,6 +20,7 @@ import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import ModLoaderCards from "@/components/mod-loader-cards";
+import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { LocalModInfo } from "@/models/game-instance";
 import { mockLocalMods } from "@/models/mock/game-instance";
@@ -27,6 +28,8 @@ import { mockLocalMods } from "@/models/mock/game-instance";
 const InstanceModsPage = () => {
   const { t } = useTranslation();
   const { summary } = useInstanceSharedData();
+  const { config, update } = useLauncherConfig();
+  const accordionStates = config.states.instanceModsPage.accordionStates;
 
   const [localMods, setLocalMods] = useState<LocalModInfo[]>([]);
 
@@ -81,7 +84,17 @@ const InstanceModsPage = () => {
 
   return (
     <>
-      <Section title={t("InstanceModsPage.modLoaderList.title")} isAccordion>
+      <Section
+        title={t("InstanceModsPage.modLoaderList.title")}
+        isAccordion
+        initialIsOpen={accordionStates[0]}
+        onAccordionToggle={(isOpen) => {
+          update(
+            "states.instanceModsPage.accordionStates",
+            accordionStates.toSpliced(0, 1, isOpen)
+          );
+        }}
+      >
         <ModLoaderCards
           currentType={summary?.modLoader.type || "none"}
           currentVersion={summary?.modLoader.version}
@@ -91,7 +104,14 @@ const InstanceModsPage = () => {
       <Section
         title={t("InstanceModsPage.modList.title")}
         isAccordion
+        initialIsOpen={accordionStates[1]}
         titleExtra={<CountTag count={localMods.length} />}
+        onAccordionToggle={(isOpen) => {
+          update(
+            "states.instanceModsPage.accordionStates",
+            accordionStates.toSpliced(1, 1, isOpen)
+          );
+        }}
       >
         {localMods.length > 0 ? (
           <OptionItemGroup

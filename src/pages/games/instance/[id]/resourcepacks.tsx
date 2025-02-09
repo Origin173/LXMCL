@@ -7,6 +7,7 @@ import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
+import { useLauncherConfig } from "@/contexts/config";
 import { ResourcePacksInfo } from "@/models/game-instance";
 import { mockResourcePacks } from "@/models/mock/game-instance";
 
@@ -14,6 +15,9 @@ const InstanceResourcePacksPage = () => {
   const [resourcePacks, setResourcePacks] = useState<ResourcePacksInfo[]>([]);
   const [serverResPacks, setServerResPacks] = useState<ResourcePacksInfo[]>([]);
   const { t } = useTranslation();
+  const { config, update } = useLauncherConfig();
+  const accordionStates =
+    config.states.instanceResourcepackPage.accordionStates;
 
   useEffect(() => {
     setResourcePacks(mockResourcePacks);
@@ -26,25 +30,29 @@ const InstanceResourcePacksPage = () => {
     global: {
       data: resourcePacks,
       locale: "resourcePackList",
-      initIsOpen: true,
     },
     server: {
       data: serverResPacks,
       locale: "serverResPackList",
-      initIsOpen: false,
     },
   };
 
   return (
     <>
-      {Object.entries(renderSections).map(([key, value]) => {
+      {Object.entries(renderSections).map(([key, value], index) => {
         return (
           <Section
             key={key}
             title={t(`InstanceResourcePacksPage.${value.locale}.title`)}
             isAccordion
-            initialIsOpen={value.initIsOpen}
+            initialIsOpen={accordionStates[index]}
             titleExtra={<CountTag count={value.data.length} />}
+            onAccordionToggle={(isOpen) => {
+              update(
+                "states.instanceResourcepackPage.accordionStates",
+                accordionStates.toSpliced(index, 1, isOpen)
+              );
+            }}
           >
             {value.data.length > 0 ? (
               <OptionItemGroup

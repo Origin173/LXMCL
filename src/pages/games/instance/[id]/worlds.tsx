@@ -8,6 +8,7 @@ import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
+import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { GameServerInfo, WorldInfo } from "@/models/game-instance";
 import { mockWorlds } from "@/models/mock/game-instance";
@@ -16,7 +17,8 @@ import { formatRelativeTime } from "@/utils/datetime";
 
 const InstanceWorldsPage = () => {
   const { t } = useTranslation();
-
+  const { config, update } = useLauncherConfig();
+  const accordionStates = config.states.instanceWorldsPage.accordionStates;
   const [worlds, setWorlds] = useState<WorldInfo[]>([]);
   const [gameServers, setGameServers] = useState<GameServerInfo[]>([]);
   const { summary } = useInstanceSharedData();
@@ -45,7 +47,14 @@ const InstanceWorldsPage = () => {
       <Section
         isAccordion
         title={t("InstanceWorldsPage.worldList.title")}
+        initialIsOpen={accordionStates[0]}
         titleExtra={<CountTag count={worlds.length} />}
+        onAccordionToggle={(isOpen) => {
+          update(
+            "states.instanceWorldsPage.accordionStates",
+            accordionStates.toSpliced(0, 1, isOpen)
+          );
+        }}
       >
         {worlds.length > 0 ? (
           <OptionItemGroup
@@ -94,7 +103,14 @@ const InstanceWorldsPage = () => {
       <Section
         isAccordion
         title={t("InstanceWorldsPage.serverList.title")}
+        initialIsOpen={accordionStates[1]}
         titleExtra={<CountTag count={gameServers.length} />}
+        onAccordionToggle={(isOpen) => {
+          update(
+            "states.instanceWorldsPage.accordionStates",
+            accordionStates.toSpliced(1, 1, isOpen)
+          );
+        }}
       >
         {gameServers.length > 0 ? (
           <OptionItemGroup
