@@ -80,6 +80,7 @@ pub async fn retrive_game_version_list(
 pub async fn retrive_mod_loader_version_list(
   game_version: String,
   mod_loader_type: String,
+  state: State<'_, Mutex<LauncherConfig>>,
 ) -> SJMCLResult<Vec<ModLoaderResourceInfo>> {
   match mod_loader_type.as_str() {
     "Forge" => {
@@ -122,7 +123,10 @@ pub async fn retrive_mod_loader_version_list(
       }
     }
     "Fabric" => {
-      let priority_list: Vec<String> = get_source_priority_list();
+      let priority_list = {
+        let state = state.lock()?;
+        get_source_priority_list(&state)
+      };
       for source in priority_list {
         let url = format!(
           "{}/v2/versions/loader/{}",
