@@ -195,40 +195,6 @@
       }
     }
   },
-  "ChangeDirectoryModal": {
-    "header": {
-      "title": {
-        "add": "Add Game Directory",
-        "edit": "Edit Game Directory"
-      }
-    },
-    "label": {
-      "dirName": "Name",
-      "dirPath": "Game Directory"
-    },
-    "placeholder": {
-      "dirName": "Directory Name",
-      "dirPath": "Select a game directory"
-    },
-    "button": {
-      "browse": "Browse"
-    },
-    "dialog": {
-      "title": "Select Directory"
-    },
-    "toast": {
-      "error": {
-        "title": "Failed to add game directory"
-      }
-    },
-    "errorMessage": {
-      "dirName": "Directory name cannot be longer than 20 characters",
-      "dirPath": {
-        "invalid": "Invalid directory path",
-        "exist": "Directory already exists"
-      }
-    }
-  },
   "ComingSoonSign": {
     "text": "This page is not available yet, coming soon!"
   },
@@ -333,6 +299,43 @@
     "edit": "Edit",
     "save": "Save",
     "cancel": "Cancel"
+  },
+  "EditGameDirectoryModal": {
+    "header": {
+      "title": {
+        "add": "Add Game Directory",
+        "edit": "Edit Game Directory"
+      }
+    },
+    "label": {
+      "dirName": "Name",
+      "dirPath": "Game Directory"
+    },
+    "placeholder": {
+      "dirName": "Directory Name",
+      "dirPath": "Select a game directory"
+    },
+    "button": {
+      "browse": "Browse"
+    },
+    "dialog": {
+      "title": "Select Directory"
+    },
+    "toast": {
+      "error": {
+        "title": "Failed to add game directory"
+      }
+    },
+    "errorMessage": {
+      "dirName": {
+        "tooLong": "Directory name cannot be longer than 20 characters",
+        "empty": "Directory name cannot be empty",
+        "exist": "Directory name already exists"
+      },
+      "dirPath": {
+        "exist": "Directory already exists"
+      }
+    }
   },
   "Empty": {
     "noData": "No Data"

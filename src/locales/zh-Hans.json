@@ -195,40 +195,6 @@
       }
     }
   },
-  "ChangeDirectoryModal": {
-    "header": {
-      "title": {
-        "add": "添加游戏目录",
-        "edit": "编辑游戏目录"
-      }
-    },
-    "label": {
-      "dirName": "名称",
-      "dirPath": "游戏目录路径"
-    },
-    "placeholder": {
-      "dirName": "请输入名称",
-      "dirPath": "请选择游戏目录"
-    },
-    "button": {
-      "browse": "浏览"
-    },
-    "dialog": {
-      "title": "选择目录"
-    },
-    "toast": {
-      "error": {
-        "title": "添加游戏目录失败"
-      }
-    },
-    "errorMessage": {
-      "dirName": "目录名称不能超过 20 个字符",
-      "dirPath": {
-        "invalid": "请选择有效的游戏目录",
-        "exist": "目录路径已存在"
-      }
-    }
-  },
   "ComingSoonSign": {
     "text": "该页面暂未开放，敬请期待"
   },
@@ -333,6 +299,43 @@
     "edit": "编辑",
     "save": "保存",
     "cancel": "取消"
+  },
+  "EditGameDirectoryModal": {
+    "header": {
+      "title": {
+        "add": "添加游戏目录",
+        "edit": "编辑游戏目录"
+      }
+    },
+    "label": {
+      "dirName": "名称",
+      "dirPath": "游戏目录路径"
+    },
+    "placeholder": {
+      "dirName": "请输入名称",
+      "dirPath": "请选择游戏目录"
+    },
+    "button": {
+      "browse": "浏览"
+    },
+    "dialog": {
+      "title": "选择目录"
+    },
+    "toast": {
+      "error": {
+        "title": "添加游戏目录失败"
+      }
+    },
+    "errorMessage": {
+      "dirName": {
+        "empty": "目录名称不能为空",
+        "tooLong": "目录名称不能超过 20 个字符",
+        "exist": "目录名称已存在"
+      },
+      "dirPath": {
+        "exist": "目录路径已存在"
+      }
+    }
   },
   "Empty": {
     "noData": "无数据"

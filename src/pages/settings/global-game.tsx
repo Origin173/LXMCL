@@ -23,7 +23,7 @@ import {
   OptionItemGroupProps,
 } from "@/components/common/option-item";
 import GameSettingsGroups from "@/components/game-settings-groups";
-import ChangeDirectoryModal from "@/components/modals/change-directory-modal";
+import EditGameDirectoryModal from "@/components/modals/edit-game-directory-modal";
 import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
 import { useLauncherConfig } from "@/contexts/config";
 import { GameDirectory } from "@/models/config";
@@ -88,7 +88,7 @@ const GlobalGameSettingsPage = () => {
                   onClick={onAddDirModalOpen}
                 />
               </Tooltip>
-              <ChangeDirectoryModal
+              <EditGameDirectoryModal
                 isOpen={isAddDirModalOpen}
                 onClose={onAddDirModalClose}
                 add
@@ -162,7 +162,7 @@ const GlobalGameSettingsPage = () => {
             </Flex>
           ))}
 
-          <ChangeDirectoryModal
+          <EditGameDirectoryModal
             isOpen={isEditDirModalOpen}
             onClose={onEditDirModalClose}
             currentName={selectedDir.name}
@@ -175,7 +175,12 @@ const GlobalGameSettingsPage = () => {
             onClose={onDeleteDirDialogClose}
             title={t("GlobalGameSettingsPage.directories.deleteDialog.title")}
             body={t("GlobalGameSettingsPage.directories.deleteDialog.content", {
-              dirName: selectedDir.name,
+              dirName:
+                selectedDir.name === "OFFICIAL_DIR"
+                  ? t(
+                      "GlobalGameSettingsPage.directories.settings.directories.special.OFFICIAL_DIR"
+                    )
+                  : selectedDir.name,
             })}
             btnOK={t("General.delete")}
             btnCancel={t("General.cancel")}

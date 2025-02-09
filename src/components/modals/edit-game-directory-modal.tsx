@@ -1,5 +1,6 @@
 import {
   Button,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -15,6 +16,7 @@ import {
   ModalOverlay,
   ModalProps,
   Stack,
+  Text,
 } from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useEffect, useRef, useState } from "react";
@@ -22,13 +24,13 @@ import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
 
-interface ChangeDirectoryModalProps extends Omit<ModalProps, "children"> {
+interface EditGameDirectoryModalProps extends Omit<ModalProps, "children"> {
   add?: boolean;
   currentName?: string;
   currentPath?: string;
 }
 
-const ChangeDirectoryModal: React.FC<ChangeDirectoryModalProps> = ({
+const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
   add = false,
   currentName = "",
   currentPath = "",
@@ -42,35 +44,32 @@ const ChangeDirectoryModal: React.FC<ChangeDirectoryModalProps> = ({
 
   const [dirName, setDirName] = useState<string>("");
   const [dirPath, setDirPath] = useState<string>("");
-  const [isDirPathUnique, setIsDirPathUnique] = useState<boolean>(true);
-  const [isDirPathValid, setIsDirPathValid] = useState<boolean>(true);
-
-  const isDirNameValid = dirName.length <= 20;
+  const [isDirNameEmpty, setIsDirNameEmpty] = useState<boolean>(false);
+  const [isDirNameTooLong, setIsDirNameTooLong] = useState<boolean>(false);
+  const [isDirNameExist, setIsDirNameExist] = useState<boolean>(false);
+  const [isDirPathExist, setIsDirPathExist] = useState<boolean>(false);
 
   const handleBrowseGameDir = async () => {
     try {
       const selected = await open({
         directory: true,
         multiple: false,
-        title: t("ChangeDirectoryModal.dialog.title"),
+        title: t("EditGameDirectoryModal.dialog.title"),
       });
 
       if (selected) {
         setDirPath(selected);
-        if (/^(\/?|\\?)(.+[\/\\])*\.minecraft$/.test(selected))
-          setIsDirPathValid(true);
-        else setIsDirPathValid(false);
         if (
           config.localGameDirectories.map((dir) => dir.dir).includes(selected)
         )
-          setIsDirPathUnique(false);
-        else setIsDirPathUnique(true);
+          setIsDirPathExist(true);
+        else setIsDirPathExist(false);
       }
     } catch (error) {
       console.error("Error opening directory dialog:", error);
       setDirPath("");
       toast({
-        title: t("ChangeDirectoryModal.toast.error.title"),
+        title: t("EditGameDirectoryModal.toast.error.title"),
         status: "error",
       });
     }
@@ -112,62 +111,79 @@ const ChangeDirectoryModal: React.FC<ChangeDirectoryModalProps> = ({
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
-          {t(`ChangeDirectoryModal.header.title.${add ? "add" : "edit"}`)}
+          {t(`EditGameDirectoryModal.header.title.${add ? "add" : "edit"}`)}
         </ModalHeader>
         <ModalCloseButton />
 
         <ModalBody>
           <Stack direction="column" spacing={3.5}>
-            <FormControl isRequired isInvalid={!isDirNameValid}>
-              <FormLabel>{t("ChangeDirectoryModal.label.dirName")}</FormLabel>
+            <FormControl
+              isRequired
+              isInvalid={
+                isDirNameTooLong || isDirNameEmpty || (isDirNameExist && add)
+              }
+            >
+              <FormLabel>{t("EditGameDirectoryModal.label.dirName")}</FormLabel>
               <Input
-                placeholder={t("ChangeDirectoryModal.placeholder.dirName")}
+                placeholder={t("EditGameDirectoryModal.placeholder.dirName")}
                 value={dirName}
                 onChange={(e) => setDirName(e.target.value)}
+                onBlur={() => {
+                  setIsDirNameEmpty(dirName.length === 0);
+                  setIsDirNameTooLong(dirName.length > 20);
+                  setIsDirNameExist(
+                    config.localGameDirectories
+                      .map((dir) => dir.name)
+                      .includes(dirName)
+                  );
+                }}
+                onFocus={() => {
+                  setIsDirNameEmpty(false);
+                  setIsDirNameTooLong(false);
+                  setIsDirNameExist(false);
+                }}
                 required
                 ref={initialRef}
                 focusBorderColor={`${primaryColor}.500`}
               />
-              {!isDirNameValid && (
+              {isDirNameTooLong && (
                 <FormErrorMessage>
-                  {t("ChangeDirectoryModal.errorMessage.dirName")}
+                  {t("EditGameDirectoryModal.errorMessage.dirName.tooLong")}
+                </FormErrorMessage>
+              )}
+              {isDirNameEmpty && (
+                <FormErrorMessage>
+                  {t("EditGameDirectoryModal.errorMessage.dirName.empty")}
+                </FormErrorMessage>
+              )}
+              {isDirNameExist && add && (
+                <FormErrorMessage>
+                  {t("EditGameDirectoryModal.errorMessage.dirName.exist")}
                 </FormErrorMessage>
               )}
             </FormControl>
 
-            <FormControl
-              isRequired
-              isInvalid={!isDirPathValid || (!isDirPathUnique && add)}
-            >
-              <FormLabel>{t("ChangeDirectoryModal.label.dirPath")}</FormLabel>
-              <InputGroup>
-                <Input
-                  placeholder={t("ChangeDirectoryModal.placeholder.dirPath")}
-                  value={dirPath}
-                  required
-                  isReadOnly
-                  focusBorderColor={`${primaryColor}.500`}
-                />
-                <InputRightElement width="4.5rem">
-                  <Button
-                    h="1.75rem"
-                    size="sm"
-                    onClick={handleBrowseGameDir}
-                    colorScheme={primaryColor}
-                  >
-                    {t("ChangeDirectoryModal.button.browse")}
-                  </Button>
-                </InputRightElement>
-              </InputGroup>
-
-              {!isDirPathValid && (
+            <FormControl isRequired isInvalid={isDirPathExist && add}>
+              <FormLabel>{t("EditGameDirectoryModal.label.dirPath")}</FormLabel>
+              <Flex direction="row" align="center">
+                <Text className="secondary-text">
+                  {dirPath
+                    ? dirPath
+                    : t("EditGameDirectoryModal.placeholder.dirPath")}
+                </Text>
+                <Button
+                  size="sm"
+                  onClick={handleBrowseGameDir}
+                  colorScheme={primaryColor}
+                  variant="ghost"
+                  ml="auto"
+                >
+                  {t("EditGameDirectoryModal.button.browse")}
+                </Button>
+              </Flex>
+              {isDirPathExist && add && (
                 <FormErrorMessage>
-                  {t("ChangeDirectoryModal.errorMessage.dirPath.invalid")}
-                </FormErrorMessage>
-              )}
-              {!isDirPathUnique && (
-                <FormErrorMessage>
-                  {t("ChangeDirectoryModal.errorMessage.dirPath.exist")}
+                  {t("EditGameDirectoryModal.errorMessage.dirPath.exist")}
                 </FormErrorMessage>
               )}
             </FormControl>
@@ -181,10 +197,10 @@ const ChangeDirectoryModal: React.FC<ChangeDirectoryModalProps> = ({
           <Button
             disabled={
               !dirPath ||
-              !dirName ||
-              !isDirNameValid ||
-              !isDirPathValid ||
-              (!isDirPathUnique && add)
+              isDirNameEmpty ||
+              isDirNameTooLong ||
+              (isDirNameExist && add) ||
+              (isDirPathExist && add)
             }
             colorScheme={primaryColor}
             onClick={handleUpdateDir}
@@ -197,4 +213,4 @@ const ChangeDirectoryModal: React.FC<ChangeDirectoryModalProps> = ({
   );
 };
 
-export default ChangeDirectoryModal;
+export default EditGameDirectoryModal;
