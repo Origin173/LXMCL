@@ -38,14 +38,14 @@ const DownloadSettingsPage = () => {
   const primaryColor = config.appearance.theme.primaryColor;
 
   const sourceStrategyTypes = ["auto", "official", "mirror"];
-  const proxyTypeList = [
+  const proxyTypeOptions = [
     {
-      key: "http",
-      type: "HTTP",
+      label: "HTTP",
+      value: "http",
     },
     {
-      key: "socks",
-      type: "Socks",
+      label: "Socks",
+      value: "socks",
     },
   ];
 
@@ -282,11 +282,7 @@ const DownloadSettingsPage = () => {
                         update("download.proxy.selectedType", s as string);
                       }}
                       size="xs"
-                      items={proxyTypeList.map((item) => ({
-                        ...item,
-                        label: item.key,
-                        value: <Text>{item.type}</Text>,
-                      }))}
+                      items={proxyTypeOptions}
                     />
                   </HStack>
                 ),
@@ -296,7 +292,7 @@ const DownloadSettingsPage = () => {
                 children: (
                   <Input
                     size="xs"
-                    maxW={32}
+                    w="107px" // align with the segmented-control above
                     focusBorderColor={`${primaryColor}.500`}
                     value={downloadConfigs.proxy.host}
                     onChange={(event) => {

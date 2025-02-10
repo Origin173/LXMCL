@@ -161,8 +161,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                 }
                 size="sm"
                 items={playerTypeList.map((item) => ({
-                  label: item.key,
-                  value: (
+                  value: item.key,
+                  label: (
                     <Flex align="center">
                       <Icon as={item.icon} mr={2} />
                       {item.label}

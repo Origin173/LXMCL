@@ -147,7 +147,7 @@ export const defaultConfig: LauncherConfig = {
     },
     proxy: {
       enabled: false,
-      selectedType: "HTTP",
+      selectedType: "http",
       host: "127.0.0.1",
       port: 80,
     },

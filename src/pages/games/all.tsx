@@ -61,8 +61,8 @@ const AllGamesPage = () => {
             size="2xs"
             items={viewTypeList.map((item) => ({
               ...item,
-              label: item.key,
-              value: <Icon as={item.icon} />,
+              value: item.key,
+              label: <Icon as={item.icon} />,
             }))}
             withTooltip
           />

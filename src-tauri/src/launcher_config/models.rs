@@ -194,7 +194,7 @@ impl Default for LauncherConfig {
         },
         proxy: Proxy {
           enabled: false,
-          selected_type: "HTTP".to_string(),
+          selected_type: "http".to_string(),
           host: "127.0.0.1".to_string(),
           port: 80,
         },
