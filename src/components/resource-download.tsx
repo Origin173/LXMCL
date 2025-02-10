@@ -102,7 +102,7 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
 
       setGameVersionList(
         versionData
-          .filter((version: GameResourceInfo) => version.type === "release")
+          .filter((version: GameResourceInfo) => version.gameType === "release")
           .map((version: GameResourceInfo) => version.id)
       );
     } catch (error) {
@@ -201,7 +201,7 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
         </Button>
       </HStack>
 
-      <Box overflow="auto" flexGrow={1}>
+      <Box flexGrow={1} w="100%">
         <ResourceDownloadList
           list={resourceList}
           hasMore={hasMore}

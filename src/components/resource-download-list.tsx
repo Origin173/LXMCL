@@ -1,13 +1,11 @@
 import { Avatar, HStack, Tag, Text, VStack } from "@chakra-ui/react";
 import { LuDownload, LuGlobe, LuUpload } from "react-icons/lu";
 import Empty from "@/components/common/empty";
-import {
-  OptionItemGroup,
-  OptionItemProps,
-} from "@/components/common/option-item";
+import { OptionItemProps } from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
 import { OtherResourceInfo } from "@/models/resource";
 import { ISOToDate } from "@/utils/datetime";
+import { VirtualOptionItemGroup } from "./common/option-item-virtual";
 
 interface ResourceDownloadListProps {
   list: OtherResourceInfo[];
@@ -77,9 +75,8 @@ const ResourceDownloadList: React.FC<ResourceDownloadListProps> = ({
   return (
     <>
       {list.length > 0 ? (
-        <OptionItemGroup
+        <VirtualOptionItemGroup
           h="100%"
-          w="100%"
           items={list.map(buildOptionItems)}
           useInfiniteScroll
           hasMore={hasMore}
