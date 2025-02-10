@@ -296,6 +296,23 @@
           "open": "打开"
         }
       }
+    },
+    "proxy": {
+      "title": "代理",
+      "settings": {
+        "enabled": {
+          "title": "启用代理"
+        },
+        "type": {
+          "title": "代理类型"
+        },
+        "host": {
+          "title": "服务器"
+        },
+        "port": {
+          "title": "端口"
+        }
+      }
     }
   },
   "Editable": {

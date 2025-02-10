@@ -95,6 +95,12 @@ structstruck::strike! {
       },
       pub cache: struct {
         pub directory: PathBuf,
+      },
+      pub proxy: struct {
+        pub enabled: bool,
+        pub selected_type: String,
+        pub host: String,
+        pub port: usize,
       }
     },
     pub general: struct GeneralConfig {
@@ -185,6 +191,12 @@ impl Default for LauncherConfig {
         },
         cache: Cache {
           directory: PathBuf::default(),
+        },
+        proxy: Proxy {
+          enabled: false,
+          selected_type: "HTTP".to_string(),
+          host: "127.0.0.1".to_string(),
+          port: 80,
         },
       },
       general: GeneralConfig {
