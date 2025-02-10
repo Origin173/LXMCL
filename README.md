@@ -26,21 +26,10 @@ We warmly invite contributions from everyone.
 
 Copyright © 2024-2025 SJMCL Team.
 
-Licensed under the [GNU General Public License v3.0](/LICENSE.md), with additional terms.
+The software is distributed under [GNU General Public License v3.0](/LICENSE) license with the following additional terms:
 
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
+#### Additional terms under GPLv3 Section 7
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-Also add information on how to contact you by electronic and paper mail.
-
-You should also get your employer (if you work as a programmer) or school, if any, to sign a "copyright disclaimer" for the program, if necessary. For more information on this, and how to apply and follow the GNU GPL, see <https://www.gnu.org/licenses/>.
-
-Additional terms:
-
-By GNUv3 License term 7, we require the modified versions to follow the following rules: 
 1. Use a different software name than SJMCL or SJMC Launcher;
 2. Do not send statisitics to our statisitics server (src-tauri/src/utils/sys_info.rs), otherwise send only version numbers of the origin repository.
 3. Mark clearly in about page that you program is based on SJMCL and give out the url of the origin repository.
