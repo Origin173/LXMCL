@@ -55,7 +55,6 @@ const InstanceSchematicsPage = () => {
                     label={item.label}
                     onClick={item.onClick}
                     h={18}
-                    tooltipPlacement="bottom-end"
                   />
                 ))}
               </HStack>

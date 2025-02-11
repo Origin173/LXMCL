@@ -76,7 +76,6 @@ const InstanceResourcePacksPage = () => {
                     <CommonIconButton
                       icon="revealFile"
                       onClick={() => revealItemInDir(pack.filePath)}
-                      tooltipPlacement="bottom-end"
                     />
                   </OptionItem>
                 ))}
