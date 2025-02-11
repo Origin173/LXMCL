@@ -31,6 +31,7 @@ import {
   LuChevronDown,
   LuExternalLink,
   LuGrid2X2,
+  LuKeyRound,
   LuLink2Off,
   LuPlus,
   LuServer,
@@ -65,7 +66,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   >("offline");
   const [playername, setPlayername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [authServerUrl, setAuthServerUrl] = useState<string>("");
+  const [authServer, setAuthServer] = useState<AuthServer>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
@@ -82,10 +83,15 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   }, [initialPlayerType]);
 
   useEffect(() => {
-    setAuthServerUrl(
-      initialAuthServerUrl ||
-        (authServerList.length > 0 ? authServerList[0].authUrl : "")
-    );
+    let _authServer: AuthServer | undefined = undefined;
+    if (initialAuthServerUrl) {
+      _authServer = authServerList.find(
+        (server) => server.authUrl === initialAuthServerUrl
+      );
+    } else {
+      _authServer = authServerList[0];
+    }
+    setAuthServer(_authServer);
   }, [initialAuthServerUrl, getAuthServerList, authServerList]);
 
   useEffect(() => {
@@ -96,7 +102,12 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
 
   const handleLogin = () => {
     setIsLoading(true);
-    AccountService.addPlayer(playerType, playername, password, authServerUrl)
+    AccountService.addPlayer(
+      playerType,
+      playername,
+      password,
+      authServer?.authUrl || ""
+    )
       .then((response) => {
         if (response.status === "success") {
           getPlayerList(true);
@@ -175,9 +186,13 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
 
             {playerType === "offline" && (
               <FormControl isRequired isInvalid={!isOfflinePlayernameValid}>
-                <FormLabel>{t("AddPlayerModal.label.playerName")}</FormLabel>
+                <FormLabel>
+                  {t("AddPlayerModal.offline.playerName.label")}
+                </FormLabel>
                 <Input
-                  placeholder={t("AddPlayerModal.placeholder.playerName")}
+                  placeholder={t(
+                    "AddPlayerModal.offline.playerName.placeholder"
+                  )}
                   value={playername}
                   onChange={(e) => setPlayername(e.target.value)}
                   required
@@ -186,7 +201,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                 />
                 {!isOfflinePlayernameValid && (
                   <FormErrorMessage>
-                    {t("AddPlayerModal.errorMessage.playerName")}
+                    {t("AddPlayerModal.offline.playerName.errorMessage")}
                   </FormErrorMessage>
                 )}
               </FormControl>
@@ -199,7 +214,9 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
               <>
                 {authServerList.length === 0 ? (
                   <HStack>
-                    <Text>{t("AddPlayerModal.authServer.noSource")}</Text>
+                    <Text>
+                      {t("AddPlayerModal.3rdparty.authServer.noSource")}
+                    </Text>
                     <Button
                       variant="ghost"
                       colorScheme={primaryColor}
@@ -207,7 +224,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                     >
                       <LuPlus />
                       <Text ml={1}>
-                        {t("AddPlayerModal.authServer.addSource")}
+                        {t("AddPlayerModal.3rdparty.authServer.addSource")}
                       </Text>
                     </Button>
                   </HStack>
@@ -215,7 +232,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                   <>
                     <FormControl>
                       <FormLabel>
-                        {t("AddPlayerModal.label.authServer")}
+                        {t("AddPlayerModal.3rdparty.authServer.label")}
                       </FormLabel>
                       <HStack>
                         <Menu>
@@ -224,16 +241,16 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                             variant="outline"
                             rightIcon={<LuChevronDown />}
                           >
-                            {authServerList.find(
-                              (server) => server?.authUrl === authServerUrl
-                            )?.name ||
-                              t("AddPlayerModal.authServer.selectSource")}
+                            {authServer?.name ||
+                              t(
+                                "AddPlayerModal.3rdparty.authServer.selectSource"
+                              )}
                           </MenuButton>
                           <MenuList>
                             {authServerList.map((server: AuthServer) => (
                               <MenuItem
                                 key={server.authUrl}
-                                onClick={() => setAuthServerUrl(server.authUrl)}
+                                onClick={() => setAuthServer(server)}
                               >
                                 {server.name}
                               </MenuItem>
@@ -241,19 +258,21 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                           </MenuList>
                         </Menu>
                         <Text className="secondary-text ellipsis-text">
-                          {authServerUrl}
+                          {authServer?.authUrl}
                         </Text>
                       </HStack>
                     </FormControl>
-                    {authServerUrl && (
+                    {authServer?.authUrl && (
                       <>
                         <FormControl isRequired>
                           <FormLabel>
-                            {t("AddPlayerModal.label.playerName")}
+                            {t(
+                              `AddPlayerModal.3rdparty.${authServer.features.nonEmailLogin ? "emailOrPlayerName" : "email"}.label`
+                            )}
                           </FormLabel>
                           <Input
                             placeholder={t(
-                              "AddPlayerModal.placeholder.playerName"
+                              `AddPlayerModal.3rdparty.${authServer.features.nonEmailLogin ? "emailOrPlayerName" : "email"}.placeholder`
                             )}
                             value={playername}
                             onChange={(e) => setPlayername(e.target.value)}
@@ -264,11 +283,11 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                         </FormControl>
                         <FormControl isRequired>
                           <FormLabel>
-                            {t("AddPlayerModal.label.password")}
+                            {t("AddPlayerModal.3rdparty.password.label")}
                           </FormLabel>
                           <Input
                             placeholder={t(
-                              "AddPlayerModal.placeholder.password"
+                              "AddPlayerModal.3rdparty.password.placeholder"
                             )}
                             type="password"
                             value={password}
@@ -302,6 +321,16 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
               </Link>
             </HStack>
           )}
+          {playerType === "3rdparty" &&
+            authServer?.features.openidConfigurationUrl && (
+              <Button
+                variant="outline"
+                colorScheme={primaryColor}
+                leftIcon={<LuKeyRound />}
+              >
+                {t("AddPlayerModal.button.loginOAuth")}
+              </Button>
+            )}
           <HStack spacing={3} ml="auto">
             <Button variant="ghost" onClick={modalProps.onClose}>
               {t("General.cancel")}
@@ -315,7 +344,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                 (playerType === "offline" && !isOfflinePlayernameValid) ||
                 (playerType === "3rdparty" &&
                   authServerList.length > 0 &&
-                  (!authServerUrl || !password))
+                  (!authServer || !password))
               }
             >
               {t("General.confirm")}
