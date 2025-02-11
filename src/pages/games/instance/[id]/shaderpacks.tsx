@@ -30,6 +30,7 @@ const InstanceShaderPacksPage = () => {
                 icon="revealFile"
                 onClick={() => revealItemInDir(pack.filePath)}
                 h={18}
+                tooltipPlacement="bottom-end"
               />
             </OptionItem>
           ))}

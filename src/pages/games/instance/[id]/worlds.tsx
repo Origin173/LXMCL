@@ -103,6 +103,7 @@ const InstanceWorldsPage = () => {
                         icon={item.icon}
                         label={item.label}
                         onClick={item.onClick}
+                        tooltipPlacement="bottom-end"
                       />
                     ))}
                   </HStack>
