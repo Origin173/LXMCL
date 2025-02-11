@@ -114,25 +114,38 @@
       "header": "添加角色"
     },
     "label": {
-      "playerType": "角色类型",
-      "playerName": "角色名称",
-      "authServer": "认证源",
-      "password": "密码"
+      "playerType": "角色类型"
     },
-    "authServer": {
-      "selectSource": "请选择认证源",
-      "noSource": "未添加可用认证源服务器",
-      "addSource": "添加认证源"
+    "offline": {
+      "playerName": {
+        "label": "角色名称",
+        "placeholder": "请输入角色名称",
+        "errorMessage": "只能包含英文字母、数字和下划线，不超过16个字符。"
+      }
     },
-    "placeholder": {
-      "playerName": "请输入用户名",
-      "password": "请输入密码"
-    },
-    "errorMessage": {
-      "playerName": "只能包含英文字母、数字和下划线，不超过16个字符。"
+    "3rdparty": {
+      "authServer": {
+        "label": "认证源",
+        "selectSource": "请选择认证源",
+        "noSource": "未添加可用认证源服务器",
+        "addSource": "添加认证源"
+      },
+      "email": {
+        "label": "邮箱",
+        "placeholder": "请输入邮箱"
+      },
+      "emailOrPlayerName": {
+        "label": "邮箱或角色名称",
+        "placeholder": "请输入邮箱或角色名称"
+      },
+      "password": {
+        "label": "密码",
+        "placeholder": "请输入密码"
+      }
     },
     "button": {
-      "buyMinecraft": "购买 Minecraft"
+      "buyMinecraft": "购买 Minecraft",
+      "loginOAuth": "使用 OAuth 登录"
     }
   },
   "AllGamesPage": {

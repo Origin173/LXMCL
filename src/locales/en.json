@@ -114,25 +114,38 @@
       "header": "Add Player"
     },
     "label": {
-      "playerType": "Player Type",
-      "playerName": "Player Name",
-      "authServer": "Auth Source",
-      "password": "Password"
+      "playerType": "Player Type"
     },
-    "authServer": {
-      "selectSource": "Select Auth Source",
-      "noSource": "No auth source added.",
-      "addSource": "Add one"
+    "offline": {
+      "playerName": {
+        "label": "Player Name",
+        "placeholder": "Player name",
+        "errorMessage": "Can only contain letters, numbers, and underscores, within 16 characters."
+      }
     },
-    "placeholder": {
-      "playerName": "Player Name",
-      "password": "Password"
-    },
-    "errorMessage": {
-      "playerName": "Can only contain letters, numbers, and underscores, within 16 characters."
+    "3rdparty": {
+      "authServer": {
+        "label": "Auth Source",
+        "selectSource": "Select Auth Source",
+        "noSource": "No auth source added.",
+        "addSource": "Add one"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "Email"
+      },
+      "emailOrPlayerName": {
+        "label": "Email or Player Name",
+        "placeholder": "Email or player name"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Password"
+      }
     },
     "button": {
-      "buyMinecraft": "Buy Minecraft"
+      "buyMinecraft": "Buy Minecraft",
+      "loginOAuth": "Login with OAuth"
     }
   },
   "AllGamesPage": {
