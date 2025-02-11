@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Center,
   HStack,
   Input,
   MenuItemOption,
@@ -9,11 +10,14 @@ import {
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { BeatLoader } from "react-spinners";
 import ResourceDownloadList from "@/components/resource-download-list";
 import ResourceDownloadMenu from "@/components/resourse-download-menu";
 import { useLauncherConfig } from "@/contexts/config";
+import { useToast } from "@/contexts/toast";
 import { mockDownloadResourceList } from "@/models/mock/resource";
 import { GameResourceInfo, OtherResourceInfo } from "@/models/resource";
+import { ResourceService } from "@/services/resource";
 
 interface ResourceDownloadProps {
   resourceType: string;
@@ -25,8 +29,11 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const toast = useToast();
 
   const [resourceList, setResourceList] = useState<OtherResourceInfo[]>([]);
+  const [isLoadingResourceList, setIsLoadingResourceList] =
+    useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true); // use for infinite scroll
 
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -90,35 +97,46 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
           ? resourcePackTypeList
           : shaderPackTypeList;
 
-  // @TODO: move this logic to backend and get data by invoke
-  const fetchData = useCallback(async () => {
-    try {
-      const response = await fetch(
-        "https://launchermeta.mojang.com/mc/game/version_manifest.json"
-      );
-      const data = await response.json();
-
-      const versionData = data.versions as GameResourceInfo[];
-
+  const fetchVersionList = useCallback(async () => {
+    const response = await ResourceService.retriveGameVersionList();
+    if (response.status === "success") {
+      const versionData = response.data;
       setGameVersionList(
         versionData
           .filter((version: GameResourceInfo) => version.gameType === "release")
           .map((version: GameResourceInfo) => version.id)
       );
-    } catch (error) {
-      console.error("Error fetching versions:", error);
+    } else {
+      setGameVersionList([]);
+      toast({
+        title: response.message,
+        description: response.details,
+        status: "error",
+      });
     }
+  }, [toast]);
+
+  const fetchResourceList = useCallback(async () => {
+    // TBD
+    setIsLoadingResourceList(true);
+    setTimeout(() => {
+      setResourceList(mockDownloadResourceList);
+      setIsLoadingResourceList(false);
+    }, 500);
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchVersionList();
+    fetchResourceList();
+  }, [fetchVersionList, fetchResourceList]);
 
   const loadMore = async () => {
     // TBD
     if (!hasMore) return;
-    setResourceList((prev) => [...prev, ...mockDownloadResourceList]);
-    if (resourceList.length >= 24) setHasMore(false);
+    setTimeout(() => {
+      setResourceList((prev) => [...prev, ...mockDownloadResourceList]);
+      if (resourceList.length >= 24) setHasMore(false);
+    }, 500);
   };
 
   return (
@@ -191,10 +209,7 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
         <Button
           colorScheme={primaryColor}
           size="xs"
-          onClick={() => {
-            // TBD
-            setResourceList(mockDownloadResourceList);
-          }}
+          onClick={fetchResourceList}
           px={5}
         >
           {t("DownloadResourceModal.button.search")}
@@ -202,11 +217,17 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
       </HStack>
 
       <Box flexGrow={1} w="100%">
-        <ResourceDownloadList
-          list={resourceList}
-          hasMore={hasMore}
-          loadMore={loadMore}
-        />
+        {isLoadingResourceList ? (
+          <Center>
+            <BeatLoader size={16} color="gray" />
+          </Center>
+        ) : (
+          <ResourceDownloadList
+            list={resourceList}
+            hasMore={hasMore}
+            loadMore={loadMore}
+          />
+        )}
       </Box>
     </VStack>
   );

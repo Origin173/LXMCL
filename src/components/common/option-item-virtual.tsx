@@ -138,7 +138,7 @@ export const VirtualOptionItemGroup: React.FC<VirtualOptionItemGroupProps> = ({
           )}
           {loadingMore && (
             <Center key="loading" mt="auto">
-              <BeatLoader size={16} color="gray" />
+              <BeatLoader size={12} color="gray" />
             </Center>
           )}
         </Card>
