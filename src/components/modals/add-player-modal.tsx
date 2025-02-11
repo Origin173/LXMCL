@@ -70,7 +70,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const initialRef = useRef(null);
+  const initialRef = useRef<HTMLInputElement>(null);
 
   const {
     isOpen: isAddAuthServerModalOpen,
@@ -96,6 +96,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
 
   useEffect(() => {
     setPassword("");
+    initialRef.current?.focus();
   }, [playerType]);
 
   const isOfflinePlayernameValid = /^[a-zA-Z0-9_]{0,16}$/.test(playername);

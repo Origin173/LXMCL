@@ -119,7 +119,7 @@
     "offline": {
       "playerName": {
         "label": "角色名称",
-        "placeholder": "请输入用户名",
+        "placeholder": "请输入角色名称",
         "errorMessage": "只能包含英文字母、数字和下划线，不超过16个字符。"
       }
     },
@@ -135,8 +135,8 @@
         "placeholder": "请输入邮箱"
       },
       "emailOrPlayerName": {
-        "label": "邮箱或角色名",
-        "placeholder": "请输入邮箱或角色名"
+        "label": "邮箱或角色名称",
+        "placeholder": "请输入邮箱或角色名称"
       },
       "password": {
         "label": "密码",
