@@ -15,15 +15,22 @@ import ResourceDownloadList from "@/components/resource-download-list";
 import ResourceDownloadMenu from "@/components/resourse-download-menu";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
+import {
+  modTagList,
+  resourcePackTagList,
+  shaderPackTagList,
+  sortByList,
+  worldTagList,
+} from "@/enums/resource";
 import { mockDownloadResourceList } from "@/models/mock/resource";
 import { GameResourceInfo, OtherResourceInfo } from "@/models/resource";
 import { ResourceService } from "@/services/resource";
 
-interface ResourceDownloadProps {
+interface ResourceDownloaderProps {
   resourceType: string;
 }
 
-const ResourceDownload: React.FC<ResourceDownloadProps> = ({
+const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   resourceType,
 }) => {
   const { t } = useTranslation();
@@ -31,71 +38,43 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
   const primaryColor = config.appearance.theme.primaryColor;
   const toast = useToast();
 
+  const [gameVersionList, setGameVersionList] = useState<string[]>([]);
+
   const [resourceList, setResourceList] = useState<OtherResourceInfo[]>([]);
   const [isLoadingResourceList, setIsLoadingResourceList] =
     useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true); // use for infinite scroll
 
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedType, setSelectedType] = useState<string>("all");
-  const [downloadSource, setDownloadSource] = useState<string>("Curseforge");
-  const [sortedBy, setSortedBy] = useState<string>("downloads");
   const [gameVersion, setGameVersion] = useState<string>("");
+  const [selectedTag, setSelectedTag] = useState<string>("All");
+  const [sortBy, setSortBy] = useState<string>("Relevancy");
+  const [downloadSource, setDownloadSource] = useState<
+    "CurseForge" | "Modrinth"
+  >("CurseForge");
 
-  const downloadSourceList = ["Curseforge", "Modrinth"];
-  const sortedByList = ["downloads", "update", "creation", "name"];
-  const [gameVersionList, setGameVersionList] = useState<string[]>([]);
-
-  const modTypeList = [
-    "all",
-    "world",
-    "technology",
-    "magic",
-    "adventure",
-    "utility",
-    "storage",
-    "creatures",
-    "equipment",
-    "food",
-    "building",
-    "redstone",
-    "decoration",
-    "support",
-    "other",
+  const downloadSourceList = [
+    "CurseForge",
+    ...(resourceType === "world" ? [] : ["Modrinth"]),
   ];
 
-  const worldTypeList = [
-    "all",
-    "survival",
-    "architecture",
-    "parkour",
-    "puzzle",
-    "minigame",
-    "pvp",
-    "other",
-  ];
-
-  const resourcePackTypeList = [
-    "all",
-    "realistic",
-    "cartoon",
-    "simple",
-    "medieval",
-    "modern",
-    "fantasy",
-    "other",
-  ];
-
-  const shaderPackTypeList = ["all", "realistic", "fantasy"];
-
-  const typeList =
+  const tagList =
     resourceType === "mod"
-      ? modTypeList
+      ? modTagList
       : resourceType === "world"
-        ? worldTypeList
+        ? worldTagList
         : resourceType === "resourcepack"
-          ? resourcePackTypeList
-          : shaderPackTypeList;
+          ? resourcePackTagList
+          : shaderPackTagList;
+
+  const finalTagList = tagList[downloadSource];
+  const finalSortByList = sortByList[downloadSource];
+
+  const onDownloadSourceChange = (e: string) => {
+    setDownloadSource(e === "CurseForge" ? "CurseForge" : "Modrinth");
+    setSelectedTag("All");
+    setSortBy(e === "CurseForge" ? "Relevancy" : "Relevance");
+  };
 
   const fetchVersionList = useCallback(async () => {
     const response = await ResourceService.retriveGameVersionList();
@@ -120,15 +99,11 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
     // TBD
     setIsLoadingResourceList(true);
     setTimeout(() => {
+      setHasMore(true);
       setResourceList(mockDownloadResourceList);
       setIsLoadingResourceList(false);
     }, 500);
   }, []);
-
-  useEffect(() => {
-    fetchVersionList();
-    fetchResourceList();
-  }, [fetchVersionList, fetchResourceList]);
 
   const loadMore = async () => {
     // TBD
@@ -139,19 +114,36 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
     }, 500);
   };
 
+  useEffect(() => {
+    fetchVersionList();
+  }, [fetchVersionList]);
+
+  useEffect(() => {
+    fetchResourceList();
+  }, [
+    searchQuery,
+    gameVersion,
+    selectedTag,
+    sortBy,
+    downloadSource,
+    fetchResourceList,
+  ]);
+
   return (
     <VStack fontSize="xs" h="100%">
       <HStack gap={3}>
         <ResourceDownloadMenu
-          label={t("DownloadResourceModal.label.type")}
+          label={t("DownloadResourceModal.label.tag")}
           displayText={t(
-            `DownloadResourceModal.${resourceType}TypeList.${selectedType}`
+            `DownloadResourceModal.${resourceType}TagList.${downloadSource}.${selectedTag}`
           )}
-          onChange={setSelectedType}
-          defaultValue={"all"}
-          options={typeList.map((item, key) => (
+          onChange={setSelectedTag}
+          defaultValue={"All"}
+          options={finalTagList.map((item, key) => (
             <MenuItemOption key={key} value={item} fontSize="xs">
-              {t(`DownloadResourceModal.${resourceType}TypeList.${item}`)}
+              {t(
+                `DownloadResourceModal.${resourceType}TagList.${downloadSource}.${item}`
+              )}
             </MenuItemOption>
           ))}
         />
@@ -172,8 +164,8 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
         <ResourceDownloadMenu
           label={t("DownloadResourceModal.label.source")}
           displayText={downloadSource}
-          onChange={setDownloadSource}
-          defaultValue={"Curseforge"}
+          onChange={onDownloadSourceChange}
+          defaultValue={"CurseForge"}
           options={downloadSourceList.map((item, key) => (
             <MenuItemOption key={key} value={item} fontSize="xs">
               {item}
@@ -183,13 +175,17 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
         />
 
         <ResourceDownloadMenu
-          label={t("DownloadResourceModal.label.sort")}
-          displayText={t(`DownloadResourceModal.sortedByList.${sortedBy}`)}
-          onChange={setSortedBy}
-          defaultValue={"downloads"}
-          options={sortedByList.map((item, key) => (
+          label={t("DownloadResourceModal.label.sortBy")}
+          displayText={t(
+            `DownloadResourceModal.sortByList.${downloadSource}.${sortBy}`
+          )}
+          onChange={setSortBy}
+          defaultValue={
+            downloadSource === "CurseForge" ? "Relevancy" : "Relevance"
+          }
+          options={finalSortByList.map((item, key) => (
             <MenuItemOption key={key} value={item} fontSize="xs">
-              {t(`DownloadResourceModal.sortedByList.${item}`)}
+              {t(`DownloadResourceModal.sortByList.${downloadSource}.${item}`)}
             </MenuItemOption>
           ))}
           width={24}
@@ -233,4 +229,4 @@ const ResourceDownload: React.FC<ResourceDownloadProps> = ({
   );
 };
 
-export default ResourceDownload;
+export default ResourceDownloader;

@@ -255,6 +255,9 @@
       "online": "Online"
     }
   },
+  "DownloadFloatButton": {
+    "tooltip": "Downloading"
+  },
   "DownloadResourceModal": {
     "header": {
       "title": "Download Resource"
@@ -262,8 +265,8 @@
     "label": {
       "source": "Source",
       "gameVer": "Game Ver.",
-      "type": "Type",
-      "sort": "Sorted by",
+      "tag": "Type",
+      "sortBy": "Sort by",
       "name": "Name"
     },
     "button": {
@@ -275,53 +278,158 @@
       "resourcepack": "Resourcepacks",
       "shaderpack": "Shaderpacks"
     },
-    "modTypeList": {
-      "all": "All Mods",
-      "world": "World Generation",
-      "technology": "Technology",
-      "magic": "Magic",
-      "adventure": "Adventure",
-      "utility": "Utility",
-      "storage": "Storage",
-      "creatures": "Creatures",
-      "equipment": "Tools & Equipment",
-      "food": "Food",
-      "building": "Building",
-      "redstone": "Redstone",
-      "decoration": "Decoration",
-      "support": "Support",
-      "other": "Other"
+    "modTagList": {
+      "CurseForge": {
+        "All": "All",
+        "Addons": "Addons",
+        "Adventure and RPG": "Adventure RPG",
+        "API and Library": "API Library",
+        "Armor, Tools, and Weapons": "Armor Tools Weapons",
+        "Bug Fixes": "Bug Fixes",
+        "Cosmetic": "Cosmetic",
+        "Education": "Education",
+        "Food": "Food",
+        "Magic": "Magic",
+        "Map and Information": "Map Information",
+        "MCreator": "MCreator",
+        "Miscellaneous": "Miscellaneous",
+        "Performance": "Performance",
+        "Redstone": "Redstone",
+        "Server Utility": "Server",
+        "Storage": "Storage",
+        "Technology": "Technology",
+        "Twitch Integration": "Twitch",
+        "Utility & QoL": "Utility QoL",
+        "World Gen": "World Gen"
+      },
+      "Modrinth": {
+        "All": "All",
+        "Adventure": "Adventure",
+        "Cursed": "Cursed",
+        "Decoration": "Decoration",
+        "Economy": "Economy",
+        "Equipment": "Equipment",
+        "Food": "Food",
+        "Game Mechanics": "Game Mechanics",
+        "Library": "Library",
+        "Magic": "Magic",
+        "Management": "Management",
+        "Minigame": "Minigame",
+        "Mobs": "Mobs",
+        "Optimization": "Optimization",
+        "Social": "Social",
+        "Storage": "Storage",
+        "Technology": "Technology",
+        "Transportation": "Transportation",
+        "Utility": "Utility",
+        "World Generation": "World Gen"
+      }
     },
-    "worldTypeList": {
-      "all": "All Worlds",
-      "survival": "Survival",
-      "architecture": "Architecture",
-      "parkour": "Parkour",
-      "puzzle": "Puzzle",
-      "minigame": "Mini-game",
-      "pvp": "PvP",
-      "other": "Other"
+    "worldTagList": {
+      "CurseForge": {
+        "All": "All",
+        "Adventure": "Adventure",
+        "Creation": "Creation",
+        "Game Map": "Game Map",
+        "Modded World": "Modded World",
+        "Parkour": "Parkour",
+        "Puzzle": "Puzzle",
+        "Survival": "Survival"
+      }
     },
-    "resourcepackTypeList": {
-      "all": "All Resourcepacks",
-      "realistic": "Realistic",
-      "cartoon": "Cartoon",
-      "simple": "Simple",
-      "fantasy": "Fantasy",
-      "modern": "Modern",
-      "medieval": "Medieval",
-      "other": "Other"
+    "resourcepackTagList": {
+      "CurseForge": {
+        "All": "All",
+        "16x": "16x",
+        "32x": "32x",
+        "64x": "64x",
+        "128x": "128x",
+        "256x": "256x",
+        "512x and Higher": "512x and Higher",
+        "Animated": "Animated",
+        "Data Packs": "Data Packs",
+        "Font Packs": "Font Packs",
+        "Medieval": "Medieval",
+        "Miscellaneous": "Miscellaneous",
+        "Mod Support": "Mod Support",
+        "Modern": "Modern",
+        "Photo Realistic": "Photo Realistic",
+        "Steampunk": "Steampunk",
+        "Traditional": "Traditional"
+      },
+      "Modrinth": {
+        "All": "All",
+        "8x or lower": "8x or Lower",
+        "16x": "16x",
+        "32x": "32x",
+        "64x": "64x",
+        "128x": "128x",
+        "256x": "256x",
+        "512x or higher": "512x or Higher",
+        "Audio": "Audio",
+        "Blocks": "Blocks",
+        "Core Shaders": "Core Shaders",
+        "Entities": "Entities",
+        "Environment": "Environment",
+        "Equipment": "Equipment",
+        "Fonts": "Fonts",
+        "GUI": "GUI",
+        "Items": "Items",
+        "Locale": "Locale",
+        "Models": "Models",
+        "Combat": "Combat",
+        "Cursed": "Cursed",
+        "Decoration": "Decoration",
+        "Modded": "Modded",
+        "Realistic": "Realistic",
+        "Simplistic": "Simplistic",
+        "Themed": "Themed",
+        "Tweaks": "Tweaks",
+        "Utility": "Utility",
+        "Vanilla-like": "Vanilla-like"
+      }
     },
-    "shaderpackTypeList": {
-      "all": "All Shaderpacks",
-      "realistic": "Realistic",
-      "fantasy": "Fantasy"
+    "shaderpackTagList": {
+      "CurseForge": {
+        "All": "All",
+        "Fantasy": "Fantasy",
+        "Realistic": "Realistic",
+        "Vanilla": "Vanilla"
+      },
+      "Modrinth": {
+        "All": "All",
+        "Cartoon": "Cartoon",
+        "Cursed": "Cursed",
+        "Fantasy": "Fantasy",
+        "Realistic": "Realistic",
+        "Semi-Realistic": "Semi-Realistic",
+        "Vanilla-like": "Vanilla-like",
+        "Atmosphere": "Atmosphere",
+        "Bloom": "Bloom",
+        "Colored Lighting": "Colored Lighting",
+        "Foliage": "Foliage",
+        "Path Tracing": "Path Tracing",
+        "PBR": "PBR",
+        "Reflections": "Reflections",
+        "Shadows": "Shadows"
+      }
     },
-    "sortedByList": {
-      "downloads": "Downloads",
-      "update": "Update Time",
-      "creation": "Creation Time",
-      "name": "Name"
+    "sortByList": {
+      "CurseForge": {
+        "Relevancy": "Relevancy",
+        "Popularity": "Popularity",
+        "Lastest update": "Lastest update",
+        "Creation date": "Creation date",
+        "Total downloads": "Total downloads",
+        "A-Z": "A-Z"
+      },
+      "Modrinth": {
+        "Relevance": "Relevance",
+        "Downloads": "Downloads",
+        "Followers": "Followers",
+        "Date published": "Date published",
+        "Date updated": "Date updated"
+      }
     }
   },
   "DownloadSettingPage": {

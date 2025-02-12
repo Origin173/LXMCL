@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 import { IconType } from "react-icons";
 import { LuEarth, LuHaze, LuPackage, LuSquareLibrary } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
-import ResourceDownload from "../resource-download";
+import ResourceDownloader from "@/components/resource-downloader";
 
 export const DownloadResourceModal: React.FC<Omit<ModalProps, "children">> = ({
   ...modalProps
@@ -73,7 +73,7 @@ export const DownloadResourceModal: React.FC<Omit<ModalProps, "children">> = ({
         <ModalCloseButton />
         <Flex h="60vh" flexDir="column">
           <ModalBody>
-            <ResourceDownload
+            <ResourceDownloader
               key={selectedResourceType}
               resourceType={selectedResourceType}
             />

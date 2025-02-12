@@ -2,10 +2,10 @@ import { Avatar, HStack, Tag, Text, VStack } from "@chakra-ui/react";
 import { LuDownload, LuGlobe, LuUpload } from "react-icons/lu";
 import Empty from "@/components/common/empty";
 import { OptionItemProps } from "@/components/common/option-item";
+import { VirtualOptionItemGroup } from "@/components/common/option-item-virtual";
 import { useLauncherConfig } from "@/contexts/config";
 import { OtherResourceInfo } from "@/models/resource";
 import { ISOToDate } from "@/utils/datetime";
-import { VirtualOptionItemGroup } from "./common/option-item-virtual";
 
 interface ResourceDownloadListProps {
   list: OtherResourceInfo[];
