@@ -456,6 +456,7 @@
     }
   },
   "General": {
+    "add": "添加",
     "cancel": "取消",
     "close": "关闭",
     "confirm": "确定",
@@ -510,8 +511,6 @@
       "title": "游戏目录",
       "settings": {
         "directories": {
-          "title": "本地游戏存储目录",
-          "add": "添加",
           "special": {
             "CURRENT_DIR": "当前文件夹",
             "OFFICIAL_DIR": "官方启动器文件夹"

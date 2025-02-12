@@ -456,6 +456,7 @@
     }
   },
   "General": {
+    "add": "Add",
     "cancel": "Cancel",
     "close": "Close",
     "confirm": "Confirm",
@@ -510,8 +511,6 @@
       "title": "Game Directories",
       "settings": {
         "directories": {
-          "title": "Manage Local Game Storage Directories",
-          "add": "Add",
           "special": {
             "CURRENT_DIR": "Current",
             "OFFICIAL_DIR": "Minecraft Launcher"
