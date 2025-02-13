@@ -42,8 +42,11 @@ const DevTestPage = () => {
         Create New Window
       </Button>
 
-      <Button onClick={() => setIsModalOpen(true)}>Open Modal</Button>
+      <Button onClick={() => setIsModalOpen(true)}>
+        Download Resource Modal
+      </Button>
       <DownloadResourceModal
+        initialResourceType="shaderpack"
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />

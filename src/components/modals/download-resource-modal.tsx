@@ -18,13 +18,18 @@ import { LuEarth, LuHaze, LuPackage, LuSquareLibrary } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import ResourceDownloader from "@/components/resource-downloader";
 
-export const DownloadResourceModal: React.FC<Omit<ModalProps, "children">> = ({
+interface DownloadResourceModalProps extends Omit<ModalProps, "children"> {
+  initialResourceType?: string;
+}
+
+export const DownloadResourceModal: React.FC<DownloadResourceModalProps> = ({
+  initialResourceType = "mod",
   ...modalProps
 }) => {
   const { t } = useTranslation();
 
   const [selectedResourceType, setSelectedResourceType] =
-    useState<string>("mod");
+    useState<string>(initialResourceType);
 
   const resourceTypeList: { key: string; icon: IconType }[] = [
     { key: "mod", icon: LuSquareLibrary },
@@ -40,7 +45,7 @@ export const DownloadResourceModal: React.FC<Omit<ModalProps, "children">> = ({
       {...modalProps}
     >
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent h="100%">
         <ModalHeader>
           <HStack w="100%" justify="flex-start" align="center">
             <Text>{t("DownloadResourceModal.header.title")}</Text>
@@ -71,7 +76,7 @@ export const DownloadResourceModal: React.FC<Omit<ModalProps, "children">> = ({
           </HStack>
         </ModalHeader>
         <ModalCloseButton />
-        <Flex h="60vh" flexDir="column">
+        <Flex flexGrow="1" flexDir="column">
           <ModalBody>
             <ResourceDownloader
               key={selectedResourceType}

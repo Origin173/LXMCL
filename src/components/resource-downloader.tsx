@@ -1,18 +1,28 @@
 import {
+  Avatar,
   Box,
   Button,
   Center,
   HStack,
   Input,
+  Menu,
+  MenuButton,
   MenuItemOption,
+  MenuList,
+  MenuOptionGroup,
+  Tag,
   Text,
   VStack,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { LuChevronDown, LuDownload, LuGlobe, LuUpload } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
-import ResourceDownloadList from "@/components/resource-download-list";
-import ResourceDownloadMenu from "@/components/resourse-download-menu";
+import Empty from "@/components/common/empty";
+import { OptionItemProps } from "@/components/common/option-item";
+import { VirtualOptionItemGroup } from "@/components/common/option-item-virtual";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
 import {
@@ -25,10 +35,146 @@ import {
 import { mockDownloadResourceList } from "@/models/mock/resource";
 import { GameResourceInfo, OtherResourceInfo } from "@/models/resource";
 import { ResourceService } from "@/services/resource";
+import { ISOToDate } from "@/utils/datetime";
 
 interface ResourceDownloaderProps {
   resourceType: string;
 }
+
+interface ResourceDownloaderMenuProps {
+  label: string;
+  displayText: string;
+  onChange: (value: string) => void;
+  defaultValue: string;
+  options: React.ReactNode;
+  width?: number;
+}
+
+interface ResourceDownloaderListProps {
+  list: OtherResourceInfo[];
+  hasMore: boolean;
+  loadMore: () => void;
+}
+
+const ResourceDownloaderMenu: React.FC<ResourceDownloaderMenuProps> = ({
+  label,
+  displayText,
+  onChange,
+  defaultValue,
+  options,
+  width = 28,
+}) => {
+  return (
+    <HStack>
+      <Text>{label}</Text>
+      <Menu>
+        <MenuButton
+          as={Button}
+          size="xs"
+          w={width}
+          variant="outline"
+          fontSize="xs"
+          textAlign="left"
+          rightIcon={<LuChevronDown />}
+        >
+          {displayText}
+        </MenuButton>
+        <MenuList maxH="40vh" w={width} overflow="auto">
+          <MenuOptionGroup
+            defaultValue={defaultValue}
+            type="radio"
+            onChange={(value) => {
+              onChange(value as string);
+            }}
+          >
+            {options}
+          </MenuOptionGroup>
+        </MenuList>
+      </Menu>
+    </HStack>
+  );
+};
+
+const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
+  list,
+  hasMore,
+  loadMore,
+}) => {
+  const { config } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
+
+  const buildOptionItems = (item: OtherResourceInfo): OptionItemProps => ({
+    key: item.name,
+    title: item.translatedName
+      ? `${item.translatedName}｜${item.name}`
+      : item.name,
+    titleExtra: (
+      <Wrap spacing={1}>
+        {item.tags.map((tag, index) => (
+          <WrapItem key={index}>
+            <Tag colorScheme={primaryColor} className="tag-xs">
+              {tag}
+            </Tag>
+          </WrapItem>
+        ))}
+      </Wrap>
+    ),
+    description: (
+      <VStack
+        fontSize="xs"
+        className="secondary-text no-select"
+        spacing={1}
+        align="flex-start"
+        w="100%"
+      >
+        <Text overflow="hidden" className="ellipsis-text">
+          {item.description}
+        </Text>
+        <HStack spacing={6}>
+          <HStack spacing={1}>
+            <LuUpload />
+            <Text>{ISOToDate(item.lastUpdated)}</Text>
+          </HStack>
+          <HStack spacing={1}>
+            <LuDownload />
+            <Text>{item.downloads}</Text>
+          </HStack>
+          {item.source && (
+            <HStack spacing={1}>
+              <LuGlobe />
+              <Text>{item.source}</Text>
+            </HStack>
+          )}
+        </HStack>
+      </VStack>
+    ),
+    prefixElement: (
+      <Avatar
+        src={item.iconSrc}
+        name={item.name}
+        boxSize="48px"
+        borderRadius="4px"
+      />
+    ),
+    children: <></>,
+  });
+
+  return (
+    <>
+      {list.length > 0 ? (
+        <VirtualOptionItemGroup
+          h="100%"
+          items={list.map(buildOptionItems)}
+          useInfiniteScroll
+          hasMore={hasMore}
+          loadMore={loadMore}
+        />
+      ) : (
+        <Empty withIcon={false} size="sm" />
+      )}
+    </>
+  );
+};
 
 const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   resourceType,
@@ -46,7 +192,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   const [hasMore, setHasMore] = useState<boolean>(true); // use for infinite scroll
 
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [gameVersion, setGameVersion] = useState<string>("");
+  const [gameVersion, setGameVersion] = useState<string>("All");
   const [selectedTag, setSelectedTag] = useState<string>("All");
   const [sortBy, setSortBy] = useState<string>("Relevancy");
   const [downloadSource, setDownloadSource] = useState<
@@ -80,11 +226,10 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
     const response = await ResourceService.retriveGameVersionList();
     if (response.status === "success") {
       const versionData = response.data;
-      setGameVersionList(
-        versionData
-          .filter((version: GameResourceInfo) => version.gameType === "release")
-          .map((version: GameResourceInfo) => version.id)
-      );
+      const versionList = versionData
+        .filter((version: GameResourceInfo) => version.gameType === "release")
+        .map((version: GameResourceInfo) => version.id);
+      setGameVersionList(["All", ...versionList]);
     } else {
       setGameVersionList([]);
       toast({
@@ -120,49 +265,46 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
 
   useEffect(() => {
     fetchResourceList();
-  }, [
-    searchQuery,
-    gameVersion,
-    selectedTag,
-    sortBy,
-    downloadSource,
-    fetchResourceList,
-  ]);
+  }, [gameVersion, selectedTag, sortBy, downloadSource, fetchResourceList]);
 
   return (
     <VStack fontSize="xs" h="100%">
       <HStack gap={3}>
-        <ResourceDownloadMenu
-          label={t("DownloadResourceModal.label.tag")}
+        <ResourceDownloaderMenu
+          label={t("ResourceDownloader.label.tag")}
           displayText={t(
-            `DownloadResourceModal.${resourceType}TagList.${downloadSource}.${selectedTag}`
+            `ResourceDownloader.${resourceType}TagList.${downloadSource}.${selectedTag}`
           )}
           onChange={setSelectedTag}
           defaultValue={"All"}
           options={finalTagList.map((item, key) => (
             <MenuItemOption key={key} value={item} fontSize="xs">
               {t(
-                `DownloadResourceModal.${resourceType}TagList.${downloadSource}.${item}`
+                `ResourceDownloader.${resourceType}TagList.${downloadSource}.${item}`
               )}
             </MenuItemOption>
           ))}
         />
 
-        <ResourceDownloadMenu
-          label={t("DownloadResourceModal.label.gameVer")}
-          displayText={gameVersion}
+        <ResourceDownloaderMenu
+          label={t("ResourceDownloader.label.gameVer")}
+          displayText={
+            gameVersion === "All"
+              ? t("ResourceDownloader.versionList.All")
+              : gameVersion
+          }
           onChange={setGameVersion}
-          defaultValue={""}
+          defaultValue={"All"}
           options={gameVersionList.map((item, key) => (
             <MenuItemOption key={key} value={item} fontSize="xs">
-              {item}
+              {item === "All" ? t("ResourceDownloader.versionList.All") : item}
             </MenuItemOption>
           ))}
           width={20}
         />
 
-        <ResourceDownloadMenu
-          label={t("DownloadResourceModal.label.source")}
+        <ResourceDownloaderMenu
+          label={t("ResourceDownloader.label.source")}
           displayText={downloadSource}
           onChange={onDownloadSourceChange}
           defaultValue={"CurseForge"}
@@ -174,10 +316,10 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           width={28}
         />
 
-        <ResourceDownloadMenu
-          label={t("DownloadResourceModal.label.sortBy")}
+        <ResourceDownloaderMenu
+          label={t("ResourceDownloader.label.sortBy")}
           displayText={t(
-            `DownloadResourceModal.sortByList.${downloadSource}.${sortBy}`
+            `ResourceDownloader.sortByList.${downloadSource}.${sortBy}`
           )}
           onChange={setSortBy}
           defaultValue={
@@ -185,7 +327,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           }
           options={finalSortByList.map((item, key) => (
             <MenuItemOption key={key} value={item} fontSize="xs">
-              {t(`DownloadResourceModal.sortByList.${downloadSource}.${item}`)}
+              {t(`ResourceDownloader.sortByList.${downloadSource}.${item}`)}
             </MenuItemOption>
           ))}
           width={24}
@@ -193,9 +335,9 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
       </HStack>
 
       <HStack gap={3}>
-        <Text whiteSpace="nowrap">{t("DownloadResourceModal.label.name")}</Text>
+        <Text whiteSpace="nowrap">{t("ResourceDownloader.label.name")}</Text>
         <Input
-          placeholder={t("DownloadResourceModal.label.name")}
+          placeholder={t("ResourceDownloader.label.name")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           focusBorderColor={`${primaryColor}.500`}
@@ -208,7 +350,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           onClick={fetchResourceList}
           px={5}
         >
-          {t("DownloadResourceModal.button.search")}
+          {t("ResourceDownloader.button.search")}
         </Button>
       </HStack>
 
@@ -218,7 +360,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
             <BeatLoader size={16} color="gray" />
           </Center>
         ) : (
-          <ResourceDownloadList
+          <ResourceDownloaderList
             list={resourceList}
             hasMore={hasMore}
             loadMore={loadMore}
