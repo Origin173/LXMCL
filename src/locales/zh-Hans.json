@@ -522,6 +522,17 @@
         "content": "确定要删除游戏目录 {{dirName}} 吗？（仅从启动器删除，不会删除实际目录文件）"
       }
     },
+    "gameJava": {
+      "title": "游戏 Java",
+      "settings": {
+        "autoSelect": {
+          "title": "自动选择合适 Java"
+        },
+        "execPath": {
+          "title": "指定 Java 版本"
+        }
+      }
+    },
     "performance": {
       "title": "性能",
       "settings": {

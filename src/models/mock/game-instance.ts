@@ -9,7 +9,7 @@ import {
   WorldInfo,
 } from "@/models/game-instance";
 
-export const mockGameInstanceSummaryList: GameInstanceSummary[] = [
+export const mockGameInstanceList: GameInstanceSummary[] = [
   {
     id: 1,
     uuid: "aaaaaaaa-XXXX-XXXX-XXXX-XXXXXXXXXXXX",

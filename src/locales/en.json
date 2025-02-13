@@ -522,6 +522,17 @@
         "content": "Are you sure you want to delete the game directory {{dirName}} ? (only from the launcher, not the actual directory files)"
       }
     },
+    "gameJava": {
+      "title": "Game Java",
+      "settings": {
+        "autoSelect": {
+          "title": "Automatically Choose Game Java"
+        },
+        "execPath": {
+          "title": "Specify Java Version"
+        }
+      }
+    },
     "performance": {
       "title": "Performance",
       "settings": {
