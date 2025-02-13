@@ -114,25 +114,38 @@
       "header": "Add Player"
     },
     "label": {
-      "playerType": "Player Type",
-      "playerName": "Player Name",
-      "authServer": "Auth Source",
-      "password": "Password"
+      "playerType": "Player Type"
     },
-    "authServer": {
-      "selectSource": "Select Auth Source",
-      "noSource": "No auth source added.",
-      "addSource": "Add one"
+    "offline": {
+      "playerName": {
+        "label": "Player Name",
+        "placeholder": "Player name",
+        "errorMessage": "Can only contain letters, numbers, and underscores, within 16 characters."
+      }
     },
-    "placeholder": {
-      "playerName": "Player Name",
-      "password": "Password"
-    },
-    "errorMessage": {
-      "playerName": "Can only contain letters, numbers, and underscores, within 16 characters."
+    "3rdparty": {
+      "authServer": {
+        "label": "Auth Source",
+        "selectSource": "Select Auth Source",
+        "noSource": "No auth source added.",
+        "addSource": "Add one"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "Email"
+      },
+      "emailOrPlayerName": {
+        "label": "Email or Player Name",
+        "placeholder": "Email or player name"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Password"
+      }
     },
     "button": {
-      "buyMinecraft": "Buy Minecraft"
+      "buyMinecraft": "Buy Minecraft",
+      "loginOAuth": "Login with OAuth"
     }
   },
   "AllGamesPage": {
@@ -307,6 +320,23 @@
           "open": "Open"
         }
       }
+    },
+    "proxy": {
+      "title": "Proxy",
+      "settings": {
+        "enabled": {
+          "title": "Enable Proxy"
+        },
+        "type": {
+          "title": "Proxy Type"
+        },
+        "host": {
+          "title": "Host"
+        },
+        "port": {
+          "title": "Port"
+        }
+      }
     }
   },
   "Editable": {
@@ -366,6 +396,16 @@
       "cyan": "Cyan",
       "purple": "Purple",
       "pink": "Pink"
+    },
+    "ctrlKey": {
+      "linux": "Ctrl",
+      "macos": "Control(⌃)",
+      "windows": "Ctrl"
+    },
+    "metaKey": {
+      "linux": "Meta",
+      "macos": "Command(⌘)",
+      "windows": "Win"
     },
     "playerTypes": {
       "microsoft": "Microsoft",
@@ -427,6 +467,7 @@
     }
   },
   "General": {
+    "add": "Add",
     "cancel": "Cancel",
     "close": "Close",
     "confirm": "Confirm",
@@ -446,6 +487,7 @@
     "enable": "Enable",
     "finish": "Finish",
     "next": "Next",
+    "notice": "Notice",
     "open": "Open",
     "openFolder": "Open Folder",
     "previous": "Previous",
@@ -466,7 +508,11 @@
       "title": "Functionality",
       "settings": {
         "discover": {
-          "title": "Discover Page"
+          "title": "Discover Page",
+          "openNotice": {
+            "part-1": "The 'Search' in the top navigation bar has been replaced with 'Discover'. You can continue using the 'Global Search' through the keyboard shortcut ",
+            "part-2": "."
+          }
         }
       }
     }
@@ -476,8 +522,6 @@
       "title": "Game Directories",
       "settings": {
         "directories": {
-          "title": "Manage Local Game Storage Directories",
-          "add": "Add",
           "special": {
             "CURRENT_DIR": "Current",
             "OFFICIAL_DIR": "Minecraft Launcher"
@@ -487,6 +531,17 @@
       "deleteDialog": {
         "title": "Delete Game Directory",
         "content": "Are you sure you want to delete the game directory {{dirName}} ? (only from the launcher, not the actual directory files)"
+      }
+    },
+    "gameJava": {
+      "title": "Game Java",
+      "settings": {
+        "autoSelect": {
+          "title": "Automatically Choose Game Java"
+        },
+        "execPath": {
+          "title": "Specify Java Version"
+        }
       }
     },
     "performance": {
@@ -554,6 +609,7 @@
       "games": "Games",
       "accounts": "Accounts",
       "discover": "Discover",
+      "search": "Search",
       "settings": "Settings"
     }
   },
@@ -632,6 +688,11 @@
     },
     "serverResPackList": {
       "title": "Server Resource Packs"
+    }
+  },
+  "InstanceScreenshotsPage": {
+    "button": {
+      "details": "Details"
     }
   },
   "InstanceSettingsPage": {
@@ -1100,6 +1161,12 @@
       "play": "Play",
       "pause": "Pause"
     }
+  },
+  "SpotlightSearchModal": {
+    "input": {
+      "placeholder": "Global Search"
+    },
+    "tip": "Search local and online game resources in one place"
   },
   "StarUsModal": {
     "header": {
