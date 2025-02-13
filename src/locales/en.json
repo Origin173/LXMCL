@@ -679,6 +679,11 @@
       "title": "Server Resource Packs"
     }
   },
+  "InstanceScreenshotsPage": {
+    "button": {
+      "details": "Details"
+    }
+  },
   "InstanceSettingsPage": {
     "name": "Instance Name",
     "description": "Instance Description",
@@ -948,11 +953,6 @@
           }
         }
       }
-    }
-  },
-  "InstanceScreenshotsPage": {
-    "button": {
-      "more": "More"
     }
   },
   "SettingsLayout": {

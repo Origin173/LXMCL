@@ -39,12 +39,12 @@ const InstanceScreenshotsPage: React.FC = () => {
         />
         {isHovered && (
           <Tooltip
-            label={t("InstanceScreenshotsPage.button.more")}
+            label={t("InstanceScreenshotsPage.button.details")}
             placement="auto"
           >
             <IconButton
               icon={<LuEllipsis />}
-              aria-label="more"
+              aria-label="detail"
               colorScheme="blackAlpha"
               variant="solid"
               size="xs"

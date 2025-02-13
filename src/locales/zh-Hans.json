@@ -679,6 +679,11 @@
       "title": "服务器资源包"
     }
   },
+  "InstanceScreenshotsPage": {
+    "button": {
+      "details": "详情"
+    }
+  },
   "InstanceSettingsPage": {
     "name": "实例名称",
     "description": "实例描述",
@@ -948,11 +953,6 @@
           }
         }
       }
-    }
-  },
-  "InstanceScreenshotsPage": {
-    "button": {
-      "more": "更多"
     }
   },
   "SettingsLayout": {
