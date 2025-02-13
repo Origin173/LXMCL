@@ -939,6 +939,11 @@
       }
     }
   },
+  "InstanceScreenshotsPage": {
+    "button": {
+      "more": "More"
+    }
+  },
   "SettingsLayout": {
     "settingsDomainList": {
       "global-game": "Game Settings",
