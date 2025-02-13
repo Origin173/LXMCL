@@ -96,7 +96,9 @@ export const Section: React.FC<SectionProps> = ({
             </VStack>
             {titleExtra}
           </HStack>
-          <Box ml="auto">{headExtra}</Box>
+          <Box ml="auto" display="flex">
+            {headExtra}
+          </Box>
         </Flex>
       )}
       {isAccordion ? (
