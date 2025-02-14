@@ -20,6 +20,7 @@ import { useData } from "@/contexts/data";
 import { Player } from "@/models/account";
 import { GameInstanceSummary } from "@/models/game-instance";
 import styles from "@/styles/launch.module.css";
+import { base64ImgSrc } from "@/utils/string";
 
 interface SwitchButtonProps extends IconButtonProps {
   tooltip: string;
@@ -73,7 +74,7 @@ const LaunchPage = () => {
               <Image
                 boxSize="32px"
                 objectFit="cover"
-                src={selectedPlayer.avatarSrc}
+                src={base64ImgSrc(selectedPlayer.avatar)}
                 alt={selectedPlayer.name}
               />
               <VStack spacing={0} align="left" mt={-2}>

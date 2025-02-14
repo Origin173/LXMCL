@@ -886,7 +886,9 @@
         "error": {
           "title": "角色添加失败",
           "description": {
-            "invalid": "无效的角色的类型"
+            "invalid": "无效的角色的类型",
+            "textureError": "角色皮肤获取失败",
+            "authServerError": "登录认证服务器失败"
           }
         }
       },
