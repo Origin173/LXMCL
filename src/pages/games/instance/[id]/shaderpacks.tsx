@@ -37,6 +37,19 @@ const InstanceShaderPacksPage = () => {
     },
   ];
 
+  const shaderItemMenuOperations = (pack: ShaderPacksInfo) => [
+    {
+      label: "",
+      icon: "copyOrMove",
+      onClick: () => {},
+    },
+    {
+      label: "",
+      icon: "revealFile",
+      onClick: () => revealItemInDir(pack.filePath),
+    },
+  ];
+
   return (
     <Section
       title={t("InstanceShaderPacksPage.shaderPackList.title")}
@@ -60,11 +73,17 @@ const InstanceShaderPacksPage = () => {
         <OptionItemGroup
           items={shaderPacks.map((pack) => (
             <OptionItem key={pack.name} title={pack.name}>
-              <CommonIconButton
-                icon="revealFile"
-                onClick={() => revealItemInDir(pack.filePath)}
-                h={18}
-              />
+              <HStack spacing={0}>
+                {shaderItemMenuOperations(pack).map((item, index) => (
+                  <CommonIconButton
+                    key={index}
+                    icon={item.icon}
+                    label={item.label}
+                    onClick={item.onClick}
+                    h={18}
+                  />
+                ))}
+              </HStack>
             </OptionItem>
           ))}
         />

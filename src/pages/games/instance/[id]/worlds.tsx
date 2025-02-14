@@ -75,7 +75,10 @@ const InstanceWorldsPage = () => {
     },
     {
       icon: "refresh",
-      onClick: () => {},
+      onClick: () => {
+        handleRetriveGameServerList(false);
+        handleRetriveGameServerList(true);
+      },
     },
   ];
 

@@ -70,10 +70,10 @@ const InstanceSchematicsPage = () => {
     >
       {schematics.length > 0 ? (
         <OptionItemGroup
-          items={schematics.map((pack) => (
-            <OptionItem key={pack.name} title={pack.name}>
+          items={schematics.map((schem) => (
+            <OptionItem key={schem.name} title={schem.name}>
               <HStack spacing={0}>
-                {schemItemMenuOperations(pack).map((item, index) => (
+                {schemItemMenuOperations(schem).map((item, index) => (
                   <CommonIconButton
                     key={index}
                     icon={item.icon}
