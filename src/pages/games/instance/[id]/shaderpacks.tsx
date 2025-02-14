@@ -1,3 +1,4 @@
+import { HStack } from "@chakra-ui/react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -17,10 +18,43 @@ const InstanceShaderPacksPage = () => {
     setShaderPacks(mockShaderPacks);
   }, []);
 
+  const shaderSecMenuOperations = [
+    {
+      icon: "openFolder",
+      onClick: () => {},
+    },
+    {
+      icon: "add",
+      onClick: () => {},
+    },
+    {
+      icon: "download",
+      onClick: () => {},
+    },
+    {
+      icon: "refresh",
+      onClick: () => {},
+    },
+  ];
+
   return (
     <Section
       title={t("InstanceShaderPacksPage.shaderPackList.title")}
       titleExtra={<CountTag count={shaderPacks.length} />}
+      headExtra={
+        <HStack spacing={2}>
+          {shaderSecMenuOperations.map((btn, index) => (
+            <CommonIconButton
+              key={index}
+              icon={btn.icon}
+              onClick={btn.onClick}
+              size="xs"
+              fontSize="sm"
+              h={21}
+            />
+          ))}
+        </HStack>
+      }
     >
       {shaderPacks.length > 0 ? (
         <OptionItemGroup

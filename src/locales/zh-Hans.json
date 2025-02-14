@@ -483,6 +483,7 @@
       }
     },
     "disable": "禁用",
+    "download": "下载",
     "edit": "编辑",
     "enable": "启用",
     "finish": "完成",
@@ -493,6 +494,7 @@
     "previous": "上一步",
     "refresh": "刷新",
     "revealFile": "在{{opener}}中显示",
+    "search": "搜索",
     "viewOnWiki": "在 Minecraft Wiki 中查看"
   },
   "GeneralSettingsPage": {
@@ -678,7 +680,8 @@
       "title": "模组",
       "menu": {
         "alert": "可能不兼容",
-        "info": "查看信息"
+        "info": "查看信息",
+        "update": "检查更新"
       }
     }
   },

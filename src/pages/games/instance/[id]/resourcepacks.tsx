@@ -1,4 +1,4 @@
-import { Image } from "@chakra-ui/react";
+import { HStack, Image } from "@chakra-ui/react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -30,10 +30,34 @@ const InstanceResourcePacksPage = () => {
     global: {
       data: resourcePacks,
       locale: "resourcePackList",
+      secMenu: [
+        {
+          icon: "openFolder",
+          onClick: () => {},
+        },
+        {
+          icon: "add",
+          onClick: () => {},
+        },
+        {
+          icon: "download",
+          onClick: () => {},
+        },
+        {
+          icon: "refresh",
+          onClick: () => {},
+        },
+      ],
     },
     server: {
       data: serverResPacks,
       locale: "serverResPackList",
+      secMenu: [
+        {
+          icon: "refresh",
+          onClick: () => {},
+        },
+      ],
     },
   };
 
@@ -53,6 +77,20 @@ const InstanceResourcePacksPage = () => {
                 accordionStates.toSpliced(index, 1, isOpen)
               );
             }}
+            headExtra={
+              <HStack spacing={2}>
+                {value.secMenu.map((btn, index) => (
+                  <CommonIconButton
+                    key={index}
+                    icon={btn.icon}
+                    onClick={btn.onClick}
+                    size="xs"
+                    fontSize="sm"
+                    h={21}
+                  />
+                ))}
+              </HStack>
+            }
           >
             {value.data.length > 0 ? (
               <OptionItemGroup

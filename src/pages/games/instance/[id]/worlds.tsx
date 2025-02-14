@@ -1,7 +1,7 @@
 import { Image } from "@chakra-ui/react";
 import { HStack, Tag, TagLabel, Text } from "@chakra-ui/react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuCheck, LuX } from "react-icons/lu";
 import { CommonIconButton } from "@/components/common/common-icon-button";
@@ -11,37 +11,73 @@ import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
+import { useToast } from "@/contexts/toast";
 import { GameServerInfo, WorldInfo } from "@/models/game-instance";
 import { mockWorlds } from "@/models/mock/game-instance";
-import { retriveGameServerList } from "@/services/instance";
+import { InstanceService } from "@/services/instance";
 import { formatRelativeTime } from "@/utils/datetime";
 
 const InstanceWorldsPage = () => {
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
+  const { summary } = useInstanceSharedData();
   const accordionStates = config.states.instanceWorldsPage.accordionStates;
+  const toast = useToast();
+
   const [worlds, setWorlds] = useState<WorldInfo[]>([]);
   const [gameServers, setGameServers] = useState<GameServerInfo[]>([]);
-  const { summary } = useInstanceSharedData();
+
+  const handleRetriveGameServerList = useCallback(
+    (queryOnline: boolean) => {
+      if (summary?.id) {
+        InstanceService.retriveGameServerList(summary.id, queryOnline).then(
+          (response) => {
+            if (response.status === "success") {
+              setGameServers(response.data);
+            } else if (!queryOnline) {
+              toast({
+                title: response.message,
+                description: response.details,
+                status: "error",
+              });
+            }
+          }
+        );
+      }
+    },
+    [toast, summary?.id]
+  );
 
   useEffect(() => {
     setWorlds(mockWorlds);
-
-    (async () => {
-      if (summary?.id) {
-        setGameServers(await retriveGameServerList(summary.id, false)); // without online query, quickly get server list from local servers.dat to render
-        setGameServers(await retriveGameServerList(summary.id, true));
-      }
-    })();
+    handleRetriveGameServerList(false);
+    handleRetriveGameServerList(true);
 
     // refresh every minute to query server info
     const intervalId = setInterval(async () => {
-      if (summary?.id) {
-        setGameServers(await retriveGameServerList(summary.id, true));
-      }
+      handleRetriveGameServerList(true);
     }, 60000);
     return () => clearInterval(intervalId);
-  }, [summary?.id]);
+  }, [summary?.id, handleRetriveGameServerList]);
+
+  const worldSecMenuOperations = [
+    {
+      icon: "openFolder",
+      onClick: () => {},
+    },
+    {
+      icon: "add",
+      onClick: () => {},
+    },
+    {
+      icon: "download",
+      onClick: () => {},
+    },
+    {
+      icon: "refresh",
+      onClick: () => {},
+    },
+  ];
 
   const worldItemMenuOperations = (save: WorldInfo) => [
     {
@@ -69,6 +105,20 @@ const InstanceWorldsPage = () => {
             accordionStates.toSpliced(0, 1, isOpen)
           );
         }}
+        headExtra={
+          <HStack spacing={2}>
+            {worldSecMenuOperations.map((btn, index) => (
+              <CommonIconButton
+                key={index}
+                icon={btn.icon}
+                onClick={btn.onClick}
+                size="xs"
+                fontSize="sm"
+                h={21}
+              />
+            ))}
+          </HStack>
+        }
       >
         {worlds.length > 0 ? (
           <OptionItemGroup
@@ -126,6 +176,15 @@ const InstanceWorldsPage = () => {
             accordionStates.toSpliced(1, 1, isOpen)
           );
         }}
+        headExtra={
+          <CommonIconButton
+            icon="refresh"
+            onClick={() => {}}
+            size="xs"
+            fontSize="sm"
+            h={21}
+          />
+        }
       >
         {gameServers.length > 0 ? (
           <OptionItemGroup

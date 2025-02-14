@@ -20,6 +20,17 @@ const InstanceSchematicsPage = () => {
     setSchematics(mockSchematics);
   }, []);
 
+  const schemSecMenuOperations = [
+    {
+      icon: "openFolder",
+      onClick: () => {},
+    },
+    {
+      icon: "refresh",
+      onClick: () => {},
+    },
+  ];
+
   const schemItemMenuOperations = (schematic: SchematicsInfo) => [
     {
       label: t("InstanceSchematicsPage.schematicList.preview"),
@@ -42,6 +53,20 @@ const InstanceSchematicsPage = () => {
     <Section
       title={t("InstanceSchematicsPage.schematicList.title")}
       titleExtra={<CountTag count={schematics.length} />}
+      headExtra={
+        <HStack spacing={2}>
+          {schemSecMenuOperations.map((btn, index) => (
+            <CommonIconButton
+              key={index}
+              icon={btn.icon}
+              onClick={btn.onClick}
+              size="xs"
+              fontSize="sm"
+              h={21}
+            />
+          ))}
+        </HStack>
+      }
     >
       {schematics.length > 0 ? (
         <OptionItemGroup

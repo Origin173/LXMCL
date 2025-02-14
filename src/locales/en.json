@@ -483,6 +483,7 @@
       }
     },
     "disable": "Disable",
+    "download": "Download",
     "edit": "Edit",
     "enable": "Enable",
     "finish": "Finish",
@@ -493,6 +494,7 @@
     "previous": "Previous",
     "refresh": "Refresh",
     "revealFile": "Reveal in {{opener}}",
+    "search": "Search",
     "viewOnWiki": "View on Minecraft Wiki"
   },
   "GeneralSettingsPage": {
@@ -678,7 +680,8 @@
       "title": "Mods",
       "menu": {
         "alert": "Potentially incompatible",
-        "info": "Mod Info"
+        "info": "Mod Info",
+        "update": "Update"
       }
     }
   },
