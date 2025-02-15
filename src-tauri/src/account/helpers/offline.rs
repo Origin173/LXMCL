@@ -1,7 +1,7 @@
-use super::image::image_to_base64;
 use crate::{
   account::models::{AccountError, PlayerInfo, Texture},
   error::SJMCLResult,
+  utils::image::image_to_base64,
 };
 use rand::seq::IndexedRandom;
 use std::fs;
@@ -18,25 +18,17 @@ pub async fn offline_login(app: AppHandle, username: String) -> SJMCLResult<Play
   let texture_path = app
     .path()
     .resolve(
-      format!("resources/skins/{}.png", texture_role),
+      format!("assets/skins/{}.png", texture_role),
       BaseDirectory::Resource,
     )
-    .map_err(|err| {
-      println!("{}", err);
-      AccountError::TextureError
-    })?;
+    .map_err(|_| AccountError::TextureError)?;
 
   // Read the file as bytes
-  let texture_bytes = fs::read(texture_path).map_err(|err| {
-    println!("{}", err);
-    AccountError::TextureError
-  })?;
+  let texture_bytes = fs::read(texture_path).map_err(|_| AccountError::TextureError)?;
 
   // Load the image from bytes
-  let texture_img = image::load_from_memory(&texture_bytes).map_err(|err| {
-    println!("{}", err);
-    AccountError::TextureError
-  })?;
+  let texture_img =
+    image::load_from_memory(&texture_bytes).map_err(|_| AccountError::TextureError)?;
 
   Ok(PlayerInfo {
     name: username,

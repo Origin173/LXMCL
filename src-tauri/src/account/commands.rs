@@ -1,5 +1,5 @@
 use super::{
-  helpers::{auth_server::fetch_auth_server, offline::offline_login},
+  helpers::{authlib_injector::fetch_auth_server, offline::offline_login},
   models::{AccountError, AccountInfo, AuthServer, Player},
 };
 use crate::{error::SJMCLResult, storage::Storage};

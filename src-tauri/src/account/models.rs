@@ -1,10 +1,8 @@
+use super::helpers::skin::draw_avatar;
+use crate::{storage::Storage, utils::image::base64_to_image};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use uuid::Uuid;
-
-use crate::storage::Storage;
-
-use super::helpers::image::{base64_to_image, draw_avatar};
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -103,7 +101,7 @@ impl Default for AccountInfo {
     AccountInfo {
       players: Vec::new(),
       selected_player_id: String::new(),
-      auth_servers: [
+      auth_servers: vec![
         AuthServer {
           name: "SJMC 用户中心".to_string(),
           auth_url: "https://skin.mc.sjtu.cn/api/yggdrasil".to_string(),
@@ -125,8 +123,7 @@ impl Default for AccountInfo {
             openid_configuration_url: "".to_string(),
           },
         },
-      ]
-      .to_vec(),
+      ],
       client_id: Uuid::new_v4(),
     }
   }

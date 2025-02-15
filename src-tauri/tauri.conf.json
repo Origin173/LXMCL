@@ -49,6 +49,6 @@
         }
       }
     },
-    "resources": ["resources/**/*"]
+    "resources": ["assets/**/*"]
   }
 }

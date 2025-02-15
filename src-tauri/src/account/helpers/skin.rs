@@ -1,9 +1,5 @@
-use crate::account::models::AccountError;
-use crate::error::SJMCLResult;
-use base64::Engine;
-use image::codecs::png::PngEncoder;
-use image::{DynamicImage, ImageBuffer, ImageEncoder, Rgba, RgbaImage};
-use std::io::Cursor;
+use crate::{account::models::AccountError, error::SJMCLResult, utils::image::image_to_base64};
+use image::{DynamicImage, ImageBuffer, Rgba, RgbaImage};
 
 pub fn draw_avatar(size: u32, img: ImageBuffer<Rgba<u8>, Vec<u8>>) -> SJMCLResult<String> {
   let (skin_width, _) = img.dimensions();
@@ -34,7 +30,7 @@ pub fn draw_avatar(size: u32, img: ImageBuffer<Rgba<u8>, Vec<u8>>) -> SJMCLResul
     &mut avatar_img,
   );
 
-  image_to_base64(avatar_img)
+  Ok(image_to_base64(avatar_img).map_err(|_| AccountError::TextureError)?)
 }
 
 fn draw_image_section(
@@ -57,29 +53,4 @@ fn draw_image_section(
       avatar_img.put_pixel(dest_rect[0] + x_offset, dest_rect[1] + y_offset, *pixel);
     }
   }
-}
-
-pub fn image_to_base64(image: ImageBuffer<Rgba<u8>, Vec<u8>>) -> SJMCLResult<String> {
-  let mut buffer = Cursor::new(Vec::new());
-  let encoder = PngEncoder::new(&mut buffer);
-  encoder
-    .write_image(
-      &image.clone().into_raw(),
-      image.width(),
-      image.height(),
-      image::ColorType::Rgba8.into(),
-    )
-    .or(Err(AccountError::TextureError))?;
-
-  Ok(base64::engine::general_purpose::STANDARD.encode(buffer.into_inner()))
-}
-
-pub fn base64_to_image(base64_string: String) -> SJMCLResult<ImageBuffer<Rgba<u8>, Vec<u8>>> {
-  let decoded_bytes = base64::engine::general_purpose::STANDARD
-    .decode(base64_string)
-    .or(Err(AccountError::TextureError))?;
-
-  let image = image::load_from_memory(&decoded_bytes).map_err(|_| AccountError::TextureError)?;
-
-  Ok(image.into_rgba8())
 }
