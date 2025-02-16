@@ -5,6 +5,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Portal,
   Text,
   Tooltip,
   useDisclosure,
@@ -35,7 +36,7 @@ export const GameMenu: React.FC<GameMenuProps> = ({
   } = useDisclosure();
 
   const handleDelete = () => {
-    console.log(`${game.id}`);
+    console.log(`${game.id}`); // TBD
     onDeleteClose();
   };
 
@@ -68,21 +69,23 @@ export const GameMenu: React.FC<GameMenuProps> = ({
             aria-label="operations"
             icon={<LuEllipsis />}
           />
-          <MenuList>
-            {gameMenuOperations.map((item) => (
-              <MenuItem
-                key={item.key}
-                fontSize="xs"
-                color={item.danger ? "red.500" : "inherit"}
-                onClick={item.onClick}
-              >
-                <HStack>
-                  <item.icon />
-                  <Text>{t(`GameMenu.label.${item.key}`)}</Text>
-                </HStack>
-              </MenuItem>
-            ))}
-          </MenuList>
+          <Portal>
+            <MenuList>
+              {gameMenuOperations.map((item) => (
+                <MenuItem
+                  key={item.key}
+                  fontSize="xs"
+                  color={item.danger ? "red.500" : "inherit"}
+                  onClick={item.onClick}
+                >
+                  <HStack>
+                    <item.icon />
+                    <Text>{t(`GameMenu.label.${item.key}`)}</Text>
+                  </HStack>
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Portal>
         </Menu>
       ) : (
         <HStack spacing={0}>

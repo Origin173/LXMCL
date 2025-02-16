@@ -5,6 +5,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Portal,
   Text,
   Tooltip,
   useDisclosure,
@@ -89,21 +90,23 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
             aria-label="operations"
             icon={<LuEllipsis />}
           />
-          <MenuList>
-            {playerMenuOperations.map((item) => (
-              <MenuItem
-                key={item.key}
-                fontSize="xs"
-                color={item.danger ? "red.500" : "inherit"}
-                onClick={item.onClick}
-              >
-                <HStack>
-                  <item.icon />
-                  <Text>{t(`PlayerMenu.label.${item.key}`)}</Text>
-                </HStack>
-              </MenuItem>
-            ))}
-          </MenuList>
+          <Portal>
+            <MenuList>
+              {playerMenuOperations.map((item) => (
+                <MenuItem
+                  key={item.key}
+                  fontSize="xs"
+                  color={item.danger ? "red.500" : "inherit"}
+                  onClick={item.onClick}
+                >
+                  <HStack>
+                    <item.icon />
+                    <Text>{t(`PlayerMenu.label.${item.key}`)}</Text>
+                  </HStack>
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Portal>
         </Menu>
       ) : (
         <HStack spacing={0}>

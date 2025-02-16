@@ -666,6 +666,9 @@
     "selectDirectory": "选择游戏目录"
   },
   "InstanceLayout": {
+    "secMenu": {
+      "exportModPack": "导出为整合包"
+    },
     "instanceTabList": {
       "overview": "概览",
       "worlds": "世界",

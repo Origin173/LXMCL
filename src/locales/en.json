@@ -666,6 +666,9 @@
     "selectDirectory": "Select Game Diretory"
   },
   "InstanceLayout": {
+    "secMenu": {
+      "exportModPack": "Export as Modpack"
+    },
     "instanceTabList": {
       "overview": "Overview",
       "worlds": "Worlds",

@@ -1,6 +1,6 @@
-import { Button, Flex, HStack, Icon, Text, VStack } from "@chakra-ui/react";
+import { Button, HStack, Icon, Text, VStack } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useContext } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { IconType } from "react-icons";
 import {
@@ -14,7 +14,10 @@ import {
   LuSettings,
   LuSquareLibrary,
 } from "react-icons/lu";
+import { LuPackagePlus } from "react-icons/lu";
+import { CommonIconButton } from "@/components/common/common-icon-button";
 import NavMenu from "@/components/common/nav-menu";
+import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import {
   InstanceContextProvider,
@@ -41,6 +44,21 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 
+  const instanceSecMenuOperations = [
+    {
+      icon: LuPackagePlus,
+      label: t("InstanceLayout.secMenu.exportModPack"),
+      danger: false,
+      onClick: () => {},
+    },
+    {
+      icon: "delete",
+      label: t("GameMenu.label.delete"),
+      danger: true,
+      onClick: () => {},
+    },
+  ];
+
   const instanceTabList: { key: string; icon: IconType }[] = [
     { key: "overview", icon: LuHouse },
     { key: "worlds", icon: LuEarth },
@@ -55,50 +73,67 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
   ];
 
   return (
-    <VStack align="strench" h="100%" spacing={4}>
-      <Flex alignItems="flex-start">
-        <Text fontWeight="bold" fontSize="sm">
-          {summary?.name}
-        </Text>
-        <Button
-          leftIcon={<LuPlay />}
+    <Section
+      display="flex"
+      flexDirection="column"
+      height="100%"
+      title={summary?.name}
+      headExtra={
+        <HStack spacing={2}>
+          {instanceSecMenuOperations.map((btn, index) => (
+            <CommonIconButton
+              key={index}
+              icon={btn.icon}
+              label={btn.label}
+              colorScheme={btn.danger ? "red" : "gray"}
+              onClick={btn.onClick}
+              size="xs"
+              fontSize="sm"
+              h={21}
+            />
+          ))}
+          <Button
+            leftIcon={<LuPlay />}
+            size="xs"
+            ml={1}
+            colorScheme={primaryColor}
+            onClick={() => {}} // todo
+          >
+            {t("InstanceLayout.button.launch")}
+          </Button>
+        </HStack>
+      }
+    >
+      <VStack align="strench" h="100%" spacing={4}>
+        <NavMenu
+          flexWrap="wrap"
+          selectedKeys={[router.asPath]}
+          onClick={(value) => router.push(value)}
+          direction="row"
           size="xs"
-          ml="auto"
-          colorScheme={primaryColor}
-          onClick={() => {}} // todo
-        >
-          {t("InstanceLayout.button.launch")}
-        </Button>
-      </Flex>
-      <NavMenu
-        flexWrap="wrap"
-        selectedKeys={[router.asPath]}
-        onClick={(value) => router.push(value)}
-        direction="row"
-        size="xs"
-        spacing={
-          config.general.general.language.startsWith("zh") &&
-          summary?.hasSchemFolder
-            ? "0.05rem"
-            : 1
-        }
-        mt={-1.5}
-        items={instanceTabList.map((item) => ({
-          value: `/games/instance/${router.query.id}/${item.key}`,
-          label: (
-            <HStack spacing={1.5}>
-              <Icon as={item.icon} />
-              <Text fontSize="sm">
-                {t(`InstanceLayout.instanceTabList.${item.key}`)}
-              </Text>
-            </HStack>
-          ),
-        }))}
-      />
-      <VStack overflow="auto" align="strench" spacing={4} flex="1">
-        {children}
+          spacing={
+            config.general.general.language.startsWith("zh") &&
+            summary?.hasSchemFolder
+              ? 0
+              : 1
+          }
+          items={instanceTabList.map((item) => ({
+            value: `/games/instance/${router.query.id}/${item.key}`,
+            label: (
+              <HStack spacing={1.5}>
+                <Icon as={item.icon} />
+                <Text fontSize="sm">
+                  {t(`InstanceLayout.instanceTabList.${item.key}`)}
+                </Text>
+              </HStack>
+            ),
+          }))}
+        />
+        <VStack overflow="auto" align="strench" spacing={4} flex="1">
+          {children}
+        </VStack>
       </VStack>
-    </VStack>
+    </Section>
   );
 };
 
