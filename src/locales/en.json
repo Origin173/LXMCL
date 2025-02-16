@@ -221,7 +221,8 @@
       "externalAPI": "External API",
       "doc": "Documentation",
       "cicd": "CI / CD",
-      "design": "Visual Design"
+      "design": "Visual Design",
+      "mascot": "Team Mascot"
     }
   },
   "CreateInstanceModal": {

@@ -221,7 +221,8 @@
       "externalAPI": "外部服务",
       "doc": "文档",
       "cicd": "CI / CD",
-      "design": "视觉设计"
+      "design": "视觉设计",
+      "mascot": "吉祥物"
     }
   },
   "CreateInstanceModal": {

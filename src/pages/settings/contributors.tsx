@@ -17,15 +17,15 @@ export const CoreContributorsList = [
   },
   {
     username: "SundayChen",
-    contribution: "frontendDev",
-  },
-  {
-    username: "Toolmanp",
-    contribution: "backendDev",
+    contribution: "fullStackDev",
   },
   {
     username: "Reqwey",
     contribution: "fullStackDev",
+  },
+  {
+    username: "Toolmanp",
+    contribution: "backendDev",
   },
   {
     username: "HsxMark",
@@ -33,10 +33,6 @@ export const CoreContributorsList = [
   },
   {
     username: "baiyuansjtu",
-    contribution: "frontendDev",
-  },
-  {
-    username: "KiloxGo",
     contribution: "frontendDev",
   },
   {
@@ -58,6 +54,10 @@ export const CoreContributorsList = [
   {
     username: "pangbo13",
     contribution: "cicd",
+  },
+  {
+    username: "hebingchang",
+    contribution: "mascot",
   },
   {
     username: "Neuteria",
