@@ -10,6 +10,8 @@ mod utils;
 use std::path::PathBuf;
 use std::sync::{LazyLock, Mutex};
 
+use instance::helpers::refresh_and_update_instances;
+use instance::models::Instance;
 use launcher_config::models::LauncherConfig;
 use storage::Storage;
 
@@ -76,6 +78,15 @@ pub async fn run() {
       launcher_config.save().unwrap();
 
       app.manage(Mutex::new(launcher_config));
+
+      let instances: Vec<Instance> = vec![];
+      app.manage(Mutex::new(instances));
+
+      // Refresh all instances
+      let app_handle = app.handle().clone();
+      tauri::async_runtime::spawn(async move {
+        refresh_and_update_instances(&app_handle).await;
+      });
 
       // On platforms other than macOS, set the menu to empty to hide the default menu.
       // On macOS, some shortcuts depend on default menu: https://github.com/tauri-apps/tauri/issues/12458

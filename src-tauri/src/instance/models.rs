@@ -1,4 +1,8 @@
+use std::path::PathBuf;
+
 use serde::{Deserialize, Serialize};
+
+use crate::launcher_config::models::GameConfig;
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -10,4 +14,12 @@ pub struct GameServerInfo {
   pub players_online: usize,
   pub players_max: usize,
   pub online: bool, // if false, it may be offline in the query result or failed in the query.
+}
+
+#[derive(Debug)]
+pub struct Instance {
+  pub id: usize,
+  pub name: String,
+  pub version_path: PathBuf,
+  pub game_config: Option<GameConfig>, // TODO: any sub-config can be None?
 }
