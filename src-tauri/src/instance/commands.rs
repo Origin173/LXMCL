@@ -35,40 +35,26 @@ pub async fn retrive_game_server_list(
   if query_online {
     for server in &mut game_servers {
       let url = format!("https://mc.sjtu.cn/custom/serverlist/?query={}", server.ip);
-      match reqwest::get(&url).await {
-        Ok(response) => {
-          if response.status().is_success() {
-            match response.json::<Value>().await {
-              Ok(data) => {
-                // manually parse the JSON into the required fields
-                if let Some(players) = data["players"].as_object() {
-                  if let Some(online) = players["online"].as_u64() {
-                    server.players_online = online as usize;
-                  }
-                  if let Some(max) = players["max"].as_u64() {
-                    server.players_max = max as usize;
-                  }
-                }
-                if let Some(online) = data["online"].as_bool() {
-                  server.online = online;
-                }
-                if let Some(favicon) = data["favicon"].as_str() {
-                  server.icon_src = favicon.to_string();
-                }
-                server.is_queried = true;
-              }
-              Err(_) => {
-                server.is_queried = false; // JSON parse error
-              }
-            }
-          } else {
-            server.is_queried = false; // request error
-          }
-        }
-        Err(_) => {
-          server.is_queried = false;
-        }
+      server.is_queried = false;
+      let response = match reqwest::get(&url).await {
+        Ok(response) => response,
+        Err(_) => continue, // request error
+      };
+      if !response.status().is_success() {
+        continue; // request error
       }
+      let data = match response.json::<Value>().await {
+        Ok(data) => data,
+        Err(_) => continue, // JSON parse error
+      };
+      // manually parse the JSON into the required fields
+      if let Some(players) = data["players"].as_object() {
+        server.players_online = players["online"].as_u64().unwrap_or(0) as usize;
+        server.players_max = players["max"].as_u64().unwrap_or(0) as usize;
+      }
+      server.online = data["online"].as_bool().unwrap_or(false);
+      server.icon_src = data["favicon"].as_str().unwrap_or("").to_string();
+      server.is_queried = true;
     }
   }
 
