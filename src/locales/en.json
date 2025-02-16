@@ -546,13 +546,25 @@
         }
       }
     },
+    "gameWindow": {
+      "title": "Game Window",
+      "settings": {
+        "resolution": {
+          "title": "Game Resolution",
+          "switch": "Fullscreen"
+        },
+        "customTitle": {
+          "title": "Custom Window Title"
+        },
+        "customInfo": {
+          "title": "Custom Information",
+          "description": "It is displayed in the bottom right corner of the game's main screen and top left corner of the F3 debugging page."
+        }
+      }
+    },
     "performance": {
       "title": "Performance",
       "settings": {
-        "gameWindowResolution": {
-          "title": "Game Window Resolution",
-          "switch": "Fullscreen"
-        },
         "autoMemAllocation": {
           "title": "Allocate Memory Automatically"
         },
@@ -572,19 +584,8 @@
       }
     },
     "versionIsolation": {
-      "title": "Version Isolation",
       "settings": {
-        "enabled": {
-          "title": "Enable Version Isolation"
-        },
-        "isolationStrategy": {
-          "title": "Isolation Strategy",
-          "off": "Off",
-          "full": "Full Isolation",
-          "modable": "Isolate Installable Mod Versions",
-          "informal": "Isolate Informal Versions",
-          "modable-and-informal": "Isolate Mod Versions and Informal Versions"
-        }
+        "title": "Enable Version Isolation"
       }
     },
     "moreOptions": {
@@ -595,6 +596,12 @@
           "start-close": "Close Launcher after Game Starts",
           "running-hidden": "Hide Launcher while Game is Running",
           "always": "Launcher Always Visible"
+        },
+        "autoJoinGameServer": {
+          "title": "Auto Join Game Server"
+        },
+        "serverUrl": {
+          "title": "Server URL"
         },
         "displayGameLog": {
           "title": "Display Game Logs"

@@ -1,4 +1,12 @@
-import { Box, Button, Collapse, HStack, Image, Switch } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Collapse,
+  HStack,
+  Image,
+  Switch,
+  VStack,
+} from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -16,7 +24,10 @@ const InstanceSettingsPage = () => {
   const router = useRouter();
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
+  const { id } = router.query;
+  const instanceId = Array.isArray(id) ? id[0] : id;
   const primaryColor = config.appearance.theme.primaryColor;
+  const globalGameConfigs = config.globalGameConfig;
   const instanceCtx = useContext(InstanceContext);
 
   const [applySettings, setApplySettings] = useState<boolean>(false);
@@ -96,6 +107,18 @@ const InstanceSettingsPage = () => {
                   </Button>
                 ),
               },
+              {
+                title: t(
+                  "GlobalGameSettingsPage.versionIsolation.settings.title"
+                ),
+                children: (
+                  <Switch
+                    colorScheme={primaryColor}
+                    isChecked={globalGameConfigs.versionIsolation}
+                    onChange={(event) => {}} // TBD
+                  />
+                ),
+              },
             ]
           : []),
       ],
@@ -104,9 +127,15 @@ const InstanceSettingsPage = () => {
 
   return (
     <Box height="100%" overflowY="auto">
-      {instanceSpecSettingsGroups.map((group, index) => (
-        <OptionItemGroup title={group.title} items={group.items} key={index} />
-      ))}
+      <VStack overflow="auto" align="strench" spacing={4} flex="1">
+        {instanceSpecSettingsGroups.map((group, index) => (
+          <OptionItemGroup
+            title={group.title}
+            items={group.items}
+            key={index}
+          />
+        ))}
+      </VStack>
       <Box h={4} />
       <Collapse in={applySettings} animateOpacity>
         <GameSettingsGroups instanceId={Number(router.query.id)} />

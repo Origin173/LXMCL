@@ -546,13 +546,25 @@
         }
       }
     },
+    "gameWindow": {
+      "title": "窗口",
+      "settings": {
+        "resolution": {
+          "title": "游戏分辨率",
+          "switch": "全屏"
+        },
+        "customTitle": {
+          "title": "自定义窗口标题"
+        },
+        "customInfo": {
+          "title": "自定义信息",
+          "description": "将显示在游戏主界面右下角，与 F3 调试页面左上角"
+        }
+      }
+    },
     "performance": {
       "title": "性能",
       "settings": {
-        "gameWindowResolution": {
-          "title": "游戏窗口分辨率",
-          "switch": "全屏"
-        },
         "autoMemAllocation": {
           "title": "自动分配内存"
         },
@@ -572,19 +584,8 @@
       }
     },
     "versionIsolation": {
-      "title": "版本隔离",
       "settings": {
-        "enabled": {
-          "title": "启用版本隔离"
-        },
-        "isolationStrategy": {
-          "title": "隔离策略",
-          "off": "关闭",
-          "full": "全部隔离",
-          "modable": "隔离可安装 Mod 版本",
-          "informal": "隔离非正式版",
-          "modable-and-informal": "隔离可安装 Mod 版本与非正式版"
-        }
+        "title": "启用版本隔离"
       }
     },
     "moreOptions": {
@@ -595,6 +596,12 @@
           "start-close": "游戏启动后结束启动器",
           "running-hidden": "游戏运行时隐藏启动器",
           "always": "启动器始终可见"
+        },
+        "autoJoinGameServer": {
+          "title": "自动加入服务器"
+        },
+        "serverUrl": {
+          "title": "服务器地址"
         },
         "displayGameLog": {
           "title": "显示游戏日志"
@@ -702,7 +709,7 @@
     "name": "实例名称",
     "description": "实例描述",
     "icon": "实例图标",
-    "applySettings": "启动特定游戏设置",
+    "applySettings": "启用特定游戏设置",
     "restoreSettings": "重置以下特定设置",
     "restoreSettingsDesc": "将以下特定设置重置为全局游戏设置",
     "restore": "重置",

@@ -3,20 +3,25 @@ export interface GameConfig {
     auto: boolean;
     execPath: string;
   };
-  performance: {
-    gameWindowResolution: {
+  gameServer: {
+    autoJoin: boolean;
+    serverUrl: string;
+  };
+  gameWindow: {
+    resolution: {
       width: number;
       height: number;
       fullscreen: boolean;
     };
+    customTitle: string;
+    customInfo: string;
+  };
+  performance: {
     autoMemAllocation: boolean;
     minMemAllocation: number;
     processPriority: string;
   };
-  versionIsolation: {
-    enabled: boolean;
-    isolationStrategy: string;
-  };
+  versionIsolation: boolean;
   launcherVisibility: string;
   displayGameLog: boolean;
   advancedOptions: {
@@ -102,20 +107,25 @@ export const defaultGameConfig: GameConfig = {
     auto: true,
     execPath: "",
   },
-  performance: {
-    gameWindowResolution: {
+  gameServer: {
+    autoJoin: false,
+    serverUrl: "",
+  },
+  gameWindow: {
+    resolution: {
       width: 1280,
       height: 720,
       fullscreen: false,
     },
+    customTitle: "",
+    customInfo: "",
+  },
+  performance: {
     autoMemAllocation: true,
     minMemAllocation: 1024,
     processPriority: "middle",
   },
-  versionIsolation: {
-    enabled: true,
-    isolationStrategy: "full",
-  },
+  versionIsolation: true,
   launcherVisibility: "start-close",
   displayGameLog: false,
   advancedOptions: {
