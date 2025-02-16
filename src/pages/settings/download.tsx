@@ -21,6 +21,7 @@ import {
 } from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { open as openFolder } from "@tauri-apps/plugin-shell";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuChevronDown, LuChevronUp } from "react-icons/lu";
 import {
@@ -35,6 +36,28 @@ const DownloadSettingsPage = () => {
   const { config, update } = useLauncherConfig();
   const downloadConfigs = config.download;
   const primaryColor = config.appearance.theme.primaryColor;
+
+  const [concurrentCount, setConcurrentCount] = useState<number>(
+    downloadConfigs.transmission.concurrentCount
+  );
+  const [speedLimitValue, setSpeedLimitValue] = useState<number>(
+    downloadConfigs.transmission.speedLimitValue
+  );
+  const [proxyPort, setProxyPort] = useState<number>(
+    downloadConfigs.proxy.port
+  );
+
+  useEffect(() => {
+    update("download.transmission.concurrentCount", concurrentCount);
+  }, [concurrentCount, update]);
+
+  useEffect(() => {
+    update("download.transmission.speedLimitValue", speedLimitValue);
+  }, [speedLimitValue, update]);
+
+  useEffect(() => {
+    update("download.proxy.port", proxyPort);
+  }, [proxyPort, update]);
 
   const sourceStrategyTypes = ["auto", "official", "mirror"];
   const proxyTypeOptions = [
@@ -154,12 +177,9 @@ const DownloadSettingsPage = () => {
                       size="xs"
                       maxW={16}
                       focusBorderColor={`${primaryColor}.500`}
-                      value={downloadConfigs.transmission.concurrentCount}
+                      value={concurrentCount}
                       onChange={(value) => {
-                        update(
-                          "download.transmission.concurrentCount",
-                          Number(value)
-                        );
+                        setConcurrentCount(Number(value));
                       }}
                     >
                       <NumberInputField />
@@ -206,12 +226,9 @@ const DownloadSettingsPage = () => {
                       size="xs"
                       maxW={16}
                       focusBorderColor={`${primaryColor}.500`}
-                      value={downloadConfigs.transmission.speedLimitValue}
+                      value={speedLimitValue}
                       onChange={(value) => {
-                        update(
-                          "download.transmission.speedLimitValue",
-                          Number(value)
-                        );
+                        setSpeedLimitValue(Number(value));
                       }}
                     >
                       {/* no stepper NumberInput, use pr={0} */}
@@ -309,9 +326,9 @@ const DownloadSettingsPage = () => {
                     min={0}
                     max={65535}
                     focusBorderColor={`${primaryColor}.500`}
-                    value={downloadConfigs.proxy.port || 80}
+                    value={proxyPort || 80}
                     onChange={(value) => {
-                      update("download.proxy.port", Number(value));
+                      setProxyPort(Number(value));
                     }}
                   >
                     <NumberInputField pr={0} />

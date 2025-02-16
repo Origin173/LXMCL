@@ -45,6 +45,31 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
 
   const [javaInfos, setJavaInfos] = useState<JavaInfo[]>([]);
 
+  const [gameWindowWidth, setGameWindowWidth] = useState<number>(
+    globalGameConfigs.gameWindow.resolution.width
+  );
+  const [gameWindowHeight, setGameWindowHeight] = useState<number>(
+    globalGameConfigs.gameWindow.resolution.height
+  );
+  const [minMemAllocation, setMinMemAllocation] = useState<number>(
+    globalGameConfigs.performance.minMemAllocation
+  );
+
+  useEffect(() => {
+    if (instanceId) return; // TBD
+    update("globalGameConfig.gameWindow.resolution.width", gameWindowWidth);
+  }, [gameWindowWidth, instanceId, update]);
+
+  useEffect(() => {
+    if (instanceId) return; // TBD
+    update("globalGameConfig.gameWindow.resolution.height", gameWindowHeight);
+  }, [gameWindowHeight, instanceId, update]);
+
+  useEffect(() => {
+    if (instanceId) return; // TBD
+    update("globalGameConfig.performance.minMemAllocation", minMemAllocation);
+  }, [minMemAllocation, instanceId, update]);
+
   const buildJavaMenuLabel = (java: JavaInfo | undefined) => {
     if (!java) return "";
     return `Java ${java.majorVersion}${java.isLts ? " (LTS)" : ""} (${java.execPath})`;
@@ -169,13 +194,9 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                 size="xs"
                 maxW={16}
                 focusBorderColor={`${primaryColor}.500`}
-                value={globalGameConfigs.gameWindow.resolution.width}
+                value={gameWindowWidth}
                 onChange={(value) => {
-                  if (instanceId) return; // TBD
-                  update(
-                    "globalGameConfig.gameWindow.resolution.width",
-                    Number(value)
-                  );
+                  setGameWindowWidth(Number(value));
                 }}
               >
                 {/* no stepper NumberInput, use pr={0} */}
@@ -189,13 +210,9 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                 size="xs"
                 maxW={16}
                 focusBorderColor={`${primaryColor}.500`}
-                value={globalGameConfigs.gameWindow.resolution.height}
+                value={gameWindowHeight}
                 onChange={(value) => {
-                  if (instanceId) return; // TBD
-                  update(
-                    "globalGameConfig.gameWindow.resolution.height",
-                    Number(value)
-                  );
+                  setGameWindowHeight(Number(value));
                 }}
               >
                 <NumberInputField pr={0} />
@@ -320,13 +337,9 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                       size="xs"
                       maxW={16}
                       focusBorderColor={`${primaryColor}.500`}
-                      value={globalGameConfigs.performance.minMemAllocation}
+                      value={minMemAllocation}
                       onChange={(value) => {
-                        if (instanceId) return; // TBD
-                        update(
-                          "globalGameConfig.performance.minMemAllocation",
-                          Number(value)
-                        );
+                        setMinMemAllocation(Number(value));
                       }}
                     >
                       <NumberInputField pr={0} />
