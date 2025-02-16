@@ -46,6 +46,9 @@ const DownloadSettingsPage = () => {
   const [proxyPort, setProxyPort] = useState<number>(
     downloadConfigs.proxy.port
   );
+  const [proxyHost, setProxyHost] = useState<string>(
+    downloadConfigs.proxy.host
+  );
 
   useEffect(() => {
     update("download.transmission.concurrentCount", concurrentCount);
@@ -58,6 +61,10 @@ const DownloadSettingsPage = () => {
   useEffect(() => {
     update("download.proxy.port", proxyPort);
   }, [proxyPort, update]);
+
+  useEffect(() => {
+    update("download.proxy.host", proxyHost);
+  }, [proxyHost, update]);
 
   const sourceStrategyTypes = ["auto", "official", "mirror"];
   const proxyTypeOptions = [
@@ -179,7 +186,9 @@ const DownloadSettingsPage = () => {
                       focusBorderColor={`${primaryColor}.500`}
                       value={concurrentCount}
                       onChange={(value) => {
-                        setConcurrentCount(Number(value));
+                        setConcurrentCount(
+                          Math.max(1, Math.min(Number(value), 128))
+                        );
                       }}
                     >
                       <NumberInputField />
@@ -228,7 +237,9 @@ const DownloadSettingsPage = () => {
                       focusBorderColor={`${primaryColor}.500`}
                       value={speedLimitValue}
                       onChange={(value) => {
-                        setSpeedLimitValue(Number(value));
+                        setSpeedLimitValue(
+                          Math.max(1, Math.min(Number(value), 2 ** 32 - 1))
+                        );
                       }}
                     >
                       {/* no stepper NumberInput, use pr={0} */}
@@ -310,9 +321,9 @@ const DownloadSettingsPage = () => {
                     size="xs"
                     w="107px" // align with the segmented-control above
                     focusBorderColor={`${primaryColor}.500`}
-                    value={downloadConfigs.proxy.host}
+                    value={proxyHost}
                     onChange={(event) => {
-                      update("download.proxy.host", event.target.value);
+                      setProxyHost(event.target.value);
                     }}
                   />
                 ),
@@ -328,7 +339,7 @@ const DownloadSettingsPage = () => {
                     focusBorderColor={`${primaryColor}.500`}
                     value={proxyPort || 80}
                     onChange={(value) => {
-                      setProxyPort(Number(value));
+                      setProxyPort(Math.max(0, Math.min(Number(value), 65535)));
                     }}
                   >
                     <NumberInputField pr={0} />

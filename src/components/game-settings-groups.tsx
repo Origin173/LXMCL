@@ -54,6 +54,15 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
   const [minMemAllocation, setMinMemAllocation] = useState<number>(
     globalGameConfigs.performance.minMemAllocation
   );
+  const [customTitle, setCustomTitle] = useState<string>(
+    globalGameConfigs.gameWindow.customTitle
+  );
+  const [customInfo, setCustomInfo] = useState<string>(
+    globalGameConfigs.gameWindow.customInfo
+  );
+  const [serverUrl, setServerUrl] = useState<string>(
+    globalGameConfigs.gameServer.serverUrl
+  );
 
   useEffect(() => {
     if (instanceId) return; // TBD
@@ -69,6 +78,21 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
     if (instanceId) return; // TBD
     update("globalGameConfig.performance.minMemAllocation", minMemAllocation);
   }, [minMemAllocation, instanceId, update]);
+
+  useEffect(() => {
+    if (instanceId) return; // TBD
+    update("globalGameConfig.gameWindow.customTitle", customTitle);
+  }, [customTitle, instanceId, update]);
+
+  useEffect(() => {
+    if (instanceId) return; // TBD
+    update("globalGameConfig.gameWindow.customInfo", customInfo);
+  }, [customInfo, instanceId, update]);
+
+  useEffect(() => {
+    if (instanceId) return; // TBD
+    update("globalGameConfig.gameServer.serverUrl", serverUrl);
+  }, [serverUrl, instanceId, update]);
 
   const buildJavaMenuLabel = (java: JavaInfo | undefined) => {
     if (!java) return "";
@@ -196,7 +220,9 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                 focusBorderColor={`${primaryColor}.500`}
                 value={gameWindowWidth}
                 onChange={(value) => {
-                  setGameWindowWidth(Number(value));
+                  setGameWindowWidth(
+                    Math.max(400, Math.min(Number(value), 2 ** 32 - 1))
+                  );
                 }}
               >
                 {/* no stepper NumberInput, use pr={0} */}
@@ -212,7 +238,9 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                 focusBorderColor={`${primaryColor}.500`}
                 value={gameWindowHeight}
                 onChange={(value) => {
-                  setGameWindowHeight(Number(value));
+                  setGameWindowHeight(
+                    Math.max(300, Math.min(Number(value), 2 ** 32 - 1))
+                  );
                 }}
               >
                 <NumberInputField pr={0} />
@@ -244,13 +272,9 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
             <Input
               size="xs"
               maxW={32}
-              value={globalGameConfigs.gameWindow.customTitle}
+              value={customTitle}
               onChange={(event) => {
-                if (instanceId) return; // TBD
-                update(
-                  "globalGameConfig.gameWindow.customTitle",
-                  event.target.value
-                );
+                setCustomTitle(event.target.value);
               }}
               focusBorderColor={`${primaryColor}.500`}
             />
@@ -267,13 +291,9 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
             <Input
               size="xs"
               maxW={32}
-              value={globalGameConfigs.gameWindow.customInfo}
+              value={customInfo}
               onChange={(event) => {
-                if (instanceId) return; // TBD
-                update(
-                  "globalGameConfig.gameWindow.customInfo",
-                  event.target.value
-                );
+                setCustomInfo(event.target.value);
               }}
               focusBorderColor={`${primaryColor}.500`}
             />
@@ -339,7 +359,12 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                       focusBorderColor={`${primaryColor}.500`}
                       value={minMemAllocation}
                       onChange={(value) => {
-                        setMinMemAllocation(Number(value));
+                        setMinMemAllocation(
+                          Math.max(
+                            256,
+                            Math.min(Number(value), maxMemCanAllocated || 8192)
+                          )
+                        );
                       }}
                     >
                       <NumberInputField pr={0} />
@@ -468,13 +493,9 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                   <Input
                     size="xs"
                     w={64}
-                    value={globalGameConfigs.gameServer.serverUrl}
+                    value={serverUrl}
                     onChange={(event) => {
-                      if (instanceId) return; // TBD
-                      update(
-                        "globalGameConfig.gameServer.serverUrl",
-                        event.target.value
-                      );
+                      setServerUrl(event.target.value);
                     }}
                     focusBorderColor={`${primaryColor}.500`}
                   />
