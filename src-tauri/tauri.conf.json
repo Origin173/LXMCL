@@ -48,6 +48,7 @@
           "height": 440
         }
       }
-    }
+    },
+    "resources": ["assets/**/*"]
   }
 }

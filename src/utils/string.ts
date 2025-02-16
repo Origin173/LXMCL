@@ -9,3 +9,7 @@ export const extractFileName = (
   const fileName = str.split("/").pop() || "";
   return withExt ? fileName : fileName.split(".").slice(0, -1).join(".");
 };
+
+export const base64ImgSrc = (base64: string): string => {
+  return `data:image/png;base64,${base64}`;
+};

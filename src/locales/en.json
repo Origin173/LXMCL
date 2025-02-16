@@ -1094,7 +1094,9 @@
         "error": {
           "title": "Failed to add player",
           "description": {
-            "invalid": "Invalid player type"
+            "invalid": "Invalid player type",
+            "textureError": "Failed to get player texture",
+            "authServerError": "Failed to get player authentication information"
           }
         }
       },
