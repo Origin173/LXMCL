@@ -54,6 +54,9 @@ impl LauncherConfig {
     for game_dir in &mut self.local_game_directories {
       if game_dir.name == "CURRENT_DIR" {
         game_dir.dir = EXE_DIR.join(".minecraft");
+        if !game_dir.dir.exists() {
+          fs::create_dir(&game_dir.dir)?;
+        }
       }
     }
 
