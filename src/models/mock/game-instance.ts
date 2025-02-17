@@ -1,6 +1,5 @@
 import {
   GameInstanceSummary,
-  GameServerInfo,
   LocalModInfo,
   ResourcePacksInfo,
   SchematicsInfo,
@@ -12,10 +11,10 @@ import {
 export const mockGameInstanceList: GameInstanceSummary[] = [
   {
     id: 1,
-    uuid: "aaaaaaaa-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
     iconSrc: "/images/icons/GrassBlock.png",
     name: "1.20.1 纯净生存整合包",
     version: "1.20.1",
+    versionPath: "",
     modLoader: {
       type: "Fabric",
       version: "0.15.6",
@@ -24,11 +23,11 @@ export const mockGameInstanceList: GameInstanceSummary[] = [
   },
   {
     id: 2,
-    uuid: "00000000-0000-0000-0000-000000000000",
     iconSrc: "/images/icons/Anvil.png",
     name: "Better MC [FORGE]",
     description: "更好的 MC 整合包",
     version: "1.20.1",
+    versionPath: "",
     modLoader: {
       type: "Forge",
       version: "47.2.17",

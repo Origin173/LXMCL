@@ -51,7 +51,7 @@ const GamesView: React.FC<GamesViewProps> = ({
     prefixElement: (
       <HStack spacing={2.5}>
         <Radio
-          value={game.uuid}
+          value={game.id.toString()}
           onClick={() => setSelectedGameInstance(game)}
           colorScheme={primaryColor}
         />
@@ -77,15 +77,15 @@ const GamesView: React.FC<GamesViewProps> = ({
         </Box>
       ),
     },
-    isSelected: selectedGameInstance?.uuid === game.uuid,
-    radioValue: game.uuid,
+    isSelected: selectedGameInstance?.id === game.id,
+    radioValue: game.id.toString(),
     onSelect: () => setSelectedGameInstance(game),
   }));
 
   return (
     <Box {...boxProps}>
       {games.length > 0 ? (
-        <RadioGroup value={selectedGameInstance?.uuid}>
+        <RadioGroup value={selectedGameInstance?.id.toString()}>
           {viewType === "list" ? (
             <OptionItemGroup items={listItems} />
           ) : (

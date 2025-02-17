@@ -1,4 +1,5 @@
 import { Button, HStack, Icon, Text, VStack } from "@chakra-ui/react";
+import { open } from "@tauri-apps/plugin-shell";
 import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -45,6 +46,13 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
   const primaryColor = config.appearance.theme.primaryColor;
 
   const instanceSecMenuOperations = [
+    {
+      icon: "openFolder",
+      danger: false,
+      onclick: () => {
+        open(summary?.versionPath || "");
+      },
+    },
     {
       icon: LuPackagePlus,
       label: t("InstanceLayout.secMenu.exportModPack"),

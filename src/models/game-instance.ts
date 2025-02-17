@@ -2,10 +2,10 @@ import { ModLoaderType } from "@/models/resource";
 
 export interface GameInstanceSummary {
   id: number;
-  uuid: string;
   iconSrc: string;
   name: string;
   description?: string;
+  versionPath: string;
   version: string;
   modLoader: {
     type: ModLoaderType;
