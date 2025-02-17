@@ -7,13 +7,18 @@ import {
   MenuList,
   Portal,
   Text,
-  Tooltip,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { LuEllipsis, LuLayoutList, LuTrash } from "react-icons/lu";
+import {
+  LuEllipsis,
+  LuFolderOpen,
+  LuLayoutList,
+  LuTrash,
+} from "react-icons/lu";
+import { CommonIconButton } from "@/components/common/common-icon-button";
 import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
 import { GameInstanceSummary } from "@/models/game-instance";
 
@@ -42,15 +47,20 @@ export const GameMenu: React.FC<GameMenuProps> = ({
 
   const gameMenuOperations = [
     {
-      key: "details",
+      icon: LuFolderOpen,
+      label: t("General.openFolder"),
+      onClick: () => {}, // TBD
+    },
+    {
       icon: LuLayoutList,
+      label: t("GameMenu.label.details"),
       onClick: () => {
         router.push(`/games/instance/${game.id}`);
       },
     },
     {
-      key: "delete",
       icon: LuTrash,
+      label: t("GameMenu.label.delete"),
       danger: true,
       onClick: () => {
         onDeleteOpen();
@@ -73,14 +83,14 @@ export const GameMenu: React.FC<GameMenuProps> = ({
             <MenuList>
               {gameMenuOperations.map((item) => (
                 <MenuItem
-                  key={item.key}
+                  key={item.label}
                   fontSize="xs"
                   color={item.danger ? "red.500" : "inherit"}
                   onClick={item.onClick}
                 >
                   <HStack>
                     <item.icon />
-                    <Text>{t(`GameMenu.label.${item.key}`)}</Text>
+                    <Text>{item.label}</Text>
                   </HStack>
                 </MenuItem>
               ))}
@@ -90,16 +100,13 @@ export const GameMenu: React.FC<GameMenuProps> = ({
       ) : (
         <HStack spacing={0}>
           {gameMenuOperations.map((item) => (
-            <Tooltip label={t(`GameMenu.label.${item.key}`)} key={item.key}>
-              <IconButton
-                size="sm"
-                aria-label={item.key}
-                icon={<item.icon />}
-                variant="ghost"
-                colorScheme={item.danger ? "red" : "gray"}
-                onClick={item.onClick}
-              />
-            </Tooltip>
+            <CommonIconButton
+              key={item.label}
+              icon={item.icon}
+              label={item.label}
+              colorScheme={item.danger ? "red" : "gray"}
+              onClick={item.onClick}
+            />
           ))}
         </HStack>
       )}
