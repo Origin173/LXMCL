@@ -50,22 +50,6 @@ const DownloadSettingsPage = () => {
     downloadConfigs.proxy.host
   );
 
-  useEffect(() => {
-    update("download.transmission.concurrentCount", concurrentCount);
-  }, [concurrentCount, update]);
-
-  useEffect(() => {
-    update("download.transmission.speedLimitValue", speedLimitValue);
-  }, [speedLimitValue, update]);
-
-  useEffect(() => {
-    update("download.proxy.port", proxyPort);
-  }, [proxyPort, update]);
-
-  useEffect(() => {
-    update("download.proxy.host", proxyHost);
-  }, [proxyHost, update]);
-
   const sourceStrategyTypes = ["auto", "official", "mirror"];
   const proxyTypeOptions = [
     {
@@ -168,9 +152,15 @@ const DownloadSettingsPage = () => {
                       step={1}
                       w={32}
                       colorScheme={primaryColor}
-                      value={downloadConfigs.transmission.concurrentCount}
+                      value={concurrentCount}
                       onChange={(value) => {
-                        update("download.transmission.concurrentCount", value);
+                        setConcurrentCount(value);
+                      }}
+                      onBlur={() => {
+                        update(
+                          "download.transmission.concurrentCount",
+                          concurrentCount
+                        );
                       }}
                     >
                       <SliderTrack>
@@ -186,8 +176,11 @@ const DownloadSettingsPage = () => {
                       focusBorderColor={`${primaryColor}.500`}
                       value={concurrentCount}
                       onChange={(value) => {
+                        setConcurrentCount(Number(value));
+                      }}
+                      onBlur={() => {
                         setConcurrentCount(
-                          Math.max(1, Math.min(Number(value), 128))
+                          Math.max(1, Math.min(concurrentCount, 128))
                         );
                       }}
                     >
@@ -237,8 +230,12 @@ const DownloadSettingsPage = () => {
                       focusBorderColor={`${primaryColor}.500`}
                       value={speedLimitValue}
                       onChange={(value) => {
-                        setSpeedLimitValue(
-                          Math.max(1, Math.min(Number(value), 2 ** 32 - 1))
+                        setSpeedLimitValue(Number(value));
+                      }}
+                      onBlur={() => {
+                        update(
+                          "download.transmission.speedLimitValue",
+                          Math.max(1, Math.min(speedLimitValue, 2 ** 32 - 1))
                         );
                       }}
                     >
@@ -325,6 +322,9 @@ const DownloadSettingsPage = () => {
                     onChange={(event) => {
                       setProxyHost(event.target.value);
                     }}
+                    onBlur={() => {
+                      update("download.proxy.host", proxyHost);
+                    }}
                   />
                 ),
               },
@@ -339,7 +339,13 @@ const DownloadSettingsPage = () => {
                     focusBorderColor={`${primaryColor}.500`}
                     value={proxyPort || 80}
                     onChange={(value) => {
-                      setProxyPort(Math.max(0, Math.min(Number(value), 65535)));
+                      setProxyPort(Number(value));
+                    }}
+                    onBlur={() => {
+                      update(
+                        "download.proxy.port",
+                        Math.max(0, Math.min(proxyPort || 80, 65535))
+                      );
                     }}
                   >
                     <NumberInputField pr={0} />
