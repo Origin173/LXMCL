@@ -12,6 +12,7 @@ import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useToast } from "@/contexts/toast";
+import { InstanceSubdirType } from "@/enums/instance";
 import { GameServerInfo, WorldInfo } from "@/models/game-instance";
 import { mockWorlds } from "@/models/mock/game-instance";
 import { InstanceService } from "@/services/instance";
@@ -20,7 +21,7 @@ import { formatRelativeTime } from "@/utils/datetime";
 const InstanceWorldsPage = () => {
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
-  const { summary } = useInstanceSharedData();
+  const { summary, openSubdir } = useInstanceSharedData();
   const accordionStates = config.states.instanceWorldsPage.accordionStates;
   const toast = useToast();
 
@@ -29,7 +30,7 @@ const InstanceWorldsPage = () => {
 
   const handleRetriveGameServerList = useCallback(
     (queryOnline: boolean) => {
-      if (summary?.id) {
+      if (summary?.id !== undefined) {
         InstanceService.retriveGameServerList(summary.id, queryOnline).then(
           (response) => {
             if (response.status === "success") {
@@ -63,7 +64,9 @@ const InstanceWorldsPage = () => {
   const worldSecMenuOperations = [
     {
       icon: "openFolder",
-      onClick: () => {},
+      onClick: () => {
+        openSubdir(InstanceSubdirType.Saves);
+      },
     },
     {
       icon: "add",

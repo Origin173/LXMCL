@@ -7,16 +7,15 @@ import { Section } from "@/components/common/section";
 import { WrapCardGroup } from "@/components/common/wrap-card";
 import ScreenshotPreviewModal from "@/components/modals/screenshot-preview-modal";
 import { useInstanceSharedData } from "@/contexts/instance";
-import { Screenshot } from "@/models/game-instance";
+import { ScreenshotInfo } from "@/models/game-instance";
 
 const InstanceScreenshotsPage: React.FC = () => {
   const { t } = useTranslation();
 
   const { getScreenshotList } = useInstanceSharedData();
-  const [screenshots, setScreenshots] = useState<Screenshot[]>([]);
-  const [currentScreenshot, setCurrentScreenshot] = useState<Screenshot | null>(
-    null
-  );
+  const [screenshots, setScreenshots] = useState<ScreenshotInfo[]>([]);
+  const [currentScreenshot, setCurrentScreenshot] =
+    useState<ScreenshotInfo | null>(null);
 
   useEffect(() => {
     setScreenshots(getScreenshotList() || []);
@@ -28,7 +27,7 @@ const InstanceScreenshotsPage: React.FC = () => {
     onClose: onScreenshotPreviewModalClose,
   } = useDisclosure();
 
-  const ScreenshotsCard = ({ screenshot }: { screenshot: Screenshot }) => {
+  const ScreenshotsCard = ({ screenshot }: { screenshot: ScreenshotInfo }) => {
     const [isHovered, setIsHovered] = useState(false);
     return (
       <div

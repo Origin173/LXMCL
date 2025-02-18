@@ -1,10 +1,10 @@
 import {
   GameInstanceSummary,
   LocalModInfo,
-  ResourcePacksInfo,
-  SchematicsInfo,
-  Screenshot,
-  ShaderPacksInfo,
+  ResourcePackInfo,
+  SchematicInfo,
+  ScreenshotInfo,
+  ShaderPackInfo,
   WorldInfo,
 } from "@/models/game-instance";
 
@@ -55,7 +55,7 @@ export const mockWorlds: WorldInfo[] = [
   },
 ];
 
-export const mockResourcePacks: ResourcePacksInfo[] = [
+export const mockResourcePacks: ResourcePackInfo[] = [
   {
     name: "Faithful 32x32",
     description: "The go-to 32x resource pack.\n§8November 2024 Pre-release",
@@ -68,21 +68,6 @@ export const mockResourcePacks: ResourcePacksInfo[] = [
     description: "测试空白资源包",
     iconSrc: "",
     filePath: "/.minecraft/resourcepacks",
-  },
-];
-
-export const mockShaderPacks: ShaderPacksInfo[] = [
-  {
-    name: "Kappa_v5.2",
-    filePath: "/.minecraft/shaderpacks",
-  },
-  {
-    name: "rethinking-voxels_r0.1_beta2",
-    filePath: "/.minecraft/shaderpacks",
-  },
-  {
-    name: "§r§lAstra§4§lLex§r§l_By_LexBoosT_§4§lV93.0§r§l",
-    filePath: "/.minecraft/shaderpacks",
   },
 ];
 
@@ -111,7 +96,7 @@ export const mockLocalMods: LocalModInfo[] = [
   },
 ];
 
-export const mockSchematics: SchematicsInfo[] = [
+export const mockSchematics: SchematicInfo[] = [
   {
     name: "TestFile.schematic",
     filePath: "/.minecraft/schematics",

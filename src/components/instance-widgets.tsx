@@ -36,7 +36,7 @@ import { OptionItem } from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { LocalModInfo, WorldInfo } from "@/models/game-instance";
-import { Screenshot } from "@/models/game-instance";
+import { ScreenshotInfo } from "@/models/game-instance";
 import { mockLocalMods, mockWorlds } from "@/models/mock/game-instance";
 import { formatRelativeTime } from "@/utils/datetime";
 
@@ -134,7 +134,7 @@ export const InstanceScreenshotsWidget = () => {
   const { t } = useTranslation();
   const { getScreenshotList } = useInstanceSharedData();
 
-  const [screenshots, setScreenshots] = useState<Screenshot[]>([]);
+  const [screenshots, setScreenshots] = useState<ScreenshotInfo[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {

@@ -1,8 +1,17 @@
-use std::path::PathBuf;
-
-use serde::{Deserialize, Serialize};
-
 use crate::launcher_config::models::GameConfig;
+use serde::{Deserialize, Serialize};
+use std::{fmt, path::PathBuf};
+
+#[derive(Debug, Deserialize, Serialize)]
+pub enum InstanceSubdirType {
+  Assets,
+  Libraries,
+  Mods,
+  ResourcePacks,
+  Saves,
+  Screenshots,
+  ShaderPacks,
+}
 
 structstruck::strike! {
   #[strikethrough[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]]
@@ -37,8 +46,32 @@ pub struct GameServerInfo {
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ShaderPackInfo {
+  pub file_name: String,
+  pub file_path: String,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Screenshot {
   pub file_name: String,
   pub file_path: String,
   pub time: u64,
 }
+
+#[derive(Debug)]
+pub enum InstanceError {
+  SubdirTypeNotFound,
+  ExecOpenDirError,
+}
+
+impl fmt::Display for InstanceError {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match self {
+      InstanceError::SubdirTypeNotFound => write!(f, "SUBDIR_TYPE_NOT_FOUND"),
+      InstanceError::ExecOpenDirError => write!(f, "EXEC_OPEN_DIR_ERROR"),
+    }
+  }
+}
+
+impl std::error::Error for InstanceError {}

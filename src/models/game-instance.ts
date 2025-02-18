@@ -14,12 +14,6 @@ export interface GameInstanceSummary {
   hasSchemFolder: boolean;
 }
 
-export interface Screenshot {
-  fileName: string;
-  filePath: string;
-  time: number; // UNIX timestamp
-}
-
 export interface WorldInfo {
   name: string;
   lastPlayedAt: string;
@@ -50,19 +44,25 @@ export interface LocalModInfo {
   potentialIncompatibility: boolean;
 }
 
-export interface ResourcePacksInfo {
+export interface ResourcePackInfo {
   name: string;
   description?: string;
   iconSrc?: string;
   filePath: string;
 }
 
-export interface SchematicsInfo {
+export interface SchematicInfo {
   name: string;
   filePath: string;
 }
 
-export interface ShaderPacksInfo {
-  name: string;
+export interface ShaderPackInfo {
+  fileName: string;
   filePath: string;
+}
+
+export interface ScreenshotInfo {
+  fileName: string;
+  filePath: string;
+  time: number; // UNIX timestamp
 }

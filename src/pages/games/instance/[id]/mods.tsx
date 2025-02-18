@@ -16,12 +16,13 @@ import { Section } from "@/components/common/section";
 import ModLoaderCards from "@/components/mod-loader-cards";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
+import { InstanceSubdirType } from "@/enums/instance";
 import { LocalModInfo } from "@/models/game-instance";
 import { mockLocalMods } from "@/models/mock/game-instance";
 
 const InstanceModsPage = () => {
   const { t } = useTranslation();
-  const { summary } = useInstanceSharedData();
+  const { summary, openSubdir } = useInstanceSharedData();
   const { config, update } = useLauncherConfig();
   const accordionStates = config.states.instanceModsPage.accordionStates;
 
@@ -35,7 +36,9 @@ const InstanceModsPage = () => {
   const modSecMenuOperations = [
     {
       icon: "openFolder",
-      onClick: () => {},
+      onClick: () => {
+        openSubdir(InstanceSubdirType.Mods);
+      },
     },
     {
       icon: "add",

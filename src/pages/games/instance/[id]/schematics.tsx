@@ -9,11 +9,11 @@ import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
-import { SchematicsInfo } from "@/models/game-instance";
+import { SchematicInfo } from "@/models/game-instance";
 import { mockSchematics } from "@/models/mock/game-instance";
 
 const InstanceSchematicsPage = () => {
-  const [schematics, setSchematics] = useState<SchematicsInfo[]>([]);
+  const [schematics, setSchematics] = useState<SchematicInfo[]>([]);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const InstanceSchematicsPage = () => {
     },
   ];
 
-  const schemItemMenuOperations = (schematic: SchematicsInfo) => [
+  const schemItemMenuOperations = (schematic: SchematicInfo) => [
     {
       label: t("InstanceSchematicsPage.schematicList.preview"),
       icon: LuEye,

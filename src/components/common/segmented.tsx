@@ -44,7 +44,7 @@ const SegmentedControl: React.FC<SegmentedControlProps> = ({
             <Button
               key={item.value}
               size={size == "2xs" ? "xs" : size}
-              {...(size == "2xs" && { h: "1.25rem", w: "1.25rem" })}
+              {...(size == "2xs" && { h: "1.2rem", w: "1.25rem" })}
               colorScheme={colorScheme}
               variant={isSelected ? "outline" : "subtle"}
               bgColor={isSelected ? "white" : `${colorScheme}.100`}

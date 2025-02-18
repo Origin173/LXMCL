@@ -16,12 +16,12 @@ import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import React from "react";
 import { LuCalendarDays } from "react-icons/lu";
 import { CommonIconButton } from "@/components/common/common-icon-button";
-import { Screenshot } from "@/models/game-instance";
+import { ScreenshotInfo } from "@/models/game-instance";
 import { UNIXToDatetime } from "@/utils/datetime";
 import { extractFileName } from "@/utils/string";
 
 interface ScreenshotPreviewModalProps extends Omit<ModalProps, "children"> {
-  screenshot: Screenshot;
+  screenshot: ScreenshotInfo;
 }
 
 const ScreenshotPreviewModal: React.FC<ScreenshotPreviewModalProps> = ({

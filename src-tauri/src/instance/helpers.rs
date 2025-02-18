@@ -1,26 +1,13 @@
+use super::models::{Instance, InstanceSubdirType, ModLoader};
+use crate::launcher_config::models::{GameDirectory, LauncherConfig};
 use std::{fs, path::PathBuf, sync::Mutex};
-
 use tauri::{AppHandle, Manager};
 
-use crate::launcher_config::models::{GameDirectory, LauncherConfig};
-
-use super::models::{Instance, ModLoader};
-
-pub enum DirectoryType {
-  Assets,
-  Libraries,
-  Mods,
-  ResourcePacks,
-  Saves,
-  Screenshots,
-  ShaderPacks,
-}
-
 // if instance_id not exists, return None
-pub fn get_game_directory_path(
+pub fn get_instance_subdir_path(
   app: &AppHandle,
   instance_id: usize,
-  directory_type: &DirectoryType,
+  directory_type: &InstanceSubdirType,
 ) -> Option<PathBuf> {
   let binding = app.state::<Mutex<Vec<Instance>>>();
   let state = binding.lock().unwrap();
@@ -46,7 +33,7 @@ pub fn get_game_directory_path(
   };
 
   let path = match directory_type {
-    DirectoryType::Assets | DirectoryType::Libraries => game_dir, // no version isolation
+    InstanceSubdirType::Assets | InstanceSubdirType::Libraries => game_dir, // no version isolation
     _ => {
       // others
       if version_isolation {
@@ -59,13 +46,13 @@ pub fn get_game_directory_path(
 
   match directory_type {
     // enum to string
-    DirectoryType::Assets => Some(path.join("assets")),
-    DirectoryType::Libraries => Some(path.join("libraries")),
-    DirectoryType::Mods => Some(path.join("mods")),
-    DirectoryType::ResourcePacks => Some(path.join("resourcepacks")),
-    DirectoryType::Saves => Some(path.join("saves")),
-    DirectoryType::Screenshots => Some(path.join("screenshots")),
-    DirectoryType::ShaderPacks => Some(path.join("shaderpacks")),
+    InstanceSubdirType::Assets => Some(path.join("assets")),
+    InstanceSubdirType::Libraries => Some(path.join("libraries")),
+    InstanceSubdirType::Mods => Some(path.join("mods")),
+    InstanceSubdirType::ResourcePacks => Some(path.join("resourcepacks")),
+    InstanceSubdirType::Saves => Some(path.join("saves")),
+    InstanceSubdirType::Screenshots => Some(path.join("screenshots")),
+    InstanceSubdirType::ShaderPacks => Some(path.join("shaderpacks")),
   }
 }
 

@@ -8,13 +8,20 @@ import React, {
 } from "react";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
+import { InstanceSubdirType } from "@/enums/instance";
 import { useGetState } from "@/hooks/get-state";
-import { GameInstanceSummary, Screenshot } from "@/models/game-instance";
+import {
+  GameInstanceSummary,
+  ScreenshotInfo,
+  ShaderPackInfo,
+} from "@/models/game-instance";
 import { InstanceService } from "@/services/instance";
 
 export interface InstanceContextType {
   summary: GameInstanceSummary | undefined;
-  getScreenshotList: (sync?: boolean) => Screenshot[] | undefined;
+  openSubdir: (dirType: InstanceSubdirType) => void;
+  getShaderPackList: (sync?: boolean) => ShaderPackInfo[] | undefined;
+  getScreenshotList: (sync?: boolean) => ScreenshotInfo[] | undefined;
 }
 
 export const InstanceContext = createContext<InstanceContextType | undefined>(
@@ -31,7 +38,8 @@ export const InstanceContextProvider: React.FC<{
   const [instanceSummary, setInstanceSummary] = useState<
     GameInstanceSummary | undefined
   >(undefined);
-  const [screenshots, setScreenshots] = useState<Screenshot[]>();
+  const [shaderPacks, setShaderPacks] = useState<ShaderPackInfo[]>();
+  const [screenshots, setScreenshots] = useState<ScreenshotInfo[]>();
 
   useEffect(() => {
     const gameInstanceList = getGameInstanceList() || [];
@@ -42,6 +50,41 @@ export const InstanceContextProvider: React.FC<{
       );
     }
   }, [router.query.id, getGameInstanceList]);
+
+  const handleOpenInstanceSubdir = useCallback(
+    (dirType: InstanceSubdirType) => {
+      if (instanceSummary?.id !== undefined) {
+        InstanceService.openInstanceSubdir(instanceSummary.id, dirType).then(
+          (response) => {
+            if (response.status !== "success")
+              toast({
+                title: response.message,
+                description: response.details,
+                status: "error",
+              });
+            console.log(response);
+          }
+        );
+      }
+    },
+    [instanceSummary?.id, toast]
+  );
+
+  const handleRetriveShaderPackList = useCallback(() => {
+    if (instanceSummary?.id !== undefined) {
+      InstanceService.retriveShaderPackList(instanceSummary.id).then(
+        (response) => {
+          if (response.status === "success") setShaderPacks(response.data);
+          else
+            toast({
+              title: response.message,
+              description: response.details,
+              status: "error",
+            });
+        }
+      );
+    }
+  }, [instanceSummary?.id, setShaderPacks, toast]);
 
   const handleRetriveScreenshotList = useCallback(() => {
     if (instanceSummary?.id !== undefined) {
@@ -59,6 +102,11 @@ export const InstanceContextProvider: React.FC<{
     }
   }, [instanceSummary?.id, setScreenshots, toast]);
 
+  const getShaderPackList = useGetState(
+    shaderPacks,
+    handleRetriveShaderPackList
+  );
+
   const getScreenshotList = useGetState(
     screenshots,
     handleRetriveScreenshotList
@@ -68,6 +116,8 @@ export const InstanceContextProvider: React.FC<{
     <InstanceContext.Provider
       value={{
         summary: instanceSummary,
+        openSubdir: handleOpenInstanceSubdir,
+        getShaderPackList,
         getScreenshotList,
       }}
     >

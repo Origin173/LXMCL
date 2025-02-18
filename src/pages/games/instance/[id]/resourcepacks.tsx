@@ -8,16 +8,20 @@ import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
-import { ResourcePacksInfo } from "@/models/game-instance";
+import { useInstanceSharedData } from "@/contexts/instance";
+import { InstanceSubdirType } from "@/enums/instance";
+import { ResourcePackInfo } from "@/models/game-instance";
 import { mockResourcePacks } from "@/models/mock/game-instance";
 
 const InstanceResourcePacksPage = () => {
-  const [resourcePacks, setResourcePacks] = useState<ResourcePacksInfo[]>([]);
-  const [serverResPacks, setServerResPacks] = useState<ResourcePacksInfo[]>([]);
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
+  const { openSubdir } = useInstanceSharedData();
   const accordionStates =
     config.states.instanceResourcepackPage.accordionStates;
+
+  const [resourcePacks, setResourcePacks] = useState<ResourcePackInfo[]>([]);
+  const [serverResPacks, setServerResPacks] = useState<ResourcePackInfo[]>([]);
 
   useEffect(() => {
     setResourcePacks(mockResourcePacks);
@@ -33,7 +37,9 @@ const InstanceResourcePacksPage = () => {
       secMenu: [
         {
           icon: "openFolder",
-          onClick: () => {},
+          onClick: () => {
+            openSubdir(InstanceSubdirType.ResourcePacks);
+          },
         },
         {
           icon: "add",
