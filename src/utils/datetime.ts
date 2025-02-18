@@ -15,6 +15,16 @@ export const ISOToDate = (isoString: string): string => {
   return datetime.split(" ")[0];
 };
 
+export const UNIXToDatetime = (unixTimestamp: number): string => {
+  const isoString = new Date(unixTimestamp * 1000).toISOString();
+  return ISOToDatetime(isoString);
+};
+
+export const UNIXToDate = (unixTimestamp: number): string => {
+  const isoString = new Date(unixTimestamp * 1000).toISOString();
+  return ISOToDate(isoString);
+};
+
 export const formatRelativeTime = (
   isoString: string,
   t: (key: string, options?: any) => string

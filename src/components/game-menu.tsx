@@ -9,6 +9,7 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
+import { open } from "@tauri-apps/plugin-shell";
 import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -41,7 +42,6 @@ export const GameMenu: React.FC<GameMenuProps> = ({
   } = useDisclosure();
 
   const handleDelete = () => {
-    console.log(`${game.id}`); // TBD
     onDeleteClose();
   };
 
@@ -49,7 +49,9 @@ export const GameMenu: React.FC<GameMenuProps> = ({
     {
       icon: LuFolderOpen,
       label: t("General.openFolder"),
-      onClick: () => {}, // TBD
+      onClick: () => {
+        open(game.versionPath);
+      },
     },
     {
       icon: LuLayoutList,

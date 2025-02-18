@@ -49,7 +49,7 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
     {
       icon: "openFolder",
       danger: false,
-      onclick: () => {
+      onClick: () => {
         open(summary?.versionPath || "");
       },
     },

@@ -4,7 +4,7 @@ use tauri::{AppHandle, Manager};
 
 use crate::launcher_config::models::{GameDirectory, LauncherConfig};
 
-use super::models::Instance;
+use super::models::{Instance, ModLoader};
 
 pub enum DirectoryType {
   Assets,
@@ -99,7 +99,15 @@ pub async fn refresh_instances(
     instances.push(Instance {
       id: 0, // not decided yet
       name,
+      description: "mock desc".to_string(), // TODO: fix these mock fields
+      icon_src: "/images/icons/GrassBlock.png".to_string(),
+      version: "1.20.1".to_string(), // TODO: may read from name.json["patches"]["version"]?
       version_path,
+      mod_loader: ModLoader {
+        loader_type: "none".to_string(),
+        version: "".to_string(),
+      },
+      has_schem_folder: false, // TODO: if exists schematics folder, return true
       game_config: None,
     });
   }

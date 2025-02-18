@@ -8,7 +8,7 @@ export interface GameInstanceSummary {
   versionPath: string;
   version: string;
   modLoader: {
-    type: ModLoaderType;
+    loaderType: ModLoaderType;
     version?: string;
   };
   hasSchemFolder: boolean;
@@ -17,8 +17,7 @@ export interface GameInstanceSummary {
 export interface Screenshot {
   fileName: string;
   filePath: string;
-  imgSrc: string;
-  time: string;
+  time: number; // UNIX timestamp
 }
 
 export interface WorldInfo {

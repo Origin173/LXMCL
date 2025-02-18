@@ -56,7 +56,9 @@ pub async fn run() {
       account::commands::add_auth_server,
       account::commands::delete_auth_server,
       account::commands::fetch_auth_server_info,
+      instance::commands::retrive_instance_list,
       instance::commands::retrive_game_server_list,
+      instance::commands::retrive_screenshot_list,
       resource::commands::retrive_game_version_list,
       resource::commands::retrive_mod_loader_version_list,
     ])

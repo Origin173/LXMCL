@@ -13,6 +13,7 @@ import {
   Tooltip,
   VStack,
 } from "@chakra-ui/react";
+import { convertFileSrc } from "@tauri-apps/api/core";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -35,11 +36,8 @@ import { OptionItem } from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { LocalModInfo, WorldInfo } from "@/models/game-instance";
-import {
-  mockLocalMods,
-  mockScreenshots,
-  mockWorlds,
-} from "@/models/mock/game-instance";
+import { Screenshot } from "@/models/game-instance";
+import { mockLocalMods, mockWorlds } from "@/models/mock/game-instance";
 import { formatRelativeTime } from "@/utils/datetime";
 
 // All these widgets are used in InstanceContext with WarpCard wrapped.
@@ -110,8 +108,8 @@ export const InstanceBasicInfoWidget = () => {
             className="secondary-text"
           >
             <Text>{summary?.version}</Text>
-            {summary?.modLoader.type && (
-              <Text>{`${summary.modLoader.type} ${summary?.modLoader.version}`}</Text>
+            {summary?.modLoader.loaderType !== "none" && (
+              <Text>{`${summary?.modLoader.loaderType} ${summary?.modLoader.version}`}</Text>
             )}
           </VStack>
         }
@@ -134,28 +132,39 @@ export const InstanceBasicInfoWidget = () => {
 
 export const InstanceScreenshotsWidget = () => {
   const { t } = useTranslation();
+  const { getScreenshotList } = useInstanceSharedData();
+
+  const [screenshots, setScreenshots] = useState<Screenshot[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
+    setScreenshots(getScreenshotList() || []);
+  }, [getScreenshotList]);
+
+  useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % mockScreenshots.length);
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % screenshots.length);
     }, 10000); // carousel (TODO: transition)
     return () => clearInterval(interval);
-  }, []);
+  }, [screenshots]);
 
   return (
     <InstanceWidgetBase title={t("InstanceWidgets.screenshots.title")}>
-      <Image
-        src={mockScreenshots[currentIndex].imgSrc}
-        alt={mockScreenshots[currentIndex].fileName}
-        objectFit="cover"
-        position="absolute"
-        borderRadius="md"
-        w="100%"
-        h="100%"
-        ml={-3}
-        mt={-3}
-      />
+      {screenshots && screenshots.length ? (
+        <Image
+          src={convertFileSrc(screenshots[currentIndex].filePath)}
+          alt={screenshots[currentIndex].fileName}
+          objectFit="cover"
+          position="absolute"
+          borderRadius="md"
+          w="100%"
+          h="100%"
+          ml={-3}
+          mt={-3}
+        />
+      ) : (
+        <Empty withIcon={false} size="sm" />
+      )}
     </InstanceWidgetBase>
   );
 };

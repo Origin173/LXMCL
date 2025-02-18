@@ -115,7 +115,7 @@ const InstanceModsPage = () => {
         }}
       >
         <ModLoaderCards
-          currentType={summary?.modLoader.type || "none"}
+          currentType={summary?.modLoader.loaderType || "none"}
           currentVersion={summary?.modLoader.version}
           displayMode="entry"
         />

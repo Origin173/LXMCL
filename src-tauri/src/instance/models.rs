@@ -4,6 +4,25 @@ use serde::{Deserialize, Serialize};
 
 use crate::launcher_config::models::GameConfig;
 
+structstruck::strike! {
+  #[strikethrough[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]]
+  #[strikethrough[serde(rename_all = "camelCase", deny_unknown_fields)]]
+  pub struct Instance {
+    pub id: usize,
+    pub name: String,
+    pub description: String,
+    pub icon_src: String,
+    pub version: String,
+    pub version_path: PathBuf,
+    pub mod_loader: struct {
+      pub loader_type: String,
+      pub version: String,
+    },
+    pub has_schem_folder: bool,
+    pub game_config: Option<GameConfig>, // TODO: any sub-config can be None?
+  }
+}
+
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct GameServerInfo {
@@ -16,10 +35,10 @@ pub struct GameServerInfo {
   pub online: bool, // if false, it may be offline in the query result or failed in the query.
 }
 
-#[derive(Debug)]
-pub struct Instance {
-  pub id: usize,
-  pub name: String,
-  pub version_path: PathBuf,
-  pub game_config: Option<GameConfig>, // TODO: any sub-config can be None?
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct Screenshot {
+  pub file_name: String,
+  pub file_path: String,
+  pub time: u64,
 }

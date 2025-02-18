@@ -1,7 +1,20 @@
-use super::models::GameServerInfo;
+use super::{
+  helpers::{get_game_directory_path, DirectoryType},
+  models::{GameServerInfo, Instance, Screenshot},
+};
 use crate::error::SJMCLResult;
 use serde_json::Value;
+use std::{fs, path::Path, sync::Mutex, time::SystemTime};
+use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
+
+#[tauri::command]
+pub fn retrive_instance_list(app: AppHandle) -> SJMCLResult<Vec<Instance>> {
+  // TODO: firstly refresh?
+  let binding = app.state::<Mutex<Vec<Instance>>>();
+  let state = binding.lock()?;
+  Ok(state.clone())
+}
 
 #[tauri::command]
 pub async fn retrive_game_server_list(
@@ -59,4 +72,52 @@ pub async fn retrive_game_server_list(
   }
 
   Ok(game_servers)
+}
+
+#[tauri::command]
+pub fn retrive_screenshot_list(app: AppHandle, instance_id: usize) -> SJMCLResult<Vec<Screenshot>> {
+  let screenshots_dir =
+    match get_game_directory_path(&app, instance_id, &DirectoryType::Screenshots) {
+      Some(path) => path,
+      None => return Ok(Vec::new()),
+    };
+
+  if !screenshots_dir.exists() {
+    return Ok(Vec::new());
+  }
+
+  // The default screenshot format in Minecraft is PNG. For broader compatibility, JPG and JPEG formats are also included here.
+  let valid_extensions = ["jpg", "jpeg", "png"];
+
+  let screenshot_list: Vec<Screenshot> = fs::read_dir(screenshots_dir)?
+    .filter_map(|entry| entry.ok())
+    .filter_map(|entry| {
+      let file_name = entry.file_name().into_string().ok()?;
+      let extension = Path::new(&file_name)
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .map(|ext| ext.to_lowercase());
+
+      if extension.is_some() && valid_extensions.contains(&extension.unwrap().as_str()) {
+        let file_path = entry.path().to_string_lossy().to_string();
+
+        let metadata = entry.metadata().ok()?;
+        let modified_time = metadata.modified().ok()?;
+        let timestamp = modified_time
+          .duration_since(SystemTime::UNIX_EPOCH)
+          .ok()?
+          .as_secs();
+
+        Some(Screenshot {
+          file_name,
+          file_path,
+          time: timestamp,
+        })
+      } else {
+        None
+      }
+    })
+    .collect();
+
+  Ok(screenshot_list)
 }
