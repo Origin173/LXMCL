@@ -1,7 +1,8 @@
 use super::{
   helpers::{get_instance_subdir_path, refresh_and_update_instances},
   models::{
-    GameServerInfo, Instance, InstanceError, InstanceSubdirType, Screenshot, ShaderPackInfo,
+    GameServerInfo, Instance, InstanceError, InstanceSubdirType, SchematicInfo, Screenshot,
+    ShaderPackInfo,
   },
 };
 use crate::error::SJMCLResult;
@@ -92,6 +93,48 @@ pub async fn retrive_game_server_list(
   }
 
   Ok(game_servers)
+}
+
+#[tauri::command]
+pub fn retrive_schematic_list(
+  app: AppHandle,
+  instance_id: usize,
+) -> SJMCLResult<Vec<SchematicInfo>> {
+  let schematics_dir =
+    match get_instance_subdir_path(&app, instance_id, &InstanceSubdirType::Schematics) {
+      Some(path) => path,
+      None => return Ok(Vec::new()),
+    };
+
+  if !schematics_dir.exists() {
+    return Ok(Vec::new());
+  }
+
+  let valid_extensions = ["litematic", "schematic"];
+
+  let schematic_list: Vec<SchematicInfo> = fs::read_dir(schematics_dir)?
+    .filter_map(|entry| entry.ok())
+    .filter_map(|entry| {
+      let file_name = entry.file_name().into_string().ok()?;
+      let extension = Path::new(&file_name)
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .map(|ext| ext.to_lowercase());
+
+      if extension.is_some() && valid_extensions.contains(&extension.unwrap().as_str()) {
+        let file_path = entry.path().to_string_lossy().to_string();
+
+        Some(SchematicInfo {
+          name: file_name,
+          file_path,
+        })
+      } else {
+        None
+      }
+    })
+    .collect();
+
+  Ok(schematic_list)
 }
 
 #[tauri::command]

@@ -9,6 +9,7 @@ pub enum InstanceSubdirType {
   Mods,
   ResourcePacks,
   Saves,
+  Schematics,
   Screenshots,
   ShaderPacks,
 }
@@ -42,6 +43,13 @@ pub struct GameServerInfo {
   pub players_online: usize,
   pub players_max: usize,
   pub online: bool, // if false, it may be offline in the query result or failed in the query.
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct SchematicInfo {
+  pub name: String,
+  pub file_path: String,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]

@@ -3,6 +3,7 @@ import { InstanceSubdirType } from "@/enums/instance";
 import {
   GameInstanceSummary,
   GameServerInfo,
+  SchematicInfo,
   ScreenshotInfo,
   ShaderPackInfo,
 } from "@/models/game-instance";
@@ -57,6 +58,20 @@ export class InstanceService {
     return await invoke("retrive_game_server_list", {
       instanceId,
       queryOnline,
+    });
+  }
+
+  /**
+   * RETRIVE the list of schematics.
+   * @param {number} instanceId - The instance ID to retrive the schematics for.
+   * @returns {Promise<InvokeResponse<SchematicInfo[]>>}
+   */
+  @responseHandler("instance", errorToLocaleKey)
+  static async retriveSchematicList(
+    instanceId: number
+  ): Promise<InvokeResponse<SchematicInfo[]>> {
+    return await invoke("retrive_schematic_list", {
+      instanceId,
     });
   }
 
