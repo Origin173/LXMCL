@@ -3,6 +3,7 @@ import { InstanceSubdirType } from "@/enums/instance";
 import {
   GameInstanceSummary,
   GameServerInfo,
+  ResourcePackInfo,
   SchematicInfo,
   ScreenshotInfo,
   ShaderPackInfo,
@@ -61,6 +62,20 @@ export class InstanceService {
     });
   }
 
+  /**
+   * RETRIVE the list of resource packs.
+   * @param {number} instanceId - The instance ID to retrive the resource packs for.
+   * @returns {Promise<InvokeResponse<ResourcePackInfo[]>>}
+   */
+  @responseHandler("instance", errorToLocaleKey)
+  static async retriveResourcePackList(
+    instanceId: number
+  ): Promise<InvokeResponse<ResourcePackInfo[]>> {
+    return await invoke("retrive_resource_pack_list", {
+      instanceId,
+    });
+  }
+  
   /**
    * RETRIVE the list of schematics.
    * @param {number} instanceId - The instance ID to retrive the schematics for.
