@@ -8,7 +8,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Editable from "@/components/common/editable";
 import {
@@ -18,17 +18,18 @@ import {
 import { GameIconSelectorPopover } from "@/components/game-icon-selector";
 import GameSettingsGroups from "@/components/game-settings-groups";
 import { useLauncherConfig } from "@/contexts/config";
-import { InstanceContext } from "@/contexts/instance";
+import { useInstanceSharedData } from "@/contexts/instance";
 
 const InstanceSettingsPage = () => {
   const router = useRouter();
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
-  const { id } = router.query;
-  const instanceId = Array.isArray(id) ? id[0] : id;
   const primaryColor = config.appearance.theme.primaryColor;
   const globalGameConfigs = config.globalGameConfig;
-  const instanceCtx = useContext(InstanceContext);
+  const { summary } = useInstanceSharedData();
+
+  const { id } = router.query;
+  const instanceId = Array.isArray(id) ? id[0] : id;
 
   const [applySettings, setApplySettings] = useState<boolean>(false);
 
@@ -40,7 +41,7 @@ const InstanceSettingsPage = () => {
           children: (
             <Editable // TBD
               isTextArea={false}
-              value={instanceCtx.summary?.name || ""}
+              value={summary?.name || ""}
               onEditSubmit={(value) => {}}
               textProps={{ className: "secondary-text", fontSize: "xs-sm" }}
               inputProps={{ fontSize: "xs-sm" }}
@@ -55,7 +56,7 @@ const InstanceSettingsPage = () => {
           children: (
             <Editable // TBD
               isTextArea={true}
-              value={instanceCtx.summary?.description || ""}
+              value={summary?.description || ""}
               onEditSubmit={(value) => {}}
               textProps={{ className: "secondary-text", fontSize: "xs-sm" }}
               inputProps={{ fontSize: "xs-sm" }}
@@ -67,13 +68,13 @@ const InstanceSettingsPage = () => {
           children: (
             <HStack>
               <Image
-                src={instanceCtx.summary?.iconSrc}
-                alt={instanceCtx.summary?.iconSrc}
+                src={summary?.iconSrc}
+                alt={summary?.iconSrc}
                 boxSize="28px"
                 objectFit="cover"
               />
               <GameIconSelectorPopover // TBD
-                value={instanceCtx.summary?.iconSrc}
+                value={summary?.iconSrc}
                 onIconSelect={(value) => {}}
               />
             </HStack>
