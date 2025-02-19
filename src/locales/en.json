@@ -1025,6 +1025,11 @@
     "title": "Restore Launcher Settings",
     "body": "This action will restore all launcher settings to their default values. Are you sure you want to proceed?"
   },
+  "ScreenshotPreviewModal": {
+    "menu": {
+      "setAsBg": "Set as Launcher Background"
+    }
+  },
   "Services": {
     "config": {
       "retriveLauncherConfig": {

@@ -1025,6 +1025,11 @@
     "title": "还原启动器设置",
     "body": "此操作将会还原启动器的所有设置为默认值，您确定要继续吗？"
   },
+  "ScreenshotPreviewModal": {
+    "menu": {
+      "setAsBg": "设置为启动器背景"
+    }
+  },
   "Services": {
     "config": {
       "retriveLauncherConfig": {
