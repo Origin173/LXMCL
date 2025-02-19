@@ -1,26 +1,33 @@
 import { IconButton, Image, Tooltip, useDisclosure } from "@chakra-ui/react";
-import { open } from "@tauri-apps/plugin-shell";
-import { useState } from "react";
+import { convertFileSrc } from "@tauri-apps/api/core";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuEllipsis } from "react-icons/lu";
 import { Section } from "@/components/common/section";
 import { WrapCardGroup } from "@/components/common/wrap-card";
 import ScreenshotPreviewModal from "@/components/modals/screenshot-preview-modal";
-import { Screenshot } from "@/models/game-instance";
-import { mockScreenshots } from "@/models/mock/game-instance";
+import { useInstanceSharedData } from "@/contexts/instance";
+import { ScreenshotInfo } from "@/models/game-instance";
 
 const InstanceScreenshotsPage: React.FC = () => {
   const { t } = useTranslation();
+
+  const { getScreenshotList } = useInstanceSharedData();
+  const [screenshots, setScreenshots] = useState<ScreenshotInfo[]>([]);
+  const [currentScreenshot, setCurrentScreenshot] =
+    useState<ScreenshotInfo | null>(null);
+
+  useEffect(() => {
+    setScreenshots(getScreenshotList() || []);
+  }, [getScreenshotList]);
 
   const {
     isOpen: isScreenshotPreviewModalOpen,
     onOpen: onScreenshotPreviewModalOpen,
     onClose: onScreenshotPreviewModalClose,
   } = useDisclosure();
-  const [currentScreenshot, setCurrentScreenshot] = useState<Screenshot | null>(
-    null
-  );
-  const ScreenshotsCard = ({ screenshot }: { screenshot: Screenshot }) => {
+
+  const ScreenshotsCard = ({ screenshot }: { screenshot: ScreenshotInfo }) => {
     const [isHovered, setIsHovered] = useState(false);
     return (
       <div
@@ -29,7 +36,7 @@ const InstanceScreenshotsPage: React.FC = () => {
         style={{ width: "100%", height: "100%" }}
       >
         <Image
-          src={screenshot.imgSrc}
+          src={convertFileSrc(screenshot.filePath)}
           alt={screenshot.fileName}
           objectFit="cover"
           w="100%"
@@ -66,7 +73,7 @@ const InstanceScreenshotsPage: React.FC = () => {
     <Section>
       <WrapCardGroup
         cardAspectRatio={16 / 9}
-        items={mockScreenshots.map((screenshot) => ({
+        items={screenshots.map((screenshot) => ({
           cardContent: <ScreenshotsCard screenshot={screenshot} />,
           p: 0,
         }))}

@@ -8,26 +8,19 @@ export interface GameInstanceSummary {
   versionPath: string;
   version: string;
   modLoader: {
-    type: ModLoaderType;
+    loaderType: ModLoaderType;
     version?: string;
   };
   hasSchemFolder: boolean;
 }
 
-export interface Screenshot {
-  fileName: string;
-  filePath: string;
-  imgSrc: string;
-  time: string;
-}
-
 export interface WorldInfo {
   name: string;
-  lastPlayedAt: string;
+  lastPlayedAt: number;
   difficulty: string;
   gamemode: string;
   iconSrc: string;
-  filePath: string;
+  dirPath: string;
 }
 
 export interface GameServerInfo {
@@ -51,19 +44,25 @@ export interface LocalModInfo {
   potentialIncompatibility: boolean;
 }
 
-export interface ResourcePacksInfo {
+export interface ResourcePackInfo {
   name: string;
   description?: string;
   iconSrc?: string;
   filePath: string;
 }
 
-export interface SchematicsInfo {
+export interface SchematicInfo {
   name: string;
   filePath: string;
 }
 
-export interface ShaderPacksInfo {
-  name: string;
+export interface ShaderPackInfo {
+  fileName: string;
   filePath: string;
+}
+
+export interface ScreenshotInfo {
+  fileName: string;
+  filePath: string;
+  time: number; // UNIX timestamp
 }

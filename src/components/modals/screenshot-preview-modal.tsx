@@ -11,15 +11,17 @@ import {
   ModalProps,
   Text,
 } from "@chakra-ui/react";
+import { convertFileSrc } from "@tauri-apps/api/core";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import React from "react";
 import { LuCalendarDays } from "react-icons/lu";
 import { CommonIconButton } from "@/components/common/common-icon-button";
-import { Screenshot } from "@/models/game-instance";
-import { ISOToDatetime } from "@/utils/datetime";
+import { ScreenshotInfo } from "@/models/game-instance";
+import { UNIXToDatetime } from "@/utils/datetime";
+import { extractFileName } from "@/utils/string";
 
 interface ScreenshotPreviewModalProps extends Omit<ModalProps, "children"> {
-  screenshot: Screenshot;
+  screenshot: ScreenshotInfo;
 }
 
 const ScreenshotPreviewModal: React.FC<ScreenshotPreviewModalProps> = ({
@@ -27,11 +29,11 @@ const ScreenshotPreviewModal: React.FC<ScreenshotPreviewModalProps> = ({
   ...props
 }) => {
   return (
-    <Modal {...props}>
+    <Modal size={{ base: "lg", lg: "2xl", xl: "4xl" }} {...props}>
       <ModalOverlay />
       <ModalContent>
         <Image
-          src={screenshot.imgSrc}
+          src={convertFileSrc(screenshot.filePath)}
           alt={screenshot.fileName}
           borderRadius="md"
           objectFit="cover"
@@ -40,12 +42,12 @@ const ScreenshotPreviewModal: React.FC<ScreenshotPreviewModalProps> = ({
         <ModalBody>
           <Flex justify="space-between" align="center" mt={-1}>
             <Text fontSize="sm" fontWeight="bold">
-              {screenshot.fileName}
+              {extractFileName(screenshot.fileName)}
             </Text>
             <HStack spacing={2}>
               <Icon as={LuCalendarDays} color="gray.500" />
               <Text fontSize="xs" className="secondary-text">
-                {ISOToDatetime(screenshot.time)}
+                {UNIXToDatetime(screenshot.time)}
               </Text>
               <CommonIconButton
                 icon="revealFile"

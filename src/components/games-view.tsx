@@ -38,10 +38,10 @@ const GamesView: React.FC<GamesViewProps> = ({
   }, [getSelectedGameInstance]);
 
   const generateDesc = (game: GameInstanceSummary) => {
-    if (game.modLoader.type === "none") {
+    if (game.modLoader.loaderType === "none") {
       return game.version;
     }
-    return `${game.version}, ${game.modLoader.type} ${game.modLoader.version}`;
+    return `${game.version}, ${game.modLoader.loaderType} ${game.modLoader.version}`;
   };
 
   const listItems = games.map((game) => ({
