@@ -1,3 +1,3 @@
 pub mod image;
-pub mod path_util;
+pub mod path;
 pub mod sys_info;

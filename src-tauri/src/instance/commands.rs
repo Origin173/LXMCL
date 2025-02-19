@@ -1,36 +1,31 @@
 use super::{
-  super::utils::{
-    image::image_to_base64,
-    path_util::{get_files_with_regex, get_subdirectories},
+  super::utils::path::{get_files_with_regex, get_subdirectories},
+  helpers::{
+    get_instance_subdir_path, get_resource_pack_info_from_zip, refresh_and_update_instances,
   },
-  helpers::{get_instance_subdir_path, refresh_and_update_instances},
   models::{
     GameServerInfo, Instance, InstanceError, InstanceSubdirType, ResourcePackInfo, SchematicInfo,
     ScreenshotInfo, ShaderPackInfo, WorldInfo,
   },
 };
-use crate::error::{SJMCLError, SJMCLResult};
-use image::ImageReader;
+use crate::error::SJMCLResult;
 use quartz_nbt::NbtCompound;
 use quartz_nbt::{
   io::{read_nbt, Flavor},
   NbtList,
 };
-use regex::{Regex, RegexBuilder};
+use regex::RegexBuilder;
 use serde_json::Value;
 use std::{
-  ffi::OsStr,
-  fmt::format,
-  fs::{self, File},
+  fs::File,
   io::{Cursor, Read},
-  path::{Path, PathBuf},
   sync::Mutex,
   time::SystemTime,
 };
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 use tauri_plugin_shell::ShellExt;
-use zip::read::ZipArchive;
+
 #[tauri::command]
 pub async fn retrive_instance_list(app: AppHandle) -> SJMCLResult<Vec<Instance>> {
   refresh_and_update_instances(&app).await; // firstly refresh and update
@@ -147,11 +142,10 @@ pub async fn retrive_game_server_list(
 ) -> SJMCLResult<Vec<GameServerInfo>> {
   // query_online is false, return local data from nbt (servers.dat)
   let mut game_servers: Vec<GameServerInfo> = Vec::new();
-  let game_root_dir =
-    match get_instance_subdir_path(&app, instance_id, &InstanceSubdirType::GameRoot) {
-      Some(path) => path,
-      None => return Ok(Vec::new()),
-    };
+  let game_root_dir = match get_instance_subdir_path(&app, instance_id, &InstanceSubdirType::Root) {
+    Some(path) => path,
+    None => return Ok(Vec::new()),
+  };
 
   let nbt_path = game_root_dir.join("servers.dat");
   let mut nbt_file = match File::open(&nbt_path) {
@@ -227,86 +221,6 @@ pub async fn retrive_game_server_list(
   Ok(game_servers)
 }
 
-fn load_resource_packs_from_dir(
-  resource_packs_dir: &PathBuf,
-) -> SJMCLResult<Vec<ResourcePackInfo>> {
-  let valid_extensions = RegexBuilder::new(r"\.zip$")
-    .case_insensitive(true)
-    .build()
-    .unwrap();
-  let mut info_list: Vec<ResourcePackInfo> = Vec::new();
-
-  // TODO: async read files
-  for path in get_files_with_regex(resource_packs_dir, &valid_extensions)? {
-    let name = if let Some(file_stem_osstr) = path.file_stem() {
-      if let Some(file_stem) = file_stem_osstr.to_str() {
-        file_stem.to_owned() // Convert &str to String
-      } else {
-        String::new() // Handle case where filename is not valid UTF-8
-      }
-    } else {
-      String::new() // Handle case where there is no file stem
-    };
-
-    let file = fs::File::open(&path)?;
-    let mut zip = ZipArchive::new(file)?;
-    let mut description = String::new();
-    let mut icon_src = None;
-
-    if let Ok(mut file) = zip.by_name("pack.mcmeta") {
-      let mut contents = String::new();
-      if let Err(err) = file.read_to_string(&mut contents) {
-        #[cfg(debug_assertions)]
-        println!("read to string error: {}", err.to_string());
-      } else {
-        // Check for and remove the UTF-8 BOM if present
-        if contents.starts_with('\u{FEFF}') {
-          contents = contents.strip_prefix('\u{FEFF}').unwrap().to_string();
-        }
-        let json_result = serde_json::from_str::<Value>(&contents);
-        if json_result.is_ok() {
-          // Safely extract `description`
-          if let Some(pack_data) = json_result.ok().unwrap().get("pack") {
-            if let Some(desc) = pack_data.get("description") {
-              // Assume `desc` is a valid JSON object or primitive
-              if let Some(desc_str) = desc.as_str() {
-                description = desc_str.to_string(); // Assigns the description to your variable
-              } else {
-                #[cfg(debug_assertions)]
-                println!("Description is not a string");
-              }
-            }
-          }
-        } else {
-          #[cfg(debug_assertions)]
-          println!(
-            "json parse error: {}",
-            json_result.err().unwrap().to_string()
-          );
-        }
-      }
-    }
-
-    if let Ok(mut file) = zip.by_name("pack.png") {
-      let mut buffer = Vec::new();
-      file.read_to_end(&mut buffer)?;
-      // Use `image` crate to decode the image
-      let img = ImageReader::new(Cursor::new(buffer))
-        .with_guessed_format()?
-        .decode()?;
-      if let Ok(b64) = image_to_base64(img.to_rgba8()) {
-        icon_src = Some(b64);
-      }
-    }
-    info_list.push(ResourcePackInfo {
-      name,
-      description,
-      icon_src,
-      file_path: path,
-    });
-  }
-  Ok(info_list)
-}
 #[tauri::command]
 pub async fn retrive_resource_pack_list(
   app: AppHandle,
@@ -318,7 +232,7 @@ pub async fn retrive_resource_pack_list(
       Some(path) => path,
       None => return Ok(Vec::new()),
     };
-  load_resource_packs_from_dir(&resource_packs_dir)
+  get_resource_pack_info_from_zip(&resource_packs_dir)
 }
 
 #[tauri::command]
@@ -331,7 +245,7 @@ pub async fn retrive_server_resource_pack_list(
       Some(path) => path,
       None => return Ok(Vec::new()),
     };
-  load_resource_packs_from_dir(&resource_packs_dir)
+  get_resource_pack_info_from_zip(&resource_packs_dir)
 }
 
 #[tauri::command]

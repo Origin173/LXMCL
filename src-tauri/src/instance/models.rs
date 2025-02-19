@@ -1,10 +1,6 @@
 use crate::launcher_config::models::GameConfig;
 use serde::{Deserialize, Serialize};
-use std::{
-  ffi::{OsStr, OsString},
-  fmt::{self, write},
-  path::PathBuf,
-};
+use std::{fmt, path::PathBuf};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum InstanceSubdirType {
@@ -12,12 +8,12 @@ pub enum InstanceSubdirType {
   Libraries,
   Mods,
   ResourcePacks,
-  ServerResourcePacks,
+  Root,
   Saves,
   Schematics,
   Screenshots,
+  ServerResourcePacks,
   ShaderPacks,
-  GameRoot,
 }
 
 structstruck::strike! {
