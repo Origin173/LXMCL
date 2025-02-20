@@ -279,6 +279,11 @@
   "DownloadFloatButton": {
     "tooltip": "Downloading"
   },
+  "DownloadModpackModal": {
+    "header": {
+      "title": "Download Modpack"
+    }
+  },
   "DownloadResourceModal": {
     "header": {
       "title": "Download Resource"
@@ -1005,6 +1010,41 @@
         "PBR": "PBR",
         "Reflections": "Reflections",
         "Shadows": "Shadows"
+      }
+    },
+    "modpackTagList": {
+      "CurseForge": {
+        "All": "All",
+        "Adventure and RPG": "Adventure RPG",
+        "Combat / PvP": "Combat PvP",
+        "Exploration": "Exploration",
+        "Extra Large": "Extra Large",
+        "FTB Official Pack": "FTB",
+        "Hardcore": "Hardcore",
+        "Horror": "Horror",
+        "Magic": "Magic",
+        "Map Based": "Map Based",
+        "Mini Game": "Mini Game",
+        "Multiplayer": "Multiplayer",
+        "Quests": "Quests",
+        "Sci-Fi": "Sci-Fi",
+        "Skyblock": "Skyblock",
+        "Small / Light": "Small Light",
+        "Tech": "Tech",
+        "Vanilla+": "Vanilla+"
+      },
+      "Modrinth": {
+        "All": "All",
+        "Adventure": "Adventure",
+        "Challenging": "Challenging",
+        "Combat": "Combat",
+        "Kitchen Sink": "Kitchen Sink",
+        "Lightweight": "Lightweight",
+        "Magic": "Magic",
+        "Multiplayer": "Multiplayer",
+        "Optimization": "Optimization",
+        "Quests": "Quests",
+        "Technology": "Technology"
       }
     },
     "sortByList": {
