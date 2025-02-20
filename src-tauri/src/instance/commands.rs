@@ -1,9 +1,13 @@
 use super::{
-  super::utils::path::{get_files_with_regex, get_subdirectories},
+  super::utils::{
+    nbt::load_nbt,
+    path::{get_files_with_regex, get_subdirectories},
+  },
   helpers::{
     misc::{fetch_url, get_instance_subdir_path, refresh_and_update_instances},
-    nbtio::{load_nbt, nbt_to_servers_info, nbt_to_world_info},
     resourcepack::{load_resourcepack_from_dir, load_resourcepack_from_zip},
+    server::nbt_to_servers_info,
+    world::nbt_to_world_info,
   },
   models::{
     GameServerInfo, Instance, InstanceError, InstanceSubdirType, ResourcePackInfo, SchematicInfo,

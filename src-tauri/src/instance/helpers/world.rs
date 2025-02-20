@@ -1,24 +1,5 @@
 use crate::error::{SJMCLError, SJMCLResult};
-use quartz_nbt::{io::read_nbt, io::Flavor, NbtCompound, NbtList};
-use std::fs::File;
-use std::io::{Cursor, Read};
-use std::path::PathBuf;
-
-pub fn load_nbt(nbt_path: &PathBuf, compress_method: Flavor) -> SJMCLResult<NbtCompound> {
-  match File::open(nbt_path) {
-    Ok(mut nbt_file) => {
-      let mut nbt_bytes = Vec::new();
-      if let Err(e) = nbt_file.read_to_end(&mut nbt_bytes) {
-        return Err(SJMCLError::from(e));
-      }
-      match read_nbt(&mut Cursor::new(nbt_bytes), compress_method) {
-        Ok(nbt) => Ok(nbt.0),
-        Err(e) => Err(SJMCLError::from(e)),
-      }
-    }
-    Err(e) => Err(SJMCLError::from(e)),
-  }
-}
+use quartz_nbt::NbtCompound;
 
 pub fn nbt_to_world_info(nbt: &NbtCompound) -> SJMCLResult<(i64, String, String)> {
   // return (last_played, difficulty, gamemode)
@@ -66,31 +47,6 @@ pub fn nbt_to_world_info(nbt: &NbtCompound) -> SJMCLResult<(i64, String, String)
         DIFFICULTY_STR[difficulty as usize].to_string(),
         GAMEMODE_STR[gametype as usize].to_string(),
       ))
-    }
-    Err(e) => Err(SJMCLError::from(e)),
-  }
-}
-
-pub fn nbt_to_servers_info(nbt: &NbtCompound) -> SJMCLResult<Vec<(String, String, String)>> {
-  // return vec of (ip, name, icon_src)
-  match nbt.get::<_, &NbtList>("servers") {
-    Ok(servers) => {
-      let mut servers_list = Vec::new();
-      for server_idx in 0..servers.len() {
-        if let Ok(server) = servers.get::<&NbtCompound>(server_idx) {
-          match server.get::<_, &str>("ip") {
-            Ok(ip) => {
-              let icon = server.get::<_, &str>("icon").unwrap_or("");
-              let name = server.get::<_, &str>("name").unwrap_or("unknown");
-              servers_list.push((ip.to_string(), name.to_string(), icon.to_string()));
-            }
-            Err(_) => {
-              continue;
-            }
-          }
-        }
-      }
-      Ok(servers_list)
     }
     Err(e) => Err(SJMCLError::from(e)),
   }

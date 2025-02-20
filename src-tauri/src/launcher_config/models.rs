@@ -123,6 +123,7 @@ structstruck::strike! {
     },
     pub global_game_config: GameConfig,
     pub local_game_directories: Vec<GameDirectory>,
+    pub discover_source_endpoints: Vec<String>,
     pub states: struct States {
       pub accounts_page: struct {
         pub view_type: String
@@ -227,6 +228,7 @@ impl Default for LauncherConfig {
       },
       global_game_config: GameConfig::default(),
       local_game_directories: vec![],
+      discover_source_endpoints: vec!["https://mc.sjtu.cn/api-sjmcl/article".to_string()],
       states: States {
         accounts_page: AccountsPage {
           view_type: "grid".to_string(),
@@ -235,7 +237,7 @@ impl Default for LauncherConfig {
           view_type: "list".to_string(),
         },
         game_version_selector: GameVersionSelector {
-          game_types: ["release".to_string()].to_vec(),
+          game_types: vec!["release".to_string()],
         },
         instance_mods_page: InstanceModsPage {
           accordion_states: [true, true],

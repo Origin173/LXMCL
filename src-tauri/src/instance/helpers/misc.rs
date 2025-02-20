@@ -1,22 +1,9 @@
 use super::super::models::{Instance, InstanceSubdirType, ModLoader};
-use crate::{
-  error::SJMCLResult,
-  instance::models::ResourcePackInfo,
-  launcher_config::models::{GameDirectory, LauncherConfig},
-  utils::{image::image_to_base64, path::get_files_with_regex},
-};
-use image::ImageReader;
-use regex::RegexBuilder;
+use crate::launcher_config::models::{GameDirectory, LauncherConfig};
 use serde_json::Value;
-use std::{
-  fs,
-  io::{Cursor, Read},
-  path::PathBuf,
-  sync::Mutex,
-};
+use std::{fs, path::PathBuf, sync::Mutex};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
-use zip::read::ZipArchive;
 
 // if instance_id not exists, return None
 pub fn get_instance_subdir_path(

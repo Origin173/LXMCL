@@ -1,7 +1,6 @@
 use crate::error::{SJMCLError, SJMCLResult};
 use crate::utils::image::image_to_base64;
 use image::ImageReader;
-use std::fmt::format;
 use std::fs;
 use std::io::{Cursor, Read};
 use std::path::PathBuf;
