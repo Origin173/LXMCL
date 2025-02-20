@@ -39,7 +39,7 @@ pub fn open_instance_subdir(
 ) -> SJMCLResult<()> {
   let subdir_path = match get_instance_subdir_path(&app, instance_id, &dir_type) {
     Some(path) => path,
-    None => return Err(InstanceError::SubdirTypeNotFound.into()),
+    None => return Err(InstanceError::InstanceNotFoundByID.into()),
   };
 
   match app.shell().open(subdir_path.to_str().unwrap(), None) {

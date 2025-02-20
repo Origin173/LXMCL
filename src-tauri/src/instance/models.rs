@@ -91,7 +91,7 @@ pub struct ScreenshotInfo {
 
 #[derive(Debug)]
 pub enum InstanceError {
-  SubdirTypeNotFound,
+  InstanceNotFoundByID,
   ExecOpenDirError,
   ServerNbtReadError,
 }
@@ -99,7 +99,7 @@ pub enum InstanceError {
 impl fmt::Display for InstanceError {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
-      InstanceError::SubdirTypeNotFound => write!(f, "SUBDIR_TYPE_NOT_FOUND"),
+      InstanceError::InstanceNotFoundByID => write!(f, "INSTANCE_NOT_FOUND_BY_ID"),
       InstanceError::ExecOpenDirError => write!(f, "EXEC_OPEN_DIR_ERROR"),
       InstanceError::ServerNbtReadError => write!(f, "SERVER_NBT_READ_ERROR"),
     }
