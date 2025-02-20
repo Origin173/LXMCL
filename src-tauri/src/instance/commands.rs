@@ -1,11 +1,9 @@
 use super::{
   super::utils::path::{get_files_with_regex, get_subdirectories},
   helpers::{
-    misc::{
-      fetch_url, get_instance_subdir_path, get_resource_pack_info_from_zip,
-      refresh_and_update_instances,
-    },
+    misc::{fetch_url, get_instance_subdir_path, refresh_and_update_instances},
     nbtio::{load_nbt, nbt_to_servers_info, nbt_to_world_info},
+    resourcepack::{load_resourcepack_from_dir, load_resourcepack_from_zip},
   },
   models::{
     GameServerInfo, Instance, InstanceError, InstanceSubdirType, ResourcePackInfo, SchematicInfo,
@@ -150,7 +148,46 @@ pub async fn retrive_resource_pack_list(
       Some(path) => path,
       None => return Ok(Vec::new()),
     };
-  get_resource_pack_info_from_zip(&resource_packs_dir)
+  let mut info_list: Vec<ResourcePackInfo> = Vec::new();
+  println!("0");
+
+  let valid_extensions = RegexBuilder::new(r"\.zip$")
+    .case_insensitive(true)
+    .build()
+    .unwrap();
+  println!("1");
+  for path in get_files_with_regex(&resource_packs_dir, &valid_extensions).unwrap_or(vec![]) {
+    if let Ok((description, icon_src)) = load_resourcepack_from_zip(&path) {
+      let name = match path.file_stem() {
+        Some(stem) => stem.to_string_lossy().to_string(),
+        None => String::new(),
+      };
+      println!("{}", name);
+      info_list.push(ResourcePackInfo {
+        name: name,
+        description: description,
+        icon_src: icon_src,
+        file_path: path.clone(),
+      });
+    }
+  }
+  println!("2");
+  for path in get_subdirectories(&resource_packs_dir).unwrap_or(vec![]) {
+    if let Ok((description, icon_src)) = load_resourcepack_from_dir(&path) {
+      let name = match path.file_stem() {
+        Some(stem) => stem.to_string_lossy().to_string(),
+        None => String::new(),
+      };
+      println!("{}", name);
+      info_list.push(ResourcePackInfo {
+        name: name,
+        description: description,
+        icon_src: icon_src,
+        file_path: path.clone(),
+      });
+    }
+  }
+  Ok(info_list)
 }
 
 #[tauri::command]
@@ -163,7 +200,46 @@ pub async fn retrive_server_resource_pack_list(
       Some(path) => path,
       None => return Ok(Vec::new()),
     };
-  get_resource_pack_info_from_zip(&resource_packs_dir)
+  let mut info_list: Vec<ResourcePackInfo> = Vec::new();
+  println!("0");
+
+  let valid_extensions = RegexBuilder::new(r".*")
+    .case_insensitive(true)
+    .build()
+    .unwrap();
+  println!("1");
+  for path in get_files_with_regex(&resource_packs_dir, &valid_extensions).unwrap_or(vec![]) {
+    if let Ok((description, icon_src)) = load_resourcepack_from_zip(&path) {
+      let name = match path.file_stem() {
+        Some(stem) => stem.to_string_lossy().to_string(),
+        None => String::new(),
+      };
+      println!("{}", name);
+      info_list.push(ResourcePackInfo {
+        name: name,
+        description: description,
+        icon_src: icon_src,
+        file_path: path.clone(),
+      });
+    }
+  }
+  println!("2");
+  for path in get_subdirectories(&resource_packs_dir).unwrap_or(vec![]) {
+    if let Ok((description, icon_src)) = load_resourcepack_from_dir(&path) {
+      let name = match path.file_stem() {
+        Some(stem) => stem.to_string_lossy().to_string(),
+        None => String::new(),
+      };
+      println!("{}", name);
+      info_list.push(ResourcePackInfo {
+        name: name,
+        description: description,
+        icon_src: icon_src,
+        file_path: path.clone(),
+      });
+    }
+  }
+  Ok(info_list)
 }
 
 #[tauri::command]
