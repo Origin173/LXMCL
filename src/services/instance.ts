@@ -12,7 +12,11 @@ import {
 import { InvokeResponse } from "@/models/response";
 import { responseHandler } from "@/utils/response";
 
-const errorToLocaleKey: { [key: string]: string } = {};
+const errorToLocaleKey: { [key: string]: string } = {
+  INSTANCE_NOT_FOUND_BY_ID: "instanceNotFoundByID",
+  EXEC_OPEN_DIR_ERROR: "execOpenDirError",
+  SERVER_NBT_READ_ERROR: "serverNbtReadError",
+};
 
 /**
  * Service class for managing instances and its local resources.

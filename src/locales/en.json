@@ -1160,6 +1160,60 @@
           }
         }
       }
+    },
+    "instance": {
+      "retriveInstanceList": {
+        "error": {
+          "title": "Failed to retrieve instance list"
+        }
+      },
+      "openInstanceSubdir": {
+        "error": {
+          "title": "Failed to open instance directory",
+          "description": {
+            "instanceNotFoundByID": "Instance ID does not exist or has a type error",
+            "execOpenDirError": "Unable to execute command for the non-existent subdirectory type"
+          }
+        }
+      },
+      "retriveWorldList": {
+        "error": {
+          "title": "Failed to retrive world list"
+        }
+      },
+      "retriveGameServerList": {
+        "error": {
+          "title": "Failed to retraive game server list",
+          "description": {
+            "serverNbtReadError": "server.dat may have been corrupted"
+          }
+        }
+      },
+      "retriveResourcePackList": {
+        "error": {
+          "title": "Failed to retrive resource pack list"
+        }
+      },
+      "retriveServerResourcePackList": {
+        "error": {
+          "title": "Failed to retrive resource pack list from servers"
+        }
+      },
+      "retriveSchematicList": {
+        "error": {
+          "title": "Failed to retrive schematic list"
+        }
+      },
+      "retriveShaderPackList": {
+        "error": {
+          "title": "Failed to retrive shader pack list"
+        }
+      },
+      "retriveScreenshotList": {
+        "error": {
+          "title": "Failed to retrive screenshot list"
+        }
+      }
     }
   },
   "SettingsLayout": {

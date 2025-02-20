@@ -1160,6 +1160,60 @@
           }
         }
       }
+    },
+    "instance": {
+      "retriveInstanceList": {
+        "error": {
+          "title": "获取实例列表失败"
+        }
+      },
+      "openInstanceSubdir": {
+        "error": {
+          "title": "打开实例目录失败",
+          "description": {
+            "instanceNotFoundByID": "实例 ID 不存在或类型错误",
+            "execOpenDirError": "命令执行失败"
+          }
+        }
+      },
+      "retriveWorldList": {
+        "error": {
+          "title": "获取世界列表失败"
+        }
+      },
+      "retriveGameServerList": {
+        "error": {
+          "title": "获取服务器列表失败",
+          "description": {
+            "serverNbtReadError": "server.dat 可能已损坏"
+          }
+        }
+      },
+      "retriveResourcePackList": {
+        "error": {
+          "title": "获取资源包列表失败"
+        }
+      },
+      "retriveServerResourcePackList": {
+        "error": {
+          "title": "获取服务器资源包列表失败"
+        }
+      },
+      "retriveSchematicList": {
+        "error": {
+          "title": "获取原理图列表失败"
+        }
+      },
+      "retriveShaderPackList": {
+        "error": {
+          "title": "获取着色器包列表失败"
+        }
+      },
+      "retriveScreenshotList": {
+        "error": {
+          "title": "获取截图列表失败"
+        }
+      }
     }
   },
   "SettingsLayout": {
