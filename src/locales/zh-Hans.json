@@ -204,7 +204,7 @@
       }
     },
     "accessibility": {
-      "title": "显示辅助",
+      "title": "辅助显示",
       "settings": {
         "invertColors": {
           "title": "反转颜色"
