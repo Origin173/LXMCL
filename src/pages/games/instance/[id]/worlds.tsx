@@ -1,4 +1,4 @@
-import { Image } from "@chakra-ui/react";
+import { Image, useDisclosure } from "@chakra-ui/react";
 import { HStack, Tag, TagLabel, Text } from "@chakra-ui/react";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-shell";
@@ -10,6 +10,7 @@ import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
+import DownloadResourceModal from "@/components/modals/download-resource-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useToast } from "@/contexts/toast";
@@ -28,6 +29,12 @@ const InstanceWorldsPage = () => {
 
   const [worlds, setWorlds] = useState<WorldInfo[]>([]);
   const [gameServers, setGameServers] = useState<GameServerInfo[]>([]);
+
+  const {
+    isOpen: isDownloadModalOpen,
+    onOpen: onDownloadModalOpen,
+    onClose: onDownloadModalClose,
+  } = useDisclosure();
 
   useEffect(() => {
     setWorlds(getWorldList() || []);
@@ -78,7 +85,9 @@ const InstanceWorldsPage = () => {
     },
     {
       icon: "download",
-      onClick: () => {},
+      onClick: () => {
+        onDownloadModalOpen();
+      },
     },
     {
       icon: "refresh",
@@ -251,6 +260,11 @@ const InstanceWorldsPage = () => {
           <Empty withIcon={false} size="sm" />
         )}
       </Section>
+      <DownloadResourceModal
+        initialResourceType="world"
+        isOpen={isDownloadModalOpen}
+        onClose={onDownloadModalClose}
+      />
     </>
   );
 };

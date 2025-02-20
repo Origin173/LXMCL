@@ -1,4 +1,10 @@
-import { Avatar, AvatarBadge, HStack, Text } from "@chakra-ui/react";
+import {
+  Avatar,
+  AvatarBadge,
+  HStack,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -14,6 +20,7 @@ import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import ModLoaderCards from "@/components/mod-loader-cards";
+import DownloadResourceModal from "@/components/modals/download-resource-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { InstanceSubdirType } from "@/enums/instance";
@@ -27,6 +34,12 @@ const InstanceModsPage = () => {
   const accordionStates = config.states.instanceModsPage.accordionStates;
 
   const [localMods, setLocalMods] = useState<LocalModInfo[]>([]);
+
+  const {
+    isOpen: isDownloadModalOpen,
+    onOpen: onDownloadModalOpen,
+    onClose: onDownloadModalClose,
+  } = useDisclosure();
 
   useEffect(() => {
     // only for mock
@@ -46,7 +59,9 @@ const InstanceModsPage = () => {
     },
     {
       icon: "download",
-      onClick: () => {},
+      onClick: () => {
+        onDownloadModalOpen();
+      },
     },
     {
       icon: LuClockArrowUp,
@@ -211,6 +226,11 @@ const InstanceModsPage = () => {
           <Empty withIcon={false} size="sm" />
         )}
       </Section>
+      <DownloadResourceModal
+        initialResourceType="mod"
+        isOpen={isDownloadModalOpen}
+        onClose={onDownloadModalClose}
+      />
     </>
   );
 };
