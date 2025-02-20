@@ -10,7 +10,7 @@ mod utils;
 use std::path::PathBuf;
 use std::sync::{LazyLock, Mutex};
 
-use instance::helpers::refresh_and_update_instances;
+use instance::helpers::misc::refresh_and_update_instances;
 use instance::models::Instance;
 use launcher_config::models::LauncherConfig;
 use storage::Storage;
