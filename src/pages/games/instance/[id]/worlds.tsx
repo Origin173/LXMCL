@@ -17,6 +17,7 @@ import { InstanceSubdirType } from "@/enums/instance";
 import { GameServerInfo, WorldInfo } from "@/models/game-instance";
 import { InstanceService } from "@/services/instance";
 import { UNIXToISOString, formatRelativeTime } from "@/utils/datetime";
+import { base64ImgSrc } from "@/utils/string";
 
 const InstanceWorldsPage = () => {
   const { t } = useTranslation();
@@ -207,7 +208,12 @@ const InstanceWorldsPage = () => {
                 description={server.ip}
                 prefixElement={
                   <Image
-                    src={server.iconSrc}
+                    src={
+                      server.isQueried
+                        ? server.iconSrc
+                        : base64ImgSrc(server.iconSrc)
+                    }
+                    fallbackSrc="/images/icons/UnknownWorld.webp"
                     alt={server.name}
                     boxSize="28px"
                     style={{ borderRadius: "4px" }}
