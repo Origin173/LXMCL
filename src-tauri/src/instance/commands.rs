@@ -1,7 +1,11 @@
 use super::{
   super::utils::path::{get_files_with_regex, get_subdirectories},
   helpers::{
-    get_instance_subdir_path, get_resource_pack_info_from_zip, refresh_and_update_instances,
+    misc::{
+      fetch_url, get_instance_subdir_path, get_resource_pack_info_from_zip,
+      refresh_and_update_instances,
+    },
+    nbtio::{load_nbt, nbt_to_servers_info, nbt_to_world_info},
   },
   models::{
     GameServerInfo, Instance, InstanceError, InstanceSubdirType, ResourcePackInfo, SchematicInfo,
@@ -9,22 +13,13 @@ use super::{
   },
 };
 use crate::error::SJMCLResult;
-use quartz_nbt::NbtCompound;
-use quartz_nbt::{
-  io::{read_nbt, Flavor},
-  NbtList,
-};
+use futures;
+use quartz_nbt::io::Flavor;
 use regex::RegexBuilder;
-use serde_json::Value;
-use std::{
-  fs::File,
-  io::{Cursor, Read},
-  sync::Mutex,
-  time::SystemTime,
-};
+use std::{sync::Mutex, time::SystemTime};
 use tauri::{AppHandle, Manager};
-use tauri_plugin_http::reqwest;
 use tauri_plugin_shell::ShellExt;
+use tokio;
 
 #[tauri::command]
 pub async fn retrive_instance_list(app: AppHandle) -> SJMCLResult<Vec<Instance>> {
@@ -60,75 +55,26 @@ pub async fn retrive_world_list(app: AppHandle, instance_id: usize) -> SJMCLResu
 
   let world_dirs = match get_subdirectories(worlds_dir) {
     Ok(val) => val,
-    Err(e) => return Err(e),
+    Err(_) => return Ok(Vec::new()), // if dir not exists, no need to error
   };
 
   let mut world_list: Vec<WorldInfo> = Vec::new();
   // TODO: async read
   for path in world_dirs {
     let name = path.file_name().unwrap().to_str().unwrap();
-
     let icon_path = path.join("icon.png");
     let nbt_path = path.join("level.dat");
-
-    if let Ok(mut nbt_file) = File::open(nbt_path) {
-      let mut nbt_bytes = Vec::new();
-      if nbt_file.read_to_end(&mut nbt_bytes).is_err() {
-        continue;
+    if let Ok(nbt) = load_nbt(&nbt_path, Flavor::GzCompressed) {
+      if let Ok((last_played, difficulty, gamemode)) = nbt_to_world_info(&nbt) {
+        world_list.push(WorldInfo {
+          name: name.to_string(),
+          last_played_at: last_played,
+          difficulty: difficulty.to_string(),
+          gamemode: gamemode.to_string(),
+          icon_src: icon_path,
+          dir_path: path,
+        });
       }
-      let nbt_result = read_nbt(&mut Cursor::new(nbt_bytes), Flavor::GzCompressed);
-      if nbt_result.is_err() {
-        #[cfg(debug_assertions)]
-        println!("nbt read error: {}", nbt_result.err().unwrap());
-        continue;
-      }
-      let nbt = nbt_result.unwrap().0;
-      let data = nbt.get::<_, &NbtCompound>("Data");
-      if data.is_err() {
-        #[cfg(debug_assertions)]
-        println!("nbt not contains 'Data'");
-        continue;
-      }
-      let data = data.unwrap();
-      let last_played: i64;
-      if let Ok(val) = data.get::<_, &i64>("LastPlayed") {
-        last_played = *val / 1000;
-      } else {
-        last_played = 0;
-      }
-      let mut difficulty: u8;
-      if let Ok(val) = data.get::<_, &u8>("Difficulty") {
-        difficulty = *val;
-      } else {
-        difficulty = 2;
-      }
-      if let Ok(val) = data.get::<_, &u8>("hardcore") {
-        if *val != 0 {
-          difficulty = 4;
-        }
-      }
-      const DIFFICULTY_STR: [&str; 5] = ["peaceful", "easy", "normal", "hard", "hardcore"];
-      if difficulty >= DIFFICULTY_STR.len() as u8 {
-        continue;
-      }
-      let gametype: i32;
-      if let Ok(val) = data.get::<_, &i32>("GameType") {
-        gametype = *val;
-      } else {
-        gametype = 0;
-      }
-      const GAMEMODE_STR: [&str; 4] = ["survival", "creative", "adventure", "spectator"];
-      if gametype < 0 || gametype >= GAMEMODE_STR.len() as i32 {
-        continue;
-      }
-      world_list.push(WorldInfo {
-        name: name.to_string(),
-        last_played_at: last_played,
-        gamemode: GAMEMODE_STR[gametype as usize].to_string(),
-        difficulty: DIFFICULTY_STR[difficulty as usize].to_string(),
-        icon_src: icon_path,
-        dir_path: path,
-      });
     }
   }
   Ok(world_list)
@@ -148,76 +94,48 @@ pub async fn retrive_game_server_list(
   };
 
   let nbt_path = game_root_dir.join("servers.dat");
-  let mut nbt_file = match File::open(&nbt_path) {
-    Ok(file) => file,
-    Err(_) => return Ok(Vec::new()),
-  };
-
-  let mut nbt_bytes = Vec::new();
-  if nbt_file.read_to_end(&mut nbt_bytes).is_err() {
-    return Err(InstanceError::ServerNbtReadError.into());
-  }
-
-  let (nbt, _) = match read_nbt(&mut Cursor::new(nbt_bytes), Flavor::Uncompressed) {
-    Ok(result) => result,
-    Err(_) => return Err(InstanceError::ServerNbtReadError.into()),
-  };
-
-  let servers = match nbt.get::<_, &NbtList>("servers") {
-    Ok(list) => list,
-    Err(_) => return Err(InstanceError::ServerNbtReadError.into()),
-  };
-
-  for server_idx in 0..servers.len() {
-    if let Ok(server) = servers.get::<&NbtCompound>(server_idx) {
-      if let Ok(ip) = server.get::<_, &str>("ip") {
-        let name = server.get::<_, &str>("name").unwrap_or("unknown");
-        let icon;
-        if let Ok(val) = server.get::<_, &str>("icon") {
-          icon = val;
-        } else {
-          icon = "";
-        }
+  if let Ok(nbt) = load_nbt(&nbt_path, Flavor::Uncompressed) {
+    if let Ok(servers) = nbt_to_servers_info(&nbt) {
+      for (ip, name, icon) in servers {
         game_servers.push(GameServerInfo {
-          icon_src: icon.to_string(),
-          ip: ip.to_string(),
-          name: name.to_string(),
+          ip: ip,
+          name: name,
+          icon_src: icon,
           is_queried: false,
-          players_online: 0,
           players_max: 0,
+          players_online: 0,
           online: false,
         });
       }
+    } else {
+      return Err(InstanceError::ServerNbtReadError.into());
     }
-  }
 
-  // query_online is true, amend query and return player count and online status
-  if query_online {
-    for server in &mut game_servers {
-      let url = format!("https://mc.sjtu.cn/custom/serverlist/?query={}", server.ip);
-      server.is_queried = false;
-      let response = match reqwest::get(&url).await {
-        Ok(response) => response,
-        Err(_) => continue, // request error
-      };
-      if !response.status().is_success() {
-        continue; // request error
+    // query_online is true, amend query and return player count and online status
+    if query_online {
+      let mut tasks = Vec::new();
+      for server in game_servers {
+        let url = format!("https://mc.sjtu.cn/custom/serverlist/?query={}", server.ip);
+        tasks.push(tokio::spawn(async move { (server, fetch_url(&url).await) }));
       }
-      let data = match response.json::<Value>().await {
-        Ok(data) => data,
-        Err(_) => continue, // JSON parse error
-      };
-      // manually parse the JSON into the required fields
-      if let Some(players) = data["players"].as_object() {
-        server.players_online = players["online"].as_u64().unwrap_or(0) as usize;
-        server.players_max = players["max"].as_u64().unwrap_or(0) as usize;
+      let results = futures::future::join_all(tasks).await;
+      game_servers = Vec::new();
+      for result in results {
+        if let Ok((mut server, data)) = result {
+          if let Some(data) = data {
+            if let Some(players) = data["players"].as_object() {
+              server.players_online = players["online"].as_u64().unwrap_or(0) as usize;
+              server.players_max = players["max"].as_u64().unwrap_or(0) as usize;
+            }
+            server.online = data["online"].as_bool().unwrap_or(false);
+            server.icon_src = data["favicon"].as_str().unwrap_or("").to_string();
+            server.is_queried = true;
+          }
+          game_servers.push(server);
+        }
       }
-      server.online = data["online"].as_bool().unwrap_or(false);
-      server.icon_src = data["favicon"].as_str().unwrap_or("").to_string();
-      server.is_queried = true;
     }
-  }
-
+  } // don't report error when missing nbt file
   Ok(game_servers)
 }
 

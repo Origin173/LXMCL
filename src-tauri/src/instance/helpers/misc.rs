@@ -1,4 +1,4 @@
-use super::models::{Instance, InstanceSubdirType, ModLoader};
+use super::super::models::{Instance, InstanceSubdirType, ModLoader};
 use crate::{
   error::SJMCLResult,
   instance::models::ResourcePackInfo,
@@ -7,6 +7,7 @@ use crate::{
 };
 use image::ImageReader;
 use regex::RegexBuilder;
+use serde_json::Value;
 use std::{
   fs,
   io::{Cursor, Read},
@@ -14,6 +15,7 @@ use std::{
   sync::Mutex,
 };
 use tauri::{AppHandle, Manager};
+use tauri_plugin_http::reqwest;
 use zip::read::ZipArchive;
 
 // if instance_id not exists, return None
@@ -226,4 +228,20 @@ pub fn get_resource_pack_info_from_zip(
     });
   }
   Ok(info_list)
+}
+
+pub async fn fetch_url(url: &String) -> Option<Value> {
+  match reqwest::get(url).await {
+    Ok(response) => {
+      if response.status().is_success() {
+        match response.json::<Value>().await {
+          Ok(val) => Some(val),
+          Err(_) => None,
+        }
+      } else {
+        None
+      }
+    }
+    Err(_) => None, // request error
+  }
 }
