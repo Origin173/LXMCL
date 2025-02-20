@@ -149,20 +149,18 @@ pub async fn retrive_resource_pack_list(
       None => return Ok(Vec::new()),
     };
   let mut info_list: Vec<ResourcePackInfo> = Vec::new();
-  println!("0");
 
   let valid_extensions = RegexBuilder::new(r"\.zip$")
     .case_insensitive(true)
     .build()
     .unwrap();
-  println!("1");
+
   for path in get_files_with_regex(&resource_packs_dir, &valid_extensions).unwrap_or(vec![]) {
     if let Ok((description, icon_src)) = load_resourcepack_from_zip(&path) {
       let name = match path.file_stem() {
         Some(stem) => stem.to_string_lossy().to_string(),
         None => String::new(),
       };
-      println!("{}", name);
       info_list.push(ResourcePackInfo {
         name: name,
         description: description,
@@ -171,14 +169,13 @@ pub async fn retrive_resource_pack_list(
       });
     }
   }
-  println!("2");
+
   for path in get_subdirectories(&resource_packs_dir).unwrap_or(vec![]) {
     if let Ok((description, icon_src)) = load_resourcepack_from_dir(&path) {
       let name = match path.file_stem() {
         Some(stem) => stem.to_string_lossy().to_string(),
         None => String::new(),
       };
-      println!("{}", name);
       info_list.push(ResourcePackInfo {
         name: name,
         description: description,
@@ -201,20 +198,18 @@ pub async fn retrive_server_resource_pack_list(
       None => return Ok(Vec::new()),
     };
   let mut info_list: Vec<ResourcePackInfo> = Vec::new();
-  println!("0");
 
   let valid_extensions = RegexBuilder::new(r".*")
     .case_insensitive(true)
     .build()
     .unwrap();
-  println!("1");
+
   for path in get_files_with_regex(&resource_packs_dir, &valid_extensions).unwrap_or(vec![]) {
     if let Ok((description, icon_src)) = load_resourcepack_from_zip(&path) {
       let name = match path.file_stem() {
         Some(stem) => stem.to_string_lossy().to_string(),
         None => String::new(),
       };
-      println!("{}", name);
       info_list.push(ResourcePackInfo {
         name: name,
         description: description,
@@ -223,14 +218,14 @@ pub async fn retrive_server_resource_pack_list(
       });
     }
   }
-  println!("2");
+
   for path in get_subdirectories(&resource_packs_dir).unwrap_or(vec![]) {
     if let Ok((description, icon_src)) = load_resourcepack_from_dir(&path) {
       let name = match path.file_stem() {
         Some(stem) => stem.to_string_lossy().to_string(),
         None => String::new(),
       };
-      println!("{}", name);
+
       info_list.push(ResourcePackInfo {
         name: name,
         description: description,
