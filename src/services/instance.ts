@@ -3,6 +3,7 @@ import { InstanceSubdirType } from "@/enums/instance";
 import {
   GameInstanceSummary,
   GameServerInfo,
+  LocalModInfo,
   ResourcePackInfo,
   SchematicInfo,
   ScreenshotInfo,
@@ -78,6 +79,20 @@ export class InstanceService {
     return await invoke("retrive_game_server_list", {
       instanceId,
       queryOnline,
+    });
+  }
+
+  /**
+   * RETRIVE the list of local mods.
+   * @param {number} instanceId - The instance ID to retrive the local mods for.
+   * @returns {Promise<InvokeResponse<LocalModInfo[]>>}
+   */
+  @responseHandler("instance", errorToLocaleKey)
+  static async retriveLocalModList(
+    instanceId: number
+  ): Promise<InvokeResponse<LocalModInfo[]>> {
+    return await invoke("retrive_local_mod_list", {
+      instanceId,
     });
   }
 

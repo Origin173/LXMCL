@@ -1,5 +1,8 @@
 use super::super::models::{Instance, InstanceSubdirType, ModLoader};
-use crate::launcher_config::models::{GameDirectory, LauncherConfig};
+use crate::{
+  instance::models::ModLoaderType,
+  launcher_config::models::{GameDirectory, LauncherConfig},
+};
 use serde_json::Value;
 use std::{fs, path::PathBuf, sync::Mutex};
 use tauri::{AppHandle, Manager};
@@ -96,7 +99,7 @@ pub async fn refresh_instances(
       version: "1.20.1".to_string(), // TODO: may read from name.json["patches"]["version"]?
       version_path,
       mod_loader: ModLoader {
-        loader_type: "none".to_string(),
+        loader_type: ModLoaderType::Unknown,
         version: "".to_string(),
       },
       has_schem_folder: true, // TODO: if exists schematics folder, return true

@@ -12,7 +12,10 @@ pub fn load_resourcepack_from_zip(path: &PathBuf) -> SJMCLResult<(String, Option
     Ok(val) => file = val,
     Err(e) => return Err(SJMCLError::from(e)),
   }
-  let mut zip = ZipArchive::new(file)?;
+  let mut zip = match ZipArchive::new(file) {
+    Ok(val) => val,
+    Err(e) => return Err(SJMCLError::from(e)),
+  };
   let mut description = String::new();
   let mut icon_src = None;
 

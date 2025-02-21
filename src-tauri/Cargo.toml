@@ -45,6 +45,7 @@ zip = "2.2"
 quartz_nbt = "0.2.9"
 regex = "1.11"
 futures = "0.3"
+toml = "0.8"
 
 [target."cfg(windows)".dependencies]
 winreg = "0.55.0"

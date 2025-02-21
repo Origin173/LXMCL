@@ -37,7 +37,7 @@ export interface LocalModInfo {
   iconSrc: string;
   enabled: boolean;
   name: string;
-  transltedName?: string;
+  translatedName?: string;
   version: string;
   fileName: string;
   description?: string;

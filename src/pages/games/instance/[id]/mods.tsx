@@ -18,20 +18,18 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { InstanceSubdirType } from "@/enums/instance";
 import { LocalModInfo } from "@/models/game-instance";
-import { mockLocalMods } from "@/models/mock/game-instance";
 
 const InstanceModsPage = () => {
   const { t } = useTranslation();
-  const { summary, openSubdir } = useInstanceSharedData();
+  const { summary, openSubdir, getLocalModList } = useInstanceSharedData();
   const { config, update } = useLauncherConfig();
   const accordionStates = config.states.instanceModsPage.accordionStates;
 
   const [localMods, setLocalMods] = useState<LocalModInfo[]>([]);
 
   useEffect(() => {
-    // only for mock
-    setLocalMods(mockLocalMods);
-  }, []);
+    setLocalMods(getLocalModList() || []);
+  }, [getLocalModList]);
 
   const modSecMenuOperations = [
     {
@@ -60,7 +58,9 @@ const InstanceModsPage = () => {
     },
     {
       icon: "refresh",
-      onClick: () => {},
+      onClick: () => {
+        setLocalMods(getLocalModList(true) || []);
+      },
     },
   ];
 
@@ -157,8 +157,8 @@ const InstanceModsPage = () => {
                 key={mod.fileName} // unique
                 childrenOnHover
                 title={
-                  mod.transltedName
-                    ? `${mod.transltedName}｜${mod.name}`
+                  mod.translatedName
+                    ? `${mod.translatedName}｜${mod.name}`
                     : mod.name
                 }
                 titleExtra={
