@@ -91,7 +91,7 @@ pub fn load_mod_from_file(path: &PathBuf) -> SJMCLResult<LocalModInfo> {
 
   if let Ok(meta) = load_quiltmod_from_jar(&mut jar) {
     return Ok(LocalModInfo {
-      icon_src: String::new(),
+      icon_src: meta.metadata.icon,
       enabled,
       name: meta.metadata.name,
       translated_name: None,
@@ -332,23 +332,38 @@ pub struct QuiltModMetadata {
 pub struct QuiltLoader {
   id: String,
   version: String,
-  metadata: Metadata,
+  metadata: QuiltLoaderMetadata,
 }
 
 pub fn load_quiltmod_from_jar<R: Read + Seek>(jar: &mut ZipArchive<R>) -> SJMCLResult<QuiltLoader> {
-  let meta: QuiltLoader = match jar.by_name("quilt.mod.json") {
+  let mut meta: QuiltLoader = match jar.by_name("quilt.mod.json") {
     Ok(val) => match serde_json::from_reader(val) {
       Ok(val) => val,
       Err(e) => return Err(SJMCLError::from(e)),
     },
     Err(e) => return Err(SJMCLError::from(e)),
   };
+  if !meta.metadata.icon.is_empty() {
+    if let Ok(mut img_file) = jar.by_name(&meta.metadata.icon) {
+      // Use `image` crate to decode the image
+      let mut buffer = Vec::new();
+      if img_file.read_to_end(&mut buffer).is_ok() {
+        if let Ok(image_reader) = ImageReader::new(Cursor::new(buffer)).with_guessed_format() {
+          if let Ok(img) = image_reader.decode() {
+            if let Ok(b64) = image_to_base64(img.to_rgba8()) {
+              meta.metadata.icon = b64;
+            }
+          }
+        }
+      }
+    }
+  }
   Ok(meta)
 }
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase", default)]
-pub struct Metadata {
+pub struct QuiltLoaderMetadata {
   name: String,
   description: String,
   contributors: HashMap<String, String>,
