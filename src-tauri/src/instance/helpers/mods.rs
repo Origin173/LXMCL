@@ -75,6 +75,34 @@ pub fn load_mod_from_file(path: &PathBuf) -> SJMCLResult<LocalModInfo> {
       loader_type: ModLoaderType::Forge,
     });
   }
+  if let Ok(meta) = load_liteloadermod_from_jar(&mut jar) {
+    return Ok(LocalModInfo {
+      icon_src: String::new(),
+      enabled,
+      name: meta.name,
+      translated_name: None,
+      version: meta.version,
+      file_name,
+      description: meta.description,
+      potential_incompatibility: false,
+      loader_type: ModLoaderType::LiteLoader,
+    });
+  }
+
+  if let Ok(meta) = load_quiltmod_from_jar(&mut jar) {
+    return Ok(LocalModInfo {
+      icon_src: String::new(),
+      enabled,
+      name: meta.metadata.name,
+      translated_name: None,
+      version: meta.version,
+      file_name,
+      description: meta.metadata.description,
+      potential_incompatibility: false,
+      loader_type: ModLoaderType::Quilt,
+    });
+  }
+
   Err(SJMCLError(format!(
     "{} cannot be recognized as known",
     file_name
@@ -263,7 +291,8 @@ pub struct ForgeOldModMetadata {
 }
 
 // Implementations for LiteModMetadata
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase", default)]
 pub struct LiteModMetadata {
   name: String,
   version: String,
@@ -278,21 +307,47 @@ pub struct LiteModMetadata {
   update_uri: String,
 }
 
-// Implementations for QuiltModMetadata
-#[derive(Serialize, Deserialize)]
+pub fn load_liteloadermod_from_jar<R: Read + Seek>(
+  jar: &mut ZipArchive<R>,
+) -> SJMCLResult<LiteModMetadata> {
+  let meta: LiteModMetadata = match jar.by_name("litemod.json") {
+    Ok(val) => match serde_json::from_reader(val) {
+      Ok(val) => val,
+      Err(e) => return Err(SJMCLError::from(e)),
+    },
+    Err(e) => return Err(SJMCLError::from(e)),
+  };
+  Ok(meta)
+}
+
+#[derive(Debug, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase", default)]
 pub struct QuiltModMetadata {
   schema_version: i32,
   quilt_loader: QuiltLoader,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase", default)]
 pub struct QuiltLoader {
   id: String,
   version: String,
   metadata: Metadata,
 }
 
-#[derive(Serialize, Deserialize)]
+pub fn load_quiltmod_from_jar<R: Read + Seek>(jar: &mut ZipArchive<R>) -> SJMCLResult<QuiltLoader> {
+  let meta: QuiltLoader = match jar.by_name("quilt.mod.json") {
+    Ok(val) => match serde_json::from_reader(val) {
+      Ok(val) => val,
+      Err(e) => return Err(SJMCLError::from(e)),
+    },
+    Err(e) => return Err(SJMCLError::from(e)),
+  };
+  Ok(meta)
+}
+
+#[derive(Debug, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase", default)]
 pub struct Metadata {
   name: String,
   description: String,
