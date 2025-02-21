@@ -16,8 +16,9 @@ pub enum InstanceSubdirType {
   ShaderPacks,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
 pub enum ModLoaderType {
+  #[default]
   Unknown,
   Fabric,
   Forge,
@@ -25,12 +26,6 @@ pub enum ModLoaderType {
   NeoForge,
   LiteLoader,
   Quilt,
-}
-
-impl Default for ModLoaderType {
-  fn default() -> Self {
-    ModLoaderType::Unknown
-  }
 }
 
 structstruck::strike! {

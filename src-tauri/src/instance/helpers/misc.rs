@@ -16,10 +16,7 @@ pub fn get_instance_subdir_path(
 ) -> Option<PathBuf> {
   let binding = app.state::<Mutex<Vec<Instance>>>();
   let state = binding.lock().unwrap();
-  let instance = match state.get(instance_id) {
-    Some(v) => v,
-    None => return None,
-  };
+  let instance = state.get(instance_id)?;
 
   let version_path = &instance.version_path;
   let game_dir = version_path.parent().unwrap().parent().unwrap(); // TODO: remove unwrap

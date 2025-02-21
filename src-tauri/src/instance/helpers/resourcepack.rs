@@ -7,11 +7,10 @@ use std::path::PathBuf;
 use zip::ZipArchive;
 
 pub fn load_resourcepack_from_zip(path: &PathBuf) -> SJMCLResult<(String, Option<String>)> {
-  let file;
-  match fs::File::open(&path) {
-    Ok(val) => file = val,
+  let file = match fs::File::open(path) {
+    Ok(val) => val,
     Err(e) => return Err(SJMCLError::from(e)),
-  }
+  };
   let mut zip = match ZipArchive::new(file) {
     Ok(val) => val,
     Err(e) => return Err(SJMCLError::from(e)),
@@ -92,7 +91,7 @@ pub fn load_resourcepack_from_dir(path: &PathBuf) -> SJMCLResult<(String, Option
       }
     }
   } else {
-    return Err(SJMCLError(format!("pack.mcmeta not found in ''")));
+    return Err(SJMCLError("pack.mcmeta not found in ''".to_string()));
   }
 
   if let Ok(buffer) = fs::read(path.join("pack.png")) {
