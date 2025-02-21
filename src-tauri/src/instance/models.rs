@@ -16,6 +16,23 @@ pub enum InstanceSubdirType {
   ShaderPacks,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]
+pub enum ModLoaderType {
+  Unknown,
+  Fabric,
+  Forge,
+  ForgeOld,
+  NeoForge,
+  LiteLoader,
+  Quilt,
+}
+
+impl Default for ModLoaderType {
+  fn default() -> Self {
+    ModLoaderType::Unknown
+  }
+}
+
 structstruck::strike! {
   #[strikethrough[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]]
   #[strikethrough[serde(rename_all = "camelCase", deny_unknown_fields)]]
@@ -27,7 +44,7 @@ structstruck::strike! {
     pub version: String,
     pub version_path: PathBuf,
     pub mod_loader: struct {
-      pub loader_type: String,
+      pub loader_type: ModLoaderType,
       pub version: String,
     },
     pub has_schem_folder: bool,
@@ -56,6 +73,20 @@ pub struct GameServerInfo {
   pub players_online: usize,
   pub players_max: usize,
   pub online: bool, // if false, it may be offline in the query result or failed in the query.
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct LocalModInfo {
+  pub icon_src: String,
+  pub enabled: bool,
+  pub name: String,
+  pub translated_name: Option<String>,
+  pub version: String,
+  pub file_name: String,
+  pub description: String,
+  pub potential_incompatibility: bool,
+  pub loader_type: ModLoaderType,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]

@@ -16,28 +16,27 @@ import { Section } from "@/components/common/section";
 import ModLoaderCards from "@/components/mod-loader-cards";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
-import { InstanceSubdirType } from "@/enums/instance";
+import { InstanceSubdirEnums } from "@/enums/instance";
 import { LocalModInfo } from "@/models/game-instance";
-import { mockLocalMods } from "@/models/mock/game-instance";
+import { base64ImgSrc } from "@/utils/string";
 
 const InstanceModsPage = () => {
   const { t } = useTranslation();
-  const { summary, openSubdir } = useInstanceSharedData();
+  const { summary, openSubdir, getLocalModList } = useInstanceSharedData();
   const { config, update } = useLauncherConfig();
   const accordionStates = config.states.instanceModsPage.accordionStates;
 
   const [localMods, setLocalMods] = useState<LocalModInfo[]>([]);
 
   useEffect(() => {
-    // only for mock
-    setLocalMods(mockLocalMods);
-  }, []);
+    setLocalMods(getLocalModList() || []);
+  }, [getLocalModList]);
 
   const modSecMenuOperations = [
     {
       icon: "openFolder",
       onClick: () => {
-        openSubdir(InstanceSubdirType.Mods);
+        openSubdir(InstanceSubdirEnums.Mods);
       },
     },
     {
@@ -60,7 +59,9 @@ const InstanceModsPage = () => {
     },
     {
       icon: "refresh",
-      onClick: () => {},
+      onClick: () => {
+        setLocalMods(getLocalModList(true) || []);
+      },
     },
   ];
 
@@ -118,7 +119,7 @@ const InstanceModsPage = () => {
         }}
       >
         <ModLoaderCards
-          currentType={summary?.modLoader.loaderType || "none"}
+          currentType={summary?.modLoader.loaderType || "Unknown"}
           currentVersion={summary?.modLoader.version}
           displayMode="entry"
         />
@@ -157,8 +158,8 @@ const InstanceModsPage = () => {
                 key={mod.fileName} // unique
                 childrenOnHover
                 title={
-                  mod.transltedName
-                    ? `${mod.transltedName}｜${mod.name}`
+                  mod.translatedName
+                    ? `${mod.translatedName}｜${mod.name}`
                     : mod.name
                 }
                 titleExtra={
@@ -177,7 +178,7 @@ const InstanceModsPage = () => {
                 }
                 prefixElement={
                   <Avatar
-                    src={mod.iconSrc}
+                    src={base64ImgSrc(mod.iconSrc)}
                     name={mod.name}
                     boxSize="28px"
                     borderRadius="4px"

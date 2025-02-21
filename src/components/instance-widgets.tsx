@@ -38,8 +38,8 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { LocalModInfo, WorldInfo } from "@/models/game-instance";
 import { ScreenshotInfo } from "@/models/game-instance";
-import { mockLocalMods } from "@/models/mock/game-instance";
 import { UNIXToISOString, formatRelativeTime } from "@/utils/datetime";
+import { base64ImgSrc } from "@/utils/string";
 
 // All these widgets are used in InstanceContext with WarpCard wrapped.
 interface InstanceWidgetBaseProps extends Omit<BoxProps, "children"> {
@@ -111,7 +111,7 @@ export const InstanceBasicInfoWidget = () => {
             className="secondary-text"
           >
             <Text>{summary?.version}</Text>
-            {summary?.modLoader.loaderType !== "none" && (
+            {summary?.modLoader.loaderType !== "Unknown" && (
               <Text>{`${summary?.modLoader.loaderType} ${summary?.modLoader.version}`}</Text>
             )}
           </VStack>
@@ -181,13 +181,13 @@ export const InstanceModsWidget = () => {
   const { id } = router.query;
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const { getLocalModList } = useInstanceSharedData();
 
   const [localMods, setLocalMods] = useState<LocalModInfo[]>([]);
 
   useEffect(() => {
-    // only for mock
-    setLocalMods(mockLocalMods);
-  }, []);
+    setLocalMods(getLocalModList() || []);
+  }, [getLocalModList]);
 
   const totalMods = localMods.length;
   const enabledMods = localMods.filter((mod) => mod.enabled).length;
@@ -201,7 +201,11 @@ export const InstanceModsWidget = () => {
         <VStack align="flex-start" spacing={3}>
           <AvatarGroup size="sm" max={5} spacing={-2.5}>
             {localMods.map((mod, index) => (
-              <Avatar key={index} name={mod.name} src={mod.iconSrc} />
+              <Avatar
+                key={index}
+                name={mod.name}
+                src={base64ImgSrc(mod.iconSrc)}
+              />
             ))}
           </AvatarGroup>
           <Text fontSize="xs" color="gray.500">

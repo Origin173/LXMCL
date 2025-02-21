@@ -1,8 +1,9 @@
 import { invoke } from "@tauri-apps/api/core";
-import { InstanceSubdirType } from "@/enums/instance";
+import { InstanceSubdirEnums } from "@/enums/instance";
 import {
   GameInstanceSummary,
   GameServerInfo,
+  LocalModInfo,
   ResourcePackInfo,
   SchematicInfo,
   ScreenshotInfo,
@@ -36,13 +37,13 @@ export class InstanceService {
   /**
    * OPEN the specified instance subdir using system default fs manager.
    * @param {number} instanceId - The instance ID to open the subdir for.
-   * @param {InstanceSubdirType} dirType - The instance subdir type to open.
+   * @param {InstanceSubdirEnums} dirType - The instance subdir type to open.
    * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("instance", errorToLocaleKey)
   static async openInstanceSubdir(
     instanceId: number,
-    dirType: InstanceSubdirType
+    dirType: InstanceSubdirEnums
   ): Promise<InvokeResponse<void>> {
     return await invoke("open_instance_subdir", {
       instanceId,
@@ -78,6 +79,20 @@ export class InstanceService {
     return await invoke("retrive_game_server_list", {
       instanceId,
       queryOnline,
+    });
+  }
+
+  /**
+   * RETRIVE the list of local mods.
+   * @param {number} instanceId - The instance ID to retrive the local mods for.
+   * @returns {Promise<InvokeResponse<LocalModInfo[]>>}
+   */
+  @responseHandler("instance", errorToLocaleKey)
+  static async retriveLocalModList(
+    instanceId: number
+  ): Promise<InvokeResponse<LocalModInfo[]>> {
+    return await invoke("retrive_local_mod_list", {
+      instanceId,
     });
   }
 

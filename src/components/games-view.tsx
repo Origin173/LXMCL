@@ -38,7 +38,7 @@ const GamesView: React.FC<GamesViewProps> = ({
   }, [getSelectedGameInstance]);
 
   const generateDesc = (game: GameInstanceSummary) => {
-    if (game.modLoader.loaderType === "none") {
+    if (game.modLoader.loaderType === "Unknown") {
       return game.version;
     }
     return `${game.version}, ${game.modLoader.loaderType} ${game.modLoader.version}`;

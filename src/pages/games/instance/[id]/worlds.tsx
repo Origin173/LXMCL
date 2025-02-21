@@ -13,7 +13,7 @@ import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useToast } from "@/contexts/toast";
-import { InstanceSubdirType } from "@/enums/instance";
+import { InstanceSubdirEnums } from "@/enums/instance";
 import { GameServerInfo, WorldInfo } from "@/models/game-instance";
 import { InstanceService } from "@/services/instance";
 import { UNIXToISOString, formatRelativeTime } from "@/utils/datetime";
@@ -69,7 +69,7 @@ const InstanceWorldsPage = () => {
     {
       icon: "openFolder",
       onClick: () => {
-        openSubdir(InstanceSubdirType.Saves);
+        openSubdir(InstanceSubdirEnums.Saves);
       },
     },
     {

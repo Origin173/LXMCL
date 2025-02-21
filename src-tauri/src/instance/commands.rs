@@ -5,13 +5,14 @@ use super::{
   },
   helpers::{
     misc::{fetch_url, get_instance_subdir_path, refresh_and_update_instances},
+    mods::load_mod_from_file,
     resourcepack::{load_resourcepack_from_dir, load_resourcepack_from_zip},
     server::nbt_to_servers_info,
     world::nbt_to_world_info,
   },
   models::{
-    GameServerInfo, Instance, InstanceError, InstanceSubdirType, ResourcePackInfo, SchematicInfo,
-    ScreenshotInfo, ShaderPackInfo, WorldInfo,
+    GameServerInfo, Instance, InstanceError, InstanceSubdirType, LocalModInfo, ResourcePackInfo,
+    SchematicInfo, ScreenshotInfo, ShaderPackInfo, WorldInfo,
   },
 };
 use crate::error::SJMCLResult;
@@ -139,6 +140,29 @@ pub async fn retrive_game_server_list(
     }
   } // don't report error when missing nbt file
   Ok(game_servers)
+}
+
+#[tauri::command]
+pub async fn retrive_local_mod_list(
+  app: AppHandle,
+  instance_id: usize,
+) -> SJMCLResult<Vec<LocalModInfo>> {
+  let mut local_mods: Vec<LocalModInfo> = Vec::new();
+  let mods_dir = match get_instance_subdir_path(&app, instance_id, &InstanceSubdirType::Mods) {
+    Some(path) => path,
+    None => return Ok(Vec::new()),
+  };
+  let valid_extensions = RegexBuilder::new(r"\.jar(\.disabled)?$")
+    .case_insensitive(true)
+    .build()
+    .unwrap();
+
+  for path in get_files_with_regex(&mods_dir, &valid_extensions).unwrap_or_default() {
+    if let Ok(mod_info) = load_mod_from_file(&path) {
+      local_mods.push(mod_info);
+    }
+  }
+  Ok(local_mods)
 }
 
 #[tauri::command]

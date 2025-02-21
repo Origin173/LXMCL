@@ -43,7 +43,7 @@ const gameTypesToIcon: Record<string, string> = {
 };
 
 const modLoaderTypesToIcon: Record<string, string> = {
-  none: "",
+  Unknown: "",
   Fabric: "/images/icons/Fabric.png",
   Forge: "/images/icons/Anvil.png", // differ from that in mod-loader-selector
   NeoForge: "/images/icons/NeoForge.png",
@@ -206,7 +206,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
         key: "loader",
         content: step2Content,
         description:
-          selectedModLoader.loaderType === "none"
+          selectedModLoader.loaderType === "Unknown"
             ? t("CreateInstanceModal.stepper.skipped")
             : `${selectedModLoader.loaderType} ${selectedModLoader.version}`,
       },

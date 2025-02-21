@@ -8,7 +8,7 @@ import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useInstanceSharedData } from "@/contexts/instance";
-import { InstanceSubdirType } from "@/enums/instance";
+import { InstanceSubdirEnums } from "@/enums/instance";
 import { ShaderPackInfo } from "@/models/game-instance";
 
 const InstanceShaderPacksPage = () => {
@@ -24,7 +24,7 @@ const InstanceShaderPacksPage = () => {
     {
       icon: "openFolder",
       onClick: () => {
-        openSubdir(InstanceSubdirType.ShaderPacks);
+        openSubdir(InstanceSubdirEnums.ShaderPacks);
       },
     },
     {

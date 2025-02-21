@@ -1,4 +1,4 @@
-import { ModLoaderType } from "@/models/resource";
+import { ModLoaderType } from "@/enums/instance";
 
 export interface GameInstanceSummary {
   id: number;
@@ -37,7 +37,7 @@ export interface LocalModInfo {
   iconSrc: string;
   enabled: boolean;
   name: string;
-  transltedName?: string;
+  translatedName?: string;
   version: string;
   fileName: string;
   description?: string;
