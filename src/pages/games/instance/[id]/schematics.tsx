@@ -9,7 +9,7 @@ import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useInstanceSharedData } from "@/contexts/instance";
-import { InstanceSubdirType } from "@/enums/instance";
+import { InstanceSubdirEnums } from "@/enums/instance";
 import { SchematicInfo } from "@/models/game-instance";
 import { mockSchematics } from "@/models/mock/game-instance";
 
@@ -27,7 +27,7 @@ const InstanceSchematicsPage = () => {
     {
       icon: "openFolder",
       onClick: () => {
-        openSubdir(InstanceSubdirType.Schematics);
+        openSubdir(InstanceSubdirEnums.Schematics);
       },
     },
     {

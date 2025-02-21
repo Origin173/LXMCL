@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
-import { InstanceSubdirType } from "@/enums/instance";
+import { InstanceSubdirEnums } from "@/enums/instance";
 import { useGetState } from "@/hooks/get-state";
 import {
   GameInstanceSummary,
@@ -23,7 +23,7 @@ import { InstanceService } from "@/services/instance";
 
 export interface InstanceContextType {
   summary: GameInstanceSummary | undefined;
-  openSubdir: (dirType: InstanceSubdirType) => void;
+  openSubdir: (dirType: InstanceSubdirEnums) => void;
   getWorldList: (sync?: boolean) => WorldInfo[] | undefined;
   getLocalModList: (sync?: boolean) => LocalModInfo[] | undefined;
   getResourcePackList: (sync?: boolean) => ResourcePackInfo[] | undefined;
@@ -67,7 +67,7 @@ export const InstanceContextProvider: React.FC<{
   }, [router.query.id, getGameInstanceList]);
 
   const handleOpenInstanceSubdir = useCallback(
-    (dirType: InstanceSubdirType) => {
+    (dirType: InstanceSubdirEnums) => {
       if (instanceSummary?.id !== undefined) {
         InstanceService.openInstanceSubdir(instanceSummary.id, dirType).then(
           (response) => {

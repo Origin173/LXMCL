@@ -10,7 +10,7 @@ import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
-import { InstanceSubdirType } from "@/enums/instance";
+import { InstanceSubdirEnums } from "@/enums/instance";
 import { ResourcePackInfo } from "@/models/game-instance";
 import { base64ImgSrc } from "@/utils/string";
 
@@ -40,7 +40,7 @@ const InstanceResourcePacksPage = () => {
         {
           icon: "openFolder",
           onClick: () => {
-            openSubdir(InstanceSubdirType.ResourcePacks);
+            openSubdir(InstanceSubdirEnums.ResourcePacks);
           },
         },
         {

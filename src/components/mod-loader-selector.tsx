@@ -32,7 +32,7 @@ import { ResourceService } from "@/services/resource";
 import { ISOToDatetime } from "@/utils/datetime";
 
 const modLoaderTypesToIcon: Record<string, string> = {
-  none: "",
+  Unknown: "",
   Fabric: "Fabric.png",
   Forge: "Forge.png",
   NeoForge: "NeoForge.png",

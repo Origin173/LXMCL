@@ -1,9 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
-import {
-  GameResourceInfo,
-  ModLoaderResourceInfo,
-  ModLoaderType,
-} from "@/models/resource";
+import { ModLoaderType } from "@/enums/instance";
+import { GameResourceInfo, ModLoaderResourceInfo } from "@/models/resource";
 import { InvokeResponse } from "@/models/response";
 import { responseHandler } from "@/utils/response";
 

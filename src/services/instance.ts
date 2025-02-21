@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { InstanceSubdirType } from "@/enums/instance";
+import { InstanceSubdirEnums } from "@/enums/instance";
 import {
   GameInstanceSummary,
   GameServerInfo,
@@ -37,13 +37,13 @@ export class InstanceService {
   /**
    * OPEN the specified instance subdir using system default fs manager.
    * @param {number} instanceId - The instance ID to open the subdir for.
-   * @param {InstanceSubdirType} dirType - The instance subdir type to open.
+   * @param {InstanceSubdirEnums} dirType - The instance subdir type to open.
    * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("instance", errorToLocaleKey)
   static async openInstanceSubdir(
     instanceId: number,
-    dirType: InstanceSubdirType
+    dirType: InstanceSubdirEnums
   ): Promise<InvokeResponse<void>> {
     return await invoke("open_instance_subdir", {
       instanceId,

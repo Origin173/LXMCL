@@ -11,15 +11,15 @@ use super::{
     world::nbt_to_world_info,
   },
   models::{
-    GameServerInfo, Instance, InstanceError, InstanceSubdirType, LocalModInfo, ModLoaderType,
-    ResourcePackInfo, SchematicInfo, ScreenshotInfo, ShaderPackInfo, WorldInfo,
+    GameServerInfo, Instance, InstanceError, InstanceSubdirType, LocalModInfo, ResourcePackInfo,
+    SchematicInfo, ScreenshotInfo, ShaderPackInfo, WorldInfo,
   },
 };
 use crate::error::SJMCLResult;
 use futures;
 use quartz_nbt::io::Flavor;
 use regex::RegexBuilder;
-use std::{fmt::format, sync::Mutex, time::SystemTime};
+use std::{sync::Mutex, time::SystemTime};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_shell::ShellExt;
 use tokio;

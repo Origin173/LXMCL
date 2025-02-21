@@ -3,9 +3,6 @@ import {
   LocalModInfo,
   ResourcePackInfo,
   SchematicInfo,
-  ScreenshotInfo,
-  ShaderPackInfo,
-  WorldInfo,
 } from "@/models/game-instance";
 
 export const mockGameInstanceList: GameInstanceSummary[] = [

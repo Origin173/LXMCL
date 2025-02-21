@@ -20,7 +20,7 @@ pub enum InstanceSubdirType {
 pub enum ModLoaderType {
   Unknown,
   Fabric,
-  ForgeNew,
+  Forge,
   ForgeOld,
   NeoForge,
   LiteLoader,

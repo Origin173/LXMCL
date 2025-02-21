@@ -3,10 +3,10 @@ use crate::instance::models::{LocalModInfo, ModLoaderType};
 use crate::utils::image::image_to_base64;
 use image::ImageReader;
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, VecDeque};
+use std::collections::HashMap;
 use std::fs::File;
-use std::io::{self, Cursor, Read, Seek};
-use std::path::{Path, PathBuf};
+use std::io::{Cursor, Read, Seek};
+use std::path::PathBuf;
 use zip::ZipArchive;
 
 pub fn load_mod_from_file(path: &PathBuf) -> SJMCLResult<LocalModInfo> {
@@ -42,6 +42,7 @@ pub fn load_mod_from_file(path: &PathBuf) -> SJMCLResult<LocalModInfo> {
     file_name
   )))
 }
+
 // Implementations for FabricModMetadata
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
