@@ -109,6 +109,17 @@
       "serverUrl": "Server URL"
     }
   },
+  "AddDiscoverSourceModal": {
+    "modal": {
+      "header": "Add Data Source"
+    },
+    "label": {
+      "endpointUrl": "Endpoint URL"
+    },
+    "placeholder": {
+      "endpointUrl": "Endpoint URL"
+    }
+  },
   "AddPlayerModal": {
     "modal": {
       "header": "Add Player"
