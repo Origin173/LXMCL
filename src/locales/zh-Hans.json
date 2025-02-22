@@ -358,6 +358,19 @@
       }
     }
   },
+  "DownloadTasksPage": {
+    "title": "下载中任务",
+    "button": {
+      "settings": "下载设置",
+      "pause": "暂停",
+      "begin": "开始",
+      "retry": "重试"
+    },
+    "label": {
+      "paused": "已暂停",
+      "error": "错误"
+    }
+  },
   "Editable": {
     "edit": "编辑",
     "save": "保存",

@@ -358,6 +358,19 @@
       }
     }
   },
+  "DownloadTasksPage": {
+    "title": "Downloading Tasks",
+    "button": {
+      "settings": "Download Settings",
+      "pause": "Pause",
+      "begin": "Start",
+      "retry": "Retry"
+    },
+    "label": {
+      "paused": "Paused",
+      "error": "Error"
+    }
+  },
   "Editable": {
     "edit": "Edit",
     "save": "Save",
