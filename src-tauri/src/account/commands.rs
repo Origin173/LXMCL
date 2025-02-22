@@ -47,19 +47,19 @@ pub fn update_selected_player(uuid: Uuid) -> SJMCLResult<()> {
 pub async fn add_player_offline(app: AppHandle, username: String) -> SJMCLResult<()> {
   let mut state: AccountInfo = Storage::load().unwrap_or_default();
 
-  let player = offline::login(app, username).await?;
+  let new_player = offline::login(app, username).await?;
 
   if state
     .players
     .iter()
-    .any(|player| player.uuid.to_string() == player.uuid.to_string())
+    .any(|player| player.uuid.to_string() == new_player.uuid.to_string())
   {
     return Err(AccountError::Duplicate.into());
   }
 
-  state.selected_player_id = player.uuid.to_string();
+  state.selected_player_id = new_player.uuid.to_string();
 
-  state.players.push(player);
+  state.players.push(new_player);
   state.save()?;
   Ok(())
 }
@@ -71,19 +71,19 @@ pub async fn add_player_oauth(
   openid_configuration_url: String,
 ) -> SJMCLResult<()> {
   let mut state: AccountInfo = Storage::load().unwrap_or_default();
-  let player = oauth::login(app, auth_server_url, openid_configuration_url).await?;
+  let new_player = oauth::login(app, auth_server_url, openid_configuration_url).await?;
 
   if state
     .players
     .iter()
-    .any(|player| player.uuid.to_string() == player.uuid.to_string())
+    .any(|player| player.uuid.to_string() == new_player.uuid.to_string())
   {
     return Err(AccountError::Duplicate.into());
   }
 
-  state.selected_player_id = player.uuid.to_string();
+  state.selected_player_id = new_player.uuid.to_string();
 
-  state.players.push(player);
+  state.players.push(new_player);
   state.save()?;
   Ok(())
 }
