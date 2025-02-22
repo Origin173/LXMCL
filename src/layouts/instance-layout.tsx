@@ -112,34 +112,33 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
         </HStack>
       }
     >
-      <VStack align="strench" h="100%" spacing={4}>
-        <NavMenu
-          flexWrap="wrap"
-          selectedKeys={[router.asPath]}
-          onClick={(value) => router.push(value)}
-          direction="row"
-          size="xs"
-          spacing={
-            config.general.general.language.startsWith("zh") &&
-            summary?.hasSchemFolder
-              ? 0
-              : 1
-          }
-          items={instanceTabList.map((item) => ({
-            value: `/games/instance/${router.query.id}/${item.key}`,
-            label: (
-              <HStack spacing={1.5}>
-                <Icon as={item.icon} />
-                <Text fontSize="sm">
-                  {t(`InstanceLayout.instanceTabList.${item.key}`)}
-                </Text>
-              </HStack>
-            ),
-          }))}
-        />
-        <VStack overflow="auto" align="strench" spacing={4} flex="1">
-          {children}
-        </VStack>
+      <NavMenu
+        flexWrap="wrap"
+        selectedKeys={[router.asPath]}
+        onClick={(value) => router.push(value)}
+        direction="row"
+        size="xs"
+        mb={4}
+        spacing={
+          config.general.general.language.startsWith("zh") &&
+          summary?.hasSchemFolder
+            ? 0
+            : 1
+        }
+        items={instanceTabList.map((item) => ({
+          value: `/games/instance/${router.query.id}/${item.key}`,
+          label: (
+            <HStack spacing={1.5}>
+              <Icon as={item.icon} />
+              <Text fontSize="sm">
+                {t(`InstanceLayout.instanceTabList.${item.key}`)}
+              </Text>
+            </HStack>
+          ),
+        }))}
+      />
+      <VStack overflow="auto" align="strench" spacing={4} flex="1">
+        {children}
       </VStack>
     </Section>
   );
