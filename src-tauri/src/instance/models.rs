@@ -1,6 +1,10 @@
 use crate::launcher_config::models::GameConfig;
 use serde::{Deserialize, Serialize};
-use std::{fmt, path::PathBuf};
+use std::{
+  cmp::{Ord, Ordering, PartialOrd},
+  fmt,
+  path::PathBuf,
+};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum InstanceSubdirType {
@@ -16,8 +20,9 @@ pub enum InstanceSubdirType {
   ShaderPacks,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
 pub enum ModLoaderType {
+  #[default]
   Unknown,
   Fabric,
   Forge,
@@ -25,12 +30,6 @@ pub enum ModLoaderType {
   NeoForge,
   LiteLoader,
   Quilt,
-}
-
-impl Default for ModLoaderType {
-  fn default() -> Self {
-    ModLoaderType::Unknown
-  }
 }
 
 structstruck::strike! {
@@ -75,7 +74,7 @@ pub struct GameServerInfo {
   pub online: bool, // if false, it may be offline in the query result or failed in the query.
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct LocalModInfo {
   pub icon_src: String,
@@ -87,6 +86,29 @@ pub struct LocalModInfo {
   pub description: String,
   pub potential_incompatibility: bool,
   pub loader_type: ModLoaderType,
+  pub file_path: PathBuf,
+}
+
+impl PartialEq for LocalModInfo {
+  fn eq(&self, other: &Self) -> bool {
+    self.name == other.name && self.version == other.version
+  }
+}
+
+impl Eq for LocalModInfo {}
+
+impl PartialOrd for LocalModInfo {
+  fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+    Some(self.cmp(other))
+  }
+}
+impl Ord for LocalModInfo {
+  fn cmp(&self, other: &Self) -> Ordering {
+    match self.name.cmp(&other.name) {
+      Ordering::Equal => self.version.cmp(&other.version),
+      order => order,
+    }
+  }
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
@@ -138,3 +160,36 @@ impl fmt::Display for InstanceError {
 }
 
 impl std::error::Error for InstanceError {}
+
+#[derive(PartialEq, Eq, Clone)]
+pub enum TranslatableItem {
+  Id,
+  Name,
+  Version,
+  Description,
+  Author,
+  Contact,
+  License,
+  Credits,
+  McVersion,
+}
+
+impl fmt::Display for TranslatableItem {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match self {
+      Self::Id => write!(f, "TI_ID"),
+      Self::Name => write!(f, "TI_NAME"),
+      Self::Version => write!(f, "TI_VERSION"),
+      Self::Description => write!(f, "TI_DESCRIPTION"),
+      Self::Author => write!(f, "TI_AUTHOR"),
+      Self::Contact => write!(f, "TI_CONTACT"),
+      Self::License => write!(f, "TI_LICENSE"),
+      Self::Credits => write!(f, "TI_CREDITS"),
+      Self::McVersion => write!(f, "TI_MC_VERSION"),
+    }
+  }
+}
+
+pub trait ToTranslatableTable {
+  fn to_translatable_table(&self) -> Vec<(TranslatableItem, String)>;
+}

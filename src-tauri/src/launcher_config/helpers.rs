@@ -109,7 +109,7 @@ pub fn get_java_paths() -> Vec<String> {
   let command_output = Command::new("where").arg("java").output();
 
   #[cfg(any(target_os = "macos", target_os = "linux"))]
-  let command_output = Command::new("which").args(&["-a", "java"]).output();
+  let command_output = Command::new("which").args(["-a", "java"]).output();
 
   if let Ok(output) = command_output {
     if output.status.success() {
@@ -229,7 +229,7 @@ pub fn get_java_info_from_command(java_path: &str) -> Option<(String, String)> {
   let stderr_str = String::from_utf8_lossy(&stderr_bytes);
   let lines: Vec<&str> = stderr_str.lines().collect();
 
-  let mut vendor = "Unknown".to_string();
+  let vendor = "Unknown".to_string();
   let mut full_version = "0".to_string();
 
   if let Some(first_line) = lines.first() {

@@ -5,7 +5,7 @@ use super::{
   },
   helpers::{
     misc::{fetch_url, get_instance_subdir_path, refresh_and_update_instances},
-    mods::load_mod_from_file,
+    mods::main_loader::load_mod_from_file,
     resourcepack::{load_resourcepack_from_dir, load_resourcepack_from_zip},
     server::nbt_to_servers_info,
     world::nbt_to_world_info,
@@ -101,8 +101,8 @@ pub async fn retrive_game_server_list(
     if let Ok(servers) = nbt_to_servers_info(&nbt) {
       for (ip, name, icon) in servers {
         game_servers.push(GameServerInfo {
-          ip: ip,
-          name: name,
+          ip,
+          name,
           icon_src: icon,
           is_queried: false,
           players_max: 0,
@@ -162,6 +162,8 @@ pub async fn retrive_local_mod_list(
       local_mods.push(mod_info);
     }
   }
+  local_mods.sort();
+
   Ok(local_mods)
 }
 
@@ -190,9 +192,9 @@ pub async fn retrive_resource_pack_list(
         None => String::new(),
       };
       info_list.push(ResourcePackInfo {
-        name: name,
-        description: description,
-        icon_src: icon_src,
+        name,
+        description,
+        icon_src,
         file_path: path.clone(),
       });
     }
@@ -205,9 +207,9 @@ pub async fn retrive_resource_pack_list(
         None => String::new(),
       };
       info_list.push(ResourcePackInfo {
-        name: name,
-        description: description,
-        icon_src: icon_src,
+        name,
+        description,
+        icon_src,
         file_path: path.clone(),
       });
     }
@@ -239,9 +241,9 @@ pub async fn retrive_server_resource_pack_list(
         None => String::new(),
       };
       info_list.push(ResourcePackInfo {
-        name: name,
-        description: description,
-        icon_src: icon_src,
+        name,
+        description,
+        icon_src,
         file_path: path.clone(),
       });
     }
@@ -255,9 +257,9 @@ pub async fn retrive_server_resource_pack_list(
       };
 
       info_list.push(ResourcePackInfo {
-        name: name,
-        description: description,
-        icon_src: icon_src,
+        name,
+        description,
+        icon_src,
         file_path: path.clone(),
       });
     }

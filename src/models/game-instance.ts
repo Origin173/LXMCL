@@ -42,6 +42,7 @@ export interface LocalModInfo {
   fileName: string;
   description?: string;
   potentialIncompatibility: boolean;
+  filePath: string;
 }
 
 export interface ResourcePackInfo {
