@@ -5,7 +5,7 @@ use super::{
   },
   helpers::{
     misc::{fetch_url, get_instance_subdir_path, refresh_and_update_instances},
-    mods::load_mod_from_file,
+    mods::main_loader::load_mod_from_file,
     resourcepack::{load_resourcepack_from_dir, load_resourcepack_from_zip},
     server::nbt_to_servers_info,
     world::nbt_to_world_info,
@@ -162,6 +162,8 @@ pub async fn retrive_local_mod_list(
       local_mods.push(mod_info);
     }
   }
+  local_mods.sort();
+
   Ok(local_mods)
 }
 
