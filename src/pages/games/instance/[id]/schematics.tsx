@@ -10,8 +10,8 @@ import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { InstanceSubdirEnums } from "@/enums/instance";
-import { SchematicInfo } from "@/models/game-instance";
-import { mockSchematics } from "@/models/mock/game-instance";
+import { SchematicInfo } from "@/models/instance";
+import { mockSchematics } from "@/models/mock/instance";
 
 const InstanceSchematicsPage = () => {
   const { t } = useTranslation();

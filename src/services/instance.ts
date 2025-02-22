@@ -9,7 +9,7 @@ import {
   ScreenshotInfo,
   ShaderPackInfo,
   WorldInfo,
-} from "@/models/game-instance";
+} from "@/models/instance";
 import { InvokeResponse } from "@/models/response";
 import { responseHandler } from "@/utils/response";
 

@@ -39,10 +39,11 @@ export interface LocalModInfo {
   name: string;
   translatedName?: string;
   version: string;
+  loaderType: ModLoaderType;
   fileName: string;
+  filePath: string;
   description?: string;
   potentialIncompatibility: boolean;
-  filePath: string;
 }
 
 export interface ResourcePackInfo {

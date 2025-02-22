@@ -82,11 +82,11 @@ pub struct LocalModInfo {
   pub name: String,
   pub translated_name: Option<String>,
   pub version: String,
+  pub loader_type: ModLoaderType,
   pub file_name: String,
+  pub file_path: PathBuf,
   pub description: String,
   pub potential_incompatibility: bool,
-  pub loader_type: ModLoaderType,
-  pub file_path: PathBuf,
 }
 
 impl PartialEq for LocalModInfo {

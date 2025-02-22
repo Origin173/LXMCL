@@ -21,7 +21,7 @@ import {
 } from "react-icons/lu";
 import { CommonIconButton } from "@/components/common/common-icon-button";
 import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
-import { GameInstanceSummary } from "@/models/game-instance";
+import { GameInstanceSummary } from "@/models/instance";
 
 interface GameMenuProps {
   game: GameInstanceSummary;
