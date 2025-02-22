@@ -1101,14 +1101,24 @@
       }
     },
     "account": {
-      "addPlayer": {
-        "success": "角色添加成功",
+      "addPlayerOffline": {
+        "success": "离线角色添加成功",
         "error": {
-          "title": "角色添加失败",
+          "title": "离线角色添加失败",
           "description": {
-            "invalid": "无效的角色的类型",
-            "textureError": "角色皮肤获取失败",
-            "authServerError": "登录认证服务器失败"
+            "duplicate": "角色已存在",
+            "textureError": "角色皮肤获取失败"
+          }
+        }
+      },
+      "addPlayerOAuth": {
+        "success": "OAuth 方式添加角色成功",
+        "error": {
+          "title": "OAuth 方式添加角色失败",
+          "description": {
+            "duplicate": "角色已存在",
+            "authServerError": "无法连接至认证服务器，或服务器不支持该登录方式",
+            "textureError": "角色皮肤获取失败"
           }
         }
       },

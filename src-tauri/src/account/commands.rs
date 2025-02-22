@@ -1,5 +1,8 @@
 use super::{
-  helpers::{authlib_injector::fetch_auth_server, offline::offline_login},
+  helpers::{
+    authlib_injector::{oauth, server::fetch_auth_server},
+    offline,
+  },
   models::{AccountError, AccountInfo, AuthServer, Player},
 };
 use crate::{error::SJMCLResult, storage::Storage};
@@ -41,33 +44,48 @@ pub fn update_selected_player(uuid: Uuid) -> SJMCLResult<()> {
 }
 
 #[tauri::command]
-pub async fn add_player(
-  app: AppHandle,
-  player_type: String,
-  username: String,
-  password: String,
-  auth_server_url: String,
-) -> SJMCLResult<()> {
+pub async fn add_player_offline(app: AppHandle, username: String) -> SJMCLResult<()> {
   let mut state: AccountInfo = Storage::load().unwrap_or_default();
 
-  match player_type.as_str() {
-    "offline" => {
-      let player = offline_login(app, username).await?;
-      state.selected_player_id = player.uuid.to_string();
-      state.players.push(player);
-      state.save()?;
-      Ok(())
-    }
-    "microsoft" => {
-      // todo
-      Ok(())
-    }
-    "3rdparty" => {
-      // todo
-      Ok(())
-    }
-    _ => Err(AccountError::Invalid.into()),
+  let player = offline::login(app, username).await?;
+
+  if state
+    .players
+    .iter()
+    .any(|player| player.uuid.to_string() == player.uuid.to_string())
+  {
+    return Err(AccountError::Duplicate.into());
   }
+
+  state.selected_player_id = player.uuid.to_string();
+
+  state.players.push(player);
+  state.save()?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn add_player_oauth(
+  app: AppHandle,
+  auth_server_url: String,
+  openid_configuration_url: String,
+) -> SJMCLResult<()> {
+  let mut state: AccountInfo = Storage::load().unwrap_or_default();
+  let player = oauth::login(app, auth_server_url, openid_configuration_url).await?;
+
+  if state
+    .players
+    .iter()
+    .any(|player| player.uuid.to_string() == player.uuid.to_string())
+  {
+    return Err(AccountError::Duplicate.into());
+  }
+
+  state.selected_player_id = player.uuid.to_string();
+
+  state.players.push(player);
+  state.save()?;
+  Ok(())
 }
 
 #[tauri::command]

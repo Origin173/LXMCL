@@ -8,7 +8,7 @@ use std::fs;
 use tauri::{path::BaseDirectory, AppHandle, Manager};
 use uuid::Uuid;
 
-pub async fn offline_login(app: AppHandle, username: String) -> SJMCLResult<PlayerInfo> {
+pub async fn login(app: AppHandle, username: String) -> SJMCLResult<PlayerInfo> {
   let name_with_prefix = format!("OfflinePlayer:{}", username);
   let uuid = Uuid::new_v5(&Uuid::NAMESPACE_URL, name_with_prefix.as_bytes());
 
@@ -43,6 +43,5 @@ pub async fn offline_login(app: AppHandle, username: String) -> SJMCLResult<Play
       image: image_to_base64(texture_img.into())?,
       model: "default".to_string(),
     }],
-    uploadable_textures: "skin,cape".to_string(),
   })
 }
