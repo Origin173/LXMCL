@@ -61,6 +61,7 @@ const ReLogin3rdPartyPlayerModal: React.FC<
                 placeholder={t(
                   "ReLogin3rdPartyPlayerModal.placeholder.password"
                 )}
+                focusBorderColor={`${primaryColor}.500`}
               />
             </FormControl>
           </VStack>
