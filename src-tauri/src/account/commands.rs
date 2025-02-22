@@ -1,6 +1,7 @@
 use super::{
+  constants::TEXTURE_ROLES,
   helpers::{
-    authlib_injector::{oauth, server::fetch_auth_server},
+    authlib_injector::{info::fetch_auth_server, oauth},
     offline,
   },
   models::{AccountError, AccountInfo, AuthServer, Player},
@@ -85,6 +86,35 @@ pub async fn add_player_oauth(
 
   state.players.push(new_player);
   state.save()?;
+  Ok(())
+}
+
+#[tauri::command]
+pub fn update_player_skin_offline_preset(
+  app: AppHandle,
+  uuid: Uuid,
+  preset_role: String,
+) -> SJMCLResult<()> {
+  let mut state: AccountInfo = Storage::load().unwrap_or_default();
+
+  let player = state
+    .players
+    .iter_mut()
+    .find(|player| player.uuid.to_string() == uuid.to_string())
+    .ok_or(AccountError::NotFound)?;
+
+  if player.player_type != "offline" {
+    return Err(AccountError::Invalid.into());
+  }
+
+  if TEXTURE_ROLES.contains(&preset_role.as_str()) {
+    player.textures = offline::load_preset_skin(app, preset_role)?;
+  } else {
+    return Err(AccountError::TextureError.into());
+  }
+
+  state.save()?;
+
   Ok(())
 }
 

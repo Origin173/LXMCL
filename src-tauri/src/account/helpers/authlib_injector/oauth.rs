@@ -1,5 +1,7 @@
-use super::constants::{CLIENT_ID, SCOPE, TEXTURE_TYPES};
-use crate::account::models::{AccountError, PlayerInfo, Texture};
+use crate::account::{
+  constants::{CLIENT_ID, SCOPE, TEXTURE_TYPES},
+  models::{AccountError, PlayerInfo, Texture},
+};
 use crate::error::SJMCLResult;
 use base64::{engine::general_purpose, Engine};
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};

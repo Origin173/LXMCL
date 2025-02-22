@@ -50,6 +50,7 @@ pub async fn run() {
       account::commands::retrive_player_list,
       account::commands::add_player_offline,
       account::commands::add_player_oauth,
+      account::commands::update_player_skin_offline_preset,
       account::commands::delete_player,
       account::commands::retrive_selected_player,
       account::commands::update_selected_player,

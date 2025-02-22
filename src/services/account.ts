@@ -45,7 +45,6 @@ export class AccountService {
    * @param {string} openidConfigurationUrl - The authentication server's openid configuration url.
    * @returns {Promise<InvokeResponse<void>>}
    */
-
   @responseHandler("account", errorToLocaleKey)
   static async addPlayerOAuth(
     authServerUrl: string,
@@ -54,6 +53,23 @@ export class AccountService {
     return await invoke("add_player_oauth", {
       authServerUrl,
       openidConfigurationUrl,
+    });
+  }
+
+  /**
+   * UPDATE the skin of an offline player within preset roles (Steve, Alex).
+   * @param {string} uuid - The UUID of the player to be updated.
+   * @param {string} presetRole - The preset role that the player's skin will be.
+   * @returns {Promise<InvokeResponse<void>>}
+   */
+  @responseHandler("account", errorToLocaleKey)
+  static async updatePlayerSkinOfflinePreset(
+    uuid: string,
+    presetRole: string
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("update_player_skin_offline_preset", {
+      uuid,
+      presetRole,
     });
   }
 
