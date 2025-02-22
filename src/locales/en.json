@@ -1118,7 +1118,8 @@
           "description": {
             "duplicate": "Player already exists",
             "authServerError": "Unable to connect to authentication server, or OAuth is not enabled",
-            "textureError": "Unable to get player texture"
+            "textureError": "Unable to get player texture",
+            "cancelled": "OAuth login cancelled"
           }
         }
       },

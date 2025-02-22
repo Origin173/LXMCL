@@ -133,6 +133,7 @@ pub enum AccountError {
   NotFound,
   TextureError,
   AuthServerError,
+  Cancelled,
 }
 
 impl fmt::Display for AccountError {
@@ -143,6 +144,7 @@ impl fmt::Display for AccountError {
       AccountError::NotFound => write!(f, "NOT_FOUND"),
       AccountError::TextureError => write!(f, "TEXTURE_ERROR"),
       AccountError::AuthServerError => write!(f, "AUTH_SERVER_ERROR"),
+      AccountError::Cancelled => write!(f, "CANCELLED"),
     }
   }
 }

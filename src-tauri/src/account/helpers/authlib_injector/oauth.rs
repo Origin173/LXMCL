@@ -4,7 +4,8 @@ use crate::error::SJMCLResult;
 use base64::{engine::general_purpose, Engine};
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use serde_json::Value;
-use tauri::{AppHandle, PhysicalSize, Size, Url, WebviewUrl, WebviewWindowBuilder};
+use std::sync::{Arc, Mutex};
+use tauri::{AppHandle, LogicalSize, Size, Url, WebviewUrl, WebviewWindowBuilder};
 use tauri_plugin_http::reqwest::{self, Client};
 use tokio::time::{sleep, Duration};
 use uuid::Uuid;
@@ -187,17 +188,31 @@ pub async fn login(
   let verification_url =
     Url::parse(verification_uri_complete.as_str()).map_err(|_| AccountError::AuthServerError)?;
 
+  let is_cancelled = Arc::new(Mutex::new(false));
+  let cancelled_clone = Arc::clone(&is_cancelled);
+
   let auth_webview_window =
     WebviewWindowBuilder::new(&app_handle, "", WebviewUrl::External(verification_url))
       .title("")
       .build()
-      .unwrap();
-  let _ = auth_webview_window.set_size(Size::new(PhysicalSize::new(750, 550)));
+      .map_err(|_| AccountError::AuthServerError)?;
+
+  auth_webview_window.set_size(Size::Logical(LogicalSize::new(650.0, 500.0)))?;
+  auth_webview_window.center()?;
+  auth_webview_window.on_window_event(move |event| {
+    if let tauri::WindowEvent::Destroyed = event {
+      *cancelled_clone.lock().unwrap() = true;
+    }
+  });
 
   let access_token: String;
   let id_token: String;
 
   loop {
+    if *is_cancelled.lock().unwrap() {
+      return Err(AccountError::Cancelled)?;
+    }
+
     let token_response = client
       .post(token_endpoint)
       .json(&serde_json::json!({
