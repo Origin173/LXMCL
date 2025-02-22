@@ -109,6 +109,17 @@
       "serverUrl": "服务器地址"
     }
   },
+  "AddDiscoverSourceModal": {
+    "modal": {
+      "header": "添加数据源"
+    },
+    "label": {
+      "endpointUrl": "源地址"
+    },
+    "placeholder": {
+      "endpointUrl": "源地址"
+    }
+  },
   "AddPlayerModal": {
     "modal": {
       "header": "添加角色"
@@ -566,7 +577,7 @@
         },
         "customInfo": {
           "title": "自定义信息",
-          "description": "将显示在游戏主界面右下角，与 F3 调试页面左上角"
+          "description": "将显示在游戏主界面右下角与 F3 调试页面左上角"
         }
       }
     },

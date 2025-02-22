@@ -1,4 +1,5 @@
 mod account;
+mod discover;
 mod error;
 mod instance;
 mod launcher_config;
@@ -66,8 +67,9 @@ pub async fn run() {
       instance::commands::retrive_schematic_list,
       instance::commands::retrive_shader_pack_list,
       instance::commands::retrive_screenshot_list,
-      resource::commands::retrive_game_version_list,
-      resource::commands::retrive_mod_loader_version_list,
+      resource::commands::fetch_game_version_list,
+      resource::commands::fetch_mod_loader_version_list,
+      discover::commands::fetch_post_sources_info,
     ])
     .setup(|app| {
       let is_dev = cfg!(debug_assertions);

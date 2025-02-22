@@ -12,7 +12,7 @@ export const CoreContributorsList = [
     contribution: "fullStackDev",
   },
   {
-    username: "w1049",
+    username: "Reqwey",
     contribution: "fullStackDev",
   },
   {
@@ -20,11 +20,11 @@ export const CoreContributorsList = [
     contribution: "fullStackDev",
   },
   {
-    username: "Reqwey",
-    contribution: "fullStackDev",
+    username: "fangtiancheng",
+    contribution: "backendDev",
   },
   {
-    username: "fangtiancheng",
+    username: "w1049",
     contribution: "backendDev",
   },
   {

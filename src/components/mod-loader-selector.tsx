@@ -58,7 +58,7 @@ export const ModLoaderSelector: React.FC<ModLoaderSelectorProps> = ({
 
   useEffect(() => {
     setLoading(true);
-    ResourceService.retriveModLoaderVersionList(
+    ResourceService.fetchModLoaderVersionList(
       selectedGameVersion.id,
       selectedModLoader.loaderType
     )
