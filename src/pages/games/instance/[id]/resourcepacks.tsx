@@ -1,7 +1,6 @@
 import { HStack, Image } from "@chakra-ui/react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CommonIconButton } from "@/components/common/common-icon-button";
 import CountTag from "@/components/common/count-tag";
@@ -19,13 +18,15 @@ import { base64ImgSrc } from "@/utils/string";
 const InstanceResourcePacksPage = () => {
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
-  const { openSubdir, getResourcePackList, getServerResourcePackList } =
-    useInstanceSharedData();
+  const {
+    summary,
+    openSubdir,
+    getResourcePackList,
+    getServerResourcePackList,
+  } = useInstanceSharedData();
   const accordionStates =
     config.states.instanceResourcepackPage.accordionStates;
   const { openSharedModal } = useSharedModals();
-  const router = useRouter();
-  const instanceId = Number(router.query.id);
 
   const [resourcePacks, setResourcePacks] = useState<ResourcePackInfo[]>([]);
   const [serverResPacks, setServerResPacks] = useState<ResourcePackInfo[]>([]);
@@ -144,7 +145,7 @@ const InstanceResourcePacksPage = () => {
                             openSharedModal("copy-or-move", {
                               dirType: "ResourcePacks",
                               resourceName: pack.name,
-                              srcInstanceId: instanceId,
+                              srcInstanceId: summary?.id,
                             });
                           }}
                         />

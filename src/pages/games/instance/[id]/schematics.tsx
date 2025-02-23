@@ -1,6 +1,5 @@
 import { HStack } from "@chakra-ui/react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuEye } from "react-icons/lu";
@@ -16,10 +15,8 @@ import { SchematicInfo } from "@/models/game-instance";
 
 const InstanceSchematicsPage = () => {
   const { t } = useTranslation();
-  const { openSubdir, getSchematicList } = useInstanceSharedData();
+  const { summary, openSubdir, getSchematicList } = useInstanceSharedData();
   const { openSharedModal } = useSharedModals();
-  const router = useRouter();
-  const instanceId = Number(router.query.id);
 
   const [schematics, setSchematics] = useState<SchematicInfo[]>([]);
 
@@ -55,7 +52,7 @@ const InstanceSchematicsPage = () => {
         openSharedModal("copy-or-move", {
           dirType: "Schematics",
           resourceName: schematic.name,
-          srcInstanceId: instanceId,
+          srcInstanceId: summary?.id,
         });
       },
     },

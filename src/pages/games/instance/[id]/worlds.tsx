@@ -1,9 +1,7 @@
-import { Image } from "@chakra-ui/react";
-import { HStack, Tag, TagLabel, Text } from "@chakra-ui/react";
+import { HStack, Image, Tag, TagLabel, Text } from "@chakra-ui/react";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-shell";
-import { useRouter } from "next/router";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuCheck, LuX } from "react-icons/lu";
 import { CommonIconButton } from "@/components/common/common-icon-button";
@@ -28,8 +26,6 @@ const InstanceWorldsPage = () => {
   const accordionStates = config.states.instanceWorldsPage.accordionStates;
   const toast = useToast();
   const { openSharedModal } = useSharedModals();
-  const router = useRouter();
-  const instanceId = Number(router.query.id);
 
   const [worlds, setWorlds] = useState<WorldInfo[]>([]);
   const [gameServers, setGameServers] = useState<GameServerInfo[]>([]);
@@ -101,7 +97,7 @@ const InstanceWorldsPage = () => {
         openSharedModal("copy-or-move", {
           dirType: "Saves",
           resourceName: save.name,
-          srcInstanceId: instanceId,
+          srcInstanceId: summary?.id,
         });
       },
     },

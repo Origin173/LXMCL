@@ -1,7 +1,6 @@
 import { HStack } from "@chakra-ui/react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CommonIconButton } from "@/components/common/common-icon-button";
 import CountTag from "@/components/common/count-tag";
@@ -15,10 +14,8 @@ import { ShaderPackInfo } from "@/models/game-instance";
 
 const InstanceShaderPacksPage = () => {
   const { t } = useTranslation();
-  const { openSubdir, getShaderPackList } = useInstanceSharedData();
+  const { summary, openSubdir, getShaderPackList } = useInstanceSharedData();
   const { openSharedModal } = useSharedModals();
-  const router = useRouter();
-  const instanceId = Number(router.query.id);
 
   const [shaderPacks, setShaderPacks] = useState<ShaderPackInfo[]>([]);
 
@@ -57,7 +54,7 @@ const InstanceShaderPacksPage = () => {
         openSharedModal("copy-or-move", {
           dirType: "ShaderPacks",
           resourceName: pack.fileName,
-          srcInstanceId: instanceId,
+          srcInstanceId: summary?.id,
         });
       },
     },
