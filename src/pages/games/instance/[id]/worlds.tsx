@@ -95,10 +95,8 @@ const InstanceWorldsPage = () => {
       icon: "copyOrMove",
       onClick: () => {
         openSharedModal("copy-or-move", {
-          dirType: "Saves",
-          resourceName: save.name,
-          filePath: save.dirPath,
-          srcInstanceId: summary?.id,
+          srcResName: save.name,
+          srcFilePath: save.dirPath,
         });
       },
     },

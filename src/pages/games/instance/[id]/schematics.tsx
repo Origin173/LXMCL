@@ -50,10 +50,8 @@ const InstanceSchematicsPage = () => {
       icon: "copyOrMove",
       onClick: () => {
         openSharedModal("copy-or-move", {
-          dirType: "Schematics",
-          resourceName: schematic.name,
-          filePath: schematic.filePath,
-          srcInstanceId: summary?.id,
+          srcResName: schematic.name,
+          srcFilePath: schematic.filePath,
         });
       },
     },

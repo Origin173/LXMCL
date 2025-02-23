@@ -19,6 +19,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuCopy, LuScissors } from "react-icons/lu";
@@ -32,23 +33,24 @@ import { GameInstanceSummary } from "@/models/game-instance";
 import { InstanceService } from "@/services/instance";
 
 interface CopyOrMoveModalProps extends Omit<ModalProps, "children"> {
-  dirType: InstanceSubdirEnums;
-  resourceName: string;
-  filePath: string;
-  srcInstanceId: number;
+  srcResName: string;
+  srcFilePath: string;
+  tgtDirType?: InstanceSubdirEnums;
+  srcInstanceId?: number;
 }
 
 const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
-  dirType,
-  resourceName,
-  filePath,
-  srcInstanceId,
+  srcResName,
+  srcFilePath,
+  tgtDirType = InstanceSubdirEnums.Root,
+  srcInstanceId = 0,
   ...modalProps
 }) => {
   const { t } = useTranslation();
   const { getGameInstanceList } = useData();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const router = useRouter();
   const toast = useToast();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -59,6 +61,46 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
   const [selectedGameInstances, setSelectedGameInstances] = useState<
     GameInstanceSummary[]
   >([]);
+  const [_tgtDirType, _setTgtDirType] =
+    useState<InstanceSubdirEnums>(tgtDirType);
+  const [_srcInstanceId, _setSrcInstanceId] = useState<number>(srcInstanceId);
+
+  useEffect(() => {
+    if (srcInstanceId) return;
+    if (router === undefined) {
+      toast({
+        title: t("CopyOrMoveModal.error.lackOfArguments"),
+        status: "error",
+      });
+      return;
+    }
+    _setSrcInstanceId(Number(router.query.id));
+  }, [router, srcInstanceId, t, toast]);
+
+  useEffect(() => {
+    if (tgtDirType !== InstanceSubdirEnums.Root) return;
+    if (router === undefined) {
+      toast({
+        title: t("CopyOrMoveModal.error.lackOfArguments"),
+        status: "error",
+      });
+      return;
+    }
+    switch (router.pathname.split("/").pop()) {
+      case "resourcepacks":
+        _setTgtDirType(InstanceSubdirEnums.ResourcePacks);
+        break;
+      case "shaderpacks":
+        _setTgtDirType(InstanceSubdirEnums.ShaderPacks);
+        break;
+      case "schematics":
+        _setTgtDirType(InstanceSubdirEnums.Schematics);
+        break;
+      case "worlds":
+        _setTgtDirType(InstanceSubdirEnums.Saves);
+        break;
+    }
+  }, [router, tgtDirType, t, toast]);
 
   const operationList = [
     {
@@ -75,15 +117,19 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
 
   const handleCopyAcrossInstances = useCallback(
     (
-      filePath: string,
-      targetInstId: number[],
-      dirType: InstanceSubdirEnums
+      srcFilePath: string,
+      tgtInstId: number[],
+      tgtDirType: InstanceSubdirEnums
     ) => {
-      if (filePath !== undefined && targetInstId !== undefined) {
+      if (
+        srcFilePath !== undefined &&
+        tgtInstId &&
+        tgtDirType !== InstanceSubdirEnums.Root
+      ) {
         InstanceService.copyAcrossInstances(
-          filePath,
-          targetInstId,
-          dirType
+          srcFilePath,
+          tgtInstId,
+          tgtDirType
         ).then((response) => {
           if (response.status !== "success")
             toast({
@@ -98,12 +144,20 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
   );
 
   const handleMoveAcrossInstances = useCallback(
-    (filePath: string, targetInstId: number, dirType: InstanceSubdirEnums) => {
-      if (filePath !== undefined && targetInstId !== undefined) {
+    (
+      srcFilePath: string,
+      tgtInstId: number,
+      tgtDirType: InstanceSubdirEnums
+    ) => {
+      if (
+        srcFilePath !== undefined &&
+        tgtInstId &&
+        tgtDirType !== InstanceSubdirEnums.Root
+      ) {
         InstanceService.moveAcrossInstances(
-          filePath,
-          targetInstId,
-          dirType
+          srcFilePath,
+          tgtInstId,
+          tgtDirType
         ).then((response) => {
           if (response.status !== "success")
             toast({
@@ -121,12 +175,16 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
     setIsLoading(true);
     if (operation === "copy") {
       handleCopyAcrossInstances(
-        filePath,
+        srcFilePath,
         selectedGameInstances.map((instance) => instance.id),
-        dirType
+        _tgtDirType
       );
     } else {
-      handleMoveAcrossInstances(filePath, selectedGameInstances[0].id, dirType);
+      handleMoveAcrossInstances(
+        srcFilePath,
+        selectedGameInstances[0].id,
+        _tgtDirType
+      );
     }
     modalProps.onClose();
     setIsLoading(false);
@@ -141,7 +199,7 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
 
   const buildOptionItems = (instance: GameInstanceSummary) => ({
     title: instance.name,
-    titleExtra: instance.id === srcInstanceId && (
+    titleExtra: instance.id === _srcInstanceId && (
       <Tag colorScheme={primaryColor} className="tag-xs">
         {t("CopyOrMoveModal.tag.source")}
       </Tag>
@@ -155,9 +213,9 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
           <Radio
             value={instance.id.toString()}
             colorScheme={primaryColor}
-            isDisabled={instance.id === srcInstanceId}
+            isDisabled={instance.id === _srcInstanceId}
             onClick={() => {
-              if (instance.id === srcInstanceId) return;
+              if (instance.id === _srcInstanceId) return;
               setSelectedGameInstances([instance]);
             }}
           />
@@ -168,10 +226,10 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
               (selected) => selected.id === instance.id
             )}
             colorScheme={primaryColor}
-            isDisabled={instance.id === srcInstanceId}
+            isDisabled={instance.id === _srcInstanceId}
             borderColor="gray.400"
             onChange={() => {
-              if (instance.id === srcInstanceId) return;
+              if (instance.id === _srcInstanceId) return;
               setSelectedGameInstances((prevSelected) => {
                 if (prevSelected.includes(instance)) {
                   return prevSelected.filter(
@@ -234,9 +292,9 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
                     }))}
                     withTooltip={false}
                   />
-                  {t(`CopyOrMoveModal.resourceType.${dirType}`)}
+                  {t(`CopyOrMoveModal.resourceType.${_tgtDirType}`)}
                   <Text as="span" fontWeight="bold">
-                    {` ${resourceName} `}
+                    {` ${srcResName} `}
                   </Text>
                   <Text as="span">{t("CopyOrMoveModal.body")}</Text>
                 </Text>

@@ -17,6 +17,9 @@ const errorToLocaleKey: { [key: string]: string } = {
   INSTANCE_NOT_FOUND_BY_ID: "instanceNotFoundByID",
   EXEC_OPEN_DIR_ERROR: "execOpenDirError",
   SERVER_NBT_READ_ERROR: "serverNbtReadError",
+  INVALID_SOURCE_PATH: "invalidSourcePath",
+  FILE_COPY_FAILED: "fileCopyFailed",
+  FILE_MOVE_FAILED: "fileMoveFailed",
 };
 
 /**
@@ -54,40 +57,40 @@ export class InstanceService {
   /**
    * COPY the specified resource to the target instance(s).
    * @param {string} srcFilePath - The path of the file to copy.
-   * @param {number} targetInstIds - ID of the target instance(s).
-   * @param {InstanceSubdirEnums} dirType - The instance subdir type to operate.
+   * @param {number} tgtInstIds - ID of the target instance(s).
+   * @param {InstanceSubdirEnums} tgtDirType - The instance subdir type to operate.
    * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("instance", errorToLocaleKey)
   static async copyAcrossInstances(
     srcFilePath: string,
-    targetInstIds: number[],
-    dirType: InstanceSubdirEnums
+    tgtInstIds: number[],
+    tgtDirType: InstanceSubdirEnums
   ): Promise<InvokeResponse<void>> {
     return await invoke("copy_across_instances", {
       srcFilePath,
-      targetInstIds,
-      dirType,
+      tgtInstIds,
+      tgtDirType,
     });
   }
 
   /**
    * MOVE the specified resource to the target instance.
    * @param {string} srcFilePath - The path of the file to move.
-   * @param {number} targetInstId - The target instance ID.
-   * @param {InstanceSubdirEnums} dirType - The instance subdir type to operate.
+   * @param {number} tgtInstId - The target instance ID.
+   * @param {InstanceSubdirEnums} tgtDirType - The instance subdir type to operate.
    * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("instance", errorToLocaleKey)
   static async moveAcrossInstances(
     srcFilePath: string,
-    targetInstId: number,
-    dirType: InstanceSubdirEnums
+    tgtInstId: number,
+    tgtDirType: InstanceSubdirEnums
   ): Promise<InvokeResponse<void>> {
     return await invoke("move_across_instances", {
       srcFilePath,
-      targetInstId,
-      dirType,
+      tgtInstId,
+      tgtDirType,
     });
   }
 

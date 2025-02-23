@@ -1,5 +1,6 @@
 use super::{
   super::utils::{
+    fs::copy_whole_dir,
     nbt::load_nbt,
     path::{get_files_with_regex, get_subdirectories},
   },
@@ -8,7 +9,7 @@ use super::{
     mods::load_mod_from_file,
     resourcepack::{load_resourcepack_from_dir, load_resourcepack_from_zip},
     server::nbt_to_servers_info,
-    world::{copy_world, nbt_to_world_info},
+    world::nbt_to_world_info,
   },
   models::{
     GameServerInfo, Instance, InstanceError, InstanceSubdirType, LocalModInfo, ResourcePackInfo,
@@ -55,8 +56,8 @@ pub fn open_instance_subdir(
 pub fn copy_across_instances(
   app: AppHandle,
   src_file_path: String,
-  target_inst_ids: Vec<usize>,
-  dir_type: InstanceSubdirType,
+  tgt_inst_ids: Vec<usize>,
+  tgt_dir_type: InstanceSubdirType,
 ) -> SJMCLResult<()> {
   let src_path = Path::new(&src_file_path);
 
@@ -66,25 +67,27 @@ pub fn copy_across_instances(
       None => return Err(InstanceError::InvalidSourcePath.into()),
     };
 
-    for target_inst_id in target_inst_ids {
-      let target_path = match get_instance_subdir_path(&app, target_inst_id, &dir_type) {
+    for tgt_inst_id in tgt_inst_ids {
+      let tgt_path = match get_instance_subdir_path(&app, tgt_inst_id, &tgt_dir_type) {
         Some(path) => path,
         None => return Err(InstanceError::InstanceNotFoundByID.into()),
       };
 
-      let dest_path = Path::new(&target_path).join(&filename);
+      let dest_path = Path::new(&tgt_path).join(&filename);
       fs::copy(&src_file_path, &dest_path).map_err(|_| InstanceError::FileCopyFailed)?;
     }
   } else if src_path.is_dir() {
-    for target_inst_id in target_inst_ids {
-      let target_path = match get_instance_subdir_path(&app, target_inst_id, &dir_type) {
+    for tgt_inst_id in tgt_inst_ids {
+      let tgt_path = match get_instance_subdir_path(&app, tgt_inst_id, &tgt_dir_type) {
         Some(path) => path,
         None => return Err(InstanceError::InstanceNotFoundByID.into()),
       };
 
-      let dest_path = Path::new(&target_path).join(src_path.file_name().unwrap());
-      copy_world(&src_path, &dest_path).map_err(|_| InstanceError::FileCopyFailed)?;
+      let dest_path = Path::new(&tgt_path).join(src_path.file_name().unwrap());
+      copy_whole_dir(&src_path, &dest_path).map_err(|_| InstanceError::FileCopyFailed)?;
     }
+  } else {
+    return Err(InstanceError::InvalidSourcePath.into());
   }
   Ok(())
 }
@@ -93,10 +96,10 @@ pub fn copy_across_instances(
 pub fn move_across_instances(
   app: AppHandle,
   src_file_path: String,
-  target_inst_id: usize,
-  dir_type: InstanceSubdirType,
+  tgt_inst_id: usize,
+  tgt_dir_type: InstanceSubdirType,
 ) -> SJMCLResult<()> {
-  let target_path = match get_instance_subdir_path(&app, target_inst_id, &dir_type) {
+  let tgt_path = match get_instance_subdir_path(&app, tgt_inst_id, &tgt_dir_type) {
     Some(path) => path,
     None => return Err(InstanceError::InstanceNotFoundByID.into()),
   };
@@ -107,7 +110,7 @@ pub fn move_across_instances(
     None => return Err(InstanceError::InvalidSourcePath.into()),
   };
 
-  let dest_path = Path::new(&target_path).join(&filename);
+  let dest_path = Path::new(&tgt_path).join(&filename);
   fs::rename(&src_file_path, &dest_path).map_err(|_| InstanceError::FileMoveFailed)?;
   Ok(())
 }

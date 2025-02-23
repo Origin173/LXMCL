@@ -143,10 +143,8 @@ const InstanceResourcePacksPage = () => {
                           icon="copyOrMove"
                           onClick={() => {
                             openSharedModal("copy-or-move", {
-                              dirType: "ResourcePacks",
-                              resourceName: pack.name,
-                              filePath: pack.filePath,
-                              srcInstanceId: summary?.id,
+                              srcResName: pack.name,
+                              srcFilePath: pack.filePath,
                             });
                           }}
                         />
