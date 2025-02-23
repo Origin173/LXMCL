@@ -14,7 +14,7 @@ import { useInstanceSharedData } from "@/contexts/instance";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { useToast } from "@/contexts/toast";
 import { InstanceSubdirEnums } from "@/enums/instance";
-import { GameServerInfo, WorldInfo } from "@/models/game-instance";
+import { GameServerInfo, WorldInfo } from "@/models/instance";
 import { InstanceService } from "@/services/instance";
 import { UNIXToISOString, formatRelativeTime } from "@/utils/datetime";
 import { base64ImgSrc } from "@/utils/string";

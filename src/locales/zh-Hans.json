@@ -50,7 +50,7 @@
         },
         "openSourceLicense": {
           "title": "开源协议",
-          "description": "本项目遵循 GNU General Public License v3.0 协议"
+          "description": "本项目遵循 GNU General Public License v3.0 协议（包含附加条款）"
         }
       }
     }
@@ -379,6 +379,19 @@
           "title": "端口"
         }
       }
+    }
+  },
+  "DownloadTasksPage": {
+    "title": "下载中任务",
+    "button": {
+      "settings": "下载设置",
+      "pause": "暂停",
+      "begin": "开始",
+      "retry": "重试"
+    },
+    "label": {
+      "paused": "已暂停",
+      "error": "错误"
     }
   },
   "Editable": {
@@ -851,6 +864,9 @@
     "steve": "Steve",
     "alex": "Alex"
   },
+  "ViewSkinModal": {
+    "skinView": "查看皮肤"
+  },
   "MemoryStatusProgress": {
     "title": "内存状态",
     "info": "{{used}} / {{total}} GB 已使用",
@@ -875,7 +891,8 @@
   },
   "PlayerMenu": {
     "label": {
-      "skin": "管理皮肤",
+      "manageSkin": "管理皮肤",
+      "viewSkin": "查看皮肤",
       "delete": "删除此角色"
     }
   },
@@ -1135,14 +1152,36 @@
       }
     },
     "account": {
-      "addPlayer": {
-        "success": "角色添加成功",
+      "addPlayerOffline": {
+        "success": "离线角色添加成功",
         "error": {
-          "title": "角色添加失败",
+          "title": "离线角色添加失败",
           "description": {
-            "invalid": "无效的角色的类型",
+            "duplicate": "角色已存在",
+            "textureError": "角色皮肤获取失败"
+          }
+        }
+      },
+      "addPlayer3rdPartyOAuth": {
+        "success": "OAuth 方式添加角色成功",
+        "error": {
+          "title": "OAuth 方式添加角色失败",
+          "description": {
+            "duplicate": "角色已存在",
+            "authServerError": "无法连接至认证服务器，或服务器不支持该登录方式",
             "textureError": "角色皮肤获取失败",
-            "authServerError": "登录认证服务器失败"
+            "cancelled": "已取消"
+          }
+        }
+      },
+      "updatePlayerSkinOfflinePreset": {
+        "success": "角色皮肤更新成功",
+        "error": {
+          "title": "角色皮肤更新失败",
+          "description": {
+            "notFound": "角色不存在",
+            "invalid": "角色类型错误",
+            "textureError": "角色皮肤获取失败"
           }
         }
       },

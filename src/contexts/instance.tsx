@@ -18,7 +18,7 @@ import {
   ScreenshotInfo,
   ShaderPackInfo,
   WorldInfo,
-} from "@/models/game-instance";
+} from "@/models/instance";
 import { InstanceService } from "@/services/instance";
 
 export interface InstanceContextType {
