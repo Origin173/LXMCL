@@ -145,6 +145,7 @@ const InstanceResourcePacksPage = () => {
                             openSharedModal("copy-or-move", {
                               dirType: "ResourcePacks",
                               resourceName: pack.name,
+                              filePath: pack.filePath,
                               srcInstanceId: summary?.id,
                             });
                           }}

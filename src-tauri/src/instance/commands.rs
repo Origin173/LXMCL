@@ -8,7 +8,7 @@ use super::{
     mods::load_mod_from_file,
     resourcepack::{load_resourcepack_from_dir, load_resourcepack_from_zip},
     server::nbt_to_servers_info,
-    world::nbt_to_world_info,
+    world::{copy_world, nbt_to_world_info},
   },
   models::{
     GameServerInfo, Instance, InstanceError, InstanceSubdirType, LocalModInfo, ResourcePackInfo,
@@ -19,6 +19,8 @@ use crate::error::SJMCLResult;
 use futures;
 use quartz_nbt::io::Flavor;
 use regex::RegexBuilder;
+use std::fs;
+use std::path::Path;
 use std::{sync::Mutex, time::SystemTime};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_shell::ShellExt;
@@ -47,6 +49,67 @@ pub fn open_instance_subdir(
     Ok(_) => Ok(()),
     Err(_) => Err(InstanceError::ExecOpenDirError.into()),
   }
+}
+
+#[tauri::command]
+pub fn copy_across_instances(
+  app: AppHandle,
+  src_file_path: String,
+  target_inst_ids: Vec<usize>,
+  dir_type: InstanceSubdirType,
+) -> SJMCLResult<()> {
+  let src_path = Path::new(&src_file_path);
+
+  if src_path.is_file() {
+    let filename = match src_path.file_name() {
+      Some(name) => name.to_os_string(),
+      None => return Err(InstanceError::InvalidSourcePath.into()),
+    };
+
+    for target_inst_id in target_inst_ids {
+      let target_path = match get_instance_subdir_path(&app, target_inst_id, &dir_type) {
+        Some(path) => path,
+        None => return Err(InstanceError::InstanceNotFoundByID.into()),
+      };
+
+      let dest_path = Path::new(&target_path).join(&filename);
+      fs::copy(&src_file_path, &dest_path).map_err(|_| InstanceError::FileCopyFailed)?;
+    }
+  } else if src_path.is_dir() {
+    for target_inst_id in target_inst_ids {
+      let target_path = match get_instance_subdir_path(&app, target_inst_id, &dir_type) {
+        Some(path) => path,
+        None => return Err(InstanceError::InstanceNotFoundByID.into()),
+      };
+
+      let dest_path = Path::new(&target_path).join(src_path.file_name().unwrap());
+      copy_world(&src_path, &dest_path).map_err(|_| InstanceError::FileCopyFailed)?;
+    }
+  }
+  Ok(())
+}
+
+#[tauri::command]
+pub fn move_across_instances(
+  app: AppHandle,
+  src_file_path: String,
+  target_inst_id: usize,
+  dir_type: InstanceSubdirType,
+) -> SJMCLResult<()> {
+  let target_path = match get_instance_subdir_path(&app, target_inst_id, &dir_type) {
+    Some(path) => path,
+    None => return Err(InstanceError::InstanceNotFoundByID.into()),
+  };
+
+  let src_path = Path::new(&src_file_path);
+  let filename = match src_path.file_name() {
+    Some(name) => name.to_os_string(),
+    None => return Err(InstanceError::InvalidSourcePath.into()),
+  };
+
+  let dest_path = Path::new(&target_path).join(&filename);
+  fs::rename(&src_file_path, &dest_path).map_err(|_| InstanceError::FileMoveFailed)?;
+  Ok(())
 }
 
 #[tauri::command]

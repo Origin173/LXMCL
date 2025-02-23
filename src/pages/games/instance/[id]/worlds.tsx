@@ -97,6 +97,7 @@ const InstanceWorldsPage = () => {
         openSharedModal("copy-or-move", {
           dirType: "Saves",
           resourceName: save.name,
+          filePath: save.dirPath,
           srcInstanceId: summary?.id,
         });
       },

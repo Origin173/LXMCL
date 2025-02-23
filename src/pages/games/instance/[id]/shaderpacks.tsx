@@ -54,6 +54,7 @@ const InstanceShaderPacksPage = () => {
         openSharedModal("copy-or-move", {
           dirType: "ShaderPacks",
           resourceName: pack.fileName,
+          filePath: pack.filePath,
           srcInstanceId: summary?.id,
         });
       },

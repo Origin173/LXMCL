@@ -19,7 +19,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuCopy, LuScissors } from "react-icons/lu";
 import { OptionItemGroup } from "@/components/common/option-item";
@@ -29,16 +29,19 @@ import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
 import { InstanceSubdirEnums } from "@/enums/instance";
 import { GameInstanceSummary } from "@/models/game-instance";
+import { InstanceService } from "@/services/instance";
 
 interface CopyOrMoveModalProps extends Omit<ModalProps, "children"> {
   dirType: InstanceSubdirEnums;
   resourceName: string;
+  filePath: string;
   srcInstanceId: number;
 }
 
 const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
   dirType,
   resourceName,
+  filePath,
   srcInstanceId,
   ...modalProps
 }) => {
@@ -70,9 +73,61 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
     },
   ];
 
+  const handleCopyAcrossInstances = useCallback(
+    (
+      filePath: string,
+      targetInstId: number[],
+      dirType: InstanceSubdirEnums
+    ) => {
+      if (filePath !== undefined && targetInstId !== undefined) {
+        InstanceService.copyAcrossInstances(
+          filePath,
+          targetInstId,
+          dirType
+        ).then((response) => {
+          if (response.status !== "success")
+            toast({
+              title: response.message,
+              description: response.details,
+              status: "error",
+            });
+        });
+      }
+    },
+    [toast]
+  );
+
+  const handleMoveAcrossInstances = useCallback(
+    (filePath: string, targetInstId: number, dirType: InstanceSubdirEnums) => {
+      if (filePath !== undefined && targetInstId !== undefined) {
+        InstanceService.moveAcrossInstances(
+          filePath,
+          targetInstId,
+          dirType
+        ).then((response) => {
+          if (response.status !== "success")
+            toast({
+              title: response.message,
+              description: response.details,
+              status: "error",
+            });
+        });
+      }
+    },
+    [toast]
+  );
+
   const handleCopyOrMove = async () => {
     setIsLoading(true);
-    // TBD
+    if (operation === "copy") {
+      handleCopyAcrossInstances(
+        filePath,
+        selectedGameInstances.map((instance) => instance.id),
+        dirType
+      );
+    } else {
+      handleMoveAcrossInstances(filePath, selectedGameInstances[0].id, dirType);
+    }
     modalProps.onClose();
     setIsLoading(false);
   };
@@ -117,7 +172,6 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
             borderColor="gray.400"
             onChange={() => {
               if (instance.id === srcInstanceId) return;
-              console.log(instance.id);
               setSelectedGameInstances((prevSelected) => {
                 if (prevSelected.includes(instance)) {
                   return prevSelected.filter(

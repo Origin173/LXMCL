@@ -1,5 +1,7 @@
 use crate::error::{SJMCLError, SJMCLResult};
 use quartz_nbt::NbtCompound;
+use std::fs;
+use std::path::Path;
 
 pub fn nbt_to_world_info(nbt: &NbtCompound) -> SJMCLResult<(i64, String, String)> {
   // return (last_played, difficulty, gamemode)
@@ -50,4 +52,23 @@ pub fn nbt_to_world_info(nbt: &NbtCompound) -> SJMCLResult<(i64, String, String)
     }
     Err(e) => Err(SJMCLError::from(e)),
   }
+}
+
+pub fn copy_world(src: &Path, dst: &Path) -> std::io::Result<()> {
+  if !dst.exists() {
+    fs::create_dir_all(dst)?;
+  }
+
+  for entry in fs::read_dir(src)? {
+    let entry = entry?;
+    let entry_path = entry.path();
+    let dest_path = dst.join(entry.file_name());
+
+    if entry_path.is_dir() {
+      copy_world(&entry_path, &dest_path)?;
+    } else {
+      fs::copy(&entry_path, &dest_path)?;
+    }
+  }
+  Ok(())
 }
