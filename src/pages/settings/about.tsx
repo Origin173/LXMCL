@@ -156,7 +156,7 @@ const AboutSettingsPage = () => {
           ),
           children: (
             <LinkIconButton
-              url="https://github.com/UNIkeEN/SJMCL?tab=GPL-3.0-1-ov-file#readme"
+              url="https://github.com/UNIkeEN/SJMCL?tab=readme-ov-file#copyright"
               aria-label="openSourceLicense"
               isExternal
               withTooltip
