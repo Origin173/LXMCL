@@ -243,6 +243,26 @@
       "mascot": "Team Mascot"
     }
   },
+  "CopyOrMoveModal": {
+    "modal": {
+      "header": "Copy or Move Resource"
+    },
+    "operation": {
+      "copy": "Copy",
+      "move": "Move"
+    },
+    "tag": {
+      "source": "Source"
+    },
+    "body": "to",
+    "resourceType": {
+      "Mods": "Mod",
+      "ResourcePacks": "ResourcePack",
+      "Saves": "World",
+      "Schematics": "Schematic",
+      "ShaderPacks": "ShaderPack"
+    }
+  },
   "CreateInstanceModal": {
     "header": {
       "title": "Create New Instance"

@@ -1,5 +1,6 @@
 import { HStack } from "@chakra-ui/react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CommonIconButton } from "@/components/common/common-icon-button";
@@ -8,12 +9,17 @@ import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useInstanceSharedData } from "@/contexts/instance";
+import { useSharedModals } from "@/contexts/shared-modal";
 import { InstanceSubdirEnums } from "@/enums/instance";
 import { ShaderPackInfo } from "@/models/game-instance";
 
 const InstanceShaderPacksPage = () => {
   const { t } = useTranslation();
   const { openSubdir, getShaderPackList } = useInstanceSharedData();
+  const { openSharedModal } = useSharedModals();
+  const router = useRouter();
+  const instanceId = Number(router.query.id);
+
   const [shaderPacks, setShaderPacks] = useState<ShaderPackInfo[]>([]);
 
   useEffect(() => {
@@ -47,7 +53,13 @@ const InstanceShaderPacksPage = () => {
     {
       label: "",
       icon: "copyOrMove",
-      onClick: () => {},
+      onClick: () => {
+        openSharedModal("copy-or-move", {
+          dirType: "ShaderPacks",
+          resourceName: pack.fileName,
+          srcInstanceId: instanceId,
+        });
+      },
     },
     {
       label: "",
