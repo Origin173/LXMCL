@@ -1115,7 +1115,7 @@
           }
         }
       },
-      "addPlayerOAuth": {
+      "addPlayer3rdPartyOAuth": {
         "success": "OAuth 方式添加角色成功",
         "error": {
           "title": "OAuth 方式添加角色失败",

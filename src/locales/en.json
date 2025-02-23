@@ -1115,7 +1115,7 @@
           }
         }
       },
-      "addPlayerOAuth": {
+      "addPlayer3rdPartyOAuth": {
         "success": "Succcessfully added player using OAuth",
         "error": {
           "title": "Failed to add player using OAuth",

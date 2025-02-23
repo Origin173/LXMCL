@@ -46,11 +46,11 @@ export class AccountService {
    * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("account", errorToLocaleKey)
-  static async addPlayerOAuth(
+  static async addPlayer3rdPartyOAuth(
     authServerUrl: string,
     openidConfigurationUrl: string
   ): Promise<InvokeResponse<void>> {
-    return await invoke("add_player_oauth", {
+    return await invoke("add_player_3rdparty_oauth", {
       authServerUrl,
       openidConfigurationUrl,
     });

@@ -60,10 +60,8 @@ async fn parse_profile(
   access_token: String,
   auth_server_url: String,
 ) -> SJMCLResult<PlayerInfo> {
-  let uuid = Uuid::parse_str(profile["id"].as_str().unwrap_or_default()).map_err(|err| {
-    println!("{:?}", err);
-    AccountError::AuthServerError
-  })?;
+  let uuid = Uuid::parse_str(profile["id"].as_str().unwrap_or_default())
+    .map_err(|_| AccountError::AuthServerError)?;
 
   let name = profile["name"].as_str().unwrap_or_default();
 
@@ -93,16 +91,10 @@ async fn parse_profile(
       let img_url = skin["url"].as_str().unwrap_or_default();
       let img_bytes = reqwest::get(img_url)
         .await
-        .map_err(|err| {
-          println!("{:?}", err);
-          AccountError::TextureError
-        })?
+        .map_err(|_| AccountError::AuthServerError)?
         .bytes()
         .await
-        .map_err(|err| {
-          println!("{:?}", err);
-          AccountError::TextureError
-        })?;
+        .map_err(|_| AccountError::AuthServerError)?;
 
       textures.push(Texture {
         image: general_purpose::STANDARD.encode(img_bytes),
@@ -237,7 +229,7 @@ pub async fn login(
         .ok_or(AccountError::AuthServerError)?
         .to_string();
 
-      let _ = auth_webview_window.close();
+      auth_webview_window.close()?;
       break;
     }
 

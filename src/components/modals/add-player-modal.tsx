@@ -108,7 +108,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     let loginServiceFunction: () => Promise<InvokeResponse<void>>;
     if (isOAuth && authServer) {
       loginServiceFunction = () =>
-        AccountService.addPlayerOAuth(
+        AccountService.addPlayer3rdPartyOAuth(
           authServer.authUrl,
           authServer.features.openidConfigurationUrl
         );

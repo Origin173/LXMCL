@@ -66,7 +66,7 @@ pub async fn add_player_offline(app: AppHandle, username: String) -> SJMCLResult
 }
 
 #[tauri::command]
-pub async fn add_player_oauth(
+pub async fn add_player_3rdparty_oauth(
   app: AppHandle,
   auth_server_url: String,
   openid_configuration_url: String,

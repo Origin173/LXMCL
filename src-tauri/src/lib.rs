@@ -49,7 +49,7 @@ pub async fn run() {
       launcher_config::commands::retrive_java_list,
       account::commands::retrive_player_list,
       account::commands::add_player_offline,
-      account::commands::add_player_oauth,
+      account::commands::add_player_3rdparty_oauth,
       account::commands::update_player_skin_offline_preset,
       account::commands::delete_player,
       account::commands::retrive_selected_player,
