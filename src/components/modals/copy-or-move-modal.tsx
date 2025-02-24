@@ -29,7 +29,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
 import { InstanceSubdirEnums } from "@/enums/instance";
-import { GameInstanceSummary } from "@/models/game-instance";
+import { GameInstanceSummary } from "@/models/instance";
 import { InstanceService } from "@/services/instance";
 
 interface CopyOrMoveModalProps extends Omit<ModalProps, "children"> {

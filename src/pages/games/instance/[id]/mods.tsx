@@ -1,6 +1,6 @@
 import { Avatar, AvatarBadge, HStack, Tag, Text } from "@chakra-ui/react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuCircleCheck,
@@ -17,12 +17,15 @@ import { Section } from "@/components/common/section";
 import ModLoaderCards from "@/components/mod-loader-cards";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
+import { useToast } from "@/contexts/toast";
 import { InstanceSubdirEnums } from "@/enums/instance";
 import { LocalModInfo } from "@/models/instance";
+import { InstanceService } from "@/services/instance";
 import { base64ImgSrc } from "@/utils/string";
 
 const InstanceModsPage = () => {
   const { t } = useTranslation();
+  const toast = useToast();
   const { summary, openSubdir, getLocalModList } = useInstanceSharedData();
   const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
@@ -33,6 +36,50 @@ const InstanceModsPage = () => {
   useEffect(() => {
     setLocalMods(getLocalModList() || []);
   }, [getLocalModList]);
+
+  const handleToggleModByExtension = useCallback(
+    (filePath: string, enable: boolean) => {
+      console.warn(filePath, enable);
+      InstanceService.toggleModByExtension(filePath, enable).then(
+        (response) => {
+          if (response.status === "success") {
+            setLocalMods((prevMods) =>
+              prevMods.map((prev) => {
+                if (prev.filePath === filePath) {
+                  let newFileName = prev.fileName;
+                  if (enable && newFileName.endsWith(".disabled")) {
+                    newFileName = newFileName.slice(0, -9);
+                  }
+                  if (!enable && !newFileName.endsWith(".disabled")) {
+                    newFileName = newFileName + ".disabled";
+                  }
+                  const newFilePath = prev.filePath.replace(
+                    prev.fileName,
+                    newFileName
+                  );
+
+                  return {
+                    ...prev,
+                    fileName: newFileName,
+                    filePath: newFilePath,
+                    enabled: enable,
+                  };
+                }
+                return prev;
+              })
+            );
+          } else {
+            toast({
+              title: response.message,
+              description: response.details,
+              status: "error",
+            });
+          }
+        }
+      );
+    },
+    [toast]
+  );
 
   const modSecMenuOperations = [
     {
@@ -83,14 +130,7 @@ const InstanceModsPage = () => {
       icon: mod.enabled ? LuCircleMinus : LuCircleCheck,
       danger: false,
       onClick: () => {
-        // TBD, only mock operation in frontend
-        setLocalMods((prevMods) =>
-          prevMods.map((prev) =>
-            prev.fileName === mod.fileName
-              ? { ...prev, enabled: !prev.enabled }
-              : prev
-          )
-        );
+        handleToggleModByExtension(mod.filePath, !mod.enabled);
       },
     },
     {

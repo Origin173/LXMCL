@@ -64,7 +64,7 @@ pub fn load_fabric_from_jar<R: Read + Seek>(
     Err(e) => return Err(SJMCLError::from(e)),
   };
   if let Some(ref icon) = meta.icon {
-    if let Ok(mut img_file) = jar.by_name(&icon) {
+    if let Ok(mut img_file) = jar.by_name(icon) {
       // Use `image` crate to decode the image
       let mut buffer = Vec::new();
       if let Ok(_) = img_file.read_to_end(&mut buffer) {

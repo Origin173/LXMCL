@@ -17,6 +17,7 @@ const errorToLocaleKey: { [key: string]: string } = {
   INSTANCE_NOT_FOUND_BY_ID: "instanceNotFoundByID",
   EXEC_OPEN_DIR_ERROR: "execOpenDirError",
   SERVER_NBT_READ_ERROR: "serverNbtReadError",
+  FILE_NOT_FOUND_ERROR: "fileNotFoundError",
   INVALID_SOURCE_PATH: "invalidSourcePath",
   FILE_COPY_FAILED: "fileCopyFailed",
   FILE_MOVE_FAILED: "fileMoveFailed",
@@ -206,6 +207,23 @@ export class InstanceService {
   ): Promise<InvokeResponse<ScreenshotInfo[]>> {
     return await invoke("retrive_screenshot_list", {
       instanceId,
+    });
+  }
+
+  /**
+   * TOGGLE the mod status by changing the file extension.
+   * @param {string} filePath - The path of the file to toggle mod for.
+   * @param {boolean} enable - Whether to enable or disable the mod (true to enable, false to disable).
+   * @returns {Promise<InvokeResponse<void>>}
+   */
+  @responseHandler("instance", errorToLocaleKey)
+  static async toggleModByExtension(
+    filePath: string,
+    enable: boolean
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("toggle_mod_by_extension", {
+      filePath,
+      enable,
     });
   }
 }

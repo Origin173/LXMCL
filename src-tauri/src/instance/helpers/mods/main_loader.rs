@@ -24,11 +24,11 @@ pub fn load_mod_from_file(path: &PathBuf) -> SJMCLResult<LocalModInfo> {
   if let Ok(meta) = load_fabric_from_jar(&mut jar) {
     return Ok(LocalModInfo {
       icon_src: meta.icon.unwrap_or_default(),
-      enabled: enabled,
+      enabled,
       name: meta.name.unwrap_or_default(),
       translated_name: None,
       version: meta.version,
-      file_name: file_name,
+      file_name,
       description: meta.description.unwrap_or_default(),
       potential_incompatibility: false,
       loader_type: ModLoaderType::Fabric,

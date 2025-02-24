@@ -2,7 +2,7 @@
 use crate::error::{SJMCLError, SJMCLResult};
 use crate::instance::models::{ToTranslatableTable, TranslatableItem};
 use serde::{Deserialize, Serialize};
-use std::io::{Cursor, Read, Seek};
+use std::io::{Read, Seek};
 use zip::ZipArchive;
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
