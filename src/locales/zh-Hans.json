@@ -1307,6 +1307,14 @@
             "fileMoveFailed": "文件移动失败"
           }
         }
+      },
+      "toggleModByExtension": {
+        "error": {
+          "title": "模组状态切换失败",
+          "description": {
+            "fileNotFoundError": "模组文件不存在，可能已更名、移动或删除"
+          }
+        }
       }
     }
   },
