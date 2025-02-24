@@ -1288,6 +1288,7 @@
         }
       },
       "copyAcrossInstances": {
+        "success": "Successfully copied resource",
         "error": {
           "title": "Failed to copy resource",
           "description": {
@@ -1298,6 +1299,7 @@
         }
       },
       "moveAcrossInstances": {
+        "success": "Successfully moved resource",
         "error": {
           "title": "Failed to move resource",
           "description": {

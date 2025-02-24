@@ -1288,6 +1288,7 @@
         }
       },
       "copyAcrossInstances": {
+        "success": "资源复制成功",
         "error": {
           "title": "复制资源失败",
           "description": {
@@ -1298,6 +1299,7 @@
         }
       },
       "moveAcrossInstances": {
+        "success": "资源移动成功",
         "error": {
           "title": "移动资源失败",
           "description": {

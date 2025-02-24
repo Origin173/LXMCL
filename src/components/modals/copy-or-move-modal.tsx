@@ -137,6 +137,11 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
               description: response.details,
               status: "error",
             });
+          else
+            toast({
+              title: response.message,
+              status: "success",
+            });
         });
       }
     },
@@ -164,6 +169,11 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
               title: response.message,
               description: response.details,
               status: "error",
+            });
+          else
+            toast({
+              title: response.message,
+              status: "success",
             });
         });
       }
