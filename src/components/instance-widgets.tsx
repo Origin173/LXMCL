@@ -141,21 +141,33 @@ export const InstanceScreenshotsWidget = () => {
   const { getScreenshotList } = useInstanceSharedData();
 
   const [screenshots, setScreenshots] = useState<ScreenshotInfo[]>([]);
+  const router = useRouter();
+  const { id } = router.query;
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     setScreenshots(getScreenshotList() || []);
   }, [getScreenshotList]);
+  const [isFading, setIsFading] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % screenshots.length);
-    }, 10000); // carousel (TODO: transition)
-    return () => clearInterval(interval);
-  }, [screenshots]);
+    if (screenshots.length >= 2) {
+      const interval = setInterval(() => {
+        setIsFading(true);
+        setTimeout(() => {
+          setCurrentIndex((prevIndex) => (prevIndex + 1) % screenshots.length);
+          setIsFading(false);
+        }, 800);
+      }, 10000);
 
+      return () => clearInterval(interval);
+    }
+  }, [screenshots]);
   return (
-    <InstanceWidgetBase title={t("InstanceWidgets.screenshots.title")}>
+    <InstanceWidgetBase
+      title={t("InstanceWidgets.screenshots.title")}
+      style={{ cursor: "pointer" }}
+    >
       {screenshots && screenshots.length ? (
         <Image
           src={convertFileSrc(screenshots[currentIndex].filePath)}
@@ -167,6 +179,20 @@ export const InstanceScreenshotsWidget = () => {
           h="100%"
           ml={-3}
           mt={-3}
+          opacity={isFading ? 0 : 1}
+          transition="opacity 0.8s ease-in-out"
+          onClick={() => {
+            router.push(
+              {
+                pathname: `/games/instance/${id}/screenshots`,
+                query: {
+                  screenshotIndex: currentIndex.toString(),
+                },
+              },
+              undefined,
+              { shallow: true }
+            );
+          }}
         />
       ) : (
         <Empty withIcon={false} size="sm" />
@@ -174,7 +200,6 @@ export const InstanceScreenshotsWidget = () => {
     </InstanceWidgetBase>
   );
 };
-
 export const InstanceModsWidget = () => {
   const { t } = useTranslation();
   const router = useRouter();

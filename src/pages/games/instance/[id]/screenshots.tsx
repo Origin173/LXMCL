@@ -1,5 +1,6 @@
 import { IconButton, Image, Tooltip, useDisclosure } from "@chakra-ui/react";
 import { convertFileSrc } from "@tauri-apps/api/core";
+import router from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuEllipsis } from "react-icons/lu";
@@ -28,6 +29,29 @@ const InstanceScreenshotsPage: React.FC = () => {
     onClose: onScreenshotPreviewModalClose,
   } = useDisclosure();
 
+  useEffect(() => {
+    const { screenshotIndex } = router.query;
+    if (screenshotIndex) {
+      setCurrentScreenshot(screenshots[Number(screenshotIndex)]);
+      onScreenshotPreviewModalOpen();
+    }
+  }, [screenshots, onScreenshotPreviewModalOpen]);
+  
+  const handleModalClose = () => {
+    onScreenshotPreviewModalClose();
+    const { id } = router.query;
+    if (id) {
+      router.replace(
+        {
+          pathname: `/games/instance/${id}/screenshots`,
+          query: {},
+        },
+        undefined,
+        { shallow: true }
+      );
+    }
+  };
+
   const ScreenshotsCard = ({ screenshot }: { screenshot: ScreenshotInfo }) => {
     const [isHovered, setIsHovered] = useState(false);
     return (
@@ -52,7 +76,7 @@ const InstanceScreenshotsPage: React.FC = () => {
           >
             <IconButton
               icon={<LuEllipsis />}
-              aria-label="detail"
+              aria-label="details"
               colorScheme="blackAlpha"
               variant="solid"
               size="xs"
@@ -87,7 +111,7 @@ const InstanceScreenshotsPage: React.FC = () => {
         <ScreenshotPreviewModal
           screenshot={currentScreenshot}
           isOpen={isScreenshotPreviewModalOpen}
-          onClose={onScreenshotPreviewModalClose}
+          onClose={handleModalClose}
         />
       )}
     </Section>
