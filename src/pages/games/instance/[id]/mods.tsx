@@ -103,7 +103,7 @@ const InstanceModsPage = () => {
     },
     {
       icon: LuSearch,
-      label: "search",
+      label: t("InstanceModsPage.modList.menu.search"),
       onClick: () => {},
     },
     {

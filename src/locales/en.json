@@ -746,7 +746,8 @@
       "menu": {
         "alert": "Potentially incompatible",
         "info": "Mod Info",
-        "update": "Update"
+        "update": "Update",
+        "search": "Search"
       }
     }
   },
