@@ -74,6 +74,10 @@ pub fn copy_across_instances(
         None => return Err(InstanceError::InstanceNotFoundByID.into()),
       };
 
+      if !tgt_path.exists() {
+        fs::create_dir_all(&tgt_path).map_err(|_| InstanceError::FolderCreationFailed)?;
+      }
+
       let dest_path = generate_unique_filename(&tgt_path, &filename);
       fs::copy(&src_file_path, &dest_path).map_err(|_| InstanceError::FileCopyFailed)?;
     }
@@ -83,6 +87,10 @@ pub fn copy_across_instances(
         Some(path) => path,
         None => return Err(InstanceError::InstanceNotFoundByID.into()),
       };
+
+      if !tgt_path.exists() {
+        fs::create_dir_all(&tgt_path).map_err(|_| InstanceError::FolderCreationFailed)?;
+      }
 
       let dest_path = generate_unique_filename(&tgt_path, src_path.file_name().unwrap());
       copy_whole_dir(src_path, &dest_path).map_err(|_| InstanceError::FileCopyFailed)?;
@@ -106,10 +114,19 @@ pub fn move_across_instances(
   };
 
   let src_path = Path::new(&src_file_path);
+
+  if !src_path.is_dir() && !src_path.is_file() {
+    return Err(InstanceError::InvalidSourcePath.into());
+  }
+
   let filename = match src_path.file_name() {
     Some(name) => name.to_os_string(),
     None => return Err(InstanceError::InvalidSourcePath.into()),
   };
+
+  if !tgt_path.exists() {
+    fs::create_dir_all(&tgt_path).map_err(|_| InstanceError::FolderCreationFailed)?;
+  }
 
   let dest_path = generate_unique_filename(&tgt_path, &filename);
   fs::rename(&src_file_path, &dest_path).map_err(|_| InstanceError::FileMoveFailed)?;

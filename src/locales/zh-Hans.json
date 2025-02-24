@@ -1294,7 +1294,8 @@
           "description": {
             "instanceNotFoundByID": "实例 ID 不存在或类型错误",
             "invalidSourcePath": "无效的源路径",
-            "fileCopyFailed": "文件复制失败"
+            "fileCopyFailed": "文件复制失败",
+            "folderCreationFailed": "目标文件夹创建失败"
           }
         }
       },
@@ -1305,7 +1306,8 @@
           "description": {
             "instanceNotFoundByID": "实例 ID 不存在或类型错误",
             "invalidSourcePath": "无效的源路径",
-            "fileMoveFailed": "文件移动失败"
+            "fileMoveFailed": "文件移动失败",
+            "folderCreationFailed": "目标文件夹创建失败"
           }
         }
       }
