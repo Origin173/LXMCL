@@ -1,5 +1,3 @@
-import { type } from "@tauri-apps/plugin-os";
-import { useEffect, useState } from "react";
 import CopyOrMoveModal from "@/components/modals/copy-or-move-modal";
 import DownloadResourceModal from "@/components/modals/download-resource-modal";
 import SpotlightSearchModal from "@/components/modals/spotlight-search-modal";
