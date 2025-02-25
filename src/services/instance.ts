@@ -1,18 +1,28 @@
 import { invoke } from "@tauri-apps/api/core";
-import { InstanceSubdirType } from "@/enums/instance";
+import { InstanceSubdirEnums } from "@/enums/instance";
 import {
   GameInstanceSummary,
   GameServerInfo,
+  LocalModInfo,
   ResourcePackInfo,
   SchematicInfo,
   ScreenshotInfo,
   ShaderPackInfo,
   WorldInfo,
-} from "@/models/game-instance";
+} from "@/models/instance";
 import { InvokeResponse } from "@/models/response";
 import { responseHandler } from "@/utils/response";
 
-const errorToLocaleKey: { [key: string]: string } = {};
+const errorToLocaleKey: { [key: string]: string } = {
+  INSTANCE_NOT_FOUND_BY_ID: "instanceNotFoundByID",
+  EXEC_OPEN_DIR_ERROR: "execOpenDirError",
+  SERVER_NBT_READ_ERROR: "serverNbtReadError",
+  FILE_NOT_FOUND_ERROR: "fileNotFoundError",
+  INVALID_SOURCE_PATH: "invalidSourcePath",
+  FILE_COPY_FAILED: "fileCopyFailed",
+  FILE_MOVE_FAILED: "fileMoveFailed",
+  FOLDER_CREATION_FAILED: "folderCreationFailed",
+};
 
 /**
  * Service class for managing instances and its local resources.
@@ -32,17 +42,57 @@ export class InstanceService {
   /**
    * OPEN the specified instance subdir using system default fs manager.
    * @param {number} instanceId - The instance ID to open the subdir for.
-   * @param {InstanceSubdirType} dirType - The instance subdir type to open.
+   * @param {InstanceSubdirEnums} dirType - The instance subdir type to open.
    * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("instance", errorToLocaleKey)
   static async openInstanceSubdir(
     instanceId: number,
-    dirType: InstanceSubdirType
+    dirType: InstanceSubdirEnums
   ): Promise<InvokeResponse<void>> {
     return await invoke("open_instance_subdir", {
       instanceId,
       dirType,
+    });
+  }
+
+  /**
+   * COPY the specified resource to the target instance(s).
+   * @param {string} srcFilePath - The path of the file to copy.
+   * @param {number} tgtInstIds - ID of the target instance(s).
+   * @param {InstanceSubdirEnums} tgtDirType - The instance subdir type to operate.
+   * @returns {Promise<InvokeResponse<void>>}
+   */
+  @responseHandler("instance", errorToLocaleKey)
+  static async copyAcrossInstances(
+    srcFilePath: string,
+    tgtInstIds: number[],
+    tgtDirType: InstanceSubdirEnums
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("copy_across_instances", {
+      srcFilePath,
+      tgtInstIds,
+      tgtDirType,
+    });
+  }
+
+  /**
+   * MOVE the specified resource to the target instance.
+   * @param {string} srcFilePath - The path of the file to move.
+   * @param {number} tgtInstId - The target instance ID.
+   * @param {InstanceSubdirEnums} tgtDirType - The instance subdir type to operate.
+   * @returns {Promise<InvokeResponse<void>>}
+   */
+  @responseHandler("instance", errorToLocaleKey)
+  static async moveAcrossInstances(
+    srcFilePath: string,
+    tgtInstId: number,
+    tgtDirType: InstanceSubdirEnums
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("move_across_instances", {
+      srcFilePath,
+      tgtInstId,
+      tgtDirType,
     });
   }
 
@@ -74,6 +124,20 @@ export class InstanceService {
     return await invoke("retrive_game_server_list", {
       instanceId,
       queryOnline,
+    });
+  }
+
+  /**
+   * RETRIVE the list of local mods.
+   * @param {number} instanceId - The instance ID to retrive the local mods for.
+   * @returns {Promise<InvokeResponse<LocalModInfo[]>>}
+   */
+  @responseHandler("instance", errorToLocaleKey)
+  static async retriveLocalModList(
+    instanceId: number
+  ): Promise<InvokeResponse<LocalModInfo[]>> {
+    return await invoke("retrive_local_mod_list", {
+      instanceId,
     });
   }
 
@@ -144,6 +208,23 @@ export class InstanceService {
   ): Promise<InvokeResponse<ScreenshotInfo[]>> {
     return await invoke("retrive_screenshot_list", {
       instanceId,
+    });
+  }
+
+  /**
+   * TOGGLE the mod status by changing the file extension.
+   * @param {string} filePath - The path of the file to toggle mod for.
+   * @param {boolean} enable - Whether to enable or disable the mod (true to enable, false to disable).
+   * @returns {Promise<InvokeResponse<void>>}
+   */
+  @responseHandler("instance", errorToLocaleKey)
+  static async toggleModByExtension(
+    filePath: string,
+    enable: boolean
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("toggle_mod_by_extension", {
+      filePath,
+      enable,
     });
   }
 }

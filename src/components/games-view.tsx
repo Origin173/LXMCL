@@ -13,7 +13,7 @@ import { WrapCardGroup } from "@/components/common/wrap-card";
 import GameMenu from "@/components/game-menu";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData, useDataDispatch } from "@/contexts/data";
-import { GameInstanceSummary } from "@/models/game-instance";
+import { GameInstanceSummary } from "@/models/instance";
 
 interface GamesViewProps extends BoxProps {
   games: GameInstanceSummary[];
@@ -38,7 +38,7 @@ const GamesView: React.FC<GamesViewProps> = ({
   }, [getSelectedGameInstance]);
 
   const generateDesc = (game: GameInstanceSummary) => {
-    if (game.modLoader.loaderType === "none") {
+    if (game.modLoader.loaderType === "Unknown") {
       return game.version;
     }
     return `${game.version}, ${game.modLoader.loaderType} ${game.modLoader.version}`;

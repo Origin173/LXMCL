@@ -1,4 +1,5 @@
 mod account;
+mod discover;
 mod error;
 mod instance;
 mod launcher_config;
@@ -10,7 +11,7 @@ mod utils;
 use std::path::PathBuf;
 use std::sync::{LazyLock, Mutex};
 
-use instance::helpers::refresh_and_update_instances;
+use instance::helpers::misc::refresh_and_update_instances;
 use instance::models::Instance;
 use launcher_config::models::LauncherConfig;
 use storage::Storage;
@@ -48,7 +49,9 @@ pub async fn run() {
       launcher_config::commands::delete_custom_background,
       launcher_config::commands::retrive_java_list,
       account::commands::retrive_player_list,
-      account::commands::add_player,
+      account::commands::add_player_offline,
+      account::commands::add_player_3rdparty_oauth,
+      account::commands::update_player_skin_offline_preset,
       account::commands::delete_player,
       account::commands::retrive_selected_player,
       account::commands::update_selected_player,
@@ -58,15 +61,20 @@ pub async fn run() {
       account::commands::fetch_auth_server_info,
       instance::commands::retrive_instance_list,
       instance::commands::open_instance_subdir,
+      instance::commands::copy_across_instances,
+      instance::commands::move_across_instances,
       instance::commands::retrive_world_list,
       instance::commands::retrive_game_server_list,
+      instance::commands::retrive_local_mod_list,
       instance::commands::retrive_resource_pack_list,
       instance::commands::retrive_server_resource_pack_list,
       instance::commands::retrive_schematic_list,
       instance::commands::retrive_shader_pack_list,
       instance::commands::retrive_screenshot_list,
-      resource::commands::retrive_game_version_list,
-      resource::commands::retrive_mod_loader_version_list,
+      instance::commands::toggle_mod_by_extension,
+      resource::commands::fetch_game_version_list,
+      resource::commands::fetch_mod_loader_version_list,
+      discover::commands::fetch_post_sources_info,
     ])
     .setup(|app| {
       let is_dev = cfg!(debug_assertions);

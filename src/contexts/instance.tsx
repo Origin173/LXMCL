@@ -8,22 +8,24 @@ import React, {
 } from "react";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
-import { InstanceSubdirType } from "@/enums/instance";
+import { InstanceSubdirEnums } from "@/enums/instance";
 import { useGetState } from "@/hooks/get-state";
 import {
   GameInstanceSummary,
+  LocalModInfo,
   ResourcePackInfo,
   SchematicInfo,
   ScreenshotInfo,
   ShaderPackInfo,
   WorldInfo,
-} from "@/models/game-instance";
+} from "@/models/instance";
 import { InstanceService } from "@/services/instance";
 
 export interface InstanceContextType {
   summary: GameInstanceSummary | undefined;
-  openSubdir: (dirType: InstanceSubdirType) => void;
+  openSubdir: (dirType: InstanceSubdirEnums) => void;
   getWorldList: (sync?: boolean) => WorldInfo[] | undefined;
+  getLocalModList: (sync?: boolean) => LocalModInfo[] | undefined;
   getResourcePackList: (sync?: boolean) => ResourcePackInfo[] | undefined;
   getServerResourcePackList: (sync?: boolean) => ResourcePackInfo[] | undefined;
   getSchematicList: (sync?: boolean) => SchematicInfo[] | undefined;
@@ -46,6 +48,7 @@ export const InstanceContextProvider: React.FC<{
     GameInstanceSummary | undefined
   >(undefined);
   const [worlds, setWorlds] = useState<WorldInfo[]>();
+  const [localMods, setLocalMods] = useState<LocalModInfo[]>();
   const [resourcePacks, setResourcePacks] = useState<ResourcePackInfo[]>();
   const [serverResourcePacks, setServerResourcePacks] =
     useState<ResourcePackInfo[]>();
@@ -64,7 +67,7 @@ export const InstanceContextProvider: React.FC<{
   }, [router.query.id, getGameInstanceList]);
 
   const handleOpenInstanceSubdir = useCallback(
-    (dirType: InstanceSubdirType) => {
+    (dirType: InstanceSubdirEnums) => {
       if (instanceSummary?.id !== undefined) {
         InstanceService.openInstanceSubdir(instanceSummary.id, dirType).then(
           (response) => {
@@ -98,6 +101,22 @@ export const InstanceContextProvider: React.FC<{
       });
     }
   }, [instanceSummary?.id, setWorlds, toast]);
+
+  const handleRetriveLocalModList = useCallback(() => {
+    if (instanceSummary?.id !== undefined) {
+      InstanceService.retriveLocalModList(instanceSummary.id).then(
+        (response) => {
+          if (response.status === "success") setLocalMods(response.data);
+          else
+            toast({
+              title: response.message,
+              description: response.details,
+              status: "error",
+            });
+        }
+      );
+    }
+  }, [instanceSummary?.id, setLocalMods, toast]);
 
   const handleRetriveResourcePackList = useCallback(() => {
     if (instanceSummary?.id !== undefined) {
@@ -182,6 +201,8 @@ export const InstanceContextProvider: React.FC<{
 
   const getWorldList = useGetState(worlds, handleRetriveWorldList);
 
+  const getLocalModList = useGetState(localMods, handleRetriveLocalModList);
+
   const getResourcePackList = useGetState(
     resourcePacks,
     handleRetriveResourcePackList
@@ -210,6 +231,7 @@ export const InstanceContextProvider: React.FC<{
         summary: instanceSummary,
         openSubdir: handleOpenInstanceSubdir,
         getWorldList,
+        getLocalModList,
         getResourcePackList,
         getServerResourcePackList,
         getSchematicList,

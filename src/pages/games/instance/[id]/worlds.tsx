@@ -1,8 +1,7 @@
-import { Image, useDisclosure } from "@chakra-ui/react";
-import { HStack, Tag, TagLabel, Text } from "@chakra-ui/react";
+import { HStack, Image, Tag, TagLabel, Text } from "@chakra-ui/react";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-shell";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuCheck, LuX } from "react-icons/lu";
 import { CommonIconButton } from "@/components/common/common-icon-button";
@@ -13,9 +12,10 @@ import { Section } from "@/components/common/section";
 import DownloadResourceModal from "@/components/modals/download-resource-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
+import { useSharedModals } from "@/contexts/shared-modal";
 import { useToast } from "@/contexts/toast";
-import { InstanceSubdirType } from "@/enums/instance";
-import { GameServerInfo, WorldInfo } from "@/models/game-instance";
+import { InstanceSubdirEnums } from "@/enums/instance";
+import { GameServerInfo, WorldInfo } from "@/models/instance";
 import { InstanceService } from "@/services/instance";
 import { UNIXToISOString, formatRelativeTime } from "@/utils/datetime";
 import { base64ImgSrc } from "@/utils/string";
@@ -26,6 +26,7 @@ const InstanceWorldsPage = () => {
   const { summary, openSubdir, getWorldList } = useInstanceSharedData();
   const accordionStates = config.states.instanceWorldsPage.accordionStates;
   const toast = useToast();
+  const { openSharedModal } = useSharedModals();
 
   const [worlds, setWorlds] = useState<WorldInfo[]>([]);
   const [gameServers, setGameServers] = useState<GameServerInfo[]>([]);
@@ -76,7 +77,7 @@ const InstanceWorldsPage = () => {
     {
       icon: "openFolder",
       onClick: () => {
-        openSubdir(InstanceSubdirType.Saves);
+        openSubdir(InstanceSubdirEnums.Saves);
       },
     },
     {
@@ -101,7 +102,12 @@ const InstanceWorldsPage = () => {
     {
       label: "",
       icon: "copyOrMove",
-      onClick: () => {},
+      onClick: () => {
+        openSharedModal("copy-or-move", {
+          srcResName: save.name,
+          srcFilePath: save.dirPath,
+        });
+      },
     },
     {
       label: "",

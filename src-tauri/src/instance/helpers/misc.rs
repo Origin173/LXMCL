@@ -1,20 +1,10 @@
-use super::models::{Instance, InstanceSubdirType, ModLoader};
+use super::super::models::{Instance, InstanceSubdirType, ModLoader};
 use crate::{
-  error::SJMCLResult,
-  instance::models::ResourcePackInfo,
+  instance::models::ModLoaderType,
   launcher_config::models::{GameDirectory, LauncherConfig},
-  utils::{image::image_to_base64, path::get_files_with_regex},
 };
-use image::ImageReader;
-use regex::RegexBuilder;
-use std::{
-  fs,
-  io::{Cursor, Read},
-  path::PathBuf,
-  sync::Mutex,
-};
+use std::{fs, path::PathBuf, sync::Mutex};
 use tauri::{AppHandle, Manager};
-use zip::read::ZipArchive;
 
 // if instance_id not exists, return None
 pub fn get_instance_subdir_path(
@@ -24,10 +14,7 @@ pub fn get_instance_subdir_path(
 ) -> Option<PathBuf> {
   let binding = app.state::<Mutex<Vec<Instance>>>();
   let state = binding.lock().unwrap();
-  let instance = match state.get(instance_id) {
-    Some(v) => v,
-    None => return None,
-  };
+  let instance = state.get(instance_id)?;
 
   let version_path = &instance.version_path;
   let game_dir = version_path.parent().unwrap().parent().unwrap(); // TODO: remove unwrap
@@ -107,7 +94,7 @@ pub async fn refresh_instances(
       version: "1.20.1".to_string(), // TODO: may read from name.json["patches"]["version"]?
       version_path,
       mod_loader: ModLoader {
-        loader_type: "none".to_string(),
+        loader_type: ModLoaderType::Unknown,
         version: "".to_string(),
       },
       has_schem_folder: true, // TODO: if exists schematics folder, return true
@@ -145,85 +132,4 @@ pub async fn refresh_and_update_instances(app: &AppHandle) {
   let binding = app.state::<Mutex<Vec<Instance>>>();
   let mut state = binding.lock().unwrap();
   *state = instances;
-}
-
-pub fn get_resource_pack_info_from_zip(
-  resource_packs_dir: &PathBuf,
-) -> SJMCLResult<Vec<ResourcePackInfo>> {
-  let valid_extensions = RegexBuilder::new(r"\.zip$")
-    .case_insensitive(true)
-    .build()
-    .unwrap();
-  let mut info_list: Vec<ResourcePackInfo> = Vec::new();
-
-  // TODO: async read files
-  for path in get_files_with_regex(resource_packs_dir, &valid_extensions)? {
-    let name = if let Some(file_stem_osstr) = path.file_stem() {
-      if let Some(file_stem) = file_stem_osstr.to_str() {
-        file_stem.to_owned() // Convert &str to String
-      } else {
-        String::new() // Handle case where filename is not valid UTF-8
-      }
-    } else {
-      String::new() // Handle case where there is no file stem
-    };
-
-    let file = fs::File::open(&path)?;
-    let mut zip = ZipArchive::new(file)?;
-    let mut description = String::new();
-    let mut icon_src = None;
-
-    if let Ok(mut file) = zip.by_name("pack.mcmeta") {
-      let mut contents = String::new();
-      if let Err(err) = file.read_to_string(&mut contents) {
-        #[cfg(debug_assertions)]
-        println!("read to string error: {}", err.to_string());
-      } else {
-        // Check for and remove the UTF-8 BOM if present
-        if contents.starts_with('\u{FEFF}') {
-          contents = contents.strip_prefix('\u{FEFF}').unwrap().to_string();
-        }
-        let json_result = serde_json::from_str::<serde_json::Value>(&contents);
-        if json_result.is_ok() {
-          // Safely extract `description`
-          if let Some(pack_data) = json_result.ok().unwrap().get("pack") {
-            if let Some(desc) = pack_data.get("description") {
-              // Assume `desc` is a valid JSON object or primitive
-              if let Some(desc_str) = desc.as_str() {
-                description = desc_str.to_string(); // Assigns the description to your variable
-              } else {
-                #[cfg(debug_assertions)]
-                println!("Description is not a string");
-              }
-            }
-          }
-        } else {
-          #[cfg(debug_assertions)]
-          println!(
-            "json parse error: {}",
-            json_result.err().unwrap().to_string()
-          );
-        }
-      }
-    }
-
-    if let Ok(mut file) = zip.by_name("pack.png") {
-      let mut buffer = Vec::new();
-      file.read_to_end(&mut buffer)?;
-      // Use `image` crate to decode the image
-      let img = ImageReader::new(Cursor::new(buffer))
-        .with_guessed_format()?
-        .decode()?;
-      if let Ok(b64) = image_to_base64(img.to_rgba8()) {
-        icon_src = Some(b64);
-      }
-    }
-    info_list.push(ResourcePackInfo {
-      name,
-      description,
-      icon_src,
-      file_path: path,
-    });
-  }
-  Ok(info_list)
 }

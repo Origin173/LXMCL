@@ -50,7 +50,7 @@
         },
         "openSourceLicense": {
           "title": "Open Source License",
-          "description": "Licensed under the GNU General Public License v3.0"
+          "description": "Licensed under the GNU General Public License v3.0, with additional terms."
         }
       }
     }
@@ -109,6 +109,17 @@
       "serverUrl": "Server URL"
     }
   },
+  "AddDiscoverSourceModal": {
+    "modal": {
+      "header": "Add Data Source"
+    },
+    "label": {
+      "endpointUrl": "Endpoint URL"
+    },
+    "placeholder": {
+      "endpointUrl": "Endpoint URL"
+    }
+  },
   "AddPlayerModal": {
     "modal": {
       "header": "Add Player"
@@ -128,7 +139,8 @@
         "label": "Auth Source",
         "selectSource": "Select Auth Source",
         "noSource": "No auth source added.",
-        "addSource": "Add one"
+        "addSource": "Add one",
+        "supportOAuth": "This auth source supports the Yggdrasil Connect Proposal"
       },
       "email": {
         "label": "Email",
@@ -145,7 +157,9 @@
     },
     "button": {
       "buyMinecraft": "Buy Minecraft",
-      "loginOAuth": "Login with OAuth"
+      "beginOAuth": "Start OAuth Login",
+      "useOAuthLogin": "OAuth Login",
+      "usePasswordLogin": "Account Password Login"
     }
   },
   "AllGamesPage": {
@@ -230,6 +244,29 @@
       "cicd": "CI / CD",
       "design": "Visual Design",
       "mascot": "Team Mascot"
+    }
+  },
+  "CopyOrMoveModal": {
+    "modal": {
+      "header": "Copy or Move Resource"
+    },
+    "operation": {
+      "copy": "Copy",
+      "move": "Move"
+    },
+    "tag": {
+      "source": "Source"
+    },
+    "body": "to",
+    "resourceType": {
+      "Root": "",
+      "ResourcePacks": "ResourcePack",
+      "Saves": "World",
+      "Schematics": "Schematic",
+      "ShaderPacks": "ShaderPack"
+    },
+    "error": {
+      "lackOfArguments": "Missing necessary parameters. Please have the developer check the code"
     }
   },
   "CreateInstanceModal": {
@@ -350,6 +387,19 @@
           "title": "Port"
         }
       }
+    }
+  },
+  "DownloadTasksPage": {
+    "title": "Downloading Tasks",
+    "button": {
+      "settings": "Download Settings",
+      "pause": "Pause",
+      "begin": "Start",
+      "retry": "Retry"
+    },
+    "label": {
+      "paused": "Paused",
+      "error": "Error"
     }
   },
   "Editable": {
@@ -704,7 +754,8 @@
       "menu": {
         "alert": "Potentially incompatible",
         "info": "Mod Info",
-        "update": "Update"
+        "update": "Update",
+        "search": "Search"
       }
     }
   },
@@ -822,6 +873,9 @@
     "steve": "Steve",
     "alex": "Alex"
   },
+  "ViewSkinModal": {
+    "skinView": "View Skin"
+  },
   "MemoryStatusProgress": {
     "title": "Memory Status",
     "info": "{{used}} / {{total}} GB used",
@@ -846,7 +900,8 @@
   },
   "PlayerMenu": {
     "label": {
-      "skin": "Manage Skin",
+      "manageSkin": "Manage Skin",
+      "viewSkin": "View Skin",
       "delete": "Delete"
     }
   },
@@ -1141,14 +1196,36 @@
       }
     },
     "account": {
-      "addPlayer": {
-        "success": "Successfully added player",
+      "addPlayerOffline": {
+        "success": "Successfully added offline player",
         "error": {
-          "title": "Failed to add player",
+          "title": "Failed to add offline player",
           "description": {
-            "invalid": "Invalid player type",
-            "textureError": "Failed to get player texture",
-            "authServerError": "Failed to get player authentication information"
+            "duplicate": "Player already exists",
+            "textureError": "Unable to get player texture"
+          }
+        }
+      },
+      "addPlayer3rdPartyOAuth": {
+        "success": "Succcessfully added player using OAuth",
+        "error": {
+          "title": "Failed to add player using OAuth",
+          "description": {
+            "duplicate": "Player already exists",
+            "authServerError": "Unable to connect to authentication server, or OAuth is not enabled",
+            "textureError": "Unable to get player texture",
+            "cancelled": "OAuth login cancelled"
+          }
+        }
+      },
+      "updatePlayerSkinOfflinePreset": {
+        "success": "Successfully updated player skin",
+        "error": {
+          "title": "Failed to update player skin",
+          "description": {
+            "notFound": "The player does not exist",
+            "invalid": "The player type is invalid",
+            "textureError": "Unable to get player texture"
           }
         }
       },
@@ -1197,6 +1274,92 @@
           "description": {
             "parseError": "The server returned data in an incorrect format",
             "noDownloadApi": "No download strategy available, please check internet connection"
+          }
+        }
+      }
+    },
+    "instance": {
+      "retriveInstanceList": {
+        "error": {
+          "title": "Failed to retrieve instance list"
+        }
+      },
+      "openInstanceSubdir": {
+        "error": {
+          "title": "Failed to open instance directory",
+          "description": {
+            "instanceNotFoundByID": "Instance ID does not exist or has a type error",
+            "execOpenDirError": "Unable to execute command for the non-existent subdirectory type"
+          }
+        }
+      },
+      "retriveWorldList": {
+        "error": {
+          "title": "Failed to retrive world list"
+        }
+      },
+      "retriveGameServerList": {
+        "error": {
+          "title": "Failed to retraive game server list",
+          "description": {
+            "serverNbtReadError": "server.dat may have been corrupted"
+          }
+        }
+      },
+      "retriveResourcePackList": {
+        "error": {
+          "title": "Failed to retrive resource pack list"
+        }
+      },
+      "retriveServerResourcePackList": {
+        "error": {
+          "title": "Failed to retrive resource pack list from servers"
+        }
+      },
+      "retriveSchematicList": {
+        "error": {
+          "title": "Failed to retrive schematic list"
+        }
+      },
+      "retriveShaderPackList": {
+        "error": {
+          "title": "Failed to retrive shader pack list"
+        }
+      },
+      "retriveScreenshotList": {
+        "error": {
+          "title": "Failed to retrive screenshot list"
+        }
+      },
+      "copyAcrossInstances": {
+        "success": "Successfully copied resource",
+        "error": {
+          "title": "Failed to copy resource",
+          "description": {
+            "instanceNotFoundByID": "Instance ID does not exist or has a type error",
+            "invalidSourcePath": "Invalid source path",
+            "fileCopyFailed": "File copy failed",
+            "folderCreationFailed": "Destination folder creation failed"
+          }
+        }
+      },
+      "moveAcrossInstances": {
+        "success": "Successfully moved resource",
+        "error": {
+          "title": "Failed to move resource",
+          "description": {
+            "instanceNotFoundByID": "Instance ID does not exist or has a type error",
+            "invalidSourcePath": "Invalid source path",
+            "fileMoveFailed": "File move failed",
+            "folderCreationFailed": "Destination folder creation failed"
+          }
+        }
+      },
+      "toggleModByExtension": {
+        "error": {
+          "title": "Mod state toggle failed",
+          "description": {
+            "fileNotFoundError": "The mod file does not exist, it may have been renamed, moved, or deleted"
           }
         }
       }

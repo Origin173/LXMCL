@@ -81,6 +81,7 @@ export interface LauncherConfig {
   };
   localGameDirectories: GameDirectory[];
   globalGameConfig: GameConfig;
+  discoverSourceEndpoints: string[];
   states: {
     accountsPage: {
       viewType: string;
@@ -182,6 +183,7 @@ export const defaultConfig: LauncherConfig = {
   },
   localGameDirectories: [{ name: "Current", dir: ".minecraft/" }],
   globalGameConfig: defaultGameConfig,
+  discoverSourceEndpoints: ["https://mc.sjtu.cn/api-sjmcl/article"],
   states: {
     accountsPage: {
       viewType: "grid",

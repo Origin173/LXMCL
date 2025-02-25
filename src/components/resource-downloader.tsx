@@ -225,8 +225,8 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
     setSortBy(e === "CurseForge" ? "Relevancy" : "Relevance");
   };
 
-  const fetchVersionList = useCallback(async () => {
-    const response = await ResourceService.retriveGameVersionList();
+  const handleFetchGameVersionList = useCallback(async () => {
+    const response = await ResourceService.fetchGameVersionList();
     if (response.status === "success") {
       const versionData = response.data;
       const versionList = versionData
@@ -263,8 +263,8 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   };
 
   useEffect(() => {
-    fetchVersionList();
-  }, [fetchVersionList]);
+    handleFetchGameVersionList();
+  }, [handleFetchGameVersionList]);
 
   useEffect(() => {
     fetchResourceList();

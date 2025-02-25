@@ -1,30 +1,31 @@
 use super::{
-  super::utils::path::{get_files_with_regex, get_subdirectories},
+  super::utils::{
+    fs::{copy_whole_dir, generate_unique_filename},
+    nbt::load_nbt,
+    path::{get_files_with_regex, get_subdirectories},
+  },
   helpers::{
-    get_instance_subdir_path, get_resource_pack_info_from_zip, refresh_and_update_instances,
+    misc::{get_instance_subdir_path, refresh_and_update_instances},
+    mods::main_loader::{load_mod_from_dir, load_mod_from_file},
+    resourcepack::{load_resourcepack_from_dir, load_resourcepack_from_zip},
+    server::{nbt_to_servers_info, query_server_status},
+    world::nbt_to_world_info,
   },
   models::{
-    GameServerInfo, Instance, InstanceError, InstanceSubdirType, ResourcePackInfo, SchematicInfo,
-    ScreenshotInfo, ShaderPackInfo, WorldInfo,
+    GameServerInfo, Instance, InstanceError, InstanceSubdirType, LocalModInfo, ResourcePackInfo,
+    SchematicInfo, ScreenshotInfo, ShaderPackInfo, WorldInfo,
   },
 };
 use crate::error::SJMCLResult;
-use quartz_nbt::NbtCompound;
-use quartz_nbt::{
-  io::{read_nbt, Flavor},
-  NbtList,
-};
-use regex::RegexBuilder;
-use serde_json::Value;
-use std::{
-  fs::File,
-  io::{Cursor, Read},
-  sync::Mutex,
-  time::SystemTime,
-};
+use lazy_static::lazy_static;
+use quartz_nbt::io::Flavor;
+use regex::{Regex, RegexBuilder};
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::{sync::Mutex, time::SystemTime};
 use tauri::{AppHandle, Manager};
-use tauri_plugin_http::reqwest;
 use tauri_plugin_shell::ShellExt;
+use tokio;
 
 #[tauri::command]
 pub async fn retrive_instance_list(app: AppHandle) -> SJMCLResult<Vec<Instance>> {
@@ -42,13 +43,93 @@ pub fn open_instance_subdir(
 ) -> SJMCLResult<()> {
   let subdir_path = match get_instance_subdir_path(&app, instance_id, &dir_type) {
     Some(path) => path,
-    None => return Err(InstanceError::SubdirTypeNotFound.into()),
+    None => return Err(InstanceError::InstanceNotFoundByID.into()),
   };
 
   match app.shell().open(subdir_path.to_str().unwrap(), None) {
     Ok(_) => Ok(()),
     Err(_) => Err(InstanceError::ExecOpenDirError.into()),
   }
+}
+
+#[tauri::command]
+pub fn copy_across_instances(
+  app: AppHandle,
+  src_file_path: String,
+  tgt_inst_ids: Vec<usize>,
+  tgt_dir_type: InstanceSubdirType,
+) -> SJMCLResult<()> {
+  let src_path = Path::new(&src_file_path);
+
+  if src_path.is_file() {
+    let filename = match src_path.file_name() {
+      Some(name) => name.to_os_string(),
+      None => return Err(InstanceError::InvalidSourcePath.into()),
+    };
+
+    for tgt_inst_id in tgt_inst_ids {
+      let tgt_path = match get_instance_subdir_path(&app, tgt_inst_id, &tgt_dir_type) {
+        Some(path) => path,
+        None => return Err(InstanceError::InstanceNotFoundByID.into()),
+      };
+
+      if !tgt_path.exists() {
+        fs::create_dir_all(&tgt_path).map_err(|_| InstanceError::FolderCreationFailed)?;
+      }
+
+      let dest_path = generate_unique_filename(&tgt_path, &filename);
+      fs::copy(&src_file_path, &dest_path).map_err(|_| InstanceError::FileCopyFailed)?;
+    }
+  } else if src_path.is_dir() {
+    for tgt_inst_id in tgt_inst_ids {
+      let tgt_path = match get_instance_subdir_path(&app, tgt_inst_id, &tgt_dir_type) {
+        Some(path) => path,
+        None => return Err(InstanceError::InstanceNotFoundByID.into()),
+      };
+
+      if !tgt_path.exists() {
+        fs::create_dir_all(&tgt_path).map_err(|_| InstanceError::FolderCreationFailed)?;
+      }
+
+      let dest_path = generate_unique_filename(&tgt_path, src_path.file_name().unwrap());
+      copy_whole_dir(src_path, &dest_path).map_err(|_| InstanceError::FileCopyFailed)?;
+    }
+  } else {
+    return Err(InstanceError::InvalidSourcePath.into());
+  }
+  Ok(())
+}
+
+#[tauri::command]
+pub fn move_across_instances(
+  app: AppHandle,
+  src_file_path: String,
+  tgt_inst_id: usize,
+  tgt_dir_type: InstanceSubdirType,
+) -> SJMCLResult<()> {
+  let tgt_path = match get_instance_subdir_path(&app, tgt_inst_id, &tgt_dir_type) {
+    Some(path) => path,
+    None => return Err(InstanceError::InstanceNotFoundByID.into()),
+  };
+
+  let src_path = Path::new(&src_file_path);
+
+  if !src_path.is_dir() && !src_path.is_file() {
+    return Err(InstanceError::InvalidSourcePath.into());
+  }
+
+  let filename = match src_path.file_name() {
+    Some(name) => name.to_os_string(),
+    None => return Err(InstanceError::InvalidSourcePath.into()),
+  };
+
+  if !tgt_path.exists() {
+    fs::create_dir_all(&tgt_path).map_err(|_| InstanceError::FolderCreationFailed)?;
+  }
+
+  let dest_path = generate_unique_filename(&tgt_path, &filename);
+  fs::rename(&src_file_path, &dest_path).map_err(|_| InstanceError::FileMoveFailed)?;
+  Ok(())
 }
 
 #[tauri::command]
@@ -60,75 +141,26 @@ pub async fn retrive_world_list(app: AppHandle, instance_id: usize) -> SJMCLResu
 
   let world_dirs = match get_subdirectories(worlds_dir) {
     Ok(val) => val,
-    Err(e) => return Err(e),
+    Err(_) => return Ok(Vec::new()), // if dir not exists, no need to error
   };
 
   let mut world_list: Vec<WorldInfo> = Vec::new();
   // TODO: async read
   for path in world_dirs {
     let name = path.file_name().unwrap().to_str().unwrap();
-
     let icon_path = path.join("icon.png");
     let nbt_path = path.join("level.dat");
-
-    if let Ok(mut nbt_file) = File::open(nbt_path) {
-      let mut nbt_bytes = Vec::new();
-      if nbt_file.read_to_end(&mut nbt_bytes).is_err() {
-        continue;
+    if let Ok(nbt) = load_nbt(&nbt_path, Flavor::GzCompressed) {
+      if let Ok((last_played, difficulty, gamemode)) = nbt_to_world_info(&nbt) {
+        world_list.push(WorldInfo {
+          name: name.to_string(),
+          last_played_at: last_played,
+          difficulty: difficulty.to_string(),
+          gamemode: gamemode.to_string(),
+          icon_src: icon_path,
+          dir_path: path,
+        });
       }
-      let nbt_result = read_nbt(&mut Cursor::new(nbt_bytes), Flavor::GzCompressed);
-      if nbt_result.is_err() {
-        #[cfg(debug_assertions)]
-        println!("nbt read error: {}", nbt_result.err().unwrap());
-        continue;
-      }
-      let nbt = nbt_result.unwrap().0;
-      let data = nbt.get::<_, &NbtCompound>("Data");
-      if data.is_err() {
-        #[cfg(debug_assertions)]
-        println!("nbt not contains 'Data'");
-        continue;
-      }
-      let data = data.unwrap();
-      let last_played: i64;
-      if let Ok(val) = data.get::<_, &i64>("LastPlayed") {
-        last_played = *val / 1000;
-      } else {
-        last_played = 0;
-      }
-      let mut difficulty: u8;
-      if let Ok(val) = data.get::<_, &u8>("Difficulty") {
-        difficulty = *val;
-      } else {
-        difficulty = 2;
-      }
-      if let Ok(val) = data.get::<_, &u8>("hardcore") {
-        if *val != 0 {
-          difficulty = 4;
-        }
-      }
-      const DIFFICULTY_STR: [&str; 5] = ["peaceful", "easy", "normal", "hard", "hardcore"];
-      if difficulty >= DIFFICULTY_STR.len() as u8 {
-        continue;
-      }
-      let gametype: i32;
-      if let Ok(val) = data.get::<_, &i32>("GameType") {
-        gametype = *val;
-      } else {
-        gametype = 0;
-      }
-      const GAMEMODE_STR: [&str; 4] = ["survival", "creative", "adventure", "spectator"];
-      if gametype < 0 || gametype >= GAMEMODE_STR.len() as i32 {
-        continue;
-      }
-      world_list.push(WorldInfo {
-        name: name.to_string(),
-        last_played_at: last_played,
-        gamemode: GAMEMODE_STR[gametype as usize].to_string(),
-        difficulty: DIFFICULTY_STR[difficulty as usize].to_string(),
-        icon_src: icon_path,
-        dir_path: path,
-      });
     }
   }
   Ok(world_list)
@@ -148,77 +180,93 @@ pub async fn retrive_game_server_list(
   };
 
   let nbt_path = game_root_dir.join("servers.dat");
-  let mut nbt_file = match File::open(&nbt_path) {
-    Ok(file) => file,
-    Err(_) => return Ok(Vec::new()),
-  };
-
-  let mut nbt_bytes = Vec::new();
-  if nbt_file.read_to_end(&mut nbt_bytes).is_err() {
-    return Err(InstanceError::ServerNbtReadError.into());
-  }
-
-  let (nbt, _) = match read_nbt(&mut Cursor::new(nbt_bytes), Flavor::Uncompressed) {
-    Ok(result) => result,
-    Err(_) => return Err(InstanceError::ServerNbtReadError.into()),
-  };
-
-  let servers = match nbt.get::<_, &NbtList>("servers") {
-    Ok(list) => list,
-    Err(_) => return Err(InstanceError::ServerNbtReadError.into()),
-  };
-
-  for server_idx in 0..servers.len() {
-    if let Ok(server) = servers.get::<&NbtCompound>(server_idx) {
-      if let Ok(ip) = server.get::<_, &str>("ip") {
-        let name = server.get::<_, &str>("name").unwrap_or("unknown");
-        let icon;
-        if let Ok(val) = server.get::<_, &str>("icon") {
-          icon = val;
-        } else {
-          icon = "";
-        }
+  if let Ok(nbt) = load_nbt(&nbt_path, Flavor::Uncompressed) {
+    if let Ok(servers) = nbt_to_servers_info(&nbt) {
+      for (ip, name, icon) in servers {
         game_servers.push(GameServerInfo {
-          icon_src: icon.to_string(),
-          ip: ip.to_string(),
-          name: name.to_string(),
+          ip,
+          name,
+          icon_src: icon,
           is_queried: false,
-          players_online: 0,
           players_max: 0,
+          players_online: 0,
           online: false,
         });
       }
+    } else {
+      return Err(InstanceError::ServerNbtReadError.into());
     }
-  }
 
-  // query_online is true, amend query and return player count and online status
-  if query_online {
-    for server in &mut game_servers {
-      let url = format!("https://mc.sjtu.cn/custom/serverlist/?query={}", server.ip);
-      server.is_queried = false;
-      let response = match reqwest::get(&url).await {
-        Ok(response) => response,
-        Err(_) => continue, // request error
-      };
-      if !response.status().is_success() {
-        continue; // request error
+    // query_online is true, amend query and return player count and online status
+    if query_online {
+      let query_tasks = game_servers.clone().into_iter().map(|mut server| {
+        tokio::spawn(async move {
+          match query_server_status(&server.ip).await {
+            Ok(query_result) => {
+              server.is_queried = true;
+              server.players_online = query_result.players.online as usize;
+              server.players_max = query_result.players.max as usize;
+              server.online = query_result.online;
+              server.icon_src = query_result.favicon.unwrap_or_default();
+            }
+            Err(_) => {
+              server.is_queried = false;
+            }
+          }
+          server
+        })
+      });
+      let mut updated_servers = Vec::new();
+      for (prev, query) in game_servers.into_iter().zip(query_tasks) {
+        if let Ok(updated_server) = query.await {
+          updated_servers.push(updated_server);
+        } else {
+          updated_servers.push(prev); // query error, use local data
+        }
       }
-      let data = match response.json::<Value>().await {
-        Ok(data) => data,
-        Err(_) => continue, // JSON parse error
-      };
-      // manually parse the JSON into the required fields
-      if let Some(players) = data["players"].as_object() {
-        server.players_online = players["online"].as_u64().unwrap_or(0) as usize;
-        server.players_max = players["max"].as_u64().unwrap_or(0) as usize;
-      }
-      server.online = data["online"].as_bool().unwrap_or(false);
-      server.icon_src = data["favicon"].as_str().unwrap_or("").to_string();
-      server.is_queried = true;
+      game_servers = updated_servers;
     }
-  }
-
+  } // don't report error when missing nbt file
   Ok(game_servers)
+}
+
+#[tauri::command]
+pub async fn retrive_local_mod_list(
+  app: AppHandle,
+  instance_id: usize,
+) -> SJMCLResult<Vec<LocalModInfo>> {
+  let mods_dir = match get_instance_subdir_path(&app, instance_id, &InstanceSubdirType::Mods) {
+    Some(path) => path,
+    None => return Ok(Vec::new()),
+  };
+
+  let valid_extensions = RegexBuilder::new(r"\.(jar|zip)(\.disabled)*$")
+    .case_insensitive(true)
+    .build()
+    .unwrap();
+
+  let mod_paths = get_files_with_regex(&mods_dir, &valid_extensions).unwrap_or_default();
+  let mut tasks = Vec::new();
+  for path in mod_paths {
+    let task = tokio::spawn(async move { load_mod_from_file(&path).await.ok() });
+    tasks.push(task);
+  }
+  let mod_paths = get_subdirectories(&mods_dir).unwrap_or_default();
+  for path in mod_paths {
+    let task = tokio::spawn(async move { load_mod_from_dir(&path).await.ok() });
+    tasks.push(task);
+  }
+  let mut mod_infos = Vec::new();
+  for task in tasks {
+    if let Ok(Some(mod_info)) = task.await {
+      mod_infos.push(mod_info);
+    }
+  }
+
+  // 对模组信息进行排序
+  mod_infos.sort();
+
+  Ok(mod_infos)
 }
 
 #[tauri::command]
@@ -232,7 +280,43 @@ pub async fn retrive_resource_pack_list(
       Some(path) => path,
       None => return Ok(Vec::new()),
     };
-  get_resource_pack_info_from_zip(&resource_packs_dir)
+  let mut info_list: Vec<ResourcePackInfo> = Vec::new();
+
+  let valid_extensions = RegexBuilder::new(r"\.zip$")
+    .case_insensitive(true)
+    .build()
+    .unwrap();
+
+  for path in get_files_with_regex(&resource_packs_dir, &valid_extensions).unwrap_or(vec![]) {
+    if let Ok((description, icon_src)) = load_resourcepack_from_zip(&path) {
+      let name = match path.file_stem() {
+        Some(stem) => stem.to_string_lossy().to_string(),
+        None => String::new(),
+      };
+      info_list.push(ResourcePackInfo {
+        name,
+        description,
+        icon_src,
+        file_path: path.clone(),
+      });
+    }
+  }
+
+  for path in get_subdirectories(&resource_packs_dir).unwrap_or(vec![]) {
+    if let Ok((description, icon_src)) = load_resourcepack_from_dir(&path) {
+      let name = match path.file_stem() {
+        Some(stem) => stem.to_string_lossy().to_string(),
+        None => String::new(),
+      };
+      info_list.push(ResourcePackInfo {
+        name,
+        description,
+        icon_src,
+        file_path: path.clone(),
+      });
+    }
+  }
+  Ok(info_list)
 }
 
 #[tauri::command]
@@ -245,7 +329,44 @@ pub async fn retrive_server_resource_pack_list(
       Some(path) => path,
       None => return Ok(Vec::new()),
     };
-  get_resource_pack_info_from_zip(&resource_packs_dir)
+  let mut info_list: Vec<ResourcePackInfo> = Vec::new();
+
+  let valid_extensions = RegexBuilder::new(r".*")
+    .case_insensitive(true)
+    .build()
+    .unwrap();
+
+  for path in get_files_with_regex(&resource_packs_dir, &valid_extensions).unwrap_or(vec![]) {
+    if let Ok((description, icon_src)) = load_resourcepack_from_zip(&path) {
+      let name = match path.file_stem() {
+        Some(stem) => stem.to_string_lossy().to_string(),
+        None => String::new(),
+      };
+      info_list.push(ResourcePackInfo {
+        name,
+        description,
+        icon_src,
+        file_path: path.clone(),
+      });
+    }
+  }
+
+  for path in get_subdirectories(&resource_packs_dir).unwrap_or(vec![]) {
+    if let Ok((description, icon_src)) = load_resourcepack_from_dir(&path) {
+      let name = match path.file_stem() {
+        Some(stem) => stem.to_string_lossy().to_string(),
+        None => String::new(),
+      };
+
+      info_list.push(ResourcePackInfo {
+        name,
+        description,
+        icon_src,
+        file_path: path.clone(),
+      });
+    }
+  }
+  Ok(info_list)
 }
 
 #[tauri::command]
@@ -349,4 +470,49 @@ pub fn retrive_screenshot_list(
   }
 
   Ok(screenshot_list)
+}
+
+lazy_static! {
+  static ref RENAME_LOCK: Mutex<()> = Mutex::new(());
+  static ref RENAME_REGEX: Regex = RegexBuilder::new(r"^(.*?)(\.disabled)*$")
+    .case_insensitive(true)
+    .build()
+    .unwrap();
+}
+
+#[tauri::command]
+pub fn toggle_mod_by_extension(file_path: PathBuf, enable: bool) -> SJMCLResult<()> {
+  let _lock = RENAME_LOCK.lock().expect("Failed to acquire lock");
+  if !file_path.is_file() {
+    return Err(InstanceError::FileNotFoundError.into());
+  }
+
+  let file_name = file_path
+    .file_name()
+    .unwrap_or_default()
+    .to_str()
+    .unwrap_or_default();
+
+  let new_name = if enable {
+    if let Some(captures) = RENAME_REGEX.captures(file_name) {
+      captures
+        .get(1)
+        .map(|m| m.as_str())
+        .unwrap_or(file_name)
+        .to_string()
+    } else {
+      file_name.to_string()
+    }
+  } else if RENAME_REGEX.is_match(file_name) {
+    format!("{}.disabled", file_name)
+  } else {
+    file_name.to_string()
+  };
+  let new_path = file_path.with_file_name(new_name);
+
+  if new_path != file_path {
+    fs::rename(&file_path, &new_path)?;
+  }
+
+  Ok(())
 }

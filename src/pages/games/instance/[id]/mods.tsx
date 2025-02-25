@@ -1,11 +1,6 @@
-import {
-  Avatar,
-  AvatarBadge,
-  HStack,
-  Text,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { Avatar, AvatarBadge, HStack, Tag, Text } from "@chakra-ui/react";
+import { revealItemInDir } from "@tauri-apps/plugin-opener";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuCircleCheck,
@@ -23,14 +18,18 @@ import ModLoaderCards from "@/components/mod-loader-cards";
 import DownloadResourceModal from "@/components/modals/download-resource-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
-import { InstanceSubdirType } from "@/enums/instance";
-import { LocalModInfo } from "@/models/game-instance";
-import { mockLocalMods } from "@/models/mock/game-instance";
+import { useToast } from "@/contexts/toast";
+import { InstanceSubdirEnums } from "@/enums/instance";
+import { LocalModInfo } from "@/models/instance";
+import { InstanceService } from "@/services/instance";
+import { base64ImgSrc } from "@/utils/string";
 
 const InstanceModsPage = () => {
   const { t } = useTranslation();
-  const { summary, openSubdir } = useInstanceSharedData();
+  const toast = useToast();
+  const { summary, openSubdir, getLocalModList } = useInstanceSharedData();
   const { config, update } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
   const accordionStates = config.states.instanceModsPage.accordionStates;
 
   const [localMods, setLocalMods] = useState<LocalModInfo[]>([]);
@@ -42,15 +41,56 @@ const InstanceModsPage = () => {
   } = useDisclosure();
 
   useEffect(() => {
-    // only for mock
-    setLocalMods(mockLocalMods);
-  }, []);
+    setLocalMods(getLocalModList() || []);
+  }, [getLocalModList]);
+
+  const handleToggleModByExtension = useCallback(
+    (filePath: string, enable: boolean) => {
+      console.warn(filePath, enable);
+      InstanceService.toggleModByExtension(filePath, enable).then(
+        (response) => {
+          if (response.status === "success") {
+            setLocalMods((prevMods) =>
+              prevMods.map((prev) => {
+                if (prev.filePath === filePath) {
+                  let newFilePath = prev.filePath;
+                  if (enable && newFilePath.endsWith(".disabled")) {
+                    newFilePath = newFilePath.slice(0, -9);
+                  }
+                  if (!enable && !newFilePath.endsWith(".disabled")) {
+                    newFilePath = newFilePath + ".disabled";
+                  }
+
+                  return {
+                    ...prev,
+                    filePath: newFilePath,
+                    enabled: enable,
+                  };
+                }
+                return prev;
+              })
+            );
+          } else {
+            toast({
+              title: response.message,
+              description: response.details,
+              status: "error",
+            });
+            if (response.raw_error === "FILE_NOT_FOUND_ERROR") {
+              setLocalMods(getLocalModList(true) || []);
+            }
+          }
+        }
+      );
+    },
+    [toast, getLocalModList]
+  );
 
   const modSecMenuOperations = [
     {
       icon: "openFolder",
       onClick: () => {
-        openSubdir(InstanceSubdirType.Mods);
+        openSubdir(InstanceSubdirEnums.Mods);
       },
     },
     {
@@ -70,12 +110,14 @@ const InstanceModsPage = () => {
     },
     {
       icon: LuSearch,
-      label: "search",
+      label: t("InstanceModsPage.modList.menu.search"),
       onClick: () => {},
     },
     {
       icon: "refresh",
-      onClick: () => {},
+      onClick: () => {
+        setLocalMods(getLocalModList(true) || []);
+      },
     },
   ];
 
@@ -95,21 +137,16 @@ const InstanceModsPage = () => {
       icon: mod.enabled ? LuCircleMinus : LuCircleCheck,
       danger: false,
       onClick: () => {
-        // TBD, only mock operation in frontend
-        setLocalMods((prevMods) =>
-          prevMods.map((prev) =>
-            prev.fileName === mod.fileName
-              ? { ...prev, enabled: !prev.enabled }
-              : prev
-          )
-        );
+        handleToggleModByExtension(mod.filePath, !mod.enabled);
       },
     },
     {
       label: "",
       icon: "revealFile", // use common-icon-button predefined icon
       danger: false,
-      onClick: () => {},
+      onClick: () => {
+        revealItemInDir(mod.filePath);
+      },
     },
     {
       label: t("InstanceModsPage.modList.menu.info"),
@@ -133,7 +170,7 @@ const InstanceModsPage = () => {
         }}
       >
         <ModLoaderCards
-          currentType={summary?.modLoader.loaderType || "none"}
+          currentType={summary?.modLoader.loaderType || "Unknown"}
           currentVersion={summary?.modLoader.version}
           displayMode="entry"
         />
@@ -172,14 +209,19 @@ const InstanceModsPage = () => {
                 key={mod.fileName} // unique
                 childrenOnHover
                 title={
-                  mod.transltedName
-                    ? `${mod.transltedName}｜${mod.name}`
+                  mod.translatedName
+                    ? `${mod.translatedName}｜${mod.name}`
                     : mod.name
                 }
                 titleExtra={
-                  <Text fontSize="xs" className="secondary-text no-select">
-                    {mod.version}
-                  </Text>
+                  <HStack>
+                    <Text fontSize="xs" className="secondary-text no-select">
+                      {mod.version}
+                    </Text>
+                    <Tag colorScheme={primaryColor} className="tag-xs">
+                      {mod.loaderType}
+                    </Tag>
+                  </HStack>
                 }
                 description={
                   <Text
@@ -192,7 +234,7 @@ const InstanceModsPage = () => {
                 }
                 prefixElement={
                   <Avatar
-                    src={mod.iconSrc}
+                    src={base64ImgSrc(mod.iconSrc)}
                     name={mod.name}
                     boxSize="28px"
                     borderRadius="4px"

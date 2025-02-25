@@ -36,10 +36,10 @@ import Empty from "@/components/common/empty";
 import { OptionItem } from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
-import { LocalModInfo, WorldInfo } from "@/models/game-instance";
-import { ScreenshotInfo } from "@/models/game-instance";
-import { mockLocalMods } from "@/models/mock/game-instance";
+import { LocalModInfo, WorldInfo } from "@/models/instance";
+import { ScreenshotInfo } from "@/models/instance";
 import { UNIXToISOString, formatRelativeTime } from "@/utils/datetime";
+import { base64ImgSrc } from "@/utils/string";
 
 // All these widgets are used in InstanceContext with WarpCard wrapped.
 interface InstanceWidgetBaseProps extends Omit<BoxProps, "children"> {
@@ -111,7 +111,7 @@ export const InstanceBasicInfoWidget = () => {
             className="secondary-text"
           >
             <Text>{summary?.version}</Text>
-            {summary?.modLoader.loaderType !== "none" && (
+            {summary?.modLoader.loaderType !== "Unknown" && (
               <Text>{`${summary?.modLoader.loaderType} ${summary?.modLoader.version}`}</Text>
             )}
           </VStack>
@@ -141,21 +141,33 @@ export const InstanceScreenshotsWidget = () => {
   const { getScreenshotList } = useInstanceSharedData();
 
   const [screenshots, setScreenshots] = useState<ScreenshotInfo[]>([]);
+  const router = useRouter();
+  const { id } = router.query;
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     setScreenshots(getScreenshotList() || []);
   }, [getScreenshotList]);
+  const [isFading, setIsFading] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % screenshots.length);
-    }, 10000); // carousel (TODO: transition)
-    return () => clearInterval(interval);
-  }, [screenshots]);
+    if (screenshots.length >= 2) {
+      const interval = setInterval(() => {
+        setIsFading(true);
+        setTimeout(() => {
+          setCurrentIndex((prevIndex) => (prevIndex + 1) % screenshots.length);
+          setIsFading(false);
+        }, 800);
+      }, 10000);
 
+      return () => clearInterval(interval);
+    }
+  }, [screenshots]);
   return (
-    <InstanceWidgetBase title={t("InstanceWidgets.screenshots.title")}>
+    <InstanceWidgetBase
+      title={t("InstanceWidgets.screenshots.title")}
+      style={{ cursor: "pointer" }}
+    >
       {screenshots && screenshots.length ? (
         <Image
           src={convertFileSrc(screenshots[currentIndex].filePath)}
@@ -167,6 +179,20 @@ export const InstanceScreenshotsWidget = () => {
           h="100%"
           ml={-3}
           mt={-3}
+          opacity={isFading ? 0 : 1}
+          transition="opacity 0.8s ease-in-out"
+          onClick={() => {
+            router.push(
+              {
+                pathname: `/games/instance/${id}/screenshots`,
+                query: {
+                  screenshotIndex: currentIndex.toString(),
+                },
+              },
+              undefined,
+              { shallow: true }
+            );
+          }}
         />
       ) : (
         <Empty withIcon={false} size="sm" />
@@ -174,20 +200,19 @@ export const InstanceScreenshotsWidget = () => {
     </InstanceWidgetBase>
   );
 };
-
 export const InstanceModsWidget = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { id } = router.query;
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const { getLocalModList } = useInstanceSharedData();
 
   const [localMods, setLocalMods] = useState<LocalModInfo[]>([]);
 
   useEffect(() => {
-    // only for mock
-    setLocalMods(mockLocalMods);
-  }, []);
+    setLocalMods(getLocalModList() || []);
+  }, [getLocalModList]);
 
   const totalMods = localMods.length;
   const enabledMods = localMods.filter((mod) => mod.enabled).length;
@@ -201,7 +226,11 @@ export const InstanceModsWidget = () => {
         <VStack align="flex-start" spacing={3}>
           <AvatarGroup size="sm" max={5} spacing={-2.5}>
             {localMods.map((mod, index) => (
-              <Avatar key={index} name={mod.name} src={mod.iconSrc} />
+              <Avatar
+                key={index}
+                name={mod.name}
+                src={base64ImgSrc(mod.iconSrc)}
+              />
             ))}
           </AvatarGroup>
           <Text fontSize="xs" color="gray.500">
