@@ -48,10 +48,13 @@ async fn device_authorization(
     .map_err(|_| AccountError::AuthServerError)?;
 
   Ok((
-    response["device_code"].as_str().unwrap().to_string(),
+    response["device_code"]
+      .as_str()
+      .ok_or(AccountError::AuthServerError)?
+      .to_string(),
     response["verification_uri_complete"]
       .as_str()
-      .unwrap()
+      .ok_or(AccountError::AuthServerError)?
       .to_string(),
   ))
 }
