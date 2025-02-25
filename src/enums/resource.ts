@@ -175,7 +175,7 @@ export const sortByList = {
     "Relevancy",
     "Popularity",
     "A-Z",
-    "Lastest update",
+    "Latest update",
     "Creation date",
     "Total downloads",
   ],
