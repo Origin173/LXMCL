@@ -18,6 +18,7 @@ import ModLoaderCards from "@/components/mod-loader-cards";
 import DownloadResourceModal from "@/components/modals/download-resource-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
+import { useSharedModals } from "@/contexts/shared-modal";
 import { useToast } from "@/contexts/toast";
 import { InstanceSubdirEnums } from "@/enums/instance";
 import { LocalModInfo } from "@/models/instance";
@@ -29,16 +30,11 @@ const InstanceModsPage = () => {
   const toast = useToast();
   const { summary, openSubdir, getLocalModList } = useInstanceSharedData();
   const { config, update } = useLauncherConfig();
+  const { openSharedModal } = useSharedModals();
   const primaryColor = config.appearance.theme.primaryColor;
   const accordionStates = config.states.instanceModsPage.accordionStates;
 
   const [localMods, setLocalMods] = useState<LocalModInfo[]>([]);
-
-  const {
-    isOpen: isDownloadModalOpen,
-    onOpen: onDownloadModalOpen,
-    onClose: onDownloadModalClose,
-  } = useDisclosure();
 
   useEffect(() => {
     setLocalMods(getLocalModList() || []);
@@ -100,7 +96,9 @@ const InstanceModsPage = () => {
     {
       icon: "download",
       onClick: () => {
-        onDownloadModalOpen();
+        openSharedModal("download-resource", {
+          initialResourceType: "mod",
+        });
       },
     },
     {
@@ -268,11 +266,6 @@ const InstanceModsPage = () => {
           <Empty withIcon={false} size="sm" />
         )}
       </Section>
-      <DownloadResourceModal
-        initialResourceType="mod"
-        isOpen={isDownloadModalOpen}
-        onClose={onDownloadModalClose}
-      />
     </>
   );
 };

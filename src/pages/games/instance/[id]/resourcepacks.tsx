@@ -32,12 +32,6 @@ const InstanceResourcePacksPage = () => {
   const [resourcePacks, setResourcePacks] = useState<ResourcePackInfo[]>([]);
   const [serverResPacks, setServerResPacks] = useState<ResourcePackInfo[]>([]);
 
-  const {
-    isOpen: isDownloadModalOpen,
-    onOpen: onDownloadModalOpen,
-    onClose: onDownloadModalClose,
-  } = useDisclosure();
-
   useEffect(() => {
     setResourcePacks(getResourcePackList() || []);
     setServerResPacks(getServerResourcePackList() || []);
@@ -63,7 +57,9 @@ const InstanceResourcePacksPage = () => {
         {
           icon: "download",
           onClick: () => {
-            onDownloadModalOpen();
+            openSharedModal("download-resource", {
+              initialResourceType: "resourcepack",
+            });
           },
         },
         {
@@ -172,11 +168,6 @@ const InstanceResourcePacksPage = () => {
           </Section>
         );
       })}
-      <DownloadResourceModal
-        initialResourceType="resourcepack"
-        isOpen={isDownloadModalOpen}
-        onClose={onDownloadModalClose}
-      />
     </>
   );
 };

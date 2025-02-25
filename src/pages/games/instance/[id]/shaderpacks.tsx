@@ -20,12 +20,6 @@ const InstanceShaderPacksPage = () => {
 
   const [shaderPacks, setShaderPacks] = useState<ShaderPackInfo[]>([]);
 
-  const {
-    isOpen: isDownloadModalOpen,
-    onOpen: onDownloadModalOpen,
-    onClose: onDownloadModalClose,
-  } = useDisclosure();
-
   useEffect(() => {
     setShaderPacks(getShaderPackList() || []);
   }, [getShaderPackList]);
@@ -44,7 +38,9 @@ const InstanceShaderPacksPage = () => {
     {
       icon: "download",
       onClick: () => {
-        onDownloadModalOpen();
+        openSharedModal("download-resource", {
+          initialResourceType: "shaderpack",
+        });
       },
     },
     {
@@ -113,11 +109,6 @@ const InstanceShaderPacksPage = () => {
       ) : (
         <Empty withIcon={false} size="sm" />
       )}
-      <DownloadResourceModal
-        initialResourceType="shaderpack"
-        isOpen={isDownloadModalOpen}
-        onClose={onDownloadModalClose}
-      />
     </Section>
   );
 };

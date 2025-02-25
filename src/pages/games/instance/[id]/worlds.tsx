@@ -31,12 +31,6 @@ const InstanceWorldsPage = () => {
   const [worlds, setWorlds] = useState<WorldInfo[]>([]);
   const [gameServers, setGameServers] = useState<GameServerInfo[]>([]);
 
-  const {
-    isOpen: isDownloadModalOpen,
-    onOpen: onDownloadModalOpen,
-    onClose: onDownloadModalClose,
-  } = useDisclosure();
-
   useEffect(() => {
     setWorlds(getWorldList() || []);
   }, [getWorldList]);
@@ -87,7 +81,9 @@ const InstanceWorldsPage = () => {
     {
       icon: "download",
       onClick: () => {
-        onDownloadModalOpen();
+        openSharedModal("download-resource", {
+          initialResourceType: "world",
+        });
       },
     },
     {
@@ -266,11 +262,6 @@ const InstanceWorldsPage = () => {
           <Empty withIcon={false} size="sm" />
         )}
       </Section>
-      <DownloadResourceModal
-        initialResourceType="world"
-        isOpen={isDownloadModalOpen}
-        onClose={onDownloadModalClose}
-      />
     </>
   );
 };
