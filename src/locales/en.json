@@ -1292,22 +1292,26 @@
         }
       },
       "copyAcrossInstances": {
+        "success": "Successfully copied resource",
         "error": {
           "title": "Failed to copy resource",
           "description": {
             "instanceNotFoundByID": "Instance ID does not exist or has a type error",
             "invalidSourcePath": "Invalid source path",
-            "fileCopyFailed": "File copy failed"
+            "fileCopyFailed": "File copy failed",
+            "folderCreationFailed": "Destination folder creation failed"
           }
         }
       },
       "moveAcrossInstances": {
+        "success": "Successfully moved resource",
         "error": {
           "title": "Failed to move resource",
           "description": {
             "instanceNotFoundByID": "Instance ID does not exist or has a type error",
             "invalidSourcePath": "Invalid source path",
-            "fileMoveFailed": "File move failed"
+            "fileMoveFailed": "File move failed",
+            "folderCreationFailed": "Destination folder creation failed"
           }
         }
       },

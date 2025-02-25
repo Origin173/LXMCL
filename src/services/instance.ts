@@ -21,6 +21,7 @@ const errorToLocaleKey: { [key: string]: string } = {
   INVALID_SOURCE_PATH: "invalidSourcePath",
   FILE_COPY_FAILED: "fileCopyFailed",
   FILE_MOVE_FAILED: "fileMoveFailed",
+  FOLDER_CREATION_FAILED: "folderCreationFailed",
 };
 
 /**
