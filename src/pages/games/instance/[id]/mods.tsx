@@ -15,8 +15,10 @@ import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import ModLoaderCards from "@/components/mod-loader-cards";
+import DownloadResourceModal from "@/components/modals/download-resource-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
+import { useSharedModals } from "@/contexts/shared-modal";
 import { useToast } from "@/contexts/toast";
 import { InstanceSubdirEnums, ModLoaderEnums } from "@/enums/instance";
 import { LocalModInfo } from "@/models/instance";
@@ -28,6 +30,7 @@ const InstanceModsPage = () => {
   const toast = useToast();
   const { summary, openSubdir, getLocalModList } = useInstanceSharedData();
   const { config, update } = useLauncherConfig();
+  const { openSharedModal } = useSharedModals();
   const primaryColor = config.appearance.theme.primaryColor;
   const accordionStates = config.states.instanceModsPage.accordionStates;
 
@@ -92,7 +95,11 @@ const InstanceModsPage = () => {
     },
     {
       icon: "download",
-      onClick: () => {},
+      onClick: () => {
+        openSharedModal("download-resource", {
+          initialResourceType: "mod",
+        });
+      },
     },
     {
       icon: LuClockArrowUp,

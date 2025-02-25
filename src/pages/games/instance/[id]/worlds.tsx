@@ -9,6 +9,7 @@ import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
+import DownloadResourceModal from "@/components/modals/download-resource-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useSharedModals } from "@/contexts/shared-modal";
@@ -79,7 +80,11 @@ const InstanceWorldsPage = () => {
     },
     {
       icon: "download",
-      onClick: () => {},
+      onClick: () => {
+        openSharedModal("download-resource", {
+          initialResourceType: "world",
+        });
+      },
     },
     {
       icon: "refresh",

@@ -1,4 +1,4 @@
-import { HStack, Image } from "@chakra-ui/react";
+import { HStack, Image, useDisclosure } from "@chakra-ui/react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -8,6 +8,7 @@ import Empty from "@/components/common/empty";
 import { FormattedMCText } from "@/components/common/formatted-mc-text";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
+import DownloadResourceModal from "@/components/modals/download-resource-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useSharedModals } from "@/contexts/shared-modal";
@@ -55,7 +56,11 @@ const InstanceResourcePacksPage = () => {
         },
         {
           icon: "download",
-          onClick: () => {},
+          onClick: () => {
+            openSharedModal("download-resource", {
+              initialResourceType: "resourcepack",
+            });
+          },
         },
         {
           icon: "refresh",

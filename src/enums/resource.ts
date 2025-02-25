@@ -134,6 +134,42 @@ export const shaderPackTagList = {
   ],
 };
 
+export const modpackTagList = {
+  CurseForge: [
+    "All",
+    "Adventure and RPG",
+    "Combat / PvP",
+    "Exploration",
+    "Extra Large",
+    "FTB Official Pack",
+    "Hardcore",
+    "Horror",
+    "Magic",
+    "Map Based",
+    "Mini Game",
+    "Multiplayer",
+    "Quests",
+    "Sci-Fi",
+    "Skyblock",
+    "Small / Light",
+    "Tech",
+    "Vanilla+",
+  ],
+  Modrinth: [
+    "All",
+    "Adventure",
+    "Challenging",
+    "Combat",
+    "Kitchen Sink",
+    "Lightweight",
+    "Magic",
+    "Multiplayer",
+    "Optimization",
+    "Quests",
+    "Technology",
+  ],
+};
+
 export const sortByList = {
   CurseForge: [
     "Relevancy",

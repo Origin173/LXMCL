@@ -1,4 +1,4 @@
-import { HStack } from "@chakra-ui/react";
+import { HStack, useDisclosure } from "@chakra-ui/react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -7,6 +7,7 @@ import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
+import DownloadResourceModal from "@/components/modals/download-resource-modal";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { InstanceSubdirEnums } from "@/enums/instance";
@@ -36,7 +37,11 @@ const InstanceShaderPacksPage = () => {
     },
     {
       icon: "download",
-      onClick: () => {},
+      onClick: () => {
+        openSharedModal("download-resource", {
+          initialResourceType: "shaderpack",
+        });
+      },
     },
     {
       icon: "refresh",

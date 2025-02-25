@@ -316,6 +316,11 @@
   "DownloadFloatButton": {
     "tooltip": "正在下载"
   },
+  "DownloadModpackModal": {
+    "header": {
+      "title": "下载整合包"
+    }
+  },
   "DownloadResourceModal": {
     "header": {
       "title": "下载资源"
@@ -1060,6 +1065,41 @@
         "PBR": "PBR",
         "Reflections": "反射",
         "Shadows": "阴影"
+      }
+    },
+    "modpackTagList": {
+      "CurseForge": {
+        "All": "全部",
+        "Adventure and RPG": "冒险 RPG",
+        "Combat / PvP": "战斗 PvP",
+        "Exploration": "探索",
+        "Extra Large": "大型整合",
+        "FTB Official Pack": "FTB",
+        "Hardcore": "极限生存",
+        "Horror": "恐怖",
+        "Magic": "魔法",
+        "Map Based": "基于地图",
+        "Mini Game": "小游戏",
+        "Multiplayer": "多人",
+        "Quests": "任务",
+        "Sci-Fi": "科幻",
+        "Skyblock": "空岛",
+        "Small / Light": "轻量整合",
+        "Tech": "科技",
+        "Vanilla+": "原版改良"
+      },
+      "Modrinth": {
+        "All": "全部",
+        "Adventure": "冒险",
+        "Challenging": "挑战",
+        "Combat": "战斗",
+        "Kitchen Sink": "大杂烩",
+        "Lightweight": "轻量整合",
+        "Magic": "魔法",
+        "Multiplayer": "多人",
+        "Optimization": "优化",
+        "Quests": "任务",
+        "Technology": "科技"
       }
     },
     "sortByList": {
