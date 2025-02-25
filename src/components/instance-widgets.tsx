@@ -228,7 +228,7 @@ export const InstanceModsWidget = () => {
             {localMods.map((mod, index) => (
               <Avatar
                 key={index}
-                name={mod.name}
+                name={mod.name || mod.fileName}
                 src={base64ImgSrc(mod.iconSrc)}
               />
             ))}
