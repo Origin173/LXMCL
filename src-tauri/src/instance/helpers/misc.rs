@@ -86,7 +86,6 @@ pub async fn refresh_instances(
     // TODO: read the config file if exists, else create one
     // TODO: determine the version isolation strategy
     if let Ok(client_data) = load_client_info_from_json(&json_path).await {
-      println!("{:?}", client_data);
       let (game_version, mod_version, loader_type) = patchs_to_info(&client_data.patches);
       instances.push(Instance {
         id: 0, // not decided yet

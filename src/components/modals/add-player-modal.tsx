@@ -1,7 +1,6 @@
 import {
   Button,
   Card,
-  Center,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -103,7 +102,10 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   }, [initialAuthServerUrl, getAuthServerList, authServerList]);
 
   useEffect(() => {
-    if (authServer?.features.openidConfigurationUrl) {
+    if (
+      playerType === "3rdparty" &&
+      authServer?.features.openidConfigurationUrl
+    ) {
       setShowOAuth(true); // if support, first show OAuth
     } else {
       setShowOAuth(false);
