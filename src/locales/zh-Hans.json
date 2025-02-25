@@ -139,7 +139,8 @@
         "label": "认证源",
         "selectSource": "请选择认证源",
         "noSource": "未添加可用认证源服务器",
-        "addSource": "添加认证源"
+        "addSource": "添加认证源",
+        "supportOAuth": "此认证源支持 Yggdrasil Connect 规范提案"
       },
       "email": {
         "label": "邮箱",
@@ -156,7 +157,9 @@
     },
     "button": {
       "buyMinecraft": "购买 Minecraft",
-      "loginOAuth": "使用 OAuth 登录"
+      "beginOAuth": "开始 OAuth 登录",
+      "useOAuthLogin": "OAuth 登录",
+      "usePasswordLogin": "账号密码登录"
     }
   },
   "AllGamesPage": {
@@ -746,7 +749,8 @@
       "menu": {
         "alert": "可能不兼容",
         "info": "查看信息",
-        "update": "检查更新"
+        "update": "检查更新",
+        "search": "搜索"
       }
     }
   },
@@ -1308,6 +1312,14 @@
             "invalidSourcePath": "无效的源路径",
             "fileMoveFailed": "文件移动失败",
             "folderCreationFailed": "目标文件夹创建失败"
+          }
+        }
+      },
+      "toggleModByExtension": {
+        "error": {
+          "title": "模组状态切换失败",
+          "description": {
+            "fileNotFoundError": "模组文件不存在，可能已更名、移动或删除"
           }
         }
       }

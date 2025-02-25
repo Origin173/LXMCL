@@ -46,21 +46,16 @@ const InstanceModsPage = () => {
             setLocalMods((prevMods) =>
               prevMods.map((prev) => {
                 if (prev.filePath === filePath) {
-                  let newFileName = prev.fileName;
-                  if (enable && newFileName.endsWith(".disabled")) {
-                    newFileName = newFileName.slice(0, -9);
+                  let newFilePath = prev.filePath;
+                  if (enable && newFilePath.endsWith(".disabled")) {
+                    newFilePath = newFilePath.slice(0, -9);
                   }
-                  if (!enable && !newFileName.endsWith(".disabled")) {
-                    newFileName = newFileName + ".disabled";
+                  if (!enable && !newFilePath.endsWith(".disabled")) {
+                    newFilePath = newFilePath + ".disabled";
                   }
-                  const newFilePath = prev.filePath.replace(
-                    prev.fileName,
-                    newFileName
-                  );
 
                   return {
                     ...prev,
-                    fileName: newFileName,
                     filePath: newFilePath,
                     enabled: enable,
                   };
@@ -74,11 +69,14 @@ const InstanceModsPage = () => {
               description: response.details,
               status: "error",
             });
+            if (response.raw_error === "FILE_NOT_FOUND_ERROR") {
+              setLocalMods(getLocalModList(true) || []);
+            }
           }
         }
       );
     },
-    [toast]
+    [toast, getLocalModList]
   );
 
   const modSecMenuOperations = [
@@ -103,7 +101,7 @@ const InstanceModsPage = () => {
     },
     {
       icon: LuSearch,
-      label: "search",
+      label: t("InstanceModsPage.modList.menu.search"),
       onClick: () => {},
     },
     {
@@ -222,7 +220,7 @@ const InstanceModsPage = () => {
                     overflow="hidden"
                     className="secondary-text no-select ellipsis-text" // only show one line
                   >
-                    {`${mod.fileName.replace(/(\.jar|\.jar\.disabled)$/, "")}: ${mod.description}`}
+                    {`${mod.fileName}: ${mod.description}`}
                   </Text>
                 }
                 prefixElement={

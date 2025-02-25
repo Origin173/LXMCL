@@ -131,13 +131,19 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
           tgtInstId,
           tgtDirType
         ).then((response) => {
-          if (response.status !== "success")
+          if (response.status !== "success") {
             toast({
               title: response.message,
               description: response.details,
               status: "error",
             });
-          else
+            if (
+              response.raw_error === "INVALID_SOURCE_PATH" ||
+              response.raw_error === "INSTANCE_NOT_FOUND_BY_ID"
+            ) {
+              router.push(router.asPath); // meet error, refresh page to get new instance and file list.
+            }
+          } else
             toast({
               title: response.message,
               status: "success",
@@ -145,7 +151,7 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
         });
       }
     },
-    [toast]
+    [toast, router]
   );
 
   const handleMoveAcrossInstances = useCallback(

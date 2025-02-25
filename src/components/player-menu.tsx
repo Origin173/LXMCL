@@ -10,7 +10,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { LuEllipsis, LuTrash } from "react-icons/lu";
+import { LuEllipsis, LuRefreshCcw, LuTrash } from "react-icons/lu";
 import { TbHanger } from "react-icons/tb";
 import { CommonIconButton } from "@/components/common/common-icon-button";
 import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
@@ -65,6 +65,15 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
   };
 
   const playerMenuOperations = [
+    ...(player.playerType === "offline"
+      ? []
+      : [
+          {
+            icon: LuRefreshCcw,
+            label: t("General.refresh"),
+            onClick: () => {}, // TBD
+          },
+        ]),
     {
       icon: TbHanger,
       label: t(
