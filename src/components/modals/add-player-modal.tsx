@@ -104,7 +104,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   useEffect(() => {
     if (
       playerType === "3rdparty" &&
-      authServer?.features.openidConfigurationUrl
+      authServer?.features.openidConfigurationUrl &&
+      authServer.clientId
     ) {
       setShowOAuth(true); // if support, first show OAuth
     } else {
@@ -125,7 +126,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
       loginServiceFunction = () =>
         AccountService.addPlayer3rdPartyOAuth(
           authServer.authUrl,
-          authServer.features.openidConfigurationUrl
+          authServer.features.openidConfigurationUrl,
+          authServer.clientId
         );
     } else if (playerType === "offline") {
       loginServiceFunction = () => AccountService.addPlayerOffline(playername);

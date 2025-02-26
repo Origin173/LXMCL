@@ -70,9 +70,10 @@ pub async fn add_player_3rdparty_oauth(
   app: AppHandle,
   auth_server_url: String,
   openid_configuration_url: String,
+  client_id: String,
 ) -> SJMCLResult<()> {
   let mut state: AccountInfo = Storage::load().unwrap_or_default();
-  let new_player = oauth::login(app, auth_server_url, openid_configuration_url).await?;
+  let new_player = oauth::login(app, auth_server_url, openid_configuration_url, client_id).await?;
 
   if state
     .players

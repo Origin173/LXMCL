@@ -80,7 +80,8 @@ structstruck::strike! {
     pub features: struct {
       pub non_email_login: bool,
       pub openid_configuration_url: String,
-    }
+    },
+    pub client_id: String,
   }
 }
 
@@ -90,7 +91,6 @@ pub struct AccountInfo {
   pub players: Vec<PlayerInfo>,
   pub selected_player_id: String, // maybe "" if none of the player was selected
   pub auth_servers: Vec<AuthServer>,
-  pub client_id: Uuid,
 }
 
 impl Default for AccountInfo {
@@ -109,6 +109,7 @@ impl Default for AccountInfo {
             openid_configuration_url:
               "https://skin.mc.sjtu.cn/open/.well-known/openid-configuration".to_string(),
           },
+          client_id: "6".to_string(),
         },
         AuthServer {
           name: "MUA 用户中心".to_string(),
@@ -119,9 +120,9 @@ impl Default for AccountInfo {
             non_email_login: true,
             openid_configuration_url: "".to_string(),
           },
+          client_id: "".to_string(),
         },
       ],
-      client_id: Uuid::new_v4(),
     }
   }
 }
