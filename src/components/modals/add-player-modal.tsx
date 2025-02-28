@@ -353,6 +353,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                             <Button
                               colorScheme={primaryColor}
                               onClick={() => handleLogin(true)}
+                              isLoading={isLoading}
                             >
                               {t("AddPlayerModal.button.beginOAuth")}
                             </Button>

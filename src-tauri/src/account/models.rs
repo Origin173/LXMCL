@@ -1,5 +1,9 @@
-use super::helpers::skin::draw_avatar;
+use super::helpers::{
+  authlib_injector::info::{fetch_auth_url, get_client_id},
+  skin::draw_avatar,
+};
 use crate::{storage::Storage, utils::image::base64_to_image};
+use futures::executor::block_on;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use uuid::Uuid;
@@ -95,13 +99,20 @@ pub struct AccountInfo {
 
 impl Default for AccountInfo {
   fn default() -> Self {
+    let sjmc_auth_url = block_on(fetch_auth_url("https://skin.mc.sjtu.cn".to_string()))
+      .unwrap_or_else(|_| "".to_string());
+    let mua_auth_url = block_on(fetch_auth_url(
+      "https://skin.mualliance.ltd/api/yggdrasil".to_string(),
+    ))
+    .unwrap_or_else(|_| "".to_string());
+
     AccountInfo {
       players: Vec::new(),
       selected_player_id: String::new(),
       auth_servers: vec![
         AuthServer {
           name: "SJMC 用户中心".to_string(),
-          auth_url: "https://skin.mc.sjtu.cn/api/yggdrasil".to_string(),
+          auth_url: sjmc_auth_url,
           homepage_url: "https://skin.mc.sjtu.cn".to_string(),
           register_url: "https://skin.mc.sjtu.cn/auth/register".to_string(),
           features: Features {
@@ -109,18 +120,18 @@ impl Default for AccountInfo {
             openid_configuration_url:
               "https://skin.mc.sjtu.cn/open/.well-known/openid-configuration".to_string(),
           },
-          client_id: "6".to_string(),
+          client_id: get_client_id("skin.mc.sjtu.cn".to_string()),
         },
         AuthServer {
           name: "MUA 用户中心".to_string(),
-          auth_url: "https://skin.mualliance.ltd/api/yggdrasil".to_string(),
+          auth_url: mua_auth_url,
           homepage_url: "https://skin.mualliance.ltd".to_string(),
           register_url: "https://skin.mualliance.ltd/auth/register".to_string(),
           features: Features {
             non_email_login: true,
             openid_configuration_url: "".to_string(),
           },
-          client_id: "".to_string(),
+          client_id: get_client_id("skin.mualliance.ltd".to_string()),
         },
       ],
     }

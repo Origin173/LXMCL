@@ -1,6 +1,7 @@
 use super::constants::CLIENT_IDS;
 use crate::account::models::{AccountError, AuthServer, Features};
 use crate::error::SJMCLResult;
+use tauri::Url;
 use tauri_plugin_http::reqwest;
 
 pub async fn fetch_auth_server(auth_url: String) -> SJMCLResult<AuthServer> {
@@ -30,17 +31,19 @@ pub async fn fetch_auth_server(auth_url: String) -> SJMCLResult<AuthServer> {
       let mut client_id = String::new();
 
       if !openid_configuration_url.is_empty() {
-        client_id = CLIENT_IDS
-          .iter()
-          .find(|(url, _)| url == &auth_url)
-          .map(|(_, id)| id)
-          .unwrap_or(&"")
-          .to_string();
+        let url = Url::parse(&auth_url).map_err(|_| AccountError::Invalid)?;
+
+        if let Some(domain) = url.domain() {
+          client_id = get_client_id(domain.to_string());
+        }
 
         if client_id.is_empty() {
           let response = reqwest::get(&openid_configuration_url).await?;
           let data: serde_json::Value = response.json().await.map_err(|_| AccountError::Invalid)?;
-          client_id = data["shared_client_id"].as_str().unwrap_or(&"").to_string();
+          client_id = data["shared_client_id"]
+            .as_str()
+            .unwrap_or_default()
+            .to_string();
         }
       }
 
@@ -59,5 +62,25 @@ pub async fn fetch_auth_server(auth_url: String) -> SJMCLResult<AuthServer> {
       Ok(new_server)
     }
     Err(_) => Err(AccountError::Invalid.into()),
+  }
+}
+
+pub fn get_client_id(domain: String) -> String {
+  CLIENT_IDS
+    .iter()
+    .find(|(first, _)| first == &domain)
+    .map(|(_, id)| id)
+    .unwrap_or(&"")
+    .to_string()
+}
+
+pub async fn fetch_auth_url(root: String) -> SJMCLResult<String> {
+  let response = reqwest::get(root.clone())
+    .await
+    .map_err(|_| AccountError::Invalid)?;
+  if let Some(auth_url) = response.headers().get("X-Authlib-Injector-API-Location") {
+    Ok(auth_url.to_str().unwrap_or_default().to_string())
+  } else {
+    Ok(root)
   }
 }

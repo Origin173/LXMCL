@@ -1,7 +1,10 @@
 use super::{
   constants::TEXTURE_ROLES,
   helpers::{
-    authlib_injector::{info::fetch_auth_server, oauth, password},
+    authlib_injector::{
+      info::{fetch_auth_server, fetch_auth_url},
+      oauth, password,
+    },
     offline,
   },
   models::{AccountError, AccountInfo, AuthServer, Player},
@@ -192,9 +195,7 @@ pub async fn fetch_auth_server_info(mut url: String) -> SJMCLResult<AuthServer> 
   if !url.starts_with("http://") && !url.starts_with("https://") {
     url = format!("https://{}", url);
   }
-  if !url.ends_with("/api/yggdrasil") && !url.ends_with("/api/yggdrasil/") {
-    url = format!("{}/api/yggdrasil", url);
-  }
+  url = fetch_auth_url(url).await?;
 
   let state: AccountInfo = Storage::load().unwrap_or_default();
 
