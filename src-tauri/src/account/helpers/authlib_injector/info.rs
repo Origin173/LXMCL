@@ -1,8 +1,8 @@
 use super::constants::CLIENT_IDS;
 use crate::account::models::{AccountError, AuthServer, Features};
 use crate::error::SJMCLResult;
-use tauri::Url;
 use tauri_plugin_http::reqwest;
+use url::Url;
 
 pub async fn fetch_auth_server(auth_url: String) -> SJMCLResult<AuthServer> {
   match reqwest::get(&auth_url).await {
@@ -78,8 +78,18 @@ pub async fn fetch_auth_url(root: String) -> SJMCLResult<String> {
   let response = reqwest::get(root.clone())
     .await
     .map_err(|_| AccountError::Invalid)?;
+
   if let Some(auth_url) = response.headers().get("X-Authlib-Injector-API-Location") {
-    Ok(auth_url.to_str().unwrap_or_default().to_string())
+    let auth_url_str = auth_url.to_str().unwrap_or_default();
+    let base_url = Url::parse(&root).map_err(|_| AccountError::Invalid)?;
+
+    // try to parse auth_url_str as a relative URL and append it to the base URL or return it as is
+    let full_url = base_url
+      .join(auth_url_str)
+      .map(|url| url.to_string())
+      .unwrap_or_else(|_| auth_url_str.to_string());
+
+    Ok(full_url)
   } else {
     Ok(root)
   }
