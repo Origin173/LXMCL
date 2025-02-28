@@ -1222,6 +1222,7 @@
           "description": {
             "duplicate": "角色已存在",
             "authServerError": "无法连接至认证服务器，或服务器不支持该登录方式",
+            "notFound": "认证服务器不存在",
             "textureError": "角色皮肤获取失败",
             "cancelled": "已取消"
           }
