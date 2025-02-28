@@ -124,11 +124,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     let loginServiceFunction: () => Promise<InvokeResponse<void>>;
     if (isOAuth && authServer) {
       loginServiceFunction = () =>
-        AccountService.addPlayer3rdPartyOAuth(
-          authServer.authUrl,
-          authServer.features.openidConfigurationUrl,
-          authServer.clientId
-        );
+        AccountService.addPlayer3rdPartyOAuth(authServer.authUrl);
     } else if (playerType === "offline") {
       loginServiceFunction = () => AccountService.addPlayerOffline(playername);
     } else if (playerType === "3rdparty" && authServer) {

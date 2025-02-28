@@ -69,14 +69,22 @@ pub async fn add_player_offline(app: AppHandle, username: String) -> SJMCLResult
 }
 
 #[tauri::command]
-pub async fn add_player_3rdparty_oauth(
-  app: AppHandle,
-  auth_server_url: String,
-  openid_configuration_url: String,
-  client_id: String,
-) -> SJMCLResult<()> {
+pub async fn add_player_3rdparty_oauth(app: AppHandle, auth_server_url: String) -> SJMCLResult<()> {
   let mut state: AccountInfo = Storage::load().unwrap_or_default();
-  let new_player = oauth::login(app, auth_server_url, openid_configuration_url, client_id).await?;
+  let auth_server = state
+    .auth_servers
+    .iter()
+    .find(|server| server.auth_url == auth_server_url)
+    .ok_or(AccountError::NotFound)?
+    .clone();
+
+  let new_player = oauth::login(
+    app,
+    auth_server_url,
+    auth_server.features.openid_configuration_url,
+    auth_server.client_id,
+  )
+  .await?;
 
   if state
     .players

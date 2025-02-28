@@ -1213,6 +1213,7 @@
           "description": {
             "duplicate": "Player already exists",
             "authServerError": "Unable to connect to authentication server, or OAuth is not enabled",
+            "notFound": "The authentication server does not exist",
             "textureError": "Unable to get player texture",
             "cancelled": "OAuth login cancelled"
           }
