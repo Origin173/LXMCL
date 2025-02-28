@@ -49,6 +49,7 @@ pub async fn run() {
       launcher_config::commands::add_custom_background,
       launcher_config::commands::delete_custom_background,
       launcher_config::commands::retrieve_java_list,
+      launcher_config::commands::check_game_directory,
       account::commands::retrieve_player_list,
       account::commands::add_player_offline,
       account::commands::add_player_3rdparty_oauth,

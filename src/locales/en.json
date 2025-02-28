@@ -430,7 +430,13 @@
       "browse": "Browse"
     },
     "dialog": {
-      "title": "Select Directory"
+      "browse": {
+        "title": "Select Directory"
+      },
+      "addSubDir": {
+        "title": "Add Subdirectory",
+        "body": "An instance-containing Minecraft subdirectory has been found. Do you want to add the subdirectory?"
+      }
     },
     "toast": {
       "error": {
@@ -1197,6 +1203,15 @@
       "retrieveJavaList": {
         "error": {
           "title": "Failed to retrieve installed Java list"
+        }
+      },
+      "checkGameDirectory": {
+        "error": {
+          "title": "Invalid game directory",
+          "description": {
+            "dirAlreadyAdded": "The directory has already been added",
+            "dirNotExist": "The directory does not exist"
+          }
         }
       }
     },

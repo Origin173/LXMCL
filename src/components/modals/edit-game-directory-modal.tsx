@@ -5,6 +5,8 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
+  InputGroup,
+  InputRightElement,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -14,14 +16,17 @@ import {
   ModalOverlay,
   ModalProps,
   Stack,
-  Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-dialog";
+import { platform } from "@tauri-apps/plugin-os";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
+import { ConfigService } from "@/services/config";
 
 interface EditGameDirectoryModalProps extends Omit<ModalProps, "children"> {
   add?: boolean;
@@ -48,13 +53,20 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
   const [isDirNameTooLong, setIsDirNameTooLong] = useState<boolean>(false);
   const [isDirNameExist, setIsDirNameExist] = useState<boolean>(false);
   const [isDirPathExist, setIsDirPathExist] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const {
+    isOpen: isAddSubDirDialogOpen,
+    onOpen: onAddSubDirDialogOpen,
+    onClose: onAddSubDirDialogClose,
+  } = useDisclosure();
 
   const handleBrowseGameDir = async () => {
     try {
       const selected = await open({
         directory: true,
         multiple: false,
-        title: t("EditGameDirectoryModal.dialog.title"),
+        title: t("EditGameDirectoryModal.dialog.browse.title"),
       });
 
       if (selected) {
@@ -66,7 +78,6 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
         else setIsDirPathExist(false);
       }
     } catch (error) {
-      console.error("Error opening directory dialog:", error);
       setDirPath("");
       toast({
         title: t("EditGameDirectoryModal.toast.error.title"),
@@ -75,9 +86,62 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
     }
   };
 
-  const handleUpdateDir = () => {
-    setDirName("");
-    setDirPath("");
+  const onDirPathBlur = () => {
+    setDirPath((prevDirPath) => {
+      let tempDirPath = prevDirPath;
+      if (
+        tempDirPath[tempDirPath.length - 1] === "/" ||
+        tempDirPath[tempDirPath.length - 1] === "\\"
+      )
+        tempDirPath = tempDirPath.slice(0, -1);
+      if (platform() === "windows")
+        tempDirPath = tempDirPath.replace(/\//g, "\\");
+      else tempDirPath = tempDirPath.replace(/\\/g, "/");
+      return tempDirPath;
+    }); // normalize path
+    setIsDirPathExist(
+      config.localGameDirectories.map((dir) => dir.dir).includes(dirPath)
+    );
+  };
+
+  const handleCheckGameDirectory = async (dir: string): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      const response = await ConfigService.checkGameDirectory(dir);
+      if (response.status !== "success") {
+        toast({
+          title: response.message,
+          description: response.details,
+          status: "error",
+        });
+        return false;
+      } else {
+        if (response.data === "") return true;
+        setDirPath(response.data);
+        onAddSubDirDialogOpen();
+        return false;
+      }
+    } catch (error) {
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddSubDir = async () => {
+    handleUpdateDir();
+    onAddSubDirDialogClose();
+  };
+
+  const handleUpdateDir = async () => {
+    if (!add && currentPath === dirPath) {
+      setDirName("");
+      setDirPath("");
+      modalProps.onClose();
+      return;
+    }
+    const isValid = await handleCheckGameDirectory(dirPath);
+    if (!isValid) return;
     if (add) {
       update("localGameDirectories", [
         ...config.localGameDirectories,
@@ -95,13 +159,15 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
       );
     }
     getGameInstanceList(true); // refresh frontend state of instance list
+    setDirName("");
+    setDirPath("");
     modalProps.onClose();
   };
 
   useEffect(() => {
     setDirName(currentName);
     setDirPath(currentPath);
-  }, [currentName, currentPath]);
+  }, [currentName, currentPath, modalProps.isOpen]);
 
   return (
     <Modal
@@ -167,20 +233,28 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
             <FormControl isRequired isInvalid={isDirPathExist && add}>
               <FormLabel>{t("EditGameDirectoryModal.label.dirPath")}</FormLabel>
               <Flex direction="row" align="center">
-                <Text className="secondary-text">
-                  {dirPath
-                    ? dirPath
-                    : t("EditGameDirectoryModal.placeholder.dirPath")}
-                </Text>
-                <Button
-                  size="sm"
-                  onClick={handleBrowseGameDir}
-                  colorScheme={primaryColor}
-                  variant="ghost"
-                  ml="auto"
-                >
-                  {t("EditGameDirectoryModal.button.browse")}
-                </Button>
+                <InputGroup size="sm">
+                  <Input
+                    pr={12}
+                    value={dirPath}
+                    onChange={(e) => setDirPath(e.target.value)}
+                    placeholder={t(
+                      "EditGameDirectoryModal.placeholder.dirPath"
+                    )}
+                    onFocus={() => setIsDirPathExist(false)}
+                    onBlur={onDirPathBlur}
+                  />
+                  <InputRightElement w={16}>
+                    <Button
+                      h={6}
+                      size="sm"
+                      onClick={handleBrowseGameDir}
+                      colorScheme={primaryColor}
+                    >
+                      {t("EditGameDirectoryModal.button.browse")}
+                    </Button>
+                  </InputRightElement>
+                </InputGroup>
               </Flex>
               {isDirPathExist && add && (
                 <FormErrorMessage>
@@ -205,11 +279,21 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
             }
             colorScheme={primaryColor}
             onClick={handleUpdateDir}
+            isLoading={isLoading}
           >
             {t("General.confirm")}
           </Button>
         </ModalFooter>
       </ModalContent>
+      <GenericConfirmDialog
+        isOpen={isAddSubDirDialogOpen}
+        onClose={onAddSubDirDialogClose}
+        title={t("EditGameDirectoryModal.dialog.addSubDir.title")}
+        body={t("EditGameDirectoryModal.dialog.addSubDir.body")}
+        btnCancel={t("General.cancel")}
+        btnOK={t("General.confirm")}
+        onOKCallback={handleAddSubDir}
+      />
     </Modal>
   );
 };

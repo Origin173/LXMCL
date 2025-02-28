@@ -430,7 +430,13 @@
       "browse": "浏览"
     },
     "dialog": {
-      "title": "选择目录"
+      "browse": {
+        "title": "选择目录"
+      },
+      "addSubDir": {
+        "title": "添加子目录",
+        "body": "发现包含实例的 minecraft 子目录，是否添加子目录？"
+      }
     },
     "toast": {
       "error": {
@@ -1197,6 +1203,15 @@
       "retrieveJavaList": {
         "error": {
           "title": "Java 列表获取失败"
+        }
+      },
+      "checkGameDirectory": {
+        "error": {
+          "title": "游戏目录无效",
+          "description": {
+            "dirAlreadyAdded": "游戏目录已添加",
+            "dirNotExist": "游戏目录不存在"
+          }
         }
       }
     },
