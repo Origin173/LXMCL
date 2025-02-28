@@ -7,11 +7,11 @@ export interface GameInstanceSummary {
   description?: string;
   versionPath: string;
   version: string;
+  isVersionIsolated: boolean;
   modLoader: {
     loaderType: ModLoaderType;
     version?: string;
   };
-  hasSchemFolder: boolean;
 }
 
 export interface WorldInfo {

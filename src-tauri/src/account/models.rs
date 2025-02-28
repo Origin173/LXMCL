@@ -2,10 +2,10 @@ use super::helpers::{
   authlib_injector::info::{fetch_auth_url, get_client_id},
   skin::draw_avatar,
 };
-use crate::{storage::Storage, utils::image::base64_to_image};
+use crate::{storage::Storage, utils::image::base64_to_image, EXE_DIR};
 use futures::executor::block_on;
 use serde::{Deserialize, Serialize};
-use std::fmt;
+use std::{fmt, path::PathBuf};
 use uuid::Uuid;
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
@@ -95,6 +95,12 @@ pub struct AccountInfo {
   pub players: Vec<PlayerInfo>,
   pub selected_player_id: String, // maybe "" if none of the player was selected
   pub auth_servers: Vec<AuthServer>,
+}
+
+impl Storage for AccountInfo {
+  fn file_path() -> PathBuf {
+    EXE_DIR.join("sjmcl.account.json")
+  }
 }
 
 impl Default for AccountInfo {

@@ -58,12 +58,12 @@ structstruck::strike! {
     pub icon_src: String,
     pub version: String,
     pub version_path: PathBuf,
+    pub is_version_isolated: bool,
     pub mod_loader: struct {
       pub loader_type: ModLoaderType,
       pub version: String,
     },
-    pub has_schem_folder: bool,
-    pub game_config: Option<GameConfig>, // TODO: any sub-config can be None?
+    pub spec_game_config: Option<GameConfig>, // TODO: any sub-config can be None?
   }
 }
 
