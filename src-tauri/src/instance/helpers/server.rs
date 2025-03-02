@@ -1,6 +1,5 @@
 use crate::error::{SJMCLError, SJMCLResult};
-use quartz_nbt::{io::Flavor, serde::deserialize};
-use quartz_nbt::{NbtCompound, NbtList};
+use quartz_nbt::io::Flavor;
 use serde::{self, Deserialize, Serialize};
 use std::path::Path;
 use tauri_plugin_http::reqwest;
@@ -38,7 +37,7 @@ pub struct Players {
 }
 
 pub async fn query_server_status(server: &String) -> SJMCLResult<SjmcServerQueryResult> {
-  // 构建请求URL
+  // construct request url
   let url = format!("https://mc.sjtu.cn/custom/serverlist/?query={}", server);
   let response = reqwest::get(&url).await?;
   if !response.status().is_success() {

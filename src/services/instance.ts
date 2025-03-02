@@ -3,14 +3,13 @@ import { InstanceSubdirEnums } from "@/enums/instance";
 import {
   GameInstanceSummary,
   GameServerInfo,
-  LevelData,
   LocalModInfo,
   ResourcePackInfo,
   SchematicInfo,
   ScreenshotInfo,
   ShaderPackInfo,
-  WorldInfo,
-} from "@/models/instance";
+} from "@/models/instance/misc";
+import { LevelData, WorldInfo } from "@/models/instance/world";
 import { InvokeResponse } from "@/models/response";
 import { responseHandler } from "@/utils/response";
 

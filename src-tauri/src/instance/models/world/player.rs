@@ -1,7 +1,5 @@
 // https://minecraft.wiki/w/Java_Edition_level_format#level.dat_format
 
-use crate::error::{SJMCLError, SJMCLResult};
-use quartz_nbt::{io::Flavor, serde::deserialize, NbtCompound};
 use serde::{self, Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Default)]

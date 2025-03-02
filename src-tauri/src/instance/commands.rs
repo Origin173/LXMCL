@@ -13,17 +13,16 @@ use super::{
   models::{
     misc::{
       GameServerInfo, Instance, InstanceError, InstanceSubdirType, LocalModInfo, ModLoaderType,
-      ResourcePackInfo, SchematicInfo, ScreenshotInfo, ShaderPackInfo, WorldInfo,
+      ResourcePackInfo, SchematicInfo, ScreenshotInfo, ShaderPackInfo,
     },
-    world::level::LevelData,
+    world::{base::WorldInfo, level::LevelData},
   },
 };
 use crate::error::SJMCLResult;
 use lazy_static::lazy_static;
-use quartz_nbt::io::Flavor;
 use regex::{Regex, RegexBuilder};
+use std::fs;
 use std::path::{Path, PathBuf};
-use std::{f32::consts::E, fs};
 use std::{sync::Mutex, time::SystemTime};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_shell::ShellExt;

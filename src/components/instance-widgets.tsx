@@ -37,8 +37,9 @@ import Empty from "@/components/common/empty";
 import { OptionItem } from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
-import { LocalModInfo, WorldInfo } from "@/models/instance";
-import { ScreenshotInfo } from "@/models/instance";
+import { LocalModInfo } from "@/models/instance/misc";
+import { ScreenshotInfo } from "@/models/instance/misc";
+import { WorldInfo } from "@/models/instance/world";
 import { UNIXToISOString, formatRelativeTime } from "@/utils/datetime";
 import { base64ImgSrc } from "@/utils/string";
 
