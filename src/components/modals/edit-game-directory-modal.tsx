@@ -1,4 +1,11 @@
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogCloseButton,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Button,
   Flex,
   FormControl,
@@ -22,17 +29,73 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { platform } from "@tauri-apps/plugin-os";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
 import { ConfigService } from "@/services/config";
+
+interface ActionSelectDialogProps extends Omit<ModalProps, "children"> {
+  title: string;
+  body: string | React.ReactElement;
+  firstOption: string;
+  secondOption: string;
+  onFirstOption?: () => void;
+  onSecondOption?: () => void;
+}
 
 interface EditGameDirectoryModalProps extends Omit<ModalProps, "children"> {
   add?: boolean;
   currentName?: string;
   currentPath?: string;
 }
+
+export const ActionSelectDialog: React.FC<ActionSelectDialogProps> = ({
+  title,
+  body,
+  firstOption,
+  secondOption,
+  onFirstOption,
+  onSecondOption,
+  ...modalProps
+}) => {
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  const { config } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
+  const { t } = useTranslation();
+
+  return (
+    <AlertDialog
+      isOpen={modalProps.isOpen}
+      leastDestructiveRef={cancelRef}
+      onClose={modalProps.onClose}
+      autoFocus={false}
+      isCentered
+    >
+      <AlertDialogOverlay>
+        <AlertDialogContent>
+          <AlertDialogHeader>{title}</AlertDialogHeader>
+          <AlertDialogCloseButton />
+          <AlertDialogBody>{body}</AlertDialogBody>
+          <AlertDialogFooter>
+            <Button
+              ref={cancelRef}
+              onClick={modalProps.onClose}
+              variant="ghost"
+            >
+              {t("General.cancel")}
+            </Button>
+            <Button colorScheme={primaryColor} onClick={onFirstOption}>
+              {firstOption}
+            </Button>
+            <Button colorScheme={primaryColor} onClick={onSecondOption}>
+              {secondOption}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogOverlay>
+    </AlertDialog>
+  );
+};
 
 const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
   add = false,
@@ -49,6 +112,7 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
 
   const [dirName, setDirName] = useState<string>("");
   const [dirPath, setDirPath] = useState<string>("");
+  const [subDirPath, setSubDirPath] = useState<string>("");
   const [isDirNameEmpty, setIsDirNameEmpty] = useState<boolean>(false);
   const [isDirNameTooLong, setIsDirNameTooLong] = useState<boolean>(false);
   const [isDirNameExist, setIsDirNameExist] = useState<boolean>(false);
@@ -97,11 +161,11 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
       if (platform() === "windows")
         tempDirPath = tempDirPath.replace(/\//g, "\\");
       else tempDirPath = tempDirPath.replace(/\\/g, "/");
+      setIsDirPathExist(
+        config.localGameDirectories.map((dir) => dir.dir).includes(tempDirPath)
+      );
       return tempDirPath;
     }); // normalize path
-    setIsDirPathExist(
-      config.localGameDirectories.map((dir) => dir.dir).includes(dirPath)
-    );
   };
 
   const handleCheckGameDirectory = async (dir: string): Promise<boolean> => {
@@ -117,7 +181,7 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
         return false;
       } else {
         if (response.data === "") return true;
-        setDirPath(response.data);
+        setSubDirPath(response.data);
         onAddSubDirDialogOpen();
         return false;
       }
@@ -129,38 +193,44 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
   };
 
   const handleAddSubDir = async () => {
-    handleUpdateDir();
+    handleUpdateDir(subDirPath);
     onAddSubDirDialogClose();
   };
 
-  const handleUpdateDir = async () => {
-    if (!add && currentPath === dirPath) {
+  const handleAddOriginalDir = async () => {
+    handleUpdateDir(dirPath);
+    onAddSubDirDialogClose();
+  };
+
+  const handleUpdateDir = async (_dirPath: string) => {
+    if (!add && currentPath === _dirPath) {
       setDirName("");
       setDirPath("");
       modalProps.onClose();
       return;
     }
-    const isValid = await handleCheckGameDirectory(dirPath);
+    const isValid = await handleCheckGameDirectory(_dirPath);
     if (!isValid) return;
     if (add) {
       update("localGameDirectories", [
         ...config.localGameDirectories,
         {
           name: dirName,
-          dir: dirPath,
+          dir: _dirPath,
         },
       ]);
     } else {
       update(
         "localGameDirectories",
         config.localGameDirectories.map((dir) =>
-          dir.dir === currentPath ? { name: dirName, dir: dirPath } : dir
+          dir.dir === currentPath ? { name: dirName, dir: _dirPath } : dir
         )
       );
     }
     getGameInstanceList(true); // refresh frontend state of instance list
     setDirName("");
     setDirPath("");
+    setSubDirPath("");
     modalProps.onClose();
   };
 
@@ -278,21 +348,22 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
               (isDirPathExist && add)
             }
             colorScheme={primaryColor}
-            onClick={handleUpdateDir}
+            onClick={() => handleUpdateDir(dirPath)}
             isLoading={isLoading}
           >
             {t("General.confirm")}
           </Button>
         </ModalFooter>
       </ModalContent>
-      <GenericConfirmDialog
+      <ActionSelectDialog
         isOpen={isAddSubDirDialogOpen}
         onClose={onAddSubDirDialogClose}
         title={t("EditGameDirectoryModal.dialog.addSubDir.title")}
         body={t("EditGameDirectoryModal.dialog.addSubDir.body")}
-        btnCancel={t("General.cancel")}
-        btnOK={t("General.confirm")}
-        onOKCallback={handleAddSubDir}
+        firstOption={t("EditGameDirectoryModal.dialog.addSubDir.addOriginDir")}
+        secondOption={t("EditGameDirectoryModal.dialog.addSubDir.addSubDir")}
+        onFirstOption={handleAddOriginalDir}
+        onSecondOption={handleAddSubDir}
       />
     </Modal>
   );

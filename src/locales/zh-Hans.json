@@ -435,7 +435,9 @@
       },
       "addSubDir": {
         "title": "添加子目录",
-        "body": "发现包含实例的 minecraft 子目录，是否添加子目录？"
+        "body": "发现包含实例的 minecraft 子目录，是否添加子目录？",
+        "addOriginDir": "添加原始目录",
+        "addSubDir": "添加子目录"
       }
     },
     "toast": {
@@ -1209,8 +1211,8 @@
         "error": {
           "title": "游戏目录无效",
           "description": {
-            "dirAlreadyAdded": "游戏目录已添加",
-            "dirNotExist": "游戏目录不存在"
+            "gameDirAlreadyAdded": "游戏目录已添加",
+            "gameDirNotExist": "游戏目录不存在"
           }
         }
       }

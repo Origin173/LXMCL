@@ -9,8 +9,8 @@ const errorToLocaleKey: { [key: string]: string } = {
   INVALID_CODE: "invalidCode",
   CODE_EXPIRED: "codeExpired",
   VERSION_MISMATCH: "versionMismatch",
-  DIR_ALREADY_ADDED: "dirAlreadyAdded",
-  DIR_NOT_EXIST: "dirNotExist",
+  GAME_DIR_ALREADY_ADDED: "gameDirAlreadyAdded",
+  GAME_DIR_NOT_EXIST: "gameDirNotExist",
 };
 
 /**

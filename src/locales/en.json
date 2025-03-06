@@ -435,7 +435,9 @@
       },
       "addSubDir": {
         "title": "Add Subdirectory",
-        "body": "An instance-containing Minecraft subdirectory has been found. Do you want to add the subdirectory?"
+        "body": "An instance-containing Minecraft subdirectory has been found. Do you want to add the subdirectory?",
+        "addOriginDir": "Add Origin Directory",
+        "addSubDir": "Add Subdirectory"
       }
     },
     "toast": {
@@ -1209,8 +1211,8 @@
         "error": {
           "title": "Invalid game directory",
           "description": {
-            "dirAlreadyAdded": "The directory has already been added",
-            "dirNotExist": "The directory does not exist"
+            "gameDirAlreadyAdded": "The directory has already been added",
+            "gameDirNotExist": "The directory does not exist"
           }
         }
       }
