@@ -7,7 +7,7 @@ use serde::{self, Deserialize, Serialize};
 
 use crate::{
   error::{SJMCLError, SJMCLResult},
-  instance::helpers::client::LaunchArgumentTemplate,
+  instance::helpers::client_json::LaunchArgumentTemplate,
 };
 
 #[derive(Serialize, Deserialize, Default)]

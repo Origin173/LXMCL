@@ -18,8 +18,8 @@ struct LatestVersion {
   pub snapshot: String,
 }
 
-pub async fn get_latest_version(
-  priority_list: &Vec<SourceType>,
+pub async fn get_game_version_manifest(
+  priority_list: &[SourceType],
 ) -> SJMCLResult<Vec<GameResourceInfo>> {
   for source_type in priority_list.iter() {
     let url = get_download_api(*source_type, ResourceType::VersionManifest)?;
