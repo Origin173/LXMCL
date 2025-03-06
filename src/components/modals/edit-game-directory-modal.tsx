@@ -193,24 +193,29 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
   };
 
   const handleAddSubDir = async () => {
-    handleUpdateDir(subDirPath);
+    handleUpdateDir(subDirPath, true);
     onAddSubDirDialogClose();
   };
 
   const handleAddOriginalDir = async () => {
-    handleUpdateDir(dirPath);
+    handleUpdateDir(dirPath, true);
     onAddSubDirDialogClose();
   };
 
-  const handleUpdateDir = async (_dirPath: string) => {
+  const handleUpdateDir = async (
+    _dirPath: string,
+    skipCheck: boolean = false
+  ) => {
     if (!add && currentPath === _dirPath) {
       setDirName("");
       setDirPath("");
       modalProps.onClose();
       return;
     }
-    const isValid = await handleCheckGameDirectory(_dirPath);
-    if (!isValid) return;
+    if (!skipCheck) {
+      const isValid = await handleCheckGameDirectory(_dirPath);
+      if (!isValid) return;
+    }
     if (add) {
       update("localGameDirectories", [
         ...config.localGameDirectories,
