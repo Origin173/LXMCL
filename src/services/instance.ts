@@ -243,17 +243,17 @@ export class InstanceService {
   }
 
   /**
-   * RETRIEVE the level detail for a specific world.
+   * RETRIEVE the level details for a specific world.
    * @param {number} instanceId - The instance ID to retrieve the level detail for.
    * @param {string} worldName - The name of the world to retrieve details for.
    * @returns {Promise<InvokeResponse<LevelData>>}
    */
   @responseHandler("instance", errorToLocaleKey)
-  static async retrieveWorldDetail(
+  static async retrieveWorldDetails(
     instanceId: number,
     worldName: string
   ): Promise<InvokeResponse<LevelData>> {
-    return await invoke("retrieve_world_detail", {
+    return await invoke("retrieve_world_details", {
       instanceId,
       worldName,
     });

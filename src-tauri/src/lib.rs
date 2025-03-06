@@ -68,7 +68,7 @@ pub async fn run() {
       instance::commands::copy_across_instances,
       instance::commands::move_across_instances,
       instance::commands::retrieve_world_list,
-      instance::commands::retrieve_world_detail,
+      instance::commands::retrieve_world_details,
       instance::commands::retrieve_game_server_list,
       instance::commands::retrieve_local_mod_list,
       instance::commands::retrieve_resource_pack_list,

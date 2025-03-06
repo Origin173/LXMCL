@@ -548,7 +548,7 @@ pub fn toggle_mod_by_extension(file_path: PathBuf, enable: bool) -> SJMCLResult<
 }
 
 #[tauri::command]
-pub async fn retrieve_world_detail(
+pub async fn retrieve_world_details(
   app: AppHandle,
   instance_id: usize,
   world_name: String,
