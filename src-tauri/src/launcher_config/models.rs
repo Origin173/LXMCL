@@ -307,6 +307,8 @@ pub enum LauncherConfigError {
   InvalidCode,
   CodeExpired,
   VersionMismatch,
+  GameDirAlreadyAdded,
+  GameDirNotExist,
 }
 
 impl fmt::Display for LauncherConfigError {
@@ -316,6 +318,8 @@ impl fmt::Display for LauncherConfigError {
       LauncherConfigError::InvalidCode => write!(f, "INVALID_CODE"),
       LauncherConfigError::CodeExpired => write!(f, "CODE_EXPIRED"),
       LauncherConfigError::VersionMismatch => write!(f, "VERSION_MISMATCH"),
+      LauncherConfigError::GameDirAlreadyAdded => write!(f, "GAME_DIR_ALREADY_ADDED"),
+      LauncherConfigError::GameDirNotExist => write!(f, "GAME_DIR_NOT_EXIST"),
     }
   }
 }

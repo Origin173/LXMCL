@@ -9,6 +9,8 @@ const errorToLocaleKey: { [key: string]: string } = {
   INVALID_CODE: "invalidCode",
   CODE_EXPIRED: "codeExpired",
   VERSION_MISMATCH: "versionMismatch",
+  GAME_DIR_ALREADY_ADDED: "gameDirAlreadyAdded",
+  GAME_DIR_NOT_EXIST: "gameDirNotExist",
 };
 
 /**
@@ -116,5 +118,17 @@ export class ConfigService {
   @responseHandler("config", errorToLocaleKey)
   static async retrieveJavaList(): Promise<InvokeResponse<JavaInfo[]>> {
     return await invoke("retrieve_java_list");
+  }
+
+  /**
+   * CHECK whether the game directory is valid.
+   * @param {string} dir The game directory to check.
+   * @returns {Promise<InvokeResponse<string>>} The sub directory if a sub game directory is valid.
+   */
+  @responseHandler("config", errorToLocaleKey)
+  static async checkGameDirectory(
+    dir: string
+  ): Promise<InvokeResponse<string>> {
+    return await invoke("check_game_directory", { dir });
   }
 }

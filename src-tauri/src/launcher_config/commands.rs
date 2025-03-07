@@ -5,8 +5,10 @@ use super::{
   },
   models::{JavaInfo, LauncherConfig, LauncherConfigError, MemoryInfo},
 };
-use crate::storage::Storage;
-use crate::{error::SJMCLResult, partial::PartialUpdate};
+use crate::{
+  error::SJMCLResult, instance::helpers::misc::refresh_instances, partial::PartialUpdate,
+};
+use crate::{storage::Storage, utils::path::get_subdirectories};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
@@ -256,4 +258,55 @@ pub fn retrieve_java_list() -> SJMCLResult<Vec<JavaInfo>> {
   });
 
   Ok(java_list)
+}
+
+#[tauri::command]
+pub async fn check_game_directory(app: AppHandle, dir: String) -> SJMCLResult<String> {
+  let local_game_directories: Vec<_>;
+  {
+    let binding = app.state::<Mutex<LauncherConfig>>();
+    let state = binding.lock()?;
+    local_game_directories = state.local_game_directories.clone();
+  }
+  let directory = PathBuf::from(&dir);
+
+  if local_game_directories.iter().any(|d| d.dir == directory) {
+    return Err(LauncherConfigError::GameDirAlreadyAdded.into());
+  }
+  if !directory.exists() {
+    return Err(LauncherConfigError::GameDirNotExist.into());
+  }
+  let sub_dirs = get_subdirectories(&directory).unwrap_or_default();
+  let cur_dir_instance = match refresh_instances(&crate::launcher_config::models::GameDirectory {
+    dir: directory.clone(),
+    name: "".to_string(),
+  })
+  .await
+  {
+    Ok(v) => v,
+    Err(_) => vec![],
+  };
+  if !cur_dir_instance.is_empty() {
+    return Ok("".to_string());
+  }
+  if let Some(valid_sub_dir) = sub_dirs.iter().find(|d| {
+    matches!(
+      d.file_name().and_then(|n| n.to_str()),
+      Some(".minecraft") | Some("minecraft")
+    )
+  }) {
+    let sub_dir_instance = match refresh_instances(&crate::launcher_config::models::GameDirectory {
+      dir: valid_sub_dir.clone(),
+      name: "".to_string(),
+    })
+    .await
+    {
+      Ok(v) => v,
+      Err(_) => vec![],
+    };
+    if !sub_dir_instance.is_empty() {
+      return Ok(valid_sub_dir.to_str().unwrap().to_string());
+    }
+  }
+  Ok("".to_string())
 }
