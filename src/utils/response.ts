@@ -2,10 +2,7 @@ import { t } from "i18next";
 import { InvokeResponse } from "@/models/response";
 import { isDev } from "@/utils/env";
 
-export function responseHandler(
-  serviceDomain: string,
-  errorToLocaleKey: { [key: string]: string }
-): MethodDecorator {
+export function responseHandler(serviceDomain: string): MethodDecorator {
   return function (
     target: any,
     propertyKey: string | symbol,
@@ -26,12 +23,10 @@ export function responseHandler(
         const message = t(
           `Services.${serviceDomain}.${String(propertyKey)}.error.title`
         );
-        const detailsKey = errorToLocaleKey[String(error)];
-        const details = detailsKey
-          ? t(
-              `Services.${serviceDomain}.${String(propertyKey)}.error.description.${detailsKey}`
-            )
-          : "";
+
+        const details = t(
+          `Services.${serviceDomain}.${String(propertyKey)}.error.description.${String(error)}`
+        );
 
         if (isDev) {
           const errorSet = {

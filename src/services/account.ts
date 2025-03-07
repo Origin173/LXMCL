@@ -3,15 +3,6 @@ import { AuthServer, Player } from "@/models/account";
 import { InvokeResponse } from "@/models/response";
 import { responseHandler } from "@/utils/response";
 
-const errorToLocaleKey: { [key: string]: string } = {
-  DUPLICATE: "duplicate",
-  INVALID: "invalid",
-  NOT_FOUND: "notFound",
-  TEXTURE_ERROR: "textureError",
-  AUTH_SERVER_ERROR: "authServerError",
-  CANCELLED: "cancelled",
-};
-
 /**
  * Service class for managing accounts, players, and authentication servers.
  */
@@ -20,7 +11,7 @@ export class AccountService {
    * RETRIVE the list of players.
    * @returns {Promise<InvokeResponse<Player[]>>}
    */
-  @responseHandler("account", errorToLocaleKey)
+  @responseHandler("account")
   static async retrievePlayerList(): Promise<InvokeResponse<Player[]>> {
     return await invoke("retrieve_player_list");
   }
@@ -30,7 +21,7 @@ export class AccountService {
    * @param {string} username - The username of the player to be added.
    * @returns {Promise<InvokeResponse<void>>}
    */
-  @responseHandler("account", errorToLocaleKey)
+  @responseHandler("account")
   static async addPlayerOffline(
     username: string
   ): Promise<InvokeResponse<void>> {
@@ -44,7 +35,7 @@ export class AccountService {
    * @param {string} authServerUrl - The authentication server's URL.
    * @returns {Promise<InvokeResponse<void>>}
    */
-  @responseHandler("account", errorToLocaleKey)
+  @responseHandler("account")
   static async addPlayer3rdPartyOAuth(
     authServerUrl: string
   ): Promise<InvokeResponse<void>> {
@@ -60,7 +51,7 @@ export class AccountService {
    * @param {string} password - The password of the player to be added.
    * @returns {Promise<InvokeResponse<void>>}
    */
-  @responseHandler("account", errorToLocaleKey)
+  @responseHandler("account")
   static async addPlayer3rdPartyPassword(
     authServerUrl: string,
     username: string,
@@ -79,7 +70,7 @@ export class AccountService {
    * @param {string} presetRole - The preset role that the player's skin will be.
    * @returns {Promise<InvokeResponse<void>>}
    */
-  @responseHandler("account", errorToLocaleKey)
+  @responseHandler("account")
   static async updatePlayerSkinOfflinePreset(
     uuid: string,
     presetRole: string
@@ -95,7 +86,7 @@ export class AccountService {
    * @param {string} uuid - The UUID of the player to be deleted.
    * @returns {Promise<InvokeResponse<void>>}
    */
-  @responseHandler("account", errorToLocaleKey)
+  @responseHandler("account")
   static async deletePlayer(uuid: string): Promise<InvokeResponse<void>> {
     return await invoke("delete_player", { uuid });
   }
@@ -104,7 +95,7 @@ export class AccountService {
    * RETRIVE the selected player by UUID.
    * @returns {Promise<InvokeResponse<Player>>}
    */
-  @responseHandler("account", errorToLocaleKey)
+  @responseHandler("account")
   static async retrieveSelectedPlayer(): Promise<InvokeResponse<Player>> {
     return await invoke("retrieve_selected_player");
   }
@@ -114,7 +105,7 @@ export class AccountService {
    * @param {string} uuid - The UUID of the player to be posted as selected.
    * @returns {Promise<InvokeResponse<void>>}
    */
-  @responseHandler("account", errorToLocaleKey)
+  @responseHandler("account")
   static async updateSelectedPlayer(
     uuid: string
   ): Promise<InvokeResponse<void>> {
@@ -125,7 +116,7 @@ export class AccountService {
    * RETRIVE the list of authentication servers.
    * @returns {Promise<InvokeResponse<AuthServer[]>>}
    */
-  @responseHandler("account", errorToLocaleKey)
+  @responseHandler("account")
   static async retrieveAuthServerList(): Promise<InvokeResponse<AuthServer[]>> {
     return await invoke("retrieve_auth_server_list");
   }
@@ -135,7 +126,7 @@ export class AccountService {
    * @param {string} url - The URL of the authentication server to be added.
    * @returns {Promise<InvokeResponse<AuthServer>>}
    */
-  @responseHandler("account", errorToLocaleKey)
+  @responseHandler("account")
   static async fetchAuthServerInfo(
     url: string
   ): Promise<InvokeResponse<AuthServer>> {
@@ -147,7 +138,7 @@ export class AccountService {
    * @param {string} authUrl - The authentication server URL (already formatted by backend).
    * @returns {Promise<InvokeResponse<void>>}
    */
-  @responseHandler("account", errorToLocaleKey)
+  @responseHandler("account")
   static async addAuthServer(authUrl: string): Promise<InvokeResponse<void>> {
     return await invoke("add_auth_server", { authUrl });
   }
@@ -157,7 +148,7 @@ export class AccountService {
    * @param {string} url - The URL of the authentication server to be deleted.
    * @returns {Promise<InvokeResponse<void>>}
    */
-  @responseHandler("account", errorToLocaleKey)
+  @responseHandler("account")
   static async deleteAuthServer(url: string): Promise<InvokeResponse<void>> {
     return await invoke("delete_auth_server", { url });
   }

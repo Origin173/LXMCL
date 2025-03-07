@@ -1,0 +1,33 @@
+export enum AccountServiceError {
+  Duplicate = "DUPLICATE",
+  Invalid = "INVALID",
+  NotFound = "NOT_FOUND",
+  TextureError = "TEXTURE_ERROR",
+  AuthServerError = "AUTH_SERVER_ERROR",
+  Cancelled = "CANCELLED",
+}
+
+export enum InstanceError {
+  InstanceNotFoundById = "INSTANCE_NOT_FOUND_BY_ID",
+  ExecOpenDirError = "EXEC_OPEN_DIR_ERROR",
+  ServerNbtReadError = "SERVER_NBT_READ_ERROR",
+  FileNotFoundError = "FILE_NOT_FOUND_ERROR",
+  InvalidSourcePath = "INVALID_SOURCE_PATH",
+  FileCopyFailed = "FILE_COPY_FAILED",
+  FileMoveFailed = "FILE_MOVE_FAILED",
+  FolderCreationFailed = "FOLDER_CREATION_FAILED",
+}
+
+export enum ConfigServiceError {
+  FetchError = "FETCH_ERROR",
+  InvalidCode = "INVALID_CODE",
+  CodeExpired = "CODE_EXPIRED",
+  VersionMismatch = "VERSION_MISMATCH",
+  GameDirAlreadyAdded = "GAME_DIR_ALREADY_ADDED",
+  GameDirNotExist = "GAME_DIR_NOT_EXIST",
+}
+
+export enum ResourceServiceError {
+  ParseError = "PARSE_ERROR",
+  NoDownloadApi = "NO_DOWNLOAD_API",
+}

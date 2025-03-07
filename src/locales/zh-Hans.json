@@ -533,7 +533,7 @@
         },
         "javaPermanentGenerationSpace": {
           "title": "内存永久保存区域",
-          "placeholder": "内存 MB"
+          "placeholder": "单位 MB"
         },
         "environmentVariable": {
           "title": "环境变量"
@@ -547,8 +547,8 @@
         "gameCompletnessCheckPolicy": {
           "title": "游戏文件完整性检查策略",
           "disable": "不检查",
-          "normal":"普通检查",
-          "full":"增强检查"
+          "normal": "普通检查",
+          "full": "增强检查"
         },
         "dontCheckJvmValidity": {
           "title": "不检查 JVM 与游戏的兼容性"
@@ -1242,7 +1242,7 @@
         "error": {
           "title": "启动器设置导出失败",
           "description": {
-            "fetchError": "与服务器通信失败"
+            "FETCH_ERROR": "与服务器通信失败"
           }
         }
       },
@@ -1251,10 +1251,10 @@
         "error": {
           "title": "启动器设置导入失败",
           "description": {
-            "fetchError": "与服务器通信失败",
-            "invalidCode": "无效的代码",
-            "codeExpired": "代码已过期",
-            "versionMismatch": "启动器版本不匹配"
+            "FETCH_ERROR": "与服务器通信失败",
+            "INVALID_CODE": "无效的代码",
+            "CODE_EXPIRED": "代码已过期",
+            "VERSION_MISMATCH": "启动器版本不匹配"
           }
         }
       },
@@ -1285,8 +1285,8 @@
         "error": {
           "title": "游戏目录无效",
           "description": {
-            "gameDirAlreadyAdded": "游戏目录已添加",
-            "gameDirNotExist": "游戏目录不存在"
+            "GAME_DIR_ALREADY_ADDED": "游戏目录已添加",
+            "GAME_DIR_NOT_EXIST": "游戏目录不存在"
           }
         }
       }
@@ -1297,8 +1297,8 @@
         "error": {
           "title": "离线角色添加失败",
           "description": {
-            "duplicate": "角色已存在",
-            "textureError": "角色皮肤获取失败"
+            "DUPLICATE": "角色已存在",
+            "TEXTURE_ERROR": "角色皮肤获取失败"
           }
         }
       },
@@ -1307,11 +1307,11 @@
         "error": {
           "title": "OAuth 方式添加角色失败",
           "description": {
-            "duplicate": "角色已存在",
-            "authServerError": "无法连接至认证服务器，或服务器不支持该登录方式",
-            "notFound": "认证服务器不存在",
-            "textureError": "角色皮肤获取失败",
-            "cancelled": "已取消"
+            "DUPLICATE": "角色已存在",
+            "AUTH_SERVER_ERROR": "无法连接至认证服务器，或服务器不支持该登录方式",
+            "NOT_FOUND": "认证服务器不存在",
+            "TEXTURE_ERROR": "角色皮肤获取失败",
+            "CANCELLED": "已取消"
           }
         }
       },
@@ -1320,10 +1320,10 @@
         "error": {
           "title": "账号密码方式添加角色失败",
           "description": {
-            "duplicate": "角色已存在",
-            "authServerError": "无法连接至认证服务器",
-            "textureError": "角色皮肤获取失败",
-            "invalid": "账号或密码错误"
+            "DUPLICATE": "角色已存在",
+            "AUTH_SERVER_ERROR": "无法连接至认证服务器",
+            "TEXTURE_ERROR": "角色皮肤获取失败",
+            "INVALID": "账号或密码错误"
           }
         }
       },
@@ -1332,9 +1332,9 @@
         "error": {
           "title": "角色皮肤更新失败",
           "description": {
-            "notFound": "角色不存在",
-            "invalid": "角色类型错误",
-            "textureError": "角色皮肤获取失败"
+            "NOT_FOUND": "角色不存在",
+            "INVALID": "角色类型错误",
+            "TEXTURE_ERROR": "角色皮肤获取失败"
           }
         }
       },
@@ -1343,7 +1343,7 @@
         "error": {
           "title": "角色删除失败",
           "description": {
-            "notFound": "角色不存在"
+            "NOT_FOUND": "角色不存在"
           }
         }
       },
@@ -1351,8 +1351,8 @@
         "error": {
           "title": "获取认证服务器信息失败",
           "description": {
-            "duplicate": "认证服务器已存在",
-            "invalid": "无效的认证服务器地址"
+            "DUPLICATE": "认证服务器已存在",
+            "INVALID": "无效的认证服务器地址"
           }
         }
       },
@@ -1361,8 +1361,8 @@
         "error": {
           "title": "认证服务器添加失败",
           "description": {
-            "duplicate": "认证服务器已存在",
-            "invalid": "无效的认证服务器地址"
+            "DUPLICATE": "认证服务器已存在",
+            "INVALID": "无效的认证服务器地址"
           }
         }
       },
@@ -1371,7 +1371,7 @@
         "error": {
           "title": "认证服务器删除失败",
           "description": {
-            "notFound": "认证服务器不存在"
+            "NOT_FOUND": "认证服务器不存在"
           }
         }
       }
@@ -1381,8 +1381,8 @@
         "error": {
           "title": "获取游戏版本列表失败",
           "description": {
-            "parseError": "服务器返回数据格式错误",
-            "noDownloadApi": "无可用的下载策略，请检查网络连接"
+            "PARSE_ERROR": "服务器返回数据格式错误",
+            "NO_DOWNLOAD_API": "无可用的下载策略，请检查网络连接"
           }
         }
       }
@@ -1397,8 +1397,8 @@
         "error": {
           "title": "打开实例目录失败",
           "description": {
-            "instanceNotFoundByID": "实例 ID 不存在或类型错误",
-            "execOpenDirError": "命令执行失败"
+            "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在或类型错误",
+            "EXEC_OPEN_DIR_ERROR": "命令执行失败"
           }
         }
       },
@@ -1420,7 +1420,7 @@
         "error": {
           "title": "获取服务器列表失败",
           "description": {
-            "serverNbtReadError": "server.dat 可能已损坏"
+            "SERVER_NBT_READ_ERROR": "server.dat 可能已损坏"
           }
         }
       },
@@ -1454,10 +1454,10 @@
         "error": {
           "title": "复制资源失败",
           "description": {
-            "instanceNotFoundByID": "实例 ID 不存在或类型错误",
-            "invalidSourcePath": "无效的源路径",
-            "fileCopyFailed": "文件复制失败",
-            "folderCreationFailed": "目标文件夹创建失败"
+            "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在或类型错误",
+            "INVALID_SOURCE_PATH": "无效的源路径",
+            "FILE_COPY_FAILED": "文件复制失败",
+            "FOLDER_CREATION_FAILED": "目标文件夹创建失败"
           }
         }
       },
@@ -1466,10 +1466,10 @@
         "error": {
           "title": "移动资源失败",
           "description": {
-            "instanceNotFoundByID": "实例 ID 不存在或类型错误",
-            "invalidSourcePath": "无效的源路径",
-            "fileMoveFailed": "文件移动失败",
-            "folderCreationFailed": "目标文件夹创建失败"
+            "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在或类型错误",
+            "INVALID_SOURCE_PATH": "无效的源路径",
+            "FILE_MOVE_FAILED": "文件移动失败",
+            "FOLDER_CREATION_FAILED": "目标文件夹创建失败"
           }
         }
       },
@@ -1477,7 +1477,7 @@
         "error": {
           "title": "模组状态切换失败",
           "description": {
-            "fileNotFoundError": "模组文件不存在，可能已更名、移动或删除"
+            "FILE_NOT_FOUND_ERROR": "模组文件不存在，可能已更名、移动或删除"
           }
         }
       }
