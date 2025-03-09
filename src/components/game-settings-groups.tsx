@@ -517,21 +517,20 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
         },
         {
           title: t(
-            "GlobalGameSettingsPage.moreOptions.settings.enableAdvancedOptions.title"
+            "GlobalGameSettingsPage.moreOptions.settings.advancedOptions.title"
           ),
           children: (
             <Button
               size="xs"
-              variant="ghost"
+              variant="subtle"
               justifyContent="flex-start"
-              colorScheme={primaryColor}
               onClick={() => {
                 onGameAdvancedSettingsModalOpen();
               }}
             >
               <Text>
                 {t(
-                  "GlobalGameSettingsPage.moreOptions.settings.enableAdvancedOptions.button"
+                  "GlobalGameSettingsPage.moreOptions.settings.advancedOptions.button"
                 )}
               </Text>
             </Button>

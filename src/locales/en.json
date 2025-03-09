@@ -753,9 +753,9 @@
         "displayGameLog": {
           "title": "Display Game Logs"
         },
-        "enableAdvancedOptions": {
-          "title": "Enable Advanced Options",
-          "button": "Edit Advanced Settings"
+        "advancedOptions": {
+          "title": "Advanced Launch Options",
+          "button": "Edit Advanced Options"
         }
       }
     }

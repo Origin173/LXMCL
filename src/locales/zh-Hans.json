@@ -753,8 +753,8 @@
         "displayGameLog": {
           "title": "显示游戏日志"
         },
-        "enableAdvancedOptions": {
-          "title": "启用高级选项",
+        "advancedOptions": {
+          "title": "高级启动设置",
           "button": "编辑高级设置"
         }
       }

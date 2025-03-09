@@ -10,6 +10,7 @@ import {
   Text,
   Tooltip,
   VStack,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -113,7 +114,7 @@ const LaunchPage = () => {
       </Card>
       <Box position="relative">
         <Button colorScheme="blackAlpha" className={styles["launch-button"]}>
-          <VStack spacing={1.5} w="100%">
+          <VStack spacing={1.5} w="100%" color="white">
             <Text fontSize="lg" fontWeight="bold">
               {t("LaunchPage.button.launch")}
             </Text>
@@ -128,7 +129,7 @@ const LaunchPage = () => {
         <SwitchButton
           tooltip={t("LaunchPage.SwitchButton.tooltip.switchGame")}
           aria-label="switch-game"
-          colorScheme="blackAlpha"
+          colorScheme={useColorModeValue("blackAlpha", "gray")}
           onClick={() => router.push("/games/all")}
         />
       </Box>

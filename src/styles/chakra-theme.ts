@@ -1,24 +1,31 @@
 import { extendTheme } from "@chakra-ui/react";
+import { mode } from "@chakra-ui/theme-tools";
 
 const subtleButtonVariant = (props: any) => ({
-  bg: `${props.colorScheme}.100`,
-  color: `${props.colorScheme}.700`,
+  bg: mode(`${props.colorScheme}.100`, `${props.colorScheme}.700`)(props),
+  color: mode(`${props.colorScheme}.700`, `${props.colorScheme}.100`)(props),
   _hover: {
-    bg: `${props.colorScheme}.200`,
+    bg: mode(`${props.colorScheme}.200`, `${props.colorScheme}.600`)(props),
   },
   _active: {
-    bg: `${props.colorScheme}.300`,
+    bg: mode(`${props.colorScheme}.300`, `${props.colorScheme}.500`)(props),
   },
   _disabled: {
-    bg: `${props.colorScheme}.100`,
-    color: `${props.colorScheme}.500`,
+    bg: mode(`${props.colorScheme}.100`, `${props.colorScheme}.700`)(props),
+    color: mode(`${props.colorScheme}.500`, `${props.colorScheme}.300`)(props),
     cursor: "not-allowed",
     opacity: 0.6,
     _hover: {
-      bg: `${props.colorScheme}.100 !important`,
+      bg: mode(
+        `${props.colorScheme}.100 !important`,
+        `${props.colorScheme}.700 !important`
+      )(props),
     },
     _active: {
-      bg: `${props.colorScheme}.100 !important`,
+      bg: mode(
+        `${props.colorScheme}.100 !important`,
+        `${props.colorScheme}.700 !important`
+      )(props),
     },
   },
 });
