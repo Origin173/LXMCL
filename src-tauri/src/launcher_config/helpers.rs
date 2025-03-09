@@ -1,8 +1,9 @@
 use crate::{error::SJMCLResult, EXE_DIR};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::sync::Mutex;
 use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager};
 
@@ -10,7 +11,6 @@ use tauri::{AppHandle, Manager};
 use std::error::Error;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
-use std::sync::Mutex;
 
 use super::models::{GameDirectory, JavaInfo, LauncherConfig};
 
@@ -98,8 +98,17 @@ fn get_official_minecraft_directory(app: &AppHandle) -> GameDirectory {
 }
 
 pub async fn refresh_and_update_javas(app: &AppHandle) {
-  let java_paths = get_java_paths();
-  let mut java_list = Vec::new();
+  // get java paths from system PATH, etc.
+  let mut java_paths = get_java_paths();
+
+  // add user-added paths from config state.
+  let config_binding = app.state::<Mutex<LauncherConfig>>();
+  let mut config_state = config_binding.lock().unwrap();
+  let extra_java_paths = config_state.extra_java_paths.clone();
+  java_paths.extend(extra_java_paths.clone());
+
+  let mut seen_paths: HashMap<String, JavaInfo> = HashMap::new();
+
   for java_exec_path in java_paths {
     let java_path_buf = PathBuf::from(&java_exec_path);
     let (vendor, full_version) = match get_java_info_from_release_file(&java_exec_path)
@@ -108,6 +117,7 @@ pub async fn refresh_and_update_javas(app: &AppHandle) {
       Some(info) => info,
       None => continue,
     };
+
     let java_bin_path = java_path_buf
       .parent()
       .unwrap_or_else(|| Path::new(""))
@@ -116,23 +126,41 @@ pub async fn refresh_and_update_javas(app: &AppHandle) {
     let is_jdk = java_bin_path.join("javac.exe").exists();
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     let is_jdk = java_bin_path.join("javac").exists();
+
     let (major_version, is_lts) = parse_java_major_version(&full_version);
-    java_list.push(JavaInfo {
+    let is_user_added = extra_java_paths.contains(&java_exec_path);
+
+    let java_info = JavaInfo {
       name: format!("{} {}", if is_jdk { "JDK" } else { "JRE" }, full_version),
       major_version,
       is_lts,
-      exec_path: java_exec_path,
+      exec_path: java_exec_path.clone(),
       vendor,
-    });
+      is_user_added,
+    };
+
+    seen_paths.entry(java_exec_path).or_insert(java_info);
   }
+
+  let mut java_list: Vec<JavaInfo> = seen_paths.into_values().collect();
   java_list.sort_by(|a, b| {
     b.major_version
       .cmp(&a.major_version)
       .then_with(|| a.exec_path.len().cmp(&b.exec_path.len()))
   });
-  let binding = app.state::<Mutex<Vec<JavaInfo>>>();
-  let mut state = binding.lock().unwrap();
-  *state = java_list;
+
+  // check selected java in global game config, if not exist, remove it.
+  let current_selected_java = &config_state.global_game_config.game_java.exec_path;
+  let is_valid_java = java_list
+    .iter()
+    .any(|java| &java.exec_path == current_selected_java);
+  if !is_valid_java {
+    config_state.global_game_config.game_java.exec_path = "".to_string();
+  }
+
+  let javas_binding = app.state::<Mutex<Vec<JavaInfo>>>();
+  let mut javas_state = javas_binding.lock().unwrap();
+  *javas_state = java_list;
 }
 
 pub fn get_java_paths() -> Vec<String> {
@@ -265,7 +293,7 @@ pub fn get_java_info_from_command(java_path: &str) -> Option<(String, String)> {
     .ok()?;
   #[cfg(any(target_os = "macos", target_os = "linux"))]
   let output = Command::new(java_path)
-    .args(&["-XshowSettings:properties", "-version"])
+    .args(["-XshowSettings:properties", "-version"])
     .output()
     .ok()?;
 
