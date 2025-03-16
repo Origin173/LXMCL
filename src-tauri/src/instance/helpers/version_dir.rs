@@ -15,7 +15,7 @@ pub fn rename_game_version_id(src_dir: &PathBuf, dst_id: &String) -> SJMCLResult
   let version_root = src_dir
     .parent()
     .ok_or(SJMCLError("empty parent".to_string()))?;
-  let dst_dir = version_root.join(&dst_id);
+  let dst_dir = version_root.join(dst_id);
   let src_json_path = src_dir.join(format!("{}.json", src_id));
   let mut client_json: Value = serde_json::from_reader(fs::File::open(&src_json_path)?)?;
   if let Some(obj) = client_json.as_object_mut() {

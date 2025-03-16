@@ -60,7 +60,7 @@ export class InstanceService {
   }
 
   /**
-   * RENAME the specified instance's (will update version folder name and field in version JSON).
+   * RENAME the specified instance (will update version folder name and field in version JSON).
    * @param {number} instanceId - The instance ID to rename.
    * @param {string} newName - New name
    * @returns {Promise<InvokeResponse<void>>}

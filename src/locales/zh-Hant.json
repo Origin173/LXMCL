@@ -1470,7 +1470,7 @@
         "error": {
           "title": "獲取伺服器列表失敗",
           "description": {
-            "SERVER_NBT_READ_ERROR": "server.dat 可能已損壞"
+            "SERVER_NBT_READ_ERROR": "servers.dat 可能已損壞"
           }
         }
       },

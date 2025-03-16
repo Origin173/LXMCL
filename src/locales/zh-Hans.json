@@ -1461,6 +1461,15 @@
           }
         }
       },
+      "renameInstance": {
+        "error": {
+          "title": "实例重命名失败",
+          "description": {
+            "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在",
+            "CONFLICT_NAME_ERROR": "当前游戏目录存在重名实例"
+          }
+        }
+      },
       "retrieveWorldList": {
         "error": {
           "title": "获取世界列表失败"
@@ -1470,7 +1479,7 @@
         "error": {
           "title": "获取服务器列表失败",
           "description": {
-            "SERVER_NBT_READ_ERROR": "server.dat 可能已损坏"
+            "SERVER_NBT_READ_ERROR": "servers.dat 可能已损坏"
           }
         }
       },
