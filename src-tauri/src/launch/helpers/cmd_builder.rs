@@ -426,7 +426,6 @@ fn generate_proxy_cmd(p: &ProxyConfig) -> Vec<String> {
   }
   let quoter = shlex::Quoter::new();
   match &p.selected_type {
-    &ProxyType::Direct => Vec::new(),
     &ProxyType::Http => vec![
       format!(
         "-Dhttp.proxyHost={}",

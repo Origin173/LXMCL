@@ -39,10 +39,9 @@ pub enum ProcessPriority {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub enum ProxyType {
-  Http,
   Socks,
   #[serde(other)]
-  Direct,
+  Http,
 }
 
 // Partial Derive is used for these structs and we can use it for key value storage.
@@ -305,7 +304,7 @@ impl Default for LauncherConfig {
         },
         proxy: ProxyConfig {
           enabled: false,
-          selected_type: ProxyType::Direct,
+          selected_type: ProxyType::Http,
           host: String::new(),
           port: 0,
         },
