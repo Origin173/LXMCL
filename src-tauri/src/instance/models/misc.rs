@@ -176,5 +176,4 @@ pub enum InstanceError {
   ConflictNameError,
 }
 
-
 impl std::error::Error for InstanceError {}
