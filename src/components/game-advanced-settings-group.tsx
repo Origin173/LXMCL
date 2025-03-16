@@ -51,7 +51,7 @@ const GameAdvancedSettingsGroups: React.FC<GameAdvancedSettingsGroupsProps> = ({
     gameAdvancedConfigs.advanced.jvm.args
   );
   const [javaPermanentGenerationSpace, setJavaPermanentGenerationSpace] =
-    useState<string>(
+    useState<number>(
       gameAdvancedConfigs.advanced.jvm.javaPermanentGenerationSpace
     );
   const [environmentVariable, setEnvironmentVariable] = useState<string>(
@@ -190,7 +190,8 @@ const GameAdvancedSettingsGroups: React.FC<GameAdvancedSettingsGroupsProps> = ({
               maxW={380}
               value={javaPermanentGenerationSpace}
               onChange={(event) =>
-                setJavaPermanentGenerationSpace(event.target.value)
+                // TODO: convert string to number may failed
+                setJavaPermanentGenerationSpace(Number(event.target.value))
               }
               onBlur={() => {
                 updateGameAdvancedConfig(

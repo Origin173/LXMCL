@@ -36,7 +36,7 @@ export interface GameConfig {
     };
     jvm: {
       args: string;
-      javaPermanentGenerationSpace: string;
+      javaPermanentGenerationSpace: number;
       environmentVariable: string;
     };
     workaround: {
@@ -154,7 +154,7 @@ export const defaultGameConfig: GameConfig = {
   performance: {
     autoMemAllocation: true,
     minMemAllocation: 1024,
-    processPriority: "middle",
+    processPriority: "normal",
   },
   versionIsolation: true,
   launcherVisibility: "start-close",
@@ -171,7 +171,7 @@ export const defaultGameConfig: GameConfig = {
     },
     jvm: {
       args: "",
-      javaPermanentGenerationSpace: "",
+      javaPermanentGenerationSpace: 0,
       environmentVariable: "",
     },
     workaround: {

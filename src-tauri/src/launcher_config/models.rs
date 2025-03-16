@@ -22,6 +22,28 @@ pub struct JavaInfo {
   pub is_user_added: bool,
 }
 
+// https://github.com/HMCL-dev/HMCL/blob/d9e3816b8edf9e7275e4349d4fc67a5ef2e3c6cf/HMCLCore/src/main/java/org/jackhuang/hmcl/game/ProcessPriority.java#L20
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[serde(rename_all = "camelCase")]
+pub enum ProcessPriority {
+  Low,
+  AboveNormal,
+  BelowNormal,
+  High,
+  #[serde(other)]
+  Normal,
+}
+
+// see java.net.proxy
+// https://github.com/HMCL-dev/HMCL/blob/d9e3816b8edf9e7275e4349d4fc67a5ef2e3c6cf/HMCLCore/src/main/java/org/jackhuang/hmcl/launch/DefaultLauncher.java#L114
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[serde(rename_all = "camelCase")]
+pub enum ProxyType {
+  Socks,
+  #[serde(other)]
+  Http,
+}
+
 // Partial Derive is used for these structs and we can use it for key value storage.
 // And partially update some fields for better performance and hygiene.
 //
@@ -35,7 +57,7 @@ structstruck::strike! {
   #[strikethrough[derive(Partial, Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]]
   #[strikethrough[serde(rename_all = "camelCase", deny_unknown_fields)]]
   pub struct GameConfig {
-    pub game_java: struct {
+    pub game_java: struct GameJava {
       pub auto: bool,
       pub exec_path: String,
     },
@@ -51,7 +73,7 @@ structstruck::strike! {
     pub performance: struct {
       pub auto_mem_allocation: bool,
       pub min_mem_allocation: u32,
-      pub process_priority: String,
+      pub process_priority: ProcessPriority,
     },
     pub game_server: struct {
       pub auto_join: bool,
@@ -72,7 +94,7 @@ structstruck::strike! {
       },
       pub jvm: struct {
         pub args: String,
-        pub java_permanent_generation_space: String,
+        pub java_permanent_generation_space: u32,
         pub environment_variable: String,
       },
       pub workaround: struct {
@@ -135,9 +157,9 @@ structstruck::strike! {
       pub cache: struct {
         pub directory: PathBuf,
       },
-      pub proxy: struct {
+      pub proxy: struct ProxyConfig {
         pub enabled: bool,
-        pub selected_type: String,
+        pub selected_type: ProxyType,
         pub host: String,
         pub port: usize,
       }
@@ -200,7 +222,7 @@ impl Default for GameConfig {
       performance: Performance {
         auto_mem_allocation: true,
         min_mem_allocation: 1024,
-        process_priority: "middle".to_string(),
+        process_priority: ProcessPriority::Normal,
       },
       game_server: GameServer {
         auto_join: false,
@@ -219,7 +241,7 @@ impl Default for GameConfig {
         },
         jvm: Jvm {
           args: "".to_string(),
-          java_permanent_generation_space: "".to_string(),
+          java_permanent_generation_space: 0,
           environment_variable: "".to_string(),
         },
         workaround: Workaround {
@@ -280,11 +302,11 @@ impl Default for LauncherConfig {
         cache: Cache {
           directory: PathBuf::default(),
         },
-        proxy: Proxy {
+        proxy: ProxyConfig {
           enabled: false,
-          selected_type: "http".to_string(),
-          host: "127.0.0.1".to_string(),
-          port: 80,
+          selected_type: ProxyType::Http,
+          host: String::new(),
+          port: 0,
         },
       },
       general: GeneralConfig {
