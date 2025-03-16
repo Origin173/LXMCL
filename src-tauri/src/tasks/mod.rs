@@ -1,18 +1,18 @@
-use crate::error::SJMCLResult;
 use crate::tasks::monitor::MonitorState;
 use download::DownloadParam;
 use futures::stream::FusedStream;
 use futures::stream::Stream;
+use log::info;
 use pin_project::pin_project;
+use serde::ser::Error;
 use serde::{Deserialize, Serialize};
-use std::future::Future;
 use std::path::PathBuf;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 use std::task::{Context, Poll};
-use tauri::Monitor;
 use tauri::{AppHandle, Emitter};
 use tokio::time::{interval, Duration, Interval};
+use tokio_util::bytes::Bytes;
 
 pub mod background;
 pub mod commands;
@@ -20,7 +20,6 @@ pub mod download;
 pub mod monitor;
 
 const TASK_PROGRESS_LISTENER: &str = "SJMCL://task-progress";
-
 #[derive(Serialize, Deserialize, Clone)]
 pub enum TaskEventContent {
   Created,
@@ -176,16 +175,12 @@ impl TaskState {
 
   pub fn save(&self) -> Result<(), std::io::Error> {
     let json_string = serde_json::to_string_pretty(self)?;
-    std::fs::create_dir(self.path.parent().unwrap())?;
+    std::fs::create_dir_all(self.path.parent().unwrap())?;
     std::fs::write(&self.path, json_string)
   }
 
   pub fn delete(&self) -> Result<(), std::io::Error> {
     std::fs::remove_file(&self.path)
-  }
-
-  pub fn monitor_state(&self) -> &MonitorState {
-    &self.monitor_state
   }
 
   #[inline]
@@ -231,10 +226,51 @@ impl TaskState {
   }
 }
 
+pub trait TaskUnit {
+  fn unit_size(&self) -> i64;
+}
+
+impl<T> TaskUnit for &T {
+  fn unit_size(&self) -> i64 {
+    1
+  }
+}
+
+impl TaskUnit for Bytes {
+  fn unit_size(&self) -> i64 {
+    self.len() as i64
+  }
+}
+
+impl<T, E> TaskUnit for Result<T, E>
+where
+  T: TaskUnit,
+{
+  fn unit_size(&self) -> i64 {
+    match self {
+      Ok(b) => (*b).unit_size(),
+      Err(_) => 0,
+    }
+  }
+}
+
+impl<T> TaskUnit for Option<T>
+where
+  T: TaskUnit,
+{
+  fn unit_size(&self) -> i64 {
+    match self {
+      Some(b) => (*b).unit_size(),
+      None => 0,
+    }
+  }
+}
+
 #[pin_project]
 pub struct ProgressStream<S, T>
 where
   S: Stream<Item = T>,
+  T: TaskUnit,
 {
   app_handle: AppHandle,
   task_state: Arc<Mutex<TaskState>>,
@@ -248,6 +284,7 @@ where
 impl<S, T> ProgressStream<S, T>
 where
   S: Stream<Item = T>,
+  T: TaskUnit,
 {
   pub fn new(
     app_handle: AppHandle,
@@ -270,21 +307,23 @@ where
 impl<S, T> Stream for ProgressStream<S, T>
 where
   S: Stream<Item = T>,
+  T: TaskUnit,
 {
   type Item = T;
   fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
     let p = self.project();
 
-    if p.task_state.lock().unwrap().monitor_state == MonitorState::Stopped {
+    if p.task_state.lock().unwrap().is_stopped() {
       return Poll::Pending;
     }
 
-    if p.task_state.lock().unwrap().monitor_state != MonitorState::InProgress {
+    if !p.task_state.lock().unwrap().is_in_progress() {
       return Poll::Ready(None);
     }
 
     p.target.poll_next(cx).map(|x| {
       if x.is_some() {
+        *p.counter += x.unit_size();
         if p.report_interval.poll_tick(cx).is_ready() {
           let mut task_state = p.task_state.lock().unwrap();
           let current = *p.counter;
@@ -312,7 +351,7 @@ where
           task_state.save().unwrap();
         }
       } else {
-        p.task_state.lock().unwrap().monitor_state = MonitorState::Completed;
+        p.task_state.lock().unwrap().complete();
       }
       x
     })
@@ -322,15 +361,18 @@ where
 impl<S, T> FusedStream for ProgressStream<S, T>
 where
   S: Stream<Item = T>,
+  T: TaskUnit,
 {
   fn is_terminated(&self) -> bool {
-    self.task_state.lock().unwrap().monitor_state != MonitorState::InProgress
+    let state = self.task_state.lock().unwrap();
+    state.is_cancelled() || state.is_completed()
   }
 }
 
 impl<S, T> ProgressStream<S, T>
 where
   S: Stream<Item = T>,
+  T: TaskUnit,
 {
   pub fn state(&self) -> Arc<Mutex<TaskState>> {
     self.task_state.clone()

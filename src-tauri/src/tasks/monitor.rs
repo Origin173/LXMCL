@@ -1,10 +1,9 @@
 use crate::error::SJMCLResult;
 use crate::launcher_config::commands::retrieve_launcher_config;
 use crate::tasks::*;
-use futures::lock::Mutex as AsyncMutex;
-use futures::stream::FuturesUnordered;
-use futures::StreamExt;
+use flume::{Receiver as FlumeReceiver, Sender as FlumeSender};
 use governor::{DefaultDirectRateLimiter, Quota, RateLimiter};
+use log::info;
 use std::collections::HashMap;
 use std::future::Future;
 use std::num::NonZero;
@@ -12,7 +11,7 @@ use std::pin::Pin;
 use std::sync::atomic::AtomicU32;
 use std::vec::Vec;
 use tauri::AppHandle;
-use tokio::sync::Notify;
+use tokio::sync::{Notify, Semaphore};
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub enum MonitorState {
@@ -26,26 +25,34 @@ type SJMCLBoxedFuture = Pin<Box<dyn Future<Output = SJMCLResult<u32>> + Send>>;
 
 pub struct TaskMonitor {
   handle: AppHandle,
-  counter: AtomicU32,
+  id_counter: AtomicU32,
   states: Mutex<HashMap<u32, Arc<Mutex<TaskState>>>>,
+  concurrency: Arc<Semaphore>,
   notify: Arc<Notify>,
-  concurrency: usize,
-  pub tasks: AsyncMutex<FuturesUnordered<SJMCLBoxedFuture>>,
-  pub waitlist: AsyncMutex<Vec<SJMCLBoxedFuture>>,
+  tx: FlumeSender<SJMCLBoxedFuture>,
+  rx: FlumeReceiver<SJMCLBoxedFuture>,
   pub download_rate_limiter: Option<DefaultDirectRateLimiter>,
 }
 
 impl TaskMonitor {
   pub fn new(handle: AppHandle, notify: Arc<Notify>) -> Self {
     let config = retrieve_launcher_config(handle.clone()).unwrap();
+    let (tx, rx) = flume::unbounded();
     TaskMonitor {
-      counter: AtomicU32::new(0),
       handle: handle.clone(),
+      id_counter: AtomicU32::new(0),
       states: Mutex::new(HashMap::new()),
+      concurrency: Arc::new(Semaphore::new(
+        if config.download.transmission.auto_concurrent {
+          let parallelism: usize = std::thread::available_parallelism().unwrap().into();
+          1 + (parallelism / 2_usize)
+        } else {
+          config.download.transmission.concurrent_count
+        },
+      )),
       notify,
-      concurrency: config.download.transmission.concurrent_count,
-      tasks: AsyncMutex::new(FuturesUnordered::default()),
-      waitlist: AsyncMutex::new(Vec::new()),
+      tx,
+      rx,
       download_rate_limiter: if config.download.transmission.enable_speed_limit {
         Some(RateLimiter::direct(Quota::per_second(
           NonZero::new(config.download.transmission.speed_limit_value as u32).unwrap(),
@@ -58,12 +65,12 @@ impl TaskMonitor {
 
   pub fn get_new_id(&self) -> u32 {
     self
-      .counter
+      .id_counter
       .fetch_add(1, std::sync::atomic::Ordering::SeqCst)
   }
 
-  pub async fn enqueue_task<'a, T>(
-    &'a self,
+  pub async fn enqueue_task<T>(
+    &self,
     id: u32,
     task_group: Option<String>,
     task: T,
@@ -102,34 +109,32 @@ impl TaskMonitor {
       Ok(id)
     });
 
-    let tasks = self.tasks.lock().await;
-    if tasks.len() >= self.concurrency {
-      self.waitlist.lock().await.push(task);
-      return;
-    }
-
-    tasks.push(task);
-    if tasks.len() >= 1 {
-      self.notify.notify_waiters();
-    }
+    self.tx.send_async(task).await.unwrap();
+    self.notify.notify_one();
   }
 
   pub async fn background_process(&self) {
     loop {
-      let mut tasks = self.tasks.lock().await;
-      if tasks.is_empty() {
-        drop(tasks);
-        self.notify.notified().await; // wait for new tasks
-        continue;
+      if self.rx.is_empty() {
+        self.notify.notified().await;
       }
-      let r = tasks.select_next_some().await;
-      if tasks.len() < self.concurrency {
-        let mut waitlist = self.waitlist.lock().await;
-        if !waitlist.is_empty() {
-          tasks.push(waitlist.pop().unwrap());
-        }
+
+      if self.concurrency.acquire().await.is_ok() {
+        let task = self.rx.recv_async().await.unwrap();
+        let concurrency = self.concurrency.clone();
+        tokio::spawn(async move {
+          let r = task.await;
+          match r {
+            Ok(id) => {
+              info!("Task {:?} completed", id);
+            }
+            Err(e) => {
+              info!("Task failed: {:?}", e);
+            }
+          }
+          concurrency.add_permits(1);
+        });
       }
-      log::info!("progress_monitor: {:?}", r);
     }
   }
 
