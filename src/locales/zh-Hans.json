@@ -725,7 +725,9 @@
         "processPriority": {
           "title": "进程优先级",
           "low": "低",
-          "middle": "中",
+          "belowNormal": "较低",
+          "normal": "中",
+          "aboveNormal": "较高",
           "high": "高"
         }
       }

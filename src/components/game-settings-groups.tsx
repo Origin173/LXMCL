@@ -94,7 +94,13 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
     "running-hidden",
     "always",
   ];
-  const processPriority = ["low", "middle", "high"];
+  const processPriority = [
+    "low",
+    "belowNormal",
+    "normal",
+    "aboveNormal",
+    "high",
+  ];
 
   const [memoryInfo, setMemoryInfo] = useState<MemoryInfo>({
     total: 0,

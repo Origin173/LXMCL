@@ -725,7 +725,9 @@
         "processPriority": {
           "title": "Process Priority",
           "low": "Low",
-          "middle": "Medium",
+          "belowNormal": "Below Normal",
+          "normal": "Normal",
+          "aboveNormal": "Above Normal",
           "high": "High"
         }
       }

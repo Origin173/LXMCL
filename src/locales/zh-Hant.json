@@ -725,7 +725,9 @@
         "processPriority": {
           "title": "程序優先順序",
           "low": "低",
-          "middle": "中",
+          "belowNormal": "較低",
+          "normal": "中",
+          "aboveNormal": "較高",
           "high": "高"
         }
       }
@@ -1458,6 +1460,15 @@
           "title": "例項刪除失敗",
           "description": {
             "INSTANCE_NOT_FOUND_BY_ID": "例項 ID 不存在"
+          }
+        }
+      },
+      "renameInstance": {
+        "error": {
+          "title": "重命名例項失败",
+          "description": {
+            "INSTANCE_NOT_FOUND_BY_ID": "例項 ID 不存在",
+            "CONFLICT_NAME_ERROR": "重複的例項名稱已存在"
           }
         }
       },
