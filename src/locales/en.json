@@ -89,6 +89,10 @@
         "description": "Manage local game storage directories to add installed instances"
       }
     },
+    "modpackOperations": {
+      "fromdisk": "Import from Disk",
+      "download": "Download Modpack"
+    },
     "moreOptions": {
       "title": "More",
       "server": {

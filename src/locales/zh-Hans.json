@@ -89,6 +89,10 @@
         "description": "管理本地游戏存储目录，以添加已安装实例"
       }
     },
+    "modpackOperations": {
+      "fromdisk": "从本地文件导入",
+      "download": "下载整合包"
+    },
     "moreOptions": {
       "title": "更多",
       "server": {
