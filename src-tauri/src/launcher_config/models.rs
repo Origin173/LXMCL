@@ -1,6 +1,7 @@
 use crate::{storage::Storage, utils::sys_info, EXE_DIR};
 use partial_derive::Partial;
 use serde::{Deserialize, Serialize};
+use smart_default::SmartDefault;
 use std::path::PathBuf;
 use strum_macros::Display;
 
@@ -56,14 +57,19 @@ pub enum ProxyType {
 structstruck::strike! {
   #[strikethrough[derive(Partial, Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]]
   #[strikethrough[serde(rename_all = "camelCase", deny_unknown_fields)]]
+  #[strikethrough[derive(SmartDefault)]]
+  #[strikethrough[serde(default)]]
   pub struct GameConfig {
     pub game_java: struct GameJava {
+      #[default = true]
       pub auto: bool,
       pub exec_path: String,
     },
     pub game_window: struct {
       pub resolution: struct {
+        #[default = 1280]
         pub width: u32,
+        #[default = 720]
         pub height: u32,
         pub fullscreen: bool,
       },
@@ -71,15 +77,20 @@ structstruck::strike! {
       pub custom_info: String,
     },
     pub performance: struct {
+      #[default = true]
       pub auto_mem_allocation: bool,
+      #[default = 1024]
       pub min_mem_allocation: u32,
+      #[default(ProcessPriority::Normal)]
       pub process_priority: ProcessPriority,
     },
     pub game_server: struct {
       pub auto_join: bool,
       pub server_url: String,
     },
+    #[default = true]
     pub version_isolation: bool,
+    #[default = "start-close"]
     pub launcher_visibility: String,
     pub display_game_log: bool,
     pub advanced_options: struct {
@@ -99,6 +110,7 @@ structstruck::strike! {
       },
       pub workaround: struct {
         pub no_jvm_args: bool,
+        #[default = "full"]
         pub game_completness_check_policy: String,
         pub dont_check_jvm_validity: bool,
         pub dont_patch_natives: bool,
@@ -119,8 +131,11 @@ pub struct GameDirectory {
 structstruck::strike! {
   #[strikethrough[derive(Partial, Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]]
   #[strikethrough[serde(rename_all = "camelCase", deny_unknown_fields)]]
+  #[strikethrough[derive(SmartDefault)]]
+  #[strikethrough[serde(default)]]
   pub struct LauncherConfig {
     pub basic_info: struct {
+      #[default = "dev"]
       pub launcher_version: String,
       pub platform: String,
       pub arch: String,
@@ -132,11 +147,15 @@ structstruck::strike! {
     pub run_count: usize,
     pub appearance: struct AppearanceConfig {
       pub theme: struct {
+        #[default = "blue"]
         pub primary_color: String,
+        #[default = "light"]
         pub color_mode: String,
+        #[default = "standard"]
         pub head_nav_style: String,
       },
       pub background: struct {
+        #[default = "%built-in:Jokull"]
         pub choice: String,
       },
       pub accessibility: struct {
@@ -146,12 +165,17 @@ structstruck::strike! {
     },
     pub download: struct DownloadConfig {
       pub source: struct {
+        #[default = "auto"]
         pub strategy: String,
       },
       pub transmission: struct {
+        #[default = true]
         pub auto_concurrent: bool,
+        #[default = 64]
         pub concurrent_count: usize,
+        #[default = false]
         pub enable_speed_limit: bool,
+        #[default = 1024]
         pub speed_limit_value: usize,
       },
       pub cache: struct {
@@ -159,6 +183,7 @@ structstruck::strike! {
       },
       pub proxy: struct ProxyConfig {
         pub enabled: bool,
+        #[default(ProxyType::Http)]
         pub selected_type: ProxyType,
         pub host: String,
         pub port: usize,
@@ -166,6 +191,7 @@ structstruck::strike! {
     },
     pub general: struct GeneralConfig {
       pub general: struct {
+        #[default(sys_info::get_mapped_locale())]
         pub language: String,
       },
       pub optional_functions: struct {
@@ -174,6 +200,7 @@ structstruck::strike! {
     },
     pub global_game_config: GameConfig,
     pub local_game_directories: Vec<GameDirectory>,
+    #[default(_code="vec![\"https://mc.sjtu.cn/api-sjmcl/article\".to_string()]")]
     pub discover_source_endpoints: Vec<String>,
     pub extra_java_paths: Vec<String>,
     pub states: struct States {
@@ -182,76 +209,28 @@ structstruck::strike! {
         pub selected_instance_id: String,
       },
       pub accounts_page: struct {
+        #[default = "grid"]
         pub view_type: String
       },
       pub all_games_page: struct {
+        #[default = "list"]
         pub view_type: String
       },
       pub game_version_selector: struct {
+        #[default(_code="vec![\"release\".to_string()]")]
         pub game_types: Vec<String>
       },
       pub instance_mods_page: struct {
+        #[default([true, true])]
         pub accordion_states: [bool; 2],
       },
       pub instance_resourcepack_page: struct {
+        #[default([true, true])]
         pub accordion_states: [bool; 2],
       },
       pub instance_worlds_page: struct {
+        #[default([true, true])]
         pub accordion_states: [bool; 2],
-      },
-    }
-  }
-}
-
-impl Default for GameConfig {
-  fn default() -> Self {
-    Self {
-      game_java: GameJava {
-        auto: true,
-        exec_path: "".to_string(),
-      },
-      game_window: GameWindow {
-        resolution: Resolution {
-          width: 1280,
-          height: 720,
-          fullscreen: false,
-        },
-        custom_title: "".to_string(),
-        custom_info: "".to_string(),
-      },
-      performance: Performance {
-        auto_mem_allocation: true,
-        min_mem_allocation: 1024,
-        process_priority: ProcessPriority::Normal,
-      },
-      game_server: GameServer {
-        auto_join: false,
-        server_url: "".to_string(),
-      },
-      version_isolation: true,
-      launcher_visibility: "start-close".to_string(),
-      display_game_log: false,
-      advanced_options: AdvancedOptions { enabled: false },
-      advanced: Advanced {
-        custom_commands: CustomCommands {
-          minecraft_argument: "".to_string(),
-          precall_command: "".to_string(),
-          wrapper_launcher: "".to_string(),
-          post_exit_command: "".to_string(),
-        },
-        jvm: Jvm {
-          args: "".to_string(),
-          java_permanent_generation_space: 0,
-          environment_variable: "".to_string(),
-        },
-        workaround: Workaround {
-          no_jvm_args: false,
-          game_completness_check_policy: "full".to_string(),
-          dont_check_jvm_validity: false,
-          dont_patch_natives: false,
-          use_native_glfw: false,
-          use_native_openal: false,
-        },
       },
     }
   }
@@ -260,90 +239,6 @@ impl Default for GameConfig {
 impl Storage for LauncherConfig {
   fn file_path() -> PathBuf {
     EXE_DIR.join("sjmcl.conf.json")
-  }
-}
-
-impl Default for LauncherConfig {
-  fn default() -> Self {
-    Self {
-      basic_info: BasicInfo {
-        launcher_version: "dev".to_string(),
-        platform: "".to_string(),
-        arch: "".to_string(),
-        os_type: "".to_string(),
-        platform_version: "".to_string(),
-      },
-      mocked: false,
-      run_count: 0,
-      appearance: AppearanceConfig {
-        theme: Theme {
-          primary_color: "blue".to_string(),
-          color_mode: "light".to_string(),
-          head_nav_style: "standard".to_string(),
-        },
-        background: Background {
-          choice: "%built-in:Jokull".to_string(),
-        },
-        accessibility: Accessibility {
-          invert_colors: false,
-          enhance_contrast: false,
-        },
-      },
-      download: DownloadConfig {
-        source: Source {
-          strategy: "auto".to_string(),
-        },
-        transmission: Transmission {
-          auto_concurrent: true,
-          concurrent_count: 64,
-          enable_speed_limit: false,
-          speed_limit_value: 1024,
-        },
-        cache: Cache {
-          directory: PathBuf::default(),
-        },
-        proxy: ProxyConfig {
-          enabled: false,
-          selected_type: ProxyType::Http,
-          host: String::new(),
-          port: 0,
-        },
-      },
-      general: GeneralConfig {
-        general: General {
-          language: sys_info::get_mapped_locale(),
-        },
-        optional_functions: OptionalFunctions { discover: false },
-      },
-      global_game_config: GameConfig::default(),
-      local_game_directories: vec![],
-      discover_source_endpoints: vec!["https://mc.sjtu.cn/api-sjmcl/article".to_string()],
-      extra_java_paths: vec![],
-      states: States {
-        shared: Shared {
-          selected_player_id: "".to_string(),
-          selected_instance_id: "".to_string(),
-        },
-        accounts_page: AccountsPage {
-          view_type: "grid".to_string(),
-        },
-        all_games_page: AllGamesPage {
-          view_type: "list".to_string(),
-        },
-        game_version_selector: GameVersionSelector {
-          game_types: vec!["release".to_string()],
-        },
-        instance_mods_page: InstanceModsPage {
-          accordion_states: [true, true],
-        },
-        instance_resourcepack_page: InstanceResourcepackPage {
-          accordion_states: [true, true],
-        },
-        instance_worlds_page: InstanceWorldsPage {
-          accordion_states: [true, true],
-        },
-      },
-    }
   }
 }
 
