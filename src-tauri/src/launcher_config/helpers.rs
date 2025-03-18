@@ -1,4 +1,8 @@
-use crate::{error::SJMCLResult, EXE_DIR};
+use crate::{
+  error::SJMCLResult,
+  partial::{PartialAccess, PartialUpdate},
+  EXE_DIR,
+};
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -64,6 +68,22 @@ impl LauncherConfig {
     };
 
     Ok(())
+  }
+
+  pub fn replace_with_preserved(&mut self, new_config: LauncherConfig, preserved_fields: &[&str]) {
+    // Preserve some fields when restore or import
+    let mut backup_values = Vec::new();
+    for key in preserved_fields {
+      if let Ok(value) = self.access(key) {
+        backup_values.push((key, value));
+      }
+    }
+
+    *self = new_config;
+
+    for (key, value) in backup_values {
+      let _ = self.update(key, &value);
+    }
   }
 }
 
