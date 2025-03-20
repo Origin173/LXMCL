@@ -561,10 +561,10 @@
           "title": "不尝试自动替换本地库"
         },
         "useNativeGlfw": {
-          "title": "使用系统 GLFW(仅 Linux)"
+          "title": "使用系统 GLFW（仅 Linux）"
         },
         "useNativeOpenal": {
-          "title": "使用系统 OpenAL(仅 Linux)"
+          "title": "使用系统 OpenAL（仅 Linux）"
         }
       }
     }
