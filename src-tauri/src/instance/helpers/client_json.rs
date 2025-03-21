@@ -5,7 +5,7 @@ use crate::{
 use regex::RegexBuilder;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
-use std::{collections::HashMap, path::PathBuf, str::FromStr};
+use std::{collections::HashMap, str::FromStr};
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 #[serde(rename_all = "camelCase", default)]
@@ -278,12 +278,6 @@ structstruck::strike! {
         pub type_: String,
       },
   }
-}
-
-pub async fn load_client_info_from_json(path: &PathBuf) -> Result<McClientInfo, std::io::Error> {
-  let client_string = tokio::fs::read_to_string(&path).await?;
-  let meta = serde_json::from_str::<McClientInfo>(&client_string)?;
-  Ok(meta)
 }
 
 pub fn patchs_to_info(patches: &[PatchesInfo]) -> (Option<String>, Option<String>, ModLoaderType) {
