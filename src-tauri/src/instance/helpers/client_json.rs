@@ -280,16 +280,10 @@ structstruck::strike! {
   }
 }
 
-pub async fn load_client_info_from_json(path: &PathBuf) -> SJMCLResult<McClientInfo> {
+pub async fn load_client_info_from_json(path: &PathBuf) -> Result<McClientInfo, std::io::Error> {
   let client_string = tokio::fs::read_to_string(&path).await?;
-  let meta = match serde_json::from_str::<McClientInfo>(&client_string) {
-    Ok(val) => val,
-    Err(e) => {
-      println!("DESERIALIZE ERROR: {:?}", e);
-      return Err(SJMCLError::from(e));
-    }
-  };
-  Ok(meta)
+  serde_json::from_str::<McClientInfo>(&client_string)
+    .map_err(|_| std::io::Error::new(std::io::ErrorKind::InvalidData, "Invalid JSON"))
 }
 
 pub fn patchs_to_info(patches: &[PatchesInfo]) -> (Option<String>, Option<String>, ModLoaderType) {
