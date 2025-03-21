@@ -1,12 +1,10 @@
 use serde::{de::DeserializeOwned, Serialize};
 use std::fs;
 
-use crate::error::SJMCLResult;
-
 pub trait Storage {
   fn file_path() -> std::path::PathBuf;
 
-  fn load() -> SJMCLResult<Self>
+  fn load() -> Result<Self, std::io::Error>
   where
     Self: Sized + DeserializeOwned,
   {
@@ -15,7 +13,7 @@ pub trait Storage {
     Ok(value)
   }
 
-  fn save(&self) -> SJMCLResult<()>
+  fn save(&self) -> Result<(), std::io::Error>
   where
     Self: Serialize,
   {
