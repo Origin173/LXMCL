@@ -5,6 +5,7 @@ use crate::{
 use regex::RegexBuilder;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
+use serde_with::{formats::PreferMany, serde_as, OneOrMany};
 use std::{collections::HashMap, str::FromStr};
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
@@ -66,16 +67,20 @@ pub struct LaunchArgumentTemplate {
   pub jvm: Vec<ArgumentsItem>,
 }
 
+#[serde_as]
 #[derive(Debug, Serialize, Default, Clone)]
 #[serde(rename_all = "camelCase", default)]
 pub struct ArgumentsItem {
+  #[serde_as(as = "OneOrMany<_, PreferMany>")]
   pub value: Vec<String>,
   pub rules: Vec<InstructionRule>,
 }
 
+#[serde_as]
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 #[serde(rename_all = "camelCase", default)]
 pub struct ArgumentsItemDefault {
+  #[serde_as(as = "OneOrMany<_, PreferMany>")]
   pub value: Vec<String>,
   pub rules: Vec<InstructionRule>,
 }
