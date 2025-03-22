@@ -135,6 +135,7 @@ const ManageSkinModal: React.FC<ManageSkinModalProps> = ({
             colorScheme={primaryColor}
             onClick={handleSave}
             isLoading={isLoading}
+            disabled={selectedSkin === "default"}
           >
             {t("General.confirm")}
           </Button>
