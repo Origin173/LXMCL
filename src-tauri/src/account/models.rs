@@ -106,6 +106,7 @@ pub struct OAuthCodeResponse {
   pub device_code: String,
   pub user_code: String,
   pub verification_uri: String,
+  pub interval: u64,
 }
 
 structstruck::strike! {
@@ -174,11 +175,14 @@ impl Default for AccountInfo {
 #[strum(serialize_all = "SCREAMING_SNAKE_CASE")]
 pub enum AccountError {
   Duplicate,
+  Expired,
   Invalid,
   NotFound,
   TextureError,
-  AuthServerError,
+  NetworkError,
+  ParseError,
   Cancelled,
+  CreateWebviewError,
 }
 
 impl std::error::Error for AccountError {}
