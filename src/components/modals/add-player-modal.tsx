@@ -391,21 +391,22 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
         </ModalBody>
 
         <ModalFooter w="100%">
-          {playerType === "offline" && (
-            <HStack spacing={2}>
-              <LuExternalLink />
-              <Link
-                color={`${primaryColor}.500`}
-                onClick={() => {
-                  openUrl(
-                    "https://www.microsoft.com/store/productId/9NXP44L49SHJ"
-                  );
-                }}
-              >
-                {t("AddPlayerModal.button.buyMinecraft")}
-              </Link>
-            </HStack>
-          )}
+          {playerType === "offline" ||
+            (playerType === "microsoft" && (
+              <HStack spacing={2}>
+                <LuExternalLink />
+                <Link
+                  color={`${primaryColor}.500`}
+                  onClick={() => {
+                    openUrl(
+                      "https://www.microsoft.com/store/productId/9NXP44L49SHJ"
+                    );
+                  }}
+                >
+                  {t("AddPlayerModal.button.buyMinecraft")}
+                </Link>
+              </HStack>
+            ))}
 
           {playerType === "3rdparty" &&
             authServer?.features.openidConfigurationUrl &&
@@ -441,7 +442,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
             <Button variant="ghost" onClick={modalProps.onClose}>
               {t("General.cancel")}
             </Button>
-            {!showOAuth && (
+            {!showOAuth && playerType !== "microsoft" && (
               <Button
                 colorScheme={primaryColor}
                 onClick={() => handleLogin()}
