@@ -636,6 +636,7 @@
     "close": "Close",
     "confirm": "Confirm",
     "copy":{
+      "text": "Copy",
       "toast": {
         "success": "Copied to clipboard",
         "error": "Failed to copy to clipboard"

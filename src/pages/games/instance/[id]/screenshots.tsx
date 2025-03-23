@@ -7,7 +7,7 @@ import { LuEllipsis } from "react-icons/lu";
 import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
 import { WrapCardGroup } from "@/components/common/wrap-card";
-import ScreenshotPreviewModal from "@/components/modals/screenshot-preview-modal";
+import PreviewScreenshotModal from "@/components/modals/preview-screenshot-modal";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { ScreenshotInfo } from "@/models/instance/misc";
 
@@ -109,7 +109,7 @@ const InstanceScreenshotsPage: React.FC = () => {
         <Empty withIcon={false} size="sm" />
       )}
       {currentScreenshot && (
-        <ScreenshotPreviewModal
+        <PreviewScreenshotModal
           screenshot={currentScreenshot}
           isOpen={isScreenshotPreviewModalOpen}
           onClose={handleModalClose}

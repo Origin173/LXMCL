@@ -24,11 +24,11 @@ import { ConfigService } from "@/services/config";
 import { UNIXToDatetime } from "@/utils/datetime";
 import { extractFileName } from "@/utils/string";
 
-interface ScreenshotPreviewModalProps extends Omit<ModalProps, "children"> {
+interface PreviewScreenshotModalProps extends Omit<ModalProps, "children"> {
   screenshot: ScreenshotInfo;
 }
 
-const ScreenshotPreviewModal: React.FC<ScreenshotPreviewModalProps> = ({
+const PreviewScreenshotModal: React.FC<PreviewScreenshotModalProps> = ({
   screenshot,
   ...props
 }) => {
@@ -108,4 +108,4 @@ const ScreenshotPreviewModal: React.FC<ScreenshotPreviewModalProps> = ({
   );
 };
 
-export default ScreenshotPreviewModal;
+export default PreviewScreenshotModal;

@@ -10,6 +10,7 @@ import { IconType } from "react-icons";
 import {
   LuArrowDownToLine,
   LuCircleHelp,
+  LuCopy,
   LuFiles,
   LuFolderOpen,
   LuFolderSearch,
@@ -41,6 +42,7 @@ export const CommonIconButton: React.FC<CommonIconButtonProps> = ({
 
   const supportIcons: Record<string, JSX.Element> = {
     add: <LuPlus />,
+    copy: <LuCopy />,
     copyOrMove: <LuFiles />,
     delete: <LuTrash />,
     download: <LuArrowDownToLine />,
@@ -53,6 +55,7 @@ export const CommonIconButton: React.FC<CommonIconButtonProps> = ({
   };
 
   const specLabels: Record<string, string> = {
+    copy: t("General.copy.text"),
     copyOrMove: t(`General.copyOrMove.${config.basicInfo.osType}`),
     revealFile: t("General.revealFile", {
       opener: t(`Enums.systemFileManager.${config.basicInfo.osType}`),

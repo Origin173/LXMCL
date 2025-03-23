@@ -6,6 +6,8 @@
     "main"
   ],
   "permissions": [
+    "clipboard-manager:allow-write-text",
+    "clipboard-manager:allow-write-image",
     "core:default",
     "core:webview:allow-create-webview-window",
     "dialog:default",
