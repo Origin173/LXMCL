@@ -3,8 +3,7 @@ use crate::{
   instance::models::misc::ModLoaderType,
 };
 use regex::RegexBuilder;
-use serde::{Deserialize, Deserializer, Serialize};
-use serde_json::Value;
+use serde::{Deserialize, Serialize};
 use serde_with::{formats::PreferMany, serde_as, OneOrMany};
 use std::{collections::HashMap, str::FromStr};
 
@@ -68,18 +67,9 @@ pub struct LaunchArgumentTemplate {
 }
 
 #[serde_as]
-#[derive(Debug, Serialize, Default, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 #[serde(rename_all = "camelCase", default)]
 pub struct ArgumentsItem {
-  #[serde_as(as = "OneOrMany<_, PreferMany>")]
-  pub value: Vec<String>,
-  pub rules: Vec<InstructionRule>,
-}
-
-#[serde_as]
-#[derive(Debug, Deserialize, Serialize, Default, Clone)]
-#[serde(rename_all = "camelCase", default)]
-pub struct ArgumentsItemDefault {
   #[serde_as(as = "OneOrMany<_, PreferMany>")]
   pub value: Vec<String>,
   pub rules: Vec<InstructionRule>,
@@ -169,27 +159,6 @@ impl InstructionRule {
       }
     }
     Ok((positive, strong))
-  }
-}
-
-impl<'de> Deserialize<'de> for ArgumentsItem {
-  fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-  where
-    D: Deserializer<'de>,
-  {
-    let raw_value: Value = Value::deserialize(deserializer)?;
-    if let Some(val) = raw_value.as_str() {
-      return Ok(ArgumentsItem {
-        value: vec![val.to_string()],
-        ..Default::default()
-      });
-    }
-    let game: ArgumentsItemDefault =
-      serde::de::Deserialize::deserialize(raw_value).map_err(serde::de::Error::custom)?;
-    Ok(ArgumentsItem {
-      value: game.value,
-      rules: game.rules,
-    })
   }
 }
 
