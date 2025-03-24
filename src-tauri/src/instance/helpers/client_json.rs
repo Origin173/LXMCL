@@ -238,14 +238,12 @@ structstruck::strike! {
     pub downloads: Option<
       pub struct{
         pub artifact: Option<DownloadsArtifact>,
-        pub classifiers: Option<Classifiers>,
-        pub natives: Option<Natives>,
-        pub extract: Option<pub struct{
-          exclude: Option<Vec<String>>,
-        }>
+        pub classifiers: Option<HashMap<String, DownloadsArtifact>>,
       }>,
-    pub natives: Option<Value>,
-    pub extract: Option<Value>,
+    pub natives: Option<HashMap<String, String>>,
+    pub extract: Option<pub struct{
+      exclude: Option<Vec<String>>,
+    }>,
     pub rules: Vec<InstructionRule>,
   }
 }
@@ -260,19 +258,11 @@ pub struct DownloadsArtifact {
 }
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
-#[serde(rename_all = "kebab-case", default)]
-pub struct Classifiers {
-  pub natives_linux: DownloadsArtifact,
-  pub natives_osx: DownloadsArtifact,
-  pub natives_windows: DownloadsArtifact,
-}
-
-#[derive(Debug, Deserialize, Serialize, Default, Clone)]
 #[serde(default)]
 pub struct Natives {
-  pub linux: String,
-  pub osx: String,
-  pub windows: String,
+  pub linux: Option<String>,
+  pub osx: Option<String>,
+  pub windows: Option<String>,
 }
 
 structstruck::strike! {

@@ -1,6 +1,5 @@
 // https://zh.minecraft.wiki/w/%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%A0%B8%E5%BF%83%E6%96%87%E4%BB%B6
 
-use super::file_validator::get_class_paths;
 use crate::account::helpers::authlib_injector::jar::get_authlib_injector_jar_path;
 use crate::account::models::{AccountInfo, PlayerType};
 use crate::error::{SJMCLError, SJMCLResult};
@@ -8,14 +7,16 @@ use crate::instance::{
   helpers::client_json::{FeaturesInfo, JavaVersion, McClientInfo},
   models::misc::Instance,
 };
-use crate::launch::helpers::file_validator::extract_classifiers_to_natives_dir;
+use crate::launch::helpers::file_validator::{
+  extract_native_libraries, get_nonnative_library_paths,
+};
+use crate::launch::helpers::misc::replace_arguments;
 use crate::launch::models::{CommandContent, LaunchError};
 use crate::launcher_config::models::{
   GameJava, JavaInfo, LauncherConfig, Performance, ProxyConfig, ProxyType,
 };
 use crate::resource::models::ResourceError;
 use crate::storage::Storage;
-use regex::Regex;
 use serde::{self, Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::HashMap;
@@ -190,7 +191,10 @@ pub async fn generate_launch_cmd(
   let assets_dir = game_dir.join("assets");
   let libraries_dir = game_dir.join("libraries");
   let version_dir = game_dir.join("versions").join(&instance.name);
-  let mut class_paths = get_class_paths(&client_info, &libraries_dir);
+  let mut class_paths: Vec<String> = get_nonnative_library_paths(&client_info, &libraries_dir)?
+    .into_iter()
+    .map(|p| p.to_string_lossy().to_string())
+    .collect();
   let game_name = instance
     .version_path
     .file_name()
@@ -208,7 +212,7 @@ pub async fn generate_launch_cmd(
     tauri_plugin_os::platform(),
     tauri_plugin_os::arch()
   ));
-  extract_classifiers_to_natives_dir(&client_info, &libraries_dir, &natives_dir).await?;
+  extract_native_libraries(&client_info, &libraries_dir, &natives_dir).await?;
   println!("{}:{}", std::file!(), std::line!());
   let resolution = sjmcl_config.global_game_config.game_window.resolution;
   let launch_feature = FeaturesInfo {
@@ -344,36 +348,6 @@ pub async fn generate_launch_cmd(
       .process_priority
       .to_nice_value(),
   })
-}
-
-fn replace_arguments(args: Vec<String>, map: &HashMap<String, String>) -> Vec<String> {
-  lazy_static::lazy_static!(
-    static ref PARAM_REGEX: Regex = Regex::new(r"\$\{(\S+)\}").unwrap();
-  );
-  let mut cmd = Vec::new();
-  for arg in args {
-    let mut replaced_arg = arg.clone();
-    let mut unknown_arg = false;
-
-    for caps in PARAM_REGEX.captures_iter(&arg) {
-      let arg_name = &caps[1];
-      match map.get(arg_name) {
-        Some(value) => {
-          replaced_arg = replaced_arg.replacen(&caps[0], value, 1);
-        }
-        None => {
-          unknown_arg = true;
-          break;
-        }
-      }
-    }
-    if !unknown_arg {
-      cmd.push(replaced_arg);
-    } else {
-      cmd.push(arg);
-    }
-  }
-  cmd
 }
 
 pub enum ExecuteType {

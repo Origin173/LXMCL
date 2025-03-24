@@ -192,6 +192,7 @@ pub enum InstanceError {
   LevelParseError,
   LevelNotExistError,
   ConflictNameError,
+  ClientJsonParseError,
 }
 
 impl std::error::Error for InstanceError {}
