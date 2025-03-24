@@ -257,14 +257,6 @@ pub struct DownloadsArtifact {
   pub size: i64,
 }
 
-#[derive(Debug, Deserialize, Serialize, Default, Clone)]
-#[serde(default)]
-pub struct Natives {
-  pub linux: Option<String>,
-  pub osx: Option<String>,
-  pub windows: Option<String>,
-}
-
 structstruck::strike! {
   #[strikethrough[derive(Debug, Deserialize, Serialize, Default, Clone)]]
   #[strikethrough[serde(rename_all="camelCase", default)]]
