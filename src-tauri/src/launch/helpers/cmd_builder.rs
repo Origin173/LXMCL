@@ -1,7 +1,7 @@
 // https://zh.minecraft.wiki/w/%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%A0%B8%E5%BF%83%E6%96%87%E4%BB%B6
 
 use super::file_validator::get_class_paths;
-use crate::account::helpers::authlib_injector::common::get_authlib_injector_jar_path;
+use crate::account::helpers::authlib_injector::jar::get_authlib_injector_jar_path;
 use crate::account::models::{AccountInfo, PlayerType};
 use crate::error::{SJMCLError, SJMCLResult};
 use crate::instance::{
@@ -17,6 +17,7 @@ use crate::resource::models::ResourceError;
 use crate::storage::Storage;
 use regex::Regex;
 use serde::{self, Deserialize, Serialize};
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::process::{Command, Stdio};
 use std::sync::Mutex;
@@ -78,7 +79,7 @@ pub struct LaunchParams {
 }
 
 impl LaunchParams {
-  pub fn to_hashmap(self) -> SJMCLResult<HashMap<String, String>> {
+  pub fn into_hashmap(self) -> SJMCLResult<HashMap<String, String>> {
     let mut map: HashMap<String, String> = HashMap::new();
     map.insert("assets_root".to_string(), self.assets_root);
     map.insert("assets_index_name".to_string(), self.assets_index_name);
@@ -128,10 +129,10 @@ impl LaunchParams {
 fn choose_java_auto(java_list: &Vec<JavaInfo>, version_req: &JavaVersion) -> Option<JavaInfo> {
   let mut match_list = Vec::new();
   for java_info in java_list {
-    if java_info.major_version == version_req.major_version {
-      return Some(java_info.clone());
-    } else if java_info.major_version > version_req.major_version {
-      match_list.push(java_info);
+    match java_info.major_version.cmp(&version_req.major_version) {
+      Ordering::Equal => return Some(java_info.clone()),
+      Ordering::Greater => match_list.push(java_info),
+      _ => {}
     }
   }
   if match_list.is_empty() {
@@ -258,7 +259,7 @@ pub async fn generate_launch_cmd(
   if selected_user.player_type == PlayerType::ThirdParty {
     cmd.push(format!(
       "-javaagent:{}={}",
-      get_authlib_injector_jar_path()?.to_string_lossy(),
+      get_authlib_injector_jar_path(app)?.to_string_lossy(),
       selected_user.auth_server_url
     )); // TODO
     cmd.push("-Dauthlibinjector.side=client".to_string());
@@ -284,7 +285,7 @@ pub async fn generate_launch_cmd(
   }
 
   println!("{}:{}", std::file!(), std::line!());
-  let map = launch_params.to_hashmap()?;
+  let map = launch_params.into_hashmap()?;
   if let Some(client_args) = &client_info.arguments {
     // specified jvm params
     let client_jvm_args = client_args.to_jvm_arguments(&launch_feature)?;
@@ -335,7 +336,7 @@ pub async fn generate_launch_cmd(
   }
 
   Ok(CommandContent {
-    exe: java_info.exec_path.clone(),
+    exec: java_info.exec_path.clone(),
     args: cmd,
     nice: sjmcl_config
       .global_game_config
@@ -385,16 +386,16 @@ pub async fn execute_cmd(
   cmd: CommandContent,
   execute_type: &ExecuteType,
 ) -> SJMCLResult<std::process::Output> {
-  let mut cmd_base = Command::new(cmd.exe);
+  let mut cmd_base = Command::new(cmd.exec);
   let child = cmd_base.args(cmd.args).stdout(Stdio::piped()).spawn()?;
   let output = child.wait_with_output()?;
   Ok(output)
 }
 
-fn quote_java_classpaths(cp: &Vec<String>) -> SJMCLResult<String> {
+fn quote_java_classpaths(cp: &[String]) -> SJMCLResult<String> {
   #[cfg(any(target_os = "linux", target_os = "macos"))]
   return Ok(cp.join(":"));
-  #[cfg(any(target_os = "windows"))]
+  #[cfg(target_os = "windows")]
   return Ok(cp.join(";")); // TODO Here: check ';' in origin paths
 }
 

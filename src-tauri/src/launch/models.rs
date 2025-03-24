@@ -13,7 +13,7 @@ impl std::error::Error for LaunchError {}
 
 #[derive(Debug, Clone)]
 pub struct CommandContent {
-  pub exe: String,
+  pub exec: String,
   pub args: Vec<String>,
   pub nice: i32,
 }
