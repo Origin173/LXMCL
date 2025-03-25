@@ -60,6 +60,9 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
   const [minMemAllocation, setMinMemAllocation] = useState<number>(
     gameConfigs.performance.minMemAllocation
   );
+  const [sliderMinMemAllocation, setSliderMinMemAllocation] = useState<number>(
+    gameConfigs.performance.minMemAllocation
+  );
   const [customTitle, setCustomTitle] = useState<string>(
     gameConfigs.gameWindow.customTitle
   );
@@ -210,6 +213,7 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                 focusBorderColor={`${primaryColor}.500`}
                 value={gameWindowWidth}
                 onChange={(value) => {
+                  if (!/^\d*$/.test(value)) return;
                   setGameWindowWidth(Number(value));
                 }}
                 onBlur={() => {
@@ -232,6 +236,7 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                 focusBorderColor={`${primaryColor}.500`}
                 value={gameWindowHeight}
                 onChange={(value) => {
+                  if (!/^\d*$/.test(value)) return;
                   setGameWindowHeight(Number(value));
                 }}
                 onBlur={() => {
@@ -339,9 +344,10 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                       step={16}
                       w={32}
                       colorScheme={primaryColor}
-                      value={minMemAllocation}
+                      value={sliderMinMemAllocation}
                       onChange={(value) => {
-                        setMinMemAllocation(Number(value));
+                        setSliderMinMemAllocation(value);
+                        setMinMemAllocation(value);
                       }}
                       onBlur={() => {
                         updateGameConfig(
@@ -363,9 +369,11 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                       focusBorderColor={`${primaryColor}.500`}
                       value={minMemAllocation}
                       onChange={(value) => {
+                        if (!/^\d*$/.test(value)) return;
                         setMinMemAllocation(Number(value));
                       }}
                       onBlur={() => {
+                        setSliderMinMemAllocation(minMemAllocation);
                         updateGameConfig(
                           "performance.minMemAllocation",
                           Math.max(

@@ -6,6 +6,8 @@ import {
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
+  NumberInput,
+  NumberInputField,
   Switch,
   VStack,
 } from "@chakra-ui/react";
@@ -185,25 +187,24 @@ const GameAdvancedSettingsGroups: React.FC<GameAdvancedSettingsGroupsProps> = ({
             "GameAdvancedSettingsPage.jvm.settings.javaPermanentGenerationSpace.title"
           ),
           children: (
-            <Input
+            <NumberInput
               size="xs"
-              maxW={380}
+              w={380}
               value={javaPermanentGenerationSpace}
-              onChange={(event) =>
-                // TODO: convert string to number may failed
-                setJavaPermanentGenerationSpace(Number(event.target.value))
-              }
+              onChange={(value) => {
+                if (!/^\d*$/.test(value)) return;
+                setJavaPermanentGenerationSpace(Number(value));
+              }}
               onBlur={() => {
                 updateGameAdvancedConfig(
                   "jvm.javaPermanentGenerationSpace",
-                  javaPermanentGenerationSpace
+                  Math.min(javaPermanentGenerationSpace, 2 ** 32 - 1)
                 );
               }}
               focusBorderColor={`${primaryColor}.500`}
-              placeholder={t(
-                "GameAdvancedSettingsPage.jvm.settings.javaPermanentGenerationSpace.placeholder"
-              )}
-            />
+            >
+              <NumberInputField pr={0} />
+            </NumberInput>
           ),
         },
         {
