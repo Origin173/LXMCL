@@ -40,6 +40,9 @@ const DownloadSettingsPage = () => {
   const [concurrentCount, setConcurrentCount] = useState<number>(
     downloadConfigs.transmission.concurrentCount
   );
+  const [sliderConcurrentCount, setSliderConcurrentCount] = useState<number>(
+    downloadConfigs.transmission.concurrentCount
+  );
   const [speedLimitValue, setSpeedLimitValue] = useState<number>(
     downloadConfigs.transmission.speedLimitValue
   );
@@ -152,8 +155,9 @@ const DownloadSettingsPage = () => {
                       step={1}
                       w={32}
                       colorScheme={primaryColor}
-                      value={concurrentCount}
+                      value={sliderConcurrentCount}
                       onChange={(value) => {
+                        setSliderConcurrentCount(value);
                         setConcurrentCount(value);
                       }}
                       onBlur={() => {
@@ -179,7 +183,9 @@ const DownloadSettingsPage = () => {
                         setConcurrentCount(Number(value));
                       }}
                       onBlur={() => {
-                        setConcurrentCount(
+                        setSliderConcurrentCount(concurrentCount);
+                        update(
+                          "download.transmission.concurrentCount",
                           Math.max(1, Math.min(concurrentCount, 128))
                         );
                       }}

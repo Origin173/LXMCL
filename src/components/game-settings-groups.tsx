@@ -60,6 +60,9 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
   const [minMemAllocation, setMinMemAllocation] = useState<number>(
     gameConfigs.performance.minMemAllocation
   );
+  const [sliderMinMemAllocation, setSliderMinMemAllocation] = useState<number>(
+    gameConfigs.performance.minMemAllocation
+  );
   const [customTitle, setCustomTitle] = useState<string>(
     gameConfigs.gameWindow.customTitle
   );
@@ -339,9 +342,10 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                       step={16}
                       w={32}
                       colorScheme={primaryColor}
-                      value={minMemAllocation}
+                      value={sliderMinMemAllocation}
                       onChange={(value) => {
-                        setMinMemAllocation(Number(value));
+                        setSliderMinMemAllocation(value);
+                        setMinMemAllocation(value);
                       }}
                       onBlur={() => {
                         updateGameConfig(
@@ -366,6 +370,7 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                         setMinMemAllocation(Number(value));
                       }}
                       onBlur={() => {
+                        setSliderMinMemAllocation(minMemAllocation);
                         updateGameConfig(
                           "performance.minMemAllocation",
                           Math.max(
