@@ -4,7 +4,7 @@ use crate::{
 use std::path::PathBuf;
 use tauri::{path::BaseDirectory, AppHandle, Manager};
 
-pub fn get_authlib_injector_jar_path(app: &AppHandle) -> SJMCLResult<PathBuf> {
+pub fn get_jar_path(app: &AppHandle) -> SJMCLResult<PathBuf> {
   Ok(
     app
       .path()

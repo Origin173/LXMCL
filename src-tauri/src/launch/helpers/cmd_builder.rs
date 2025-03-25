@@ -1,6 +1,6 @@
 // https://zh.minecraft.wiki/w/%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%A0%B8%E5%BF%83%E6%96%87%E4%BB%B6
 
-use crate::account::helpers::authlib_injector::jar::get_authlib_injector_jar_path;
+use crate::account::helpers::authlib_injector::jar::get_jar_path as get_authlib_injector_jar_path;
 use crate::account::models::{AccountInfo, PlayerType};
 use crate::error::{SJMCLError, SJMCLResult};
 use crate::instance::{

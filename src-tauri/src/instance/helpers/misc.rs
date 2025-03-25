@@ -1,4 +1,7 @@
-use super::super::models::misc::{Instance, InstanceSubdirType, ModLoader};
+use super::super::{
+  constants::INSTANCE_CFG_FILE_NAME,
+  models::misc::{Instance, InstanceSubdirType, ModLoader},
+};
 use super::client_json::McClientInfo;
 use super::version_dir::rename_game_version_id;
 use crate::launcher_config::models::GameConfig;
@@ -76,8 +79,6 @@ pub fn get_instance_subdir_path(
   }
 }
 
-const CFG_FILE_NAME: &str = "sjmclcfg.json";
-
 pub async fn refresh_instances(
   game_directory: &GameDirectory,
 ) -> Result<Vec<Instance>, std::io::Error> {
@@ -114,7 +115,7 @@ pub async fn refresh_instances(
       }
     }
     let name = client_data.id.clone();
-    let cfg_path = version_path.join(CFG_FILE_NAME);
+    let cfg_path = version_path.join(INSTANCE_CFG_FILE_NAME);
     let mut cfg_read = load_json_async::<Instance>(&cfg_path)
       .await
       .unwrap_or_default();

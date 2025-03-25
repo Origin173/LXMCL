@@ -48,7 +48,7 @@ pub fn get_native_library_artifacts(client_info: &McClientInfo) -> Vec<Downloads
       continue;
     }
     if let Some(natives) = &library.natives {
-      if let Some(native) = get_natives_string(&natives) {
+      if let Some(native) = get_natives_string(natives) {
         if let Some(ref downloads) = &library.downloads {
           if let Some(ref classifiers) = &downloads.classifiers {
             if let Some(artifact) = classifiers.get(&native) {
@@ -92,7 +92,7 @@ pub async fn validate_artifact(
 }
 
 pub async fn validate_library_files(
-  library_path: &PathBuf,
+  library_path: &Path,
   client_info: &McClientInfo,
 ) -> SJMCLResult<Vec<DownloadsArtifact>> {
   let mut artifacts = Vec::new();
@@ -101,7 +101,7 @@ pub async fn validate_library_files(
   let tasks: Vec<_> = artifacts
     .into_iter()
     .map(|artifact| {
-      let library_path_clone = library_path.clone();
+      let library_path_clone = library_path.to_path_buf();
       tokio::spawn(async move {
         match validate_artifact(&library_path_clone, &artifact).await {
           Ok(succ) => {
@@ -133,7 +133,7 @@ pub async fn validate_library_files(
 }
 
 fn convert_library_name_to_path(name: &String, native: Option<String>) -> SJMCLResult<String> {
-  let mut name_split: Vec<String> = name.split(":").into_iter().map(|s| s.to_string()).collect();
+  let mut name_split: Vec<String> = name.split(":").map(|s| s.to_string()).collect();
   if name_split.len() < 3 {
     println!("name = {}", name);
     Err(InstanceError::ClientJsonParseError.into())
@@ -154,7 +154,7 @@ fn convert_library_name_to_path(name: &String, native: Option<String>) -> SJMCLR
 
 pub fn get_nonnative_library_paths(
   client_info: &McClientInfo,
-  library_path: &PathBuf,
+  library_path: &Path,
 ) -> SJMCLResult<Vec<PathBuf>> {
   let mut result = Vec::new();
   let feature = FeaturesInfo::default();
@@ -172,7 +172,7 @@ pub fn get_nonnative_library_paths(
 
 pub fn get_native_library_paths(
   client_info: &McClientInfo,
-  library_path: &PathBuf,
+  library_path: &Path,
 ) -> SJMCLResult<Vec<PathBuf>> {
   let mut result = Vec::new();
   let feature = FeaturesInfo::default();
@@ -181,7 +181,7 @@ pub fn get_native_library_paths(
       continue;
     }
     if let Some(natives) = &library.natives {
-      if let Some(native) = get_natives_string(&natives) {
+      if let Some(native) = get_natives_string(natives) {
         let path = convert_library_name_to_path(&library.name, Some(native))?;
         result.push(library_path.join(path));
       } else {
@@ -194,13 +194,13 @@ pub fn get_native_library_paths(
 
 pub async fn extract_native_libraries(
   client_info: &McClientInfo,
-  library_path: &PathBuf,
+  library_path: &Path,
   natives_dir: &PathBuf,
 ) -> SJMCLResult<()> {
   if !natives_dir.exists() {
     fs::create_dir(natives_dir).await?;
   }
-  let native_libraries = get_native_library_paths(&client_info, &library_path)?;
+  let native_libraries = get_native_library_paths(client_info, library_path)?;
   println!("native lib: {:?}", native_libraries);
   let tasks: Vec<tokio::task::JoinHandle<SJMCLResult<()>>> = native_libraries
     .into_iter()
