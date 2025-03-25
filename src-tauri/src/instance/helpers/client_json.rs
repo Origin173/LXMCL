@@ -3,8 +3,7 @@ use crate::{
   instance::models::misc::ModLoaderType,
 };
 use regex::RegexBuilder;
-use serde::{Deserialize, Deserializer, Serialize};
-use serde_json::Value;
+use serde::{Deserialize, Serialize};
 use serde_with::{formats::PreferMany, serde_as, OneOrMany};
 use std::{collections::HashMap, str::FromStr};
 
@@ -68,18 +67,9 @@ pub struct LaunchArgumentTemplate {
 }
 
 #[serde_as]
-#[derive(Debug, Serialize, Default, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 #[serde(rename_all = "camelCase", default)]
 pub struct ArgumentsItem {
-  #[serde_as(as = "OneOrMany<_, PreferMany>")]
-  pub value: Vec<String>,
-  pub rules: Vec<InstructionRule>,
-}
-
-#[serde_as]
-#[derive(Debug, Deserialize, Serialize, Default, Clone)]
-#[serde(rename_all = "camelCase", default)]
-pub struct ArgumentsItemDefault {
   #[serde_as(as = "OneOrMany<_, PreferMany>")]
   pub value: Vec<String>,
   pub rules: Vec<InstructionRule>,
@@ -172,27 +162,6 @@ impl InstructionRule {
   }
 }
 
-impl<'de> Deserialize<'de> for ArgumentsItem {
-  fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-  where
-    D: Deserializer<'de>,
-  {
-    let raw_value: Value = Value::deserialize(deserializer)?;
-    if let Some(val) = raw_value.as_str() {
-      return Ok(ArgumentsItem {
-        value: vec![val.to_string()],
-        ..Default::default()
-      });
-    }
-    let game: ArgumentsItemDefault =
-      serde::de::Deserialize::deserialize(raw_value).map_err(serde::de::Error::custom)?;
-    Ok(ArgumentsItem {
-      value: game.value,
-      rules: game.rules,
-    })
-  }
-}
-
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 #[serde(rename_all = "camelCase", default)]
 pub struct OsInfo {
@@ -238,14 +207,12 @@ structstruck::strike! {
     pub downloads: Option<
       pub struct{
         pub artifact: Option<DownloadsArtifact>,
-        pub classifiers: Option<Classifiers>,
-        pub natives: Option<Natives>,
-        pub extract: Option<pub struct{
-          exclude: Option<Vec<String>>,
-        }>
+        pub classifiers: Option<HashMap<String, DownloadsArtifact>>,
       }>,
-    pub natives: Option<Value>,
-    pub extract: Option<Value>,
+    pub natives: Option<HashMap<String, String>>,
+    pub extract: Option<pub struct{
+      exclude: Option<Vec<String>>,
+    }>,
     pub rules: Vec<InstructionRule>,
   }
 }
@@ -257,22 +224,6 @@ pub struct DownloadsArtifact {
   pub url: String,
   pub sha1: String,
   pub size: i64,
-}
-
-#[derive(Debug, Deserialize, Serialize, Default, Clone)]
-#[serde(rename_all = "kebab-case", default)]
-pub struct Classifiers {
-  pub natives_linux: DownloadsArtifact,
-  pub natives_osx: DownloadsArtifact,
-  pub natives_windows: DownloadsArtifact,
-}
-
-#[derive(Debug, Deserialize, Serialize, Default, Clone)]
-#[serde(default)]
-pub struct Natives {
-  pub linux: String,
-  pub osx: String,
-  pub windows: String,
 }
 
 structstruck::strike! {
