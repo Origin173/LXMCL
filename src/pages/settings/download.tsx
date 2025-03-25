@@ -180,6 +180,7 @@ const DownloadSettingsPage = () => {
                       focusBorderColor={`${primaryColor}.500`}
                       value={concurrentCount}
                       onChange={(value) => {
+                        if (!/^\d*$/.test(value)) return;
                         setConcurrentCount(Number(value));
                       }}
                       onBlur={() => {
@@ -236,6 +237,7 @@ const DownloadSettingsPage = () => {
                       focusBorderColor={`${primaryColor}.500`}
                       value={speedLimitValue}
                       onChange={(value) => {
+                        if (!/^\d*$/.test(value)) return;
                         setSpeedLimitValue(Number(value));
                       }}
                       onBlur={() => {
@@ -345,6 +347,7 @@ const DownloadSettingsPage = () => {
                     focusBorderColor={`${primaryColor}.500`}
                     value={proxyPort || 80}
                     onChange={(value) => {
+                      if (!/^\d*$/.test(value)) return;
                       setProxyPort(Number(value));
                     }}
                     onBlur={() => {

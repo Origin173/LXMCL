@@ -213,6 +213,7 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                 focusBorderColor={`${primaryColor}.500`}
                 value={gameWindowWidth}
                 onChange={(value) => {
+                  if (!/^\d*$/.test(value)) return;
                   setGameWindowWidth(Number(value));
                 }}
                 onBlur={() => {
@@ -235,6 +236,7 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                 focusBorderColor={`${primaryColor}.500`}
                 value={gameWindowHeight}
                 onChange={(value) => {
+                  if (!/^\d*$/.test(value)) return;
                   setGameWindowHeight(Number(value));
                 }}
                 onBlur={() => {
@@ -367,6 +369,7 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                       focusBorderColor={`${primaryColor}.500`}
                       value={minMemAllocation}
                       onChange={(value) => {
+                        if (!/^\d*$/.test(value)) return;
                         setMinMemAllocation(Number(value));
                       }}
                       onBlur={() => {
