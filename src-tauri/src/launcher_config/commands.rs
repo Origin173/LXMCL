@@ -25,14 +25,17 @@ pub fn retrieve_launcher_config(app: AppHandle) -> SJMCLResult<LauncherConfig> {
 pub fn update_launcher_config(app: AppHandle, key_path: String, value: String) -> SJMCLResult<()> {
   let binding = app.state::<Mutex<LauncherConfig>>();
   let mut state = binding.lock()?;
-  let mut snake = String::new();
-  for (i, ch) in key_path.char_indices() {
-    if i > 0 && ch.is_uppercase() {
-      snake.push('_');
+  let key_path = {
+    let mut snake = String::new();
+    for (i, ch) in key_path.char_indices() {
+      if i > 0 && ch.is_uppercase() {
+        snake.push('_');
+      }
+      snake.push(ch.to_ascii_lowercase());
     }
-    snake.push(ch.to_ascii_lowercase());
-  }
-  state.update(&snake, &value)?;
+    snake
+  };
+  state.update(&key_path, &value)?;
   state.save()?;
   Ok(())
 }

@@ -4,7 +4,7 @@ use super::super::{
 };
 use super::client_json::McClientInfo;
 use super::version_dir::rename_game_version_id;
-use crate::launcher_config::models::GameConfig;
+use crate::launcher_config::{helpers::get_global_game_config, models::GameConfig};
 use crate::storage::{load_json_async, save_json_async};
 use crate::{
   instance::helpers::client_json::patchs_to_info,
@@ -29,12 +29,7 @@ pub fn get_game_config(app: &AppHandle, instance: &Instance) -> GameConfig {
       return v.clone();
     }
   }
-  app
-    .state::<Mutex<LauncherConfig>>()
-    .lock()
-    .unwrap()
-    .global_game_config
-    .clone()
+  get_global_game_config(app)
 }
 
 // if instance_id not exists, return None

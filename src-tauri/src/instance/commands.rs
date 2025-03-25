@@ -3,6 +3,7 @@ use super::{
     fs::{copy_whole_dir, generate_unique_filename},
     path::{get_files_with_regex, get_subdirectories},
   },
+  constants::INSTANCE_CFG_FILE_NAME,
   helpers::{
     misc::{get_instance_subdir_path, refresh_and_update_instances},
     mods::common::{get_mod_info_from_dir, get_mod_info_from_jar},
@@ -19,7 +20,12 @@ use super::{
     world::{base::WorldInfo, level::LevelData},
   },
 };
-use crate::{error::SJMCLResult, launcher_config::models::LauncherConfig};
+use crate::{
+  error::SJMCLResult,
+  launcher_config::{helpers::get_global_game_config, models::GameConfig},
+  partial::{PartialError, PartialUpdate},
+  storage::save_json_async,
+};
 use lazy_static::lazy_static;
 use regex::{Regex, RegexBuilder};
 use std::fs;
@@ -35,12 +41,7 @@ pub async fn retrieve_instance_list(app: AppHandle) -> SJMCLResult<Vec<InstanceS
   let binding = app.state::<Mutex<Vec<Instance>>>();
   let state = binding.lock()?;
   let mut summary_list = Vec::new();
-  let global_version_isolation = app
-    .state::<Mutex<LauncherConfig>>()
-    .lock()
-    .unwrap()
-    .global_game_config
-    .version_isolation;
+  let global_version_isolation = get_global_game_config(&app).version_isolation;
   for instance in state.iter() {
     // same as get_game_config(), but mannually here
     let is_version_isolated =
@@ -66,6 +67,95 @@ pub async fn retrieve_instance_list(app: AppHandle) -> SJMCLResult<Vec<InstanceS
     });
   }
   Ok(summary_list)
+}
+
+#[tauri::command]
+// None for not enabled, Some for enabled
+pub fn retrieve_instance_config(
+  app: AppHandle,
+  instance_id: usize,
+) -> SJMCLResult<Option<GameConfig>> {
+  let binding = app.state::<Mutex<Vec<Instance>>>();
+  let state = binding.lock().unwrap();
+  let instance = state
+    .get(instance_id)
+    .ok_or(InstanceError::InstanceNotFoundByID)?;
+  if instance.use_spec_game_config {
+    if let Some(v) = &instance.spec_game_config {
+      Ok(Some(v.clone()))
+    } else {
+      // fallback to global, not happen in normal case
+      Ok(Some(get_global_game_config(&app)))
+    }
+  } else {
+    Ok(None)
+  }
+}
+
+#[tauri::command]
+pub async fn update_instance_config(
+  app: AppHandle,
+  instance_id: usize,
+  key_path: String,
+  value: String,
+) -> SJMCLResult<()> {
+  let instance = {
+    let binding = app.state::<Mutex<Vec<Instance>>>();
+    let mut state = binding.lock().unwrap();
+    let instance = state
+      .get_mut(instance_id)
+      .ok_or(InstanceError::InstanceNotFoundByID)?;
+    let key_path = {
+      let mut snake = String::new();
+      for (i, ch) in key_path.char_indices() {
+        if i > 0 && ch.is_uppercase() {
+          snake.push('_');
+        }
+        snake.push(ch.to_ascii_lowercase());
+      }
+      snake
+    };
+    // PartialUpdate not support Option<T> yet
+    if key_path == "use_spec_game_config" {
+      let value = value.parse::<bool>()?;
+      instance.use_spec_game_config = value;
+      if value && instance.spec_game_config.is_none() {
+        instance.spec_game_config = Some(get_global_game_config(&app));
+      }
+    } else if key_path.starts_with("spec_game_config.") {
+      let key = key_path.split_at("spec_game_config.".len()).1;
+      let game_config = instance.spec_game_config.as_mut().unwrap();
+      game_config.update(key, &value)?;
+    } else {
+      return Err(PartialError::NotFound.into());
+    }
+    instance.clone()
+  };
+  save_json_async::<Instance>(
+    &instance,
+    &instance.version_path.join(INSTANCE_CFG_FILE_NAME),
+  )
+  .await?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn reset_instance_config(app: AppHandle, instance_id: usize) -> SJMCLResult<()> {
+  let instance = {
+    let binding = app.state::<Mutex<Vec<Instance>>>();
+    let mut state = binding.lock().unwrap();
+    let instance = state
+      .get_mut(instance_id)
+      .ok_or(InstanceError::InstanceNotFoundByID)?;
+    instance.spec_game_config = Some(get_global_game_config(&app));
+    instance.clone()
+  };
+  save_json_async::<Instance>(
+    &instance,
+    &instance.version_path.join(INSTANCE_CFG_FILE_NAME),
+  )
+  .await?;
+  Ok(())
 }
 
 #[tauri::command]
