@@ -2,7 +2,7 @@ use dotenvy::{from_filename, dotenv_override};
 use std::{env, fs, path::Path};
 
 fn main() {
-  if !std::env::var("GITHUB_ACTIONS").is_ok() {
+  if std::env::var("GITHUB_ACTIONS").is_err() {
     // Load env variables from ".env" file, if not exists, use ".env.template" to set default value.
     from_filename(".env.template").ok();
     dotenv_override().ok(); 
