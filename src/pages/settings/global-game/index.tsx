@@ -8,7 +8,6 @@ import {
 } from "@chakra-ui/react";
 import { exists } from "@tauri-apps/plugin-fs";
 import { open } from "@tauri-apps/plugin-shell";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuFolder, LuFolderX } from "react-icons/lu";
@@ -31,10 +30,6 @@ const GlobalGameSettingsPage = () => {
   const primaryColor = config.appearance.theme.primaryColor;
   const globalGameConfigs = config.globalGameConfig;
   const { getGameInstanceList } = useData();
-
-  const router = useRouter();
-  const { id } = router.query;
-  const instanceId = Array.isArray(id) ? id[0] : id;
 
   const [selectedDir, setSelectedDir] = useState<GameDirectory>({
     name: "",
@@ -239,7 +234,12 @@ const GlobalGameSettingsPage = () => {
       />
 
       {/* Game config option-items */}
-      <GameSettingsGroups />
+      <GameSettingsGroups
+        gameConfig={globalGameConfigs}
+        updateGameConfig={(key: string, value: any) => {
+          update(`globalGameConfig.${key}`, value);
+        }}
+      />
     </>
   );
 };

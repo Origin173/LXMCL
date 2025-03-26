@@ -64,33 +64,11 @@ pub async fn retrieve_instance_list(app: AppHandle) -> SJMCLResult<Vec<InstanceS
       version: instance.version.clone(),
       version_path: instance.version_path.clone(),
       mod_loader: instance.mod_loader.clone(),
+      use_spec_game_config: instance.use_spec_game_config,
       is_version_isolated,
     });
   }
   Ok(summary_list)
-}
-
-#[tauri::command]
-// None for not enabled, Some for enabled
-pub fn retrieve_instance_config(
-  app: AppHandle,
-  instance_id: usize,
-) -> SJMCLResult<Option<GameConfig>> {
-  let binding = app.state::<Mutex<Vec<Instance>>>();
-  let state = binding.lock().unwrap();
-  let instance = state
-    .get(instance_id)
-    .ok_or(InstanceError::InstanceNotFoundByID)?;
-  if instance.use_spec_game_config {
-    if let Some(v) = &instance.spec_game_config {
-      Ok(Some(v.clone()))
-    } else {
-      // fallback to global, not happen in normal case
-      Ok(Some(get_global_game_config(&app)))
-    }
-  } else {
-    Ok(None)
-  }
 }
 
 #[tauri::command]
@@ -117,7 +95,11 @@ pub async fn update_instance_config(
       snake
     };
     // PartialUpdate not support Option<T> yet
-    if key_path == "use_spec_game_config" {
+    if key_path == "description" {
+      instance.description = serde_json::from_str::<String>(&value).unwrap_or(value);
+    } else if key_path == "icon_src" {
+      instance.icon_src = serde_json::from_str::<String>(&value).unwrap_or(value);
+    } else if key_path == "use_spec_game_config" {
       let value = value.parse::<bool>()?;
       instance.use_spec_game_config = value;
       if value && instance.spec_game_config.is_none() {
@@ -141,7 +123,29 @@ pub async fn update_instance_config(
 }
 
 #[tauri::command]
-pub async fn reset_instance_config(app: AppHandle, instance_id: usize) -> SJMCLResult<()> {
+pub fn retrieve_instance_game_config(
+  app: AppHandle,
+  instance_id: usize,
+) -> SJMCLResult<GameConfig> {
+  let binding = app.state::<Mutex<Vec<Instance>>>();
+  let state = binding.lock().unwrap();
+  let instance = state
+    .get(instance_id)
+    .ok_or(InstanceError::InstanceNotFoundByID)?;
+  if instance.use_spec_game_config {
+    if let Some(v) = &instance.spec_game_config {
+      Ok(v.clone())
+    } else {
+      // fallback to global, not happen in normal case
+      Ok(get_global_game_config(&app))
+    }
+  } else {
+    Ok(get_global_game_config(&app))
+  }
+}
+
+#[tauri::command]
+pub async fn reset_instance_game_config(app: AppHandle, instance_id: usize) -> SJMCLResult<()> {
   let instance = {
     let binding = app.state::<Mutex<Vec<Instance>>>();
     let mut state = binding.lock().unwrap();
