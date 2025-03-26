@@ -8,7 +8,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import Editable from "@/components/common/editable";
 import {
@@ -20,7 +20,6 @@ import GameSettingsGroups from "@/components/game-settings-groups";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useToast } from "@/contexts/toast";
-import { GameConfig } from "@/models/config";
 import { InstanceService } from "@/services/instance";
 
 const InstanceSettingsPage = () => {
@@ -36,16 +35,11 @@ const InstanceSettingsPage = () => {
   const {
     summary,
     updateSummaryInContext,
-    getInstanceGameConfig,
+    gameConfig: instanceGameConfig,
     handleUpdateInstanceConfig,
+    handleResetInstanceGameConfig,
   } = useInstanceSharedData();
   const useSpecGameConfig = summary?.useSpecGameConfig || false;
-
-  const [gameConfig, setGameConfig] = useState<GameConfig>();
-
-  useEffect(() => {
-    setGameConfig(getInstanceGameConfig());
-  }, [getInstanceGameConfig]);
 
   const handleRenameInstance = useCallback(
     (name: string) => {
@@ -133,7 +127,7 @@ const InstanceSettingsPage = () => {
             />
           ),
         },
-        ...(useSpecGameConfig
+        ...(useSpecGameConfig && instanceGameConfig
           ? [
               {
                 title: t("InstanceSettingsPage.restoreSettings"),
@@ -143,7 +137,9 @@ const InstanceSettingsPage = () => {
                     colorScheme="red"
                     variant="subtle"
                     size="xs"
-                    onClick={() => {}} // TBD
+                    onClick={() => {
+                      handleResetInstanceGameConfig();
+                    }}
                   >
                     {t("InstanceSettingsPage.restore")}
                   </Button>
@@ -156,8 +152,14 @@ const InstanceSettingsPage = () => {
                 children: (
                   <Switch
                     colorScheme={primaryColor}
-                    isChecked={false}
-                    onChange={(event) => {}} // TBD
+                    isChecked={instanceGameConfig.versionIsolation}
+                    onChange={(event) => {
+                      handleUpdateInstanceConfig(
+                        "specGameConfig.versionIsolation",
+                        event.target.checked
+                      );
+                      // updateSummaryInContext("isVersionIsolated", event.target.checked)
+                    }}
                   />
                 ),
               },
@@ -180,9 +182,9 @@ const InstanceSettingsPage = () => {
       </VStack>
       <Box h={4} />
       <Collapse in={useSpecGameConfig} animateOpacity>
-        {useSpecGameConfig && gameConfig && (
+        {useSpecGameConfig && instanceGameConfig && (
           <GameSettingsGroups
-            gameConfig={gameConfig}
+            gameConfig={instanceGameConfig}
             updateGameConfig={(key: string, value: any) => {
               handleUpdateInstanceConfig(`specGameConfig.${key}`, value);
             }}

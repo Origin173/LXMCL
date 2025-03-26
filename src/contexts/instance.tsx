@@ -27,7 +27,7 @@ import { updateByKeyPath } from "@/utils/partial";
 export interface InstanceContextType {
   summary: GameInstanceSummary | undefined;
   updateSummaryInContext: (path: string, value: any) => void;
-  // gameConfig: GameConfig;
+  gameConfig: GameConfig | undefined;
   getWorldList: (sync?: boolean) => WorldInfo[] | undefined;
   getLocalModList: (sync?: boolean) => LocalModInfo[] | undefined;
   getResourcePackList: (sync?: boolean) => ResourcePackInfo[] | undefined;
@@ -35,11 +35,12 @@ export interface InstanceContextType {
   getSchematicList: (sync?: boolean) => SchematicInfo[] | undefined;
   getShaderPackList: (sync?: boolean) => ShaderPackInfo[] | undefined;
   getScreenshotList: (sync?: boolean) => ScreenshotInfo[] | undefined;
-  getInstanceGameConfig: (sync?: boolean) => GameConfig | undefined;
+  // getInstanceGameConfig: (sync?: boolean) => GameConfig | undefined;
   // shared service handler
   handleOpenInstanceSubdir: (dirType: InstanceSubdirEnums) => void;
   handleImportResource: (option: any) => void;
   handleUpdateInstanceConfig: (path: string, value: any) => void;
+  handleResetInstanceGameConfig: () => void;
 }
 
 export const InstanceContext = createContext<InstanceContextType | undefined>(
@@ -324,8 +325,15 @@ export const InstanceContextProvider: React.FC<{
           } else {
             if (path.startsWith("specGameConfig")) {
               const newConfig = { ...instanceGameConfig };
-              updateByKeyPath(newConfig, path, value);
+              updateByKeyPath(
+                newConfig,
+                path.replace("specGameConfig.", ""),
+                value
+              );
               setInstanceGameConfig(newConfig as GameConfig);
+              // version isolation is shared by summary and game config struct.
+              if (path === "specGameConfig.versionIsolation")
+                updateSummaryInContext("isVersionIsolated", value);
             } else if (path === "useSpecGameConfig") {
               updateSummaryInContext(path, value);
               if (value) handleRetrieveInstanceGameConfig();
@@ -345,6 +353,27 @@ export const InstanceContextProvider: React.FC<{
       updateSummaryInContext,
     ]
   );
+
+  const handleResetInstanceGameConfig = useCallback(() => {
+    if (instanceSummary?.id !== undefined) {
+      InstanceService.resetInstanceGameConfig(Number(instanceSummary.id)).then(
+        (response) => {
+          if (response.status === "success") {
+            toast({
+              title: response.message,
+              status: "success",
+            });
+            handleRetrieveInstanceGameConfig();
+          } else
+            toast({
+              title: response.message,
+              description: response.details,
+              status: "error",
+            });
+        }
+      );
+    }
+  }, [instanceSummary?.id, handleRetrieveInstanceGameConfig, toast]);
 
   const getWorldList = useGetState(worlds, handleRetrieveWorldList);
 
@@ -372,17 +401,17 @@ export const InstanceContextProvider: React.FC<{
     handleRetrieveScreenshotList
   );
 
-  const getInstanceGameConfig = useGetState(
-    instanceGameConfig,
-    handleRetrieveInstanceGameConfig
-  );
+  // const getInstanceGameConfig = useGetState(
+  //   instanceGameConfig,
+  //   handleRetrieveInstanceGameConfig
+  // );
 
   return (
     <InstanceContext.Provider
       value={{
         summary: instanceSummary,
         updateSummaryInContext,
-        // gameConfig: instanceGameConfig,
+        gameConfig: instanceGameConfig,
         getWorldList,
         getLocalModList,
         getResourcePackList,
@@ -390,10 +419,11 @@ export const InstanceContextProvider: React.FC<{
         getSchematicList,
         getShaderPackList,
         getScreenshotList,
-        getInstanceGameConfig,
+        // getInstanceGameConfig,
         handleOpenInstanceSubdir,
         handleImportResource,
         handleUpdateInstanceConfig,
+        handleResetInstanceGameConfig,
       }}
     >
       {children}

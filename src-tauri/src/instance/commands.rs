@@ -126,7 +126,7 @@ pub async fn update_instance_config(
 pub fn retrieve_instance_game_config(
   app: AppHandle,
   instance_id: usize,
-) -> SJMCLResult<Option<GameConfig>> {
+) -> SJMCLResult<GameConfig> {
   let binding = app.state::<Mutex<Vec<Instance>>>();
   let state = binding.lock().unwrap();
   let instance = state
@@ -134,13 +134,13 @@ pub fn retrieve_instance_game_config(
     .ok_or(InstanceError::InstanceNotFoundByID)?;
   if instance.use_spec_game_config {
     if let Some(v) = &instance.spec_game_config {
-      Ok(Some(v.clone()))
+      Ok(v.clone())
     } else {
       // fallback to global, not happen in normal case
-      Ok(Some(get_global_game_config(&app)))
+      Ok(get_global_game_config(&app))
     }
   } else {
-    Ok(Some(get_global_game_config(&app)))
+    Ok(get_global_game_config(&app))
   }
 }
 

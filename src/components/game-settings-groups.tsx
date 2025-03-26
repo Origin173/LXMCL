@@ -49,27 +49,25 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
 
   const [javaInfos, setJavaInfos] = useState<JavaInfo[]>([]);
 
-  const [gameWindowWidth, setGameWindowWidth] = useState<number>(
-    gameConfig.gameWindow.resolution.width
-  );
-  const [gameWindowHeight, setGameWindowHeight] = useState<number>(
-    gameConfig.gameWindow.resolution.height
-  );
-  const [minMemAllocation, setMinMemAllocation] = useState<number>(
-    gameConfig.performance.minMemAllocation
-  );
-  const [sliderMinMemAllocation, setSliderMinMemAllocation] = useState<number>(
-    gameConfig.performance.minMemAllocation
-  );
-  const [customTitle, setCustomTitle] = useState<string>(
-    gameConfig.gameWindow.customTitle
-  );
-  const [customInfo, setCustomInfo] = useState<string>(
-    gameConfig.gameWindow.customInfo
-  );
-  const [serverUrl, setServerUrl] = useState<string>(
-    gameConfig.gameServer.serverUrl
-  );
+  // use state and useEffect to track and render
+  const [gameWindowWidth, setGameWindowWidth] = useState<number>(0);
+  const [gameWindowHeight, setGameWindowHeight] = useState<number>(0);
+  const [minMemAllocation, setMinMemAllocation] = useState<number>(0);
+  const [sliderMinMemAllocation, setSliderMinMemAllocation] =
+    useState<number>(0);
+  const [customTitle, setCustomTitle] = useState<string>("");
+  const [customInfo, setCustomInfo] = useState<string>("");
+  const [serverUrl, setServerUrl] = useState<string>("");
+
+  useEffect(() => {
+    setGameWindowWidth(gameConfig.gameWindow.resolution.width);
+    setGameWindowHeight(gameConfig.gameWindow.resolution.height);
+    setMinMemAllocation(gameConfig.performance.minMemAllocation);
+    setSliderMinMemAllocation(gameConfig.performance.minMemAllocation);
+    setCustomTitle(gameConfig.gameWindow.customTitle);
+    setCustomInfo(gameConfig.gameWindow.customInfo);
+    setServerUrl(gameConfig.gameServer.serverUrl);
+  }, [gameConfig]);
 
   const buildJavaMenuLabel = (java: JavaInfo | undefined) => {
     if (!java) return "";
