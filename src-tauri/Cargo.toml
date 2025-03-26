@@ -2,9 +2,9 @@
 name = "SJMCL"
 version = "0.0.0"
 description = "A Minecraft launcher from SJMC"
-authors = ["UNIkeEN"]
-license = ""
-repository = ""
+authors = ["SJMCL Team"]
+license = "GNU General Public License v3.0 (with additional terms)"
+repository = "https://github.com/UNIkeEN/SJMCL"
 edition = "2021"
 rust-version = "1.80.0"
 
