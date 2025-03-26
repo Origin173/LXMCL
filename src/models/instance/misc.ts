@@ -12,6 +12,7 @@ export interface GameInstanceSummary {
     loaderType: ModLoaderType;
     version?: string;
   };
+  useSpecGameConfig: boolean;
 }
 
 export interface GameServerInfo {

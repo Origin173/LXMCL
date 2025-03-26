@@ -86,7 +86,6 @@ const InstanceModsPage = () => {
 
   const handleToggleModByExtension = useCallback(
     (filePath: string, enable: boolean) => {
-      console.warn(filePath, enable);
       InstanceService.toggleModByExtension(filePath, enable).then(
         (response) => {
           if (response.status === "success") {

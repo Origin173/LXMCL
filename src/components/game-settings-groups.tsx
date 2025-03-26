@@ -17,8 +17,8 @@ import {
   Switch,
   Text,
   VStack,
-  useDisclosure,
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuChevronDown } from "react-icons/lu";
@@ -27,62 +27,49 @@ import {
   OptionItemGroupProps,
 } from "@/components/common/option-item";
 import MemoryStatusProgress from "@/components/memory-status-progress";
-import GameAdvancedSettingsModal from "@/components/modals/game-advanced-settings-modal";
 import { useLauncherConfig } from "@/contexts/config";
-import { defaultGameConfig } from "@/models/config";
+import { GameConfig } from "@/models/config";
 import { MemoryInfo } from "@/models/system-info";
 import { JavaInfo } from "@/models/system-info";
 import { retrieveMemoryInfo } from "@/services/utils";
 
-interface GameSettingsGroupsProps {
-  instanceId?: number;
+export interface GameSettingsGroupsProps {
+  gameConfig: GameConfig;
+  updateGameConfig: (key: string, value: any) => void;
 }
 
 const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
-  instanceId,
+  gameConfig,
+  updateGameConfig,
 }) => {
   const { t } = useTranslation();
-  const { config, update, getJavaInfos } = useLauncherConfig();
+  const { config, getJavaInfos } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const gameConfigs =
-    instanceId !== undefined
-      ? defaultGameConfig // TBD
-      : config.globalGameConfig;
+  const router = useRouter();
 
   const [javaInfos, setJavaInfos] = useState<JavaInfo[]>([]);
 
   const [gameWindowWidth, setGameWindowWidth] = useState<number>(
-    gameConfigs.gameWindow.resolution.width
+    gameConfig.gameWindow.resolution.width
   );
   const [gameWindowHeight, setGameWindowHeight] = useState<number>(
-    gameConfigs.gameWindow.resolution.height
+    gameConfig.gameWindow.resolution.height
   );
   const [minMemAllocation, setMinMemAllocation] = useState<number>(
-    gameConfigs.performance.minMemAllocation
+    gameConfig.performance.minMemAllocation
   );
   const [sliderMinMemAllocation, setSliderMinMemAllocation] = useState<number>(
-    gameConfigs.performance.minMemAllocation
+    gameConfig.performance.minMemAllocation
   );
   const [customTitle, setCustomTitle] = useState<string>(
-    gameConfigs.gameWindow.customTitle
+    gameConfig.gameWindow.customTitle
   );
   const [customInfo, setCustomInfo] = useState<string>(
-    gameConfigs.gameWindow.customInfo
+    gameConfig.gameWindow.customInfo
   );
   const [serverUrl, setServerUrl] = useState<string>(
-    gameConfigs.gameServer.serverUrl
+    gameConfig.gameServer.serverUrl
   );
-
-  const {
-    isOpen: isGameAdvancedSettingsModalOpen,
-    onOpen: onGameAdvancedSettingsModalOpen,
-    onClose: onGameAdvancedSettingsModalClose,
-  } = useDisclosure();
-
-  const updateGameConfig = (key: string, value: any) => {
-    if (instanceId !== undefined) return; // TBD
-    update(`globalGameConfig.${key}`, value);
-  };
 
   const buildJavaMenuLabel = (java: JavaInfo | undefined) => {
     if (!java) return "";
@@ -135,14 +122,14 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
           children: (
             <Switch
               colorScheme={primaryColor}
-              isChecked={gameConfigs.gameJava.auto}
+              isChecked={gameConfig.gameJava.auto}
               onChange={(event) => {
                 updateGameConfig("gameJava.auto", event.target.checked);
               }}
             />
           ),
         },
-        ...(gameConfigs.gameJava.auto
+        ...(gameConfig.gameJava.auto
           ? []
           : [
               {
@@ -163,7 +150,7 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                           {buildJavaMenuLabel(
                             javaInfos.find(
                               (java) =>
-                                java.execPath === gameConfigs.gameJava.execPath
+                                java.execPath === gameConfig.gameJava.execPath
                             )
                           )}
                         </Text>
@@ -173,7 +160,7 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                     <Portal>
                       <MenuList>
                         <MenuOptionGroup
-                          value={gameConfigs.gameJava.execPath}
+                          value={gameConfig.gameJava.execPath}
                           type="radio"
                           onChange={(value) => {
                             updateGameConfig("gameJava.execPath", value);
@@ -250,7 +237,7 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
               </NumberInput>
               <Switch
                 colorScheme={primaryColor}
-                isChecked={gameConfigs.gameWindow.resolution.fullscreen}
+                isChecked={gameConfig.gameWindow.resolution.fullscreen}
                 onChange={(event) => {
                   updateGameConfig(
                     "gameWindow.resolution.fullscreen",
@@ -319,7 +306,7 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
           children: (
             <Switch
               colorScheme={primaryColor}
-              isChecked={gameConfigs.performance.autoMemAllocation}
+              isChecked={gameConfig.performance.autoMemAllocation}
               onChange={(event) => {
                 updateGameConfig(
                   "performance.autoMemAllocation",
@@ -329,7 +316,7 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
             />
           ),
         },
-        ...(gameConfigs.performance.autoMemAllocation
+        ...(gameConfig.performance.autoMemAllocation
           ? []
           : [
               {
@@ -413,12 +400,12 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                 textAlign="left"
               >
                 {t(
-                  `GlobalGameSettingsPage.performance.settings.processPriority.${gameConfigs.performance.processPriority}`
+                  `GlobalGameSettingsPage.performance.settings.processPriority.${gameConfig.performance.processPriority}`
                 )}
               </MenuButton>
               <MenuList>
                 <MenuOptionGroup
-                  value={gameConfigs.performance.processPriority}
+                  value={gameConfig.performance.processPriority}
                   type="radio"
                   onChange={(value) => {
                     updateGameConfig("performance.processPriority", value);
@@ -456,13 +443,13 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
                 textAlign="left"
               >
                 {t(
-                  `GlobalGameSettingsPage.moreOptions.settings.launcherVisibility.${gameConfigs.launcherVisibility}`
+                  `GlobalGameSettingsPage.moreOptions.settings.launcherVisibility.${gameConfig.launcherVisibility}`
                 )}
               </MenuButton>
               <MenuList>
                 <MenuOptionGroup
                   type="radio"
-                  value={gameConfigs.launcherVisibility}
+                  value={gameConfig.launcherVisibility}
                   onChange={(value) => {
                     updateGameConfig("launcherVisibility", value);
                   }}
@@ -486,14 +473,14 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
           children: (
             <Switch
               colorScheme={primaryColor}
-              isChecked={gameConfigs.gameServer.autoJoin}
+              isChecked={gameConfig.gameServer.autoJoin}
               onChange={(event) => {
                 updateGameConfig("gameServer.autoJoin", event.target.checked);
               }}
             />
           ),
         },
-        ...(gameConfigs.gameServer.autoJoin
+        ...(gameConfig.gameServer.autoJoin
           ? [
               {
                 title: t(
@@ -523,7 +510,7 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
           children: (
             <Switch
               colorScheme={primaryColor}
-              isChecked={gameConfigs.displayGameLog}
+              isChecked={gameConfig.displayGameLog}
               onChange={(event) => {
                 updateGameConfig("displayGameLog", event.target.checked);
               }}
@@ -540,7 +527,7 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
               variant="subtle"
               justifyContent="flex-start"
               onClick={() => {
-                onGameAdvancedSettingsModalOpen();
+                router.push(`${router.asPath}/advanced`);
               }}
             >
               <Text>
@@ -566,11 +553,6 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
           />
         ))}
       </VStack>
-      <GameAdvancedSettingsModal
-        instanceId={instanceId}
-        isOpen={isGameAdvancedSettingsModalOpen}
-        onClose={onGameAdvancedSettingsModalClose}
-      />
     </>
   );
 };

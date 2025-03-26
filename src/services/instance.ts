@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { InstanceSubdirEnums } from "@/enums/instance";
+import { GameConfig } from "@/models/config";
 import {
   GameInstanceSummary,
   GameServerInfo,
@@ -26,6 +27,55 @@ export class InstanceService {
     InvokeResponse<GameInstanceSummary[]>
   > {
     return await invoke("retrieve_instance_list");
+  }
+
+  /**
+   * UPDATE a specific key of the instance's config (include basic info and game config).
+   * @param {number} instanceId - The ID of the instance.
+   * @param {string} keyPath - Path to the key to update, e.g., "spec_game_config.javaPath".
+   * @param {string} value - New value (as string) to be set.
+   * @returns {Promise<InvokeResponse<void>>}
+   */
+  @responseHandler("instance")
+  static async updateInstanceConfig(
+    instanceId: number,
+    keyPath: string,
+    value: any
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("update_instance_config", {
+      instanceId,
+      keyPath,
+      value: JSON.stringify(value),
+    });
+  }
+
+  /**
+   * RETRIEVE the game config for a given instance.
+   * @param {number} instanceId - The ID of the instance.
+   * @returns {Promise<InvokeResponse<GameConfig>>}
+   * * return specific game configs if the specific configuration is enabled; otherwise, return the global game configs.
+   */
+  @responseHandler("instance")
+  static async retrieveInstanceGameConfig(
+    instanceId: number
+  ): Promise<InvokeResponse<GameConfig>> {
+    return await invoke("retrieve_instance_game_config", {
+      instanceId,
+    });
+  }
+
+  /**
+   * RESET the instance game config to use global default game config.
+   * @param {number} instanceId - The ID of the instance.
+   * @returns {Promise<InvokeResponse<void>>}
+   */
+  @responseHandler("instance")
+  static async resetInstanceGameConfig(
+    instanceId: number
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("reset_instance_game_config", {
+      instanceId,
+    });
   }
 
   /**

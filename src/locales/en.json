@@ -516,12 +516,9 @@
       "windows": "File Explorer"
     }
   },
-  "GameAdvancedSettingsModal": {
-    "header": {
-      "title": "Advanced Settings"
-    }
-  },
   "GameAdvancedSettingsPage": {
+    "title": "Advanced Settings",
+    "topWarning": "Advanced settings are for expert users. Changing them may break the game. Do not modify unless you know what you're doing.",
     "customCommands": {
       "title": "Custom Commands",
       "settings": {

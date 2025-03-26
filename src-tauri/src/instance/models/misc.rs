@@ -94,6 +94,7 @@ pub struct InstanceSummary {
   pub version: String,
   pub version_path: PathBuf,
   pub mod_loader: ModLoader,
+  pub use_spec_game_config: bool,
   pub is_version_isolated: bool,
 }
 
