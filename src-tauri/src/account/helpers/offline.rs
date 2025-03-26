@@ -34,10 +34,17 @@ pub fn load_preset_skin(app: &AppHandle, preset_role: String) -> SJMCLResult<Vec
   }])
 }
 
-pub async fn login(app: &AppHandle, username: String) -> SJMCLResult<PlayerInfo> {
+pub async fn login(app: &AppHandle, username: String, raw_uuid: String) -> SJMCLResult<PlayerInfo> {
   let name_with_prefix = format!("OfflinePlayer:{}", username);
-  let uuid = Uuid::new_v5(&Uuid::NAMESPACE_URL, name_with_prefix.as_bytes());
-
+  let uuid = if let Ok(id) = Uuid::parse_str(&raw_uuid) {
+    id
+  } else {
+    if raw_uuid.len() > 0 {
+      // user uses custom UUID, but it's invalid
+      return Err(AccountError::Invalid)?;
+    }
+    Uuid::new_v5(&Uuid::NAMESPACE_URL, name_with_prefix.as_bytes())
+  };
   let texture_role = TEXTURE_ROLES.choose(&mut rand::rng()).unwrap_or(&"steve");
 
   Ok(PlayerInfo {

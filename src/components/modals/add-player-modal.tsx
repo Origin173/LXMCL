@@ -37,6 +37,7 @@ import {
   LuServer,
   LuSquareUserRound,
 } from "react-icons/lu";
+import { Section } from "@/components/common/section";
 import SegmentedControl from "@/components/common/segmented";
 import AddAuthServerModal from "@/components/modals/add-auth-server-modal";
 import OAuthLoginPanel from "@/components/oauth-login-panel";
@@ -46,6 +47,7 @@ import { useToast } from "@/contexts/toast";
 import { AuthServer, OAuthCodeResponse } from "@/models/account";
 import { InvokeResponse } from "@/models/response";
 import { AccountService } from "@/services/account";
+import { isOfflinePlayernameValid, isUuidValid } from "@/utils/account";
 
 interface AddPlayerModalProps extends Omit<ModalProps, "children"> {
   initialPlayerType?: "offline" | "microsoft" | "3rdparty";
@@ -68,6 +70,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     "offline" | "microsoft" | "3rdparty"
   >("offline");
   const [playername, setPlayername] = useState<string>("");
+  const [uuid, setUuid] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [authServer, setAuthServer] = useState<AuthServer>(); // selected auth server
   const [showOAuth, setShowOAuth] = useState<boolean>(false); // show OAuth button instead of username and password input.
@@ -124,13 +127,11 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     setOAuthCodeResponse(undefined);
   }, [showOAuth, playerType, modalProps.isOpen]);
 
-  const isOfflinePlayernameValid = /^[a-zA-Z0-9_]{0,16}$/.test(playername);
-
   const handleFetchOAuthCode = () => {
     if (playerType === "offline") return;
     setOAuthCodeResponse(undefined);
     setIsLoading(true);
-    AccountService.fetchOAuthCode(playerType, authServer?.authUrl || "").then(
+    AccountService.fetchOAuthCode(playerType, authServer?.authUrl).then(
       (response) => {
         if (response.status === "success") {
           setOAuthCodeResponse(response.data);
@@ -149,13 +150,17 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   const handleLogin = (isOAuth = false) => {
     let loginServiceFunction: () => Promise<InvokeResponse<void>>;
     if (playerType === "offline") {
-      loginServiceFunction = () => AccountService.addPlayerOffline(playername);
+      loginServiceFunction = () =>
+        AccountService.addPlayerOffline(
+          playername,
+          isUuidValid(uuid) ? uuid : undefined
+        );
     } else if (isOAuth && oauthCodeResponse) {
       loginServiceFunction = () =>
         AccountService.addPlayerOAuth(
           playerType,
           oauthCodeResponse,
-          authServer ? authServer.authUrl : ""
+          authServer?.authUrl
         );
     } else if (playerType === "3rdparty" && authServer) {
       loginServiceFunction = () =>
@@ -248,26 +253,56 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
             </FormControl>
 
             {playerType === "offline" && (
-              <FormControl isRequired isInvalid={!isOfflinePlayernameValid}>
-                <FormLabel>
-                  {t("AddPlayerModal.offline.playerName.label")}
-                </FormLabel>
-                <Input
-                  placeholder={t(
-                    "AddPlayerModal.offline.playerName.placeholder"
-                  )}
-                  value={playername}
-                  onChange={(e) => setPlayername(e.target.value)}
-                  required
-                  ref={initialRef}
-                  focusBorderColor={`${primaryColor}.500`}
-                />
-                {!isOfflinePlayernameValid && (
+              <VStack w="100%" spacing={3}>
+                <FormControl
+                  isRequired
+                  isInvalid={
+                    !!playername.length && !isOfflinePlayernameValid(playername)
+                  }
+                >
+                  <FormLabel>
+                    {t("AddPlayerModal.offline.playerName.label")}
+                  </FormLabel>
+                  <Input
+                    placeholder={t(
+                      "AddPlayerModal.offline.playerName.placeholder"
+                    )}
+                    value={playername}
+                    onChange={(e) => setPlayername(e.target.value)}
+                    required
+                    ref={initialRef}
+                    focusBorderColor={`${primaryColor}.500`}
+                  />
                   <FormErrorMessage>
                     {t("AddPlayerModal.offline.playerName.errorMessage")}
                   </FormErrorMessage>
-                )}
-              </FormControl>
+                </FormControl>
+                <Section
+                  isAccordion
+                  initialIsOpen={false}
+                  title={t("AddPlayerModal.offline.advancedOptions.title")}
+                  w="100%"
+                >
+                  <FormControl isInvalid={!!uuid.length && !isUuidValid(uuid)}>
+                    <FormLabel>
+                      {t("AddPlayerModal.offline.advancedOptions.uuid.label")}
+                    </FormLabel>
+                    <Input
+                      placeholder={t(
+                        "AddPlayerModal.offline.advancedOptions.uuid.placeholder"
+                      )}
+                      value={uuid}
+                      onChange={(e) => setUuid(e.target.value)}
+                      focusBorderColor={`${primaryColor}.500`}
+                    />
+                    <FormErrorMessage>
+                      {t(
+                        "AddPlayerModal.offline.advancedOptions.uuid.errorMessage"
+                      )}
+                    </FormErrorMessage>
+                  </FormControl>
+                </Section>
+              </VStack>
             )}
 
             {playerType === "microsoft" && (
