@@ -77,6 +77,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [oauthCodeResponse, setOAuthCodeResponse] =
     useState<OAuthCodeResponse>();
+  const [showAdvancedOptions, setShowAdvancedOptions] =
+    useState<boolean>(false);
 
   const initialRef = useRef<HTMLInputElement>(null);
 
@@ -253,7 +255,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
             </FormControl>
 
             {playerType === "offline" && (
-              <VStack w="100%" spacing={3}>
+              <VStack w="100%" spacing={1}>
                 <FormControl
                   isRequired
                   isInvalid={
@@ -281,8 +283,12 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                   isAccordion
                   initialIsOpen={false}
                   title={t("AddPlayerModal.offline.advancedOptions.title")}
+                  onAccordionToggle={(isOpen) => setShowAdvancedOptions(isOpen)}
                   w="100%"
-                >
+                  mt={2}
+                  mb={-2}
+                />
+                {showAdvancedOptions && (
                   <FormControl isInvalid={!!uuid.length && !isUuidValid(uuid)}>
                     <FormLabel>
                       {t("AddPlayerModal.offline.advancedOptions.uuid.label")}
@@ -301,7 +307,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                       )}
                     </FormErrorMessage>
                   </FormControl>
-                </Section>
+                )}
               </VStack>
             )}
 
