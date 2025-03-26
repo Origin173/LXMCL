@@ -88,7 +88,7 @@ impl PlayerInfo {
     } else if self.player_type == PlayerType::Microsoft {
       server_identity = "MICROSOFT".to_string();
     }
-    format!("{}{}", self.name, server_identity)
+    format!("{}:{}:{}", self.name, server_identity, self.uuid)
   }
 }
 

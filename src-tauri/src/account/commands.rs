@@ -70,8 +70,8 @@ pub fn update_selected_player(app: AppHandle, player_id: String) -> SJMCLResult<
 }
 
 #[tauri::command]
-pub async fn add_player_offline(app: AppHandle, username: String) -> SJMCLResult<()> {
-  let new_player = offline::login(&app, username).await?;
+pub async fn add_player_offline(app: AppHandle, username: String, uuid: String) -> SJMCLResult<()> {
+  let new_player = offline::login(&app, username, uuid).await?;
 
   let account_binding = app.state::<Mutex<AccountInfo>>();
   let mut account_state = account_binding.lock()?;

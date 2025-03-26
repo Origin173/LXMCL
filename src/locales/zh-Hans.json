@@ -140,6 +140,14 @@
         "label": "角色名称",
         "placeholder": "请输入角色名称",
         "errorMessage": "只能包含英文字母、数字和下划线，不超过16个字符。"
+      },
+      "advancedOptions": {
+        "title": "高级选项",
+        "uuid": {
+          "label": "UUID",
+          "placeholder": "（由 SJMCL 自动生成）",
+          "errorMessage": "UUID 格式不正确"
+        }
       }
     },
     "3rdparty": {

@@ -64,7 +64,7 @@ const PlayersView: React.FC<PlayersViewProps> = ({
     prefixElement: (
       <HStack spacing={2.5}>
         <Radio
-          value={player.uuid}
+          value={genPlayerId(player)}
           onClick={() => handleUpdateSelectedPlayer(genPlayerId(player))}
           colorScheme={primaryColor}
         />
@@ -101,15 +101,16 @@ const PlayersView: React.FC<PlayersViewProps> = ({
           }
         : {}),
     },
-    isSelected: selectedPlayer?.uuid === player.uuid,
+    isSelected:
+      selectedPlayer && genPlayerId(selectedPlayer) === genPlayerId(player),
     onSelect: () => handleUpdateSelectedPlayer(genPlayerId(player)),
-    radioValue: player.uuid,
+    radioValue: genPlayerId(player),
   }));
 
   return (
     <Box {...boxProps}>
       {players.length > 0 ? (
-        <RadioGroup value={selectedPlayer?.uuid}>
+        <RadioGroup value={selectedPlayer && genPlayerId(selectedPlayer)}>
           {viewType === "list" ? (
             <OptionItemGroup items={listItems} />
           ) : (

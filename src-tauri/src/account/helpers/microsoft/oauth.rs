@@ -1,5 +1,3 @@
-use std::sync::{Arc, Mutex};
-
 use super::constants::{CLIENT_ID, SCOPE};
 use crate::account::models::{AccountError, OAuthCodeResponse, PlayerInfo, PlayerType, Texture};
 use crate::error::SJMCLResult;
@@ -7,6 +5,7 @@ use crate::utils::window::create_webview_window;
 use base64::engine::general_purpose;
 use base64::Engine;
 use serde_json::{json, Value};
+use std::sync::{Arc, Mutex};
 use tauri::AppHandle;
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_http::reqwest::{self, Client};

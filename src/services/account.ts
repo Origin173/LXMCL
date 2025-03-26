@@ -19,31 +19,34 @@ export class AccountService {
   /**
    * ADD a new player to the system using offline login.
    * @param {string} username - The username of the player to be added.
+   * @param {string} [uuid] - (Optional) The UUID of the player to be added.
    * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("account")
   static async addPlayerOffline(
-    username: string
+    username: string,
+    uuid?: string
   ): Promise<InvokeResponse<void>> {
     return await invoke("add_player_offline", {
       username,
+      uuid: uuid || "",
     });
   }
 
   /**
    * FETCH the user code using both OAuth methods (Microsoft and 3rd party).
    * @param {string} serverType - The type of authentication server (Microsoft or 3rd party).
-   * @param {string} authServerUrl - (Optional) The authentication server's URL.
+   * @param {string} [authServerUrl] - (Optional) The authentication server's URL.
    * @returns {Promise<InvokeResponse<OAuthCodeResponse>>}
    */
   @responseHandler("account")
   static async fetchOAuthCode(
     serverType: "3rdparty" | "microsoft",
-    authServerUrl: string
+    authServerUrl?: string
   ): Promise<InvokeResponse<OAuthCodeResponse>> {
     return await invoke("fetch_oauth_code", {
       serverType,
-      authServerUrl,
+      authServerUrl: authServerUrl || "",
     });
   }
 
@@ -51,19 +54,19 @@ export class AccountService {
    * ADD the player using both OAuth methods (Microsoft and 3rd party).
    * @param {string} serverType - The type of authentication server (Microsoft or 3rd party).
    * @param {OAuthCodeResponse} authInfo - The authentication information (code and verification URI).
-   * @param {string} authServerUrl - (Optional) The authentication server's URL.
+   * @param {string} [authServerUrl] - (Optional) The authentication server's URL.
    * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("account")
   static async addPlayerOAuth(
     serverType: "3rdparty" | "microsoft",
     authInfo: OAuthCodeResponse,
-    authServerUrl: string
+    authServerUrl?: string
   ): Promise<InvokeResponse<void>> {
     return await invoke("add_player_oauth", {
       serverType,
       authInfo,
-      authServerUrl,
+      authServerUrl: authServerUrl || "",
     });
   }
 
