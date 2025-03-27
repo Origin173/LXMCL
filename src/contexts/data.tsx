@@ -98,7 +98,12 @@ export const DataContextProvider: React.FC<{
   const getPlayerList = useGetState(playerList, handleRetrievePlayerList);
 
   const getGameInstanceList = useGetState(
-    gameInstanceList,
+    // put starred instances at the top
+    gameInstanceList
+      ? [...gameInstanceList].sort(
+          (a, b) => Number(b.starred) - Number(a.starred)
+        )
+      : undefined,
     handleRetrieveInstanceList
   );
 

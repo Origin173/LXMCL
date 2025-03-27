@@ -858,7 +858,9 @@
   },
   "InstanceLayout": {
     "secMenu": {
-      "exportModPack": "Export as Modpack"
+      "exportModPack": "Export as Modpack",
+      "star": "Star this instance",
+      "unstar": "Unstar"
     },
     "instanceTabList": {
       "overview": "Overview",

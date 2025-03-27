@@ -203,9 +203,7 @@ pub fn update_player_skin_offline_preset(
   let mut account_state = account_binding.lock()?;
 
   let player = account_state
-    .players
-    .iter_mut()
-    .find(|player| player.id == player_id)
+    .get_player_by_id_mut(player_id.clone())
     .ok_or(AccountError::NotFound)?;
 
   if player.player_type != PlayerType::Offline {

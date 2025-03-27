@@ -23,7 +23,7 @@ pub fn get_instance_client_json_path(app: &AppHandle, instance_id: usize) -> Opt
   Some(json_path)
 }
 
-pub fn get_game_config(app: &AppHandle, instance: &Instance) -> GameConfig {
+pub fn get_instance_game_config(app: &AppHandle, instance: &Instance) -> GameConfig {
   if instance.use_spec_game_config {
     if let Some(v) = &instance.spec_game_config {
       return v.clone();
@@ -45,7 +45,7 @@ pub fn get_instance_subdir_path(
   let version_path = &instance.version_path;
   let game_dir = version_path.parent().unwrap().parent().unwrap(); // TODO: remove unwrap
 
-  let version_isolation = get_game_config(app, instance).version_isolation;
+  let version_isolation = get_instance_game_config(app, instance).version_isolation;
 
   let path = match directory_type {
     InstanceSubdirType::Assets | InstanceSubdirType::Libraries => game_dir, // no version isolation

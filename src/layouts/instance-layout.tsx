@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { IconType } from "react-icons";
+import { FaRegStar, FaStar } from "react-icons/fa6";
 import {
   LuBookDashed,
   LuEarth,
@@ -45,7 +46,7 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
   const { id } = router.query;
   const instanceId = Array.isArray(id) ? id[0] : id;
 
-  const { summary } = useInstanceSharedData();
+  const { summary, handleUpdateInstanceConfig } = useInstanceSharedData();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 
@@ -91,6 +92,21 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
       flexDirection="column"
       height="100%"
       title={summary?.name}
+      titleExtra={
+        <CommonIconButton
+          icon={summary?.starred ? FaStar : FaRegStar}
+          label={t(
+            `InstanceLayout.secMenu.${summary?.starred ? "unstar" : "star"}`
+          )}
+          color={summary?.starred ? "yellow.500" : "inherit"}
+          onClick={() => {
+            handleUpdateInstanceConfig("starred", !summary?.starred);
+          }}
+          size="xs"
+          fontSize="sm"
+          h={21}
+        />
+      }
       headExtra={
         <HStack spacing={2}>
           {instanceSecMenuOperations.map((btn, index) => (

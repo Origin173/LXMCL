@@ -858,7 +858,9 @@
   },
   "InstanceLayout": {
     "secMenu": {
-      "exportModPack": "导出为整合包"
+      "exportModPack": "导出为整合包",
+      "star": "星标此实例",
+      "unstar": "取消星标"
     },
     "instanceTabList": {
       "overview": "概览",

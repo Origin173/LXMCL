@@ -5,7 +5,7 @@ use super::{
   },
   constants::INSTANCE_CFG_FILE_NAME,
   helpers::{
-    misc::{get_instance_subdir_path, refresh_and_update_instances},
+    misc::{get_instance_game_config, get_instance_subdir_path, refresh_and_update_instances},
     mods::common::{get_mod_info_from_dir, get_mod_info_from_jar},
     resourcepack::{load_resourcepack_from_dir, load_resourcepack_from_zip},
     server::{load_servers_info_from_path, query_server_status},
@@ -61,6 +61,7 @@ pub async fn retrieve_instance_list(app: AppHandle) -> SJMCLResult<Vec<InstanceS
       name: instance.name.clone(),
       description: instance.description.clone(),
       icon_src: instance.icon_src.clone(),
+      starred: instance.starred,
       version: instance.version.clone(),
       version_path: instance.version_path.clone(),
       mod_loader: instance.mod_loader.clone(),
@@ -99,6 +100,8 @@ pub async fn update_instance_config(
       instance.description = serde_json::from_str::<String>(&value).unwrap_or(value);
     } else if key_path == "icon_src" {
       instance.icon_src = serde_json::from_str::<String>(&value).unwrap_or(value);
+    } else if key_path == "starred" {
+      instance.starred = value.parse::<bool>()?;
     } else if key_path == "use_spec_game_config" {
       let value = value.parse::<bool>()?;
       instance.use_spec_game_config = value;
@@ -132,16 +135,8 @@ pub fn retrieve_instance_game_config(
   let instance = state
     .get(instance_id)
     .ok_or(InstanceError::InstanceNotFoundByID)?;
-  if instance.use_spec_game_config {
-    if let Some(v) = &instance.spec_game_config {
-      Ok(v.clone())
-    } else {
-      // fallback to global, not happen in normal case
-      Ok(get_global_game_config(&app))
-    }
-  } else {
-    Ok(get_global_game_config(&app))
-  }
+
+  Ok(get_instance_game_config(&app, instance))
 }
 
 #[tauri::command]

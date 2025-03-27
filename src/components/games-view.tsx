@@ -2,11 +2,13 @@ import {
   Box,
   BoxProps,
   HStack,
+  Icon,
   Image,
   Radio,
   RadioGroup,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { FaStar } from "react-icons/fa6";
 import Empty from "@/components/common/empty";
 import { OptionItemGroup } from "@/components/common/option-item";
 import { WrapCardGroup } from "@/components/common/wrap-card";
@@ -58,6 +60,11 @@ const GamesView: React.FC<GamesViewProps> = ({
     title: game.name,
     description:
       generateDesc(game) + (game.description ? `, ${game.description}` : ""),
+    ...{
+      titleExtra: game.starred && (
+        <Icon as={FaStar} mt={-1} color="yellow.500" />
+      ),
+    },
     prefixElement: (
       <HStack spacing={2.5}>
         <Radio
@@ -81,15 +88,12 @@ const GamesView: React.FC<GamesViewProps> = ({
       title: game.name,
       description: generateDesc(game),
       image: game.iconSrc,
-      ...(withMenu
-        ? {
-            extraContent: (
-              <Box position="absolute" top={0.5} right={1}>
-                <GameMenu game={game} />
-              </Box>
-            ),
-          }
-        : {}),
+      extraContent: (
+        <HStack spacing={1} position="absolute" top={0.5} right={1}>
+          {game.starred && <Icon as={FaStar} color="yellow.500" />}
+          {withMenu && <GameMenu game={game} />}
+        </HStack>
+      ),
     },
     isSelected: selectedGameInstance?.id === game.id,
     radioValue: game.id.toString(),

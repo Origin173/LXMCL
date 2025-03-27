@@ -11,6 +11,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IconType } from "react-icons";
+import { FaStar } from "react-icons/fa6";
 import { LuBox, LuBoxes, LuCirclePlus, LuSettings } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import SelectableButton from "@/components/common/selectable-button";
@@ -37,7 +38,7 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
     { key: "all", icon: LuBoxes, label: t("AllGamesPage.title") },
     ...gameInstanceList.map((item) => ({
       key: `instance/${item.id}`,
-      icon: LuBox,
+      icon: item.starred ? FaStar : LuBox,
       label: item.name,
     })),
   ];
