@@ -98,6 +98,7 @@ const GamesView: React.FC<GamesViewProps> = ({
     isSelected: selectedGameInstance?.id === game.id,
     radioValue: game.id.toString(),
     onSelect: () => handleUpdateSelectedGameInstance(game),
+    h: "103.2px",
   }));
 
   return (
