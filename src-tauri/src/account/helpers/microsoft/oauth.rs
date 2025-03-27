@@ -202,16 +202,20 @@ async fn parse_profile(
     }
   }
 
-  Ok(PlayerInfo {
-    uuid,
-    name: name.clone(),
-    player_type: PlayerType::Microsoft,
-    auth_account: name,
-    access_token: minecraft_token,
-    textures,
-    auth_server_url: "".to_string(),
-    password: "".to_string(),
-  })
+  Ok(
+    PlayerInfo {
+      id: "".to_string(),
+      uuid,
+      name: name.clone(),
+      player_type: PlayerType::Microsoft,
+      auth_account: name,
+      access_token: minecraft_token,
+      textures,
+      auth_server_url: "".to_string(),
+      password: "".to_string(),
+    }
+    .with_generated_id(),
+  )
 }
 
 pub async fn login(app: &AppHandle, auth_info: OAuthCodeResponse) -> SJMCLResult<PlayerInfo> {

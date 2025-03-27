@@ -12,15 +12,12 @@ import { OptionItemGroup } from "@/components/common/option-item";
 import { WrapCardGroup } from "@/components/common/wrap-card";
 import PlayerMenu from "@/components/player-menu";
 import { useLauncherConfig } from "@/contexts/config";
-import { useData } from "@/contexts/data";
-import { useToast } from "@/contexts/toast";
 import { Player } from "@/models/account";
-import { AccountService } from "@/services/account";
-import { genPlayerId } from "@/utils/account";
 import { base64ImgSrc } from "@/utils/string";
 
 interface PlayersViewProps extends BoxProps {
   players: Player[];
+  selectedPlayer: Player | undefined;
   viewType: string;
   onSelectCallback?: () => void;
   withMenu?: boolean;
@@ -28,30 +25,18 @@ interface PlayersViewProps extends BoxProps {
 
 const PlayersView: React.FC<PlayersViewProps> = ({
   players,
+  selectedPlayer,
   viewType,
   onSelectCallback = () => {},
   withMenu = true,
   ...boxProps
 }) => {
   const { t } = useTranslation();
-  const { config } = useLauncherConfig();
+  const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const { getSelectedPlayer } = useData();
-  const selectedPlayer = getSelectedPlayer();
-  const toast = useToast();
 
   const handleUpdateSelectedPlayer = (playerId: string) => {
-    AccountService.updateSelectedPlayer(playerId).then((response) => {
-      if (response.status === "success") {
-        getSelectedPlayer(true);
-      } else {
-        toast({
-          title: response.message,
-          description: response.details,
-          status: "error",
-        });
-      }
-    });
+    update("states.shared.selectedPlayerId", playerId);
     onSelectCallback();
   };
 
@@ -64,8 +49,8 @@ const PlayersView: React.FC<PlayersViewProps> = ({
     prefixElement: (
       <HStack spacing={2.5}>
         <Radio
-          value={genPlayerId(player)}
-          onClick={() => handleUpdateSelectedPlayer(genPlayerId(player))}
+          value={player.id}
+          onClick={() => handleUpdateSelectedPlayer(player.id)}
           colorScheme={primaryColor}
         />
         <Image
@@ -101,16 +86,15 @@ const PlayersView: React.FC<PlayersViewProps> = ({
           }
         : {}),
     },
-    isSelected:
-      selectedPlayer && genPlayerId(selectedPlayer) === genPlayerId(player),
-    onSelect: () => handleUpdateSelectedPlayer(genPlayerId(player)),
-    radioValue: genPlayerId(player),
+    isSelected: selectedPlayer?.id === player.id,
+    onSelect: () => handleUpdateSelectedPlayer(player.id),
+    radioValue: player.id,
   }));
 
   return (
     <Box {...boxProps}>
       {players.length > 0 ? (
-        <RadioGroup value={selectedPlayer && genPlayerId(selectedPlayer)}>
+        <RadioGroup value={selectedPlayer?.id}>
           {viewType === "list" ? (
             <OptionItemGroup items={listItems} />
           ) : (

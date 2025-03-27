@@ -27,7 +27,6 @@ import { LuX } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
-import { Player } from "@/models/account";
 import { GameInstanceSummary } from "@/models/instance/misc";
 import { ResponseError } from "@/models/response";
 import { LaunchService } from "@/services/launch";
@@ -44,16 +43,11 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const { getSelectedPlayer, getGameInstanceList } = useData();
+  const { selectedPlayer, getGameInstanceList } = useData();
 
-  const [selectedPlayer, setSelectedPlayer] = useState<Player>();
   const [launchingInstance, setLaunchingInstance] =
     useState<GameInstanceSummary>();
   const [errorPaused, setErrorPaused] = useState<boolean>(false);
-
-  useEffect(() => {
-    setSelectedPlayer(getSelectedPlayer());
-  }, [getSelectedPlayer]);
 
   useEffect(() => {
     setLaunchingInstance(

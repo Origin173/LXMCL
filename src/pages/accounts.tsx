@@ -42,15 +42,16 @@ import { AccountService } from "@/services/account";
 
 const AccountsPage = () => {
   const { t } = useTranslation();
-  const { config, update } = useLauncherConfig();
+  const { config, update, refreshConfig } = useLauncherConfig();
   const toast = useToast();
   const primaryColor = config.appearance.theme.primaryColor;
   const selectedViewType = config.states.accountsPage.viewType;
 
+  const { getPlayerList, getAuthServerList, selectedPlayer } = useData();
+
   const [selectedPlayerType, setSelectedPlayerType] = useState<string>("all");
   const [playerList, setPlayerList] = useState<Player[]>([]);
   const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
-  const { getPlayerList, getAuthServerList, getSelectedPlayer } = useData();
 
   useEffect(() => {
     setPlayerList(getPlayerList() || []);
@@ -135,8 +136,10 @@ const AccountsPage = () => {
       AccountService.deleteAuthServer(servers[0].authUrl).then((response) => {
         if (response.status === "success") {
           getAuthServerList(true);
-          getPlayerList(true);
-          getSelectedPlayer(true);
+          Promise.all([
+            getPlayerList(true),
+            refreshConfig(), // sync update selected player id in frontend
+          ]);
           // redirect the selected player type to "all" to avoid display error
           setSelectedPlayerType("all");
           toast({
@@ -270,6 +273,7 @@ const AccountsPage = () => {
           >
             <Box overflow="auto" flexGrow={1} rounded="md">
               <PlayersView
+                selectedPlayer={selectedPlayer}
                 players={filterPlayersByType(selectedPlayerType)}
                 viewType={selectedViewType}
               />

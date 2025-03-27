@@ -27,6 +27,7 @@ pub struct Texture {
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Player {
+  pub id: String,
   pub name: String,
   pub uuid: Uuid,
   pub avatar: String, // base64 encoded
@@ -50,6 +51,7 @@ impl From<PlayerInfo> for Player {
       .cloned()
       .unwrap_or_default();
     Player {
+      id: player_info.id,
       name: player_info.name,
       uuid: player_info.uuid,
       avatar: draw_avatar(
@@ -70,6 +72,7 @@ impl From<PlayerInfo> for Player {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct PlayerInfo {
+  pub id: String,
   pub name: String,
   pub uuid: Uuid,
   pub player_type: PlayerType,
@@ -81,14 +84,15 @@ pub struct PlayerInfo {
 }
 
 impl PlayerInfo {
-  pub fn gen_player_id(&self) -> String {
-    let mut server_identity = self.auth_server_url.clone();
-    if self.player_type == PlayerType::Offline {
-      server_identity = "OFFLINE".to_string();
-    } else if self.player_type == PlayerType::Microsoft {
-      server_identity = "MICROSOFT".to_string();
-    }
-    format!("{}:{}:{}", self.name, server_identity, self.uuid)
+  /// Generate ID from existing fields and return updated struct
+  pub fn with_generated_id(mut self) -> Self {
+    let server_identity = match self.player_type {
+      PlayerType::Offline => "OFFLINE".to_string(),
+      PlayerType::Microsoft => "MICROSOFT".to_string(),
+      _ => self.auth_server_url.clone(),
+    };
+    self.id = format!("{}:{}:{}", self.name, server_identity, self.uuid);
+    self
   }
 }
 
@@ -130,6 +134,12 @@ structstruck::strike! {
 pub struct AccountInfo {
   pub players: Vec<PlayerInfo>,
   pub auth_servers: Vec<AuthServer>,
+}
+
+impl AccountInfo {
+  pub fn get_player_by_id(&self, id: String) -> Option<&PlayerInfo> {
+    self.players.iter().find(|player| player.id == id)
+  }
 }
 
 impl Storage for AccountInfo {

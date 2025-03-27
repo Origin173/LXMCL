@@ -99,8 +99,8 @@ const LaunchPage = () => {
   const { openSharedModal } = useSharedModals();
 
   const {
+    selectedPlayer,
     getPlayerList,
-    getSelectedPlayer,
     getGameInstanceList,
     getSelectedGameInstance,
   } = useData();
@@ -110,7 +110,6 @@ const LaunchPage = () => {
     GameInstanceSummary[]
   >([]);
 
-  const [selectedPlayer, setSelectedPlayer] = useState<Player>();
   const [selectedGameInstance, setSelectedGameInstance] =
     useState<GameInstanceSummary>();
 
@@ -121,10 +120,6 @@ const LaunchPage = () => {
   useEffect(() => {
     setGameInstanceList(getGameInstanceList() || []);
   }, [getGameInstanceList]);
-
-  useEffect(() => {
-    setSelectedPlayer(getSelectedPlayer());
-  }, [getSelectedPlayer]);
 
   useEffect(() => {
     setSelectedGameInstance(getSelectedGameInstance());
@@ -144,6 +139,7 @@ const LaunchPage = () => {
           popoverContent={
             <PlayersView
               players={playerList}
+              selectedPlayer={selectedPlayer}
               viewType="list"
               withMenu={false}
             />
