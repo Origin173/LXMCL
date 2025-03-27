@@ -136,8 +136,10 @@ const AccountsPage = () => {
       AccountService.deleteAuthServer(servers[0].authUrl).then((response) => {
         if (response.status === "success") {
           getAuthServerList(true);
-          getPlayerList(true);
-          refreshConfig(); // sync update selected player id in frontend
+          Promise.all([
+            getPlayerList(true),
+            refreshConfig(), // sync update selected player id in frontend
+          ]);
           // redirect the selected player type to "all" to avoid display error
           setSelectedPlayerType("all");
           toast({
