@@ -47,14 +47,18 @@ pub async fn login(app: &AppHandle, username: String, raw_uuid: String) -> SJMCL
   };
   let texture_role = TEXTURE_ROLES.choose(&mut rand::rng()).unwrap_or(&"steve");
 
-  Ok(PlayerInfo::new(
-    username.clone(),
-    uuid,
-    PlayerType::Offline,
-    "".to_string(),
-    "".to_string(),
-    "".to_string(),
-    "".to_string(),
-    load_preset_skin(app, texture_role.to_string())?,
-  ))
+  Ok(
+    PlayerInfo {
+      id: "".to_string(),
+      name: username,
+      uuid,
+      player_type: PlayerType::Offline,
+      auth_account: "".to_string(),
+      password: "".to_string(),
+      auth_server_url: "".to_string(),
+      access_token: "".to_string(),
+      textures: load_preset_skin(app, texture_role.to_string())?,
+    }
+    .with_generated_id(),
+  )
 }

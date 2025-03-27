@@ -83,37 +83,16 @@ pub struct PlayerInfo {
   pub textures: Vec<Texture>,
 }
 
-#[allow(clippy::too_many_arguments)]
 impl PlayerInfo {
-  pub fn new(
-    name: String,
-    uuid: Uuid,
-    player_type: PlayerType,
-    auth_server_url: String,
-    auth_account: String,
-    password: String,
-    access_token: String,
-    textures: Vec<Texture>,
-  ) -> Self {
-    let mut server_identity = auth_server_url.clone();
-    if player_type == PlayerType::Offline {
-      server_identity = "OFFLINE".to_string();
-    } else if player_type == PlayerType::Microsoft {
-      server_identity = "MICROSOFT".to_string();
-    }
-    let player_id = format!("{}:{}:{}", name, server_identity, uuid);
-
-    PlayerInfo {
-      id: player_id,
-      name,
-      uuid,
-      player_type,
-      auth_account,
-      password,
-      auth_server_url,
-      access_token,
-      textures,
-    }
+  /// Generate ID from existing fields and return updated struct
+  pub fn with_generated_id(mut self) -> Self {
+    let server_identity = match self.player_type {
+      PlayerType::Offline => "OFFLINE".to_string(),
+      PlayerType::Microsoft => "MICROSOFT".to_string(),
+      _ => self.auth_server_url.clone(),
+    };
+    self.id = format!("{}:{}:{}", self.name, server_identity, self.uuid);
+    self
   }
 }
 

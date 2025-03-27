@@ -35,6 +35,8 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
   const { t } = useTranslation();
   const { refreshConfig } = useLauncherConfig();
   const toast = useToast();
+  const { getPlayerList } = useData();
+
   const {
     isOpen: isDeleteOpen,
     onOpen: onDeleteOpen,
@@ -45,16 +47,11 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
     onOpen: onSkinModalOpen,
     onClose: onSkinModalClose,
   } = useDisclosure();
-  const { getPlayerList, getSelectedPlayer } = useData();
 
   const handleDeletePlayer = () => {
     AccountService.deletePlayer(player.id).then((response) => {
       if (response.status === "success") {
-        Promise.all([
-          refreshConfig(),
-          getPlayerList(true),
-          getSelectedPlayer(true),
-        ]);
+        Promise.all([getPlayerList(true), refreshConfig()]);
         toast({
           title: response.message,
           status: "success",

@@ -12,7 +12,6 @@ import { OptionItemGroup } from "@/components/common/option-item";
 import { WrapCardGroup } from "@/components/common/wrap-card";
 import PlayerMenu from "@/components/player-menu";
 import { useLauncherConfig } from "@/contexts/config";
-import { useData } from "@/contexts/data";
 import { Player } from "@/models/account";
 import { base64ImgSrc } from "@/utils/string";
 
@@ -35,14 +34,10 @@ const PlayersView: React.FC<PlayersViewProps> = ({
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const { getSelectedPlayer } = useData();
 
   const handleUpdateSelectedPlayer = (playerId: string) => {
-    Promise.all([
-      update("states.shared.selectedPlayerId", playerId),
-      getSelectedPlayer(true),
-      onSelectCallback(),
-    ]);
+    update("states.shared.selectedPlayerId", playerId);
+    onSelectCallback();
   };
 
   const listItems = players.map((player) => ({

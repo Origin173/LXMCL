@@ -71,14 +71,18 @@ pub async fn parse_profile(
     textures = load_preset_skin(app, "steve".to_string())?;
   }
 
-  Ok(PlayerInfo::new(
-    name.to_string(),
-    uuid,
-    PlayerType::ThirdParty,
-    auth_server_url,
-    auth_account,
-    password,
-    access_token,
-    textures,
-  ))
+  Ok(
+    PlayerInfo {
+      id: "".to_string(),
+      uuid,
+      name: name.to_string(),
+      player_type: PlayerType::ThirdParty,
+      auth_account,
+      access_token,
+      textures,
+      password,
+      auth_server_url,
+    }
+    .with_generated_id(),
+  )
 }

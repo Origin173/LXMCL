@@ -64,7 +64,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   const { config, refreshConfig } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 
-  const { getAuthServerList, getPlayerList, getSelectedPlayer } = useData();
+  const { getAuthServerList, getPlayerList } = useData();
   const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
   const [playerType, setPlayerType] = useState<
     "offline" | "microsoft" | "3rdparty"
@@ -180,11 +180,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     loginServiceFunction()
       .then((response) => {
         if (response.status === "success") {
-          Promise.all([
-            refreshConfig(),
-            getPlayerList(true),
-            getSelectedPlayer(true),
-          ]);
+          Promise.all([getPlayerList(true), refreshConfig()]);
           toast({
             title: response.message,
             status: "success",

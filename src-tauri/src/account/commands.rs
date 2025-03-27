@@ -47,6 +47,7 @@ pub async fn add_player_offline(app: AppHandle, username: String, uuid: String) 
   }
 
   config_state.states.shared.selected_player_id = new_player.id.clone();
+  config_state.save()?;
 
   account_state.players.push(new_player);
   account_state.save()?;
@@ -134,6 +135,7 @@ pub async fn add_player_oauth(
   }
 
   config_state.states.shared.selected_player_id = new_player.id.clone();
+  config_state.save()?;
 
   account_state.players.push(new_player);
   account_state.save()?;
@@ -160,11 +162,8 @@ pub async fn add_player_3rdparty_password(
     return Err(AccountError::NotFound.into());
   }
 
-  if new_players.len() == 1 {
-    config_state.states.shared.selected_player_id = new_players[0].uuid.to_string();
-  }
-
   let players_len_before = account_state.players.len();
+  let mut selected_player_set = false;
 
   for new_player in new_players {
     if account_state
@@ -176,6 +175,12 @@ pub async fn add_player_3rdparty_password(
       continue;
     }
 
+    if !selected_player_set {
+      // set selected player to the first added player
+      config_state.states.shared.selected_player_id = new_player.id.clone();
+      config_state.save()?;
+      selected_player_set = true;
+    }
     account_state.players.push(new_player);
   }
 
@@ -185,7 +190,6 @@ pub async fn add_player_3rdparty_password(
   }
 
   account_state.save()?;
-
   Ok(())
 }
 
@@ -215,7 +219,6 @@ pub fn update_player_skin_offline_preset(
   }
 
   account_state.save()?;
-
   Ok(())
 }
 
@@ -238,10 +241,10 @@ pub fn delete_player(app: AppHandle, player_id: String) -> SJMCLResult<()> {
       .players
       .first()
       .map_or("".to_string(), |player| player.id.clone());
+    config_state.save()?;
   }
 
   account_state.save()?;
-  config_state.save()?;
   Ok(())
 }
 
@@ -328,7 +331,11 @@ pub fn delete_auth_server(app: AppHandle, url: String) -> SJMCLResult<()> {
   });
 
   if need_reset {
-    config_state.states.shared.selected_player_id = "".to_string();
+    if let Some(first_player) = account_state.players.first() {
+      config_state.states.shared.selected_player_id = first_player.id.clone();
+    } else {
+      config_state.states.shared.selected_player_id = "".to_string();
+    }
   }
 
   account_state.save()?;

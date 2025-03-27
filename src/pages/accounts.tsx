@@ -42,24 +42,20 @@ import { AccountService } from "@/services/account";
 
 const AccountsPage = () => {
   const { t } = useTranslation();
-  const { config, update } = useLauncherConfig();
+  const { config, update, refreshConfig } = useLauncherConfig();
   const toast = useToast();
   const primaryColor = config.appearance.theme.primaryColor;
   const selectedViewType = config.states.accountsPage.viewType;
 
+  const { getPlayerList, getAuthServerList, selectedPlayer } = useData();
+
   const [selectedPlayerType, setSelectedPlayerType] = useState<string>("all");
   const [playerList, setPlayerList] = useState<Player[]>([]);
-  const [selectedPlayer, setSelectedPlayer] = useState<Player>();
   const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
-  const { getPlayerList, getAuthServerList, getSelectedPlayer } = useData();
 
   useEffect(() => {
     setPlayerList(getPlayerList() || []);
   }, [getPlayerList]);
-
-  useEffect(() => {
-    setSelectedPlayer(getSelectedPlayer(true));
-  }, [getSelectedPlayer]);
 
   useEffect(() => {
     setAuthServerList(getAuthServerList() || []);
@@ -141,7 +137,7 @@ const AccountsPage = () => {
         if (response.status === "success") {
           getAuthServerList(true);
           getPlayerList(true);
-          getSelectedPlayer(true);
+          refreshConfig(); // sync update selected player id in frontend
           // redirect the selected player type to "all" to avoid display error
           setSelectedPlayerType("all");
           toast({
