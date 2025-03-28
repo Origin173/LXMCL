@@ -45,9 +45,14 @@ const GamesView: React.FC<GamesViewProps> = ({
 
   const generateDesc = (game: GameInstanceSummary) => {
     if (game.modLoader.loaderType === "Unknown") {
-      return game.version;
+      return game.version || "";
     }
-    return `${game.version}, ${game.modLoader.loaderType} ${game.modLoader.version}`;
+    return [
+      game.version,
+      `${game.modLoader.loaderType} ${game.modLoader.version}`,
+    ]
+      .filter(Boolean)
+      .join(", ");
   };
 
   const handleUpdateSelectedGameInstance = (game: GameInstanceSummary) => {
@@ -58,8 +63,9 @@ const GamesView: React.FC<GamesViewProps> = ({
 
   const listItems = games.map((game) => ({
     title: game.name,
-    description:
-      generateDesc(game) + (game.description ? `, ${game.description}` : ""),
+    description: [generateDesc(game), game.description]
+      .filter(Boolean)
+      .join(", "),
     ...{
       titleExtra: game.starred && (
         <Icon as={FaStar} mt={-1} color="yellow.500" />
@@ -86,7 +92,7 @@ const GamesView: React.FC<GamesViewProps> = ({
   const gridItems = games.map((game) => ({
     cardContent: {
       title: game.name,
-      description: generateDesc(game),
+      description: generateDesc(game) || String.fromCharCode(160),
       image: game.iconSrc,
       extraContent: (
         <HStack spacing={1} position="absolute" top={0.5} right={1}>
