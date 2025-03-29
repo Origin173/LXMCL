@@ -14,8 +14,8 @@ export interface Player {
   authServer?: AuthServer; // only from authlib-injector
   authAccount?: string; // only from authlib-injector
   password?: string; // only from authlib-injector
-  accessToken?: string; // only from authlib-injector
-  refreshToken?: string; // only from authlib-injector
+  accessToken?: string; // only from authlib-injector or microsoft
+  refreshToken?: string; // only from oauth login methods
   textures: Array<Texture>;
 }
 
