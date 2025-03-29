@@ -1301,6 +1301,11 @@
       "setAsBg": "设置为启动器背景"
     }
   },
+  "SelectPlayerModal": {
+    "header": {
+      "title": "请选择想要添加的角色"
+    }
+  },
   "Services": {
     "config": {
       "retrieveLauncherConfig": {
@@ -1395,9 +1400,9 @@
         }
       },
       "addPlayerOAuth": {
-        "success": "OAuth 方式添加角色成功",
+        "success": "角色添加成功",
         "error": {
-          "title": "OAuth 方式添加角色失败",
+          "title": "角色添加失败",
           "description": {
             "DUPLICATE": "角色已存在",
             "NETWORK_ERROR": "无法连接至认证服务器",
@@ -1410,15 +1415,24 @@
         }
       },
       "addPlayer3rdPartyPassword": {
-        "success": "账号密码方式添加角色成功",
+        "success": "角色添加成功",
         "error": {
-          "title": "账号密码方式添加角色失败",
+          "title": "角色添加失败",
           "description": {
             "DUPLICATE": "角色已存在",
             "NETWORK_ERROR": "无法连接至认证服务器",
             "PARSE_ERROR": "服务器返回数据格式错误",
             "TEXTURE_ERROR": "角色皮肤获取失败",
             "INVALID": "账号或密码错误"
+          }
+        }
+      },
+      "addPlayerFromSelection": {
+        "success": "角色添加成功",
+        "error": {
+          "title": "角色添加失败",
+          "description": {
+            "DUPLICATE": "角色已存在"
           }
         }
       },

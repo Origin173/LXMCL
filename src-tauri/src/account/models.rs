@@ -38,18 +38,24 @@ pub struct Player {
   pub password: String,
   #[serde(default)]
   pub auth_server: AuthServer,
+  #[serde(default)]
+  pub access_token: String,
+  #[serde(default)]
+  pub refresh_token: String,
   pub textures: Vec<Texture>,
 }
 
 impl From<PlayerInfo> for Player {
   fn from(player_info: PlayerInfo) -> Self {
     let state: AccountInfo = Storage::load().unwrap_or_default();
+
     let auth_server = state
       .auth_servers
       .iter()
       .find(|server| server.auth_url == player_info.auth_server_url)
       .cloned()
       .unwrap_or_default();
+
     Player {
       id: player_info.id,
       name: player_info.name,
@@ -62,6 +68,8 @@ impl From<PlayerInfo> for Player {
       player_type: player_info.player_type,
       auth_account: player_info.auth_account,
       password: player_info.password,
+      access_token: player_info.access_token,
+      refresh_token: player_info.refresh_token,
       auth_server,
       textures: player_info.textures,
     }
@@ -94,6 +102,23 @@ impl PlayerInfo {
     };
     self.id = format!("{}:{}:{}", self.name, server_identity, self.uuid);
     self
+  }
+}
+
+impl From<Player> for PlayerInfo {
+  fn from(player: Player) -> Self {
+    PlayerInfo {
+      id: player.id,
+      name: player.name,
+      uuid: player.uuid,
+      player_type: player.player_type,
+      auth_account: player.auth_account,
+      password: player.password,
+      textures: player.textures,
+      access_token: player.access_token,
+      refresh_token: player.refresh_token,
+      auth_server_url: player.auth_server.auth_url,
+    }
   }
 }
 

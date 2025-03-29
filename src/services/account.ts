@@ -75,19 +75,31 @@ export class AccountService {
    * @param {string} authServerUrl - The authentication server's URL.
    * @param {string} username - The username of the player to be added.
    * @param {string} password - The password of the player to be added.
-   * @returns {Promise<InvokeResponse<void>>}
+   * @returns {Promise<InvokeResponse<Player[]>>} - The array of players within the account. If it's not empty, should trigger the selection interface.
    */
   @responseHandler("account")
   static async addPlayer3rdPartyPassword(
     authServerUrl: string,
     username: string,
     password: string
-  ): Promise<InvokeResponse<void>> {
+  ): Promise<InvokeResponse<Player[]>> {
     return await invoke("add_player_3rdparty_password", {
       authServerUrl,
       username,
       password,
     });
+  }
+
+  /**
+   * ADD a new player to the system from selection interface.
+   * @param {Player} player - The player object to be added.
+   * @returns {Promise<InvokeResponse<void>>}
+   */
+  @responseHandler("account")
+  static async addPlayerFromSelection(
+    player: Player
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("add_player_from_selection", { player });
   }
 
   /**

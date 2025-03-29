@@ -152,8 +152,8 @@ pub async fn add_player_3rdparty_password(
   auth_server_url: String,
   username: String,
   password: String,
-) -> SJMCLResult<()> {
-  let new_players =
+) -> SJMCLResult<Vec<Player>> {
+  let mut new_players =
     authlib_injector::password::login(&app, auth_server_url, username, password).await?;
 
   let account_binding = app.state::<Mutex<AccountInfo>>();
@@ -166,34 +166,52 @@ pub async fn add_player_3rdparty_password(
     return Err(AccountError::NotFound.into());
   }
 
-  let players_len_before = account_state.players.len();
-  let mut selected_player_set = false;
-
-  for new_player in new_players {
-    if account_state
+  new_players.retain_mut(|new_player| {
+    account_state
       .players
       .iter()
-      .any(|player| player.id == new_player.id)
-    {
-      // if some of the players have already been added, skip and try others
-      continue;
-    }
+      .all(|player| new_player.id != player.id)
+  });
 
-    if !selected_player_set {
-      // set selected player to the first added player
-      config_state.states.shared.selected_player_id = new_player.id.clone();
-      config_state.save()?;
-      selected_player_set = true;
-    }
-    account_state.players.push(new_player);
+  if new_players.is_empty() {
+    Err(AccountError::Duplicate.into())
+  } else if new_players.len() == 1 {
+    // if only one player will be added, save it and return **an empty vector** to inform the frontend not to trigger selector.
+    config_state.states.shared.selected_player_id = new_players[0].id.clone();
+    account_state.players.push(new_players[0].clone());
+
+    account_state.save()?;
+    config_state.save()?;
+
+    Ok(vec![])
+  } else {
+    // if more than one player will be added, return the players to inform the frontend to trigger selector.
+    let players = new_players
+      .iter()
+      .map(|player| Player::from(player.clone()))
+      .collect::<Vec<Player>>();
+
+    Ok(players)
   }
+}
 
-  if players_len_before == account_state.players.len() {
-    // raise duplicate error only if all players are duplicated
+#[tauri::command]
+pub fn add_player_from_selection(app: AppHandle, player: Player) -> SJMCLResult<()> {
+  let account_binding = app.state::<Mutex<AccountInfo>>();
+  let mut account_state = account_binding.lock()?;
+
+  let config_binding = app.state::<Mutex<LauncherConfig>>();
+  let mut config_state = config_binding.lock()?;
+
+  if account_state.players.iter().any(|x| x.id == player.id) {
     return Err(AccountError::Duplicate.into());
   }
 
+  config_state.states.shared.selected_player_id = player.id.clone();
+  account_state.players.push(player.into());
+
   account_state.save()?;
+  config_state.save()?;
   Ok(())
 }
 

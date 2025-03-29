@@ -40,12 +40,17 @@ import {
 import { Section } from "@/components/common/section";
 import SegmentedControl from "@/components/common/segmented";
 import AddAuthServerModal from "@/components/modals/add-auth-server-modal";
+import SelectPlayerModal from "@/components/modals/select-player-modal";
 import OAuthLoginPanel from "@/components/oauth-login-panel";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
-import { AuthServer, OAuthCodeResponse } from "@/models/account";
-import { InvokeResponse } from "@/models/response";
+import { AuthServer, OAuthCodeResponse, Player } from "@/models/account";
+import {
+  InvokeResponse,
+  ResponseError,
+  ResponseSuccess,
+} from "@/models/response";
 import { AccountService } from "@/services/account";
 import { isOfflinePlayernameValid, isUuidValid } from "@/utils/account";
 
@@ -79,6 +84,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     useState<OAuthCodeResponse>();
   const [showAdvancedOptions, setShowAdvancedOptions] =
     useState<boolean>(false);
+  const [candidatePlayers, setCandidatePlayers] = useState<Player[]>([]);
 
   const initialRef = useRef<HTMLInputElement>(null);
 
@@ -86,6 +92,12 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     isOpen: isAddAuthServerModalOpen,
     onOpen: onAddAuthServerModalOpen,
     onClose: onAddAuthServerModalClose,
+  } = useDisclosure();
+
+  const {
+    isOpen: isSelectPlayerModalOpen,
+    onOpen: onSelectPlayerModalOpen,
+    onClose: onSelectPlayerModalClose,
   } = useDisclosure();
 
   useEffect(() => {
@@ -129,6 +141,14 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     setOAuthCodeResponse(undefined);
   }, [showOAuth, playerType, modalProps.isOpen]);
 
+  useEffect(() => {
+    setCandidatePlayers([]);
+  }, [playerType, playername, authServer, modalProps.isOpen]);
+
+  useEffect(() => {
+    if (candidatePlayers.length) onSelectPlayerModalOpen();
+  }, [candidatePlayers, onSelectPlayerModalOpen]);
+
   const handleFetchOAuthCode = () => {
     if (playerType === "offline") return;
     setOAuthCodeResponse(undefined);
@@ -148,57 +168,83 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
       }
     );
   };
+  const afterLogin = (response: ResponseSuccess<any>) => {
+    Promise.all([getPlayerList(true), refreshConfig()]);
+    toast({
+      title: response.message,
+      status: "success",
+    });
+    setIsLoading(false);
+    modalProps.onClose();
+  };
+
+  const afterFailure = (response: ResponseError) => {
+    toast({
+      title: response.message,
+      description: response.details,
+      status: "error",
+    });
+    setIsLoading(false);
+  };
 
   const handleLogin = (isOAuth = false) => {
-    let loginServiceFunction: () => Promise<InvokeResponse<void>>;
-    if (playerType === "offline") {
-      loginServiceFunction = () =>
-        AccountService.addPlayerOffline(
-          playername,
-          isUuidValid(uuid) ? uuid : undefined
-        );
-    } else if (isOAuth && oauthCodeResponse) {
-      loginServiceFunction = () =>
-        AccountService.addPlayerOAuth(
-          playerType,
-          oauthCodeResponse,
-          authServer?.authUrl
-        );
-    } else if (playerType === "3rdparty" && authServer) {
-      loginServiceFunction = () =>
-        AccountService.addPlayer3rdPartyPassword(
-          authServer.authUrl,
-          playername,
-          password
-        );
-    } else {
-      return;
-    }
+    if (playerType === "3rdparty" && !isOAuth) {
+      if (!authServer) return;
 
-    setIsLoading(true);
-
-    loginServiceFunction()
-      .then((response) => {
+      setIsLoading(true);
+      AccountService.addPlayer3rdPartyPassword(
+        authServer.authUrl,
+        playername,
+        password
+      ).then((response) => {
         if (response.status === "success") {
-          Promise.all([getPlayerList(true), refreshConfig()]);
-          toast({
-            title: response.message,
-            status: "success",
-          });
-          modalProps.onClose();
+          setCandidatePlayers(response.data);
+
+          if (!response.data.length) afterLogin(response);
         } else {
-          toast({
-            title: response.message,
-            description: response.details,
-            status: "error",
-          });
+          setPassword("");
+          afterFailure(response);
         }
-      })
-      .finally(() => {
-        setPlayername("");
-        setPassword("");
-        setIsLoading(false);
       });
+    } else {
+      let loginServiceFunction: () => Promise<InvokeResponse<any>>;
+      if (playerType === "offline") {
+        loginServiceFunction = () =>
+          AccountService.addPlayerOffline(
+            playername,
+            isUuidValid(uuid) ? uuid : undefined
+          );
+      } else {
+        if (!oauthCodeResponse) return;
+        loginServiceFunction = () =>
+          AccountService.addPlayerOAuth(
+            playerType,
+            oauthCodeResponse,
+            authServer?.authUrl
+          );
+      }
+
+      setIsLoading(true);
+
+      loginServiceFunction().then((response) => {
+        if (response.status === "success") {
+          afterLogin(response);
+        } else {
+          afterFailure(response);
+        }
+      });
+    }
+  };
+
+  const handlePlayerSelect = (player: Player) => {
+    AccountService.addPlayerFromSelection(player).then((response) => {
+      if (response.status === "success") {
+        afterLogin(response);
+      } else {
+        afterFailure(response);
+      }
+      onSelectPlayerModalClose();
+    });
   };
 
   const playerTypeList = [
@@ -503,6 +549,12 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
       <AddAuthServerModal
         isOpen={isAddAuthServerModalOpen}
         onClose={onAddAuthServerModalClose}
+      />
+      <SelectPlayerModal
+        candidatePlayers={candidatePlayers}
+        onPlayerSelected={handlePlayerSelect}
+        isOpen={isSelectPlayerModalOpen}
+        onClose={onSelectPlayerModalClose}
       />
     </Modal>
   );

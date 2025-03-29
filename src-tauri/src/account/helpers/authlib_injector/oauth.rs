@@ -175,10 +175,6 @@ pub async fn login(
   let refresh_token: String;
 
   loop {
-    if *is_cancelled.lock().unwrap() {
-      return Err(AccountError::Cancelled)?;
-    }
-
     let token_response = client
       .post(token_endpoint)
       .json(&serde_json::json!({
@@ -207,6 +203,11 @@ pub async fn login(
 
       auth_webview.close()?;
       break;
+    }
+
+    if *is_cancelled.lock().unwrap() {
+      // if user closed the webview
+      return Err(AccountError::Cancelled)?;
     }
 
     sleep(Duration::from_secs(auth_info.interval)).await;
