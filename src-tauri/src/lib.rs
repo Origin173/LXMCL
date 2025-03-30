@@ -63,6 +63,7 @@ pub async fn run() {
       account::commands::fetch_oauth_code,
       account::commands::add_player_oauth,
       account::commands::add_player_3rdparty_password,
+      account::commands::add_player_from_selection,
       account::commands::update_player_skin_offline_preset,
       account::commands::delete_player,
       account::commands::refresh_player,

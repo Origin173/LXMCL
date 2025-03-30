@@ -1301,6 +1301,11 @@
       "setAsBg": "Set as Launcher Background"
     }
   },
+  "SelectPlayerModal": {
+    "header": {
+      "title": "Please select a player to add"
+    }
+  },
   "Services": {
     "config": {
       "retrieveLauncherConfig": {
@@ -1395,9 +1400,9 @@
         }
       },
       "addPlayerOAuth": {
-        "success": "Successfully added player using OAuth",
+        "success": "Successfully added player",
         "error": {
-          "title": "Failed to add player using OAuth",
+          "title": "Failed to add player",
           "description": {
             "DUPLICATE": "Player already exists",
             "NETWORK_ERROR": "Unable to connect to the server",
@@ -1410,15 +1415,24 @@
         }
       },
       "addPlayer3rdPartyPassword": {
-        "success": "Successfully added player using password",
+        "success": "Successfully added player",
         "error": {
-          "title": "Failed to add player using password",
+          "title": "Failed to add player",
           "description": {
             "DUPLICATE": "Player already exists",
             "NETWORK_ERROR": "Unable to connect to the server",
             "PARSE_ERROR": "The server returned data in an incorrect format",
             "TEXTURE_ERROR": "Unable to get player texture",
             "INVALID": "Wrong account or password"
+          }
+        }
+      },
+      "addPlayerFromSelection": {
+        "success": "Successfully added player",
+        "error": {
+          "title": "Failed to add player",
+          "description": {
+            "DUPLICATE": "Player already exists"
           }
         }
       },

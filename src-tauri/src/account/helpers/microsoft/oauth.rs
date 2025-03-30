@@ -243,10 +243,6 @@ pub async fn login(app: &AppHandle, auth_info: OAuthCodeResponse) -> SJMCLResult
   let microsoft_refresh_token: String;
 
   loop {
-    if *is_cancelled.lock().unwrap() {
-      return Err(AccountError::Cancelled)?;
-    }
-
     let token_response = client
       .post(TOKEN_ENDPOINT)
       .form(&[
@@ -299,6 +295,11 @@ pub async fn login(app: &AppHandle, auth_info: OAuthCodeResponse) -> SJMCLResult
           return Err(AccountError::ParseError)?;
         }
       }
+    }
+
+    if *is_cancelled.lock().unwrap() {
+      // if user closed the webview
+      return Err(AccountError::Cancelled)?;
     }
 
     sleep(Duration::from_secs(interval)).await;
