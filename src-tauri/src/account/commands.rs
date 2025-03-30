@@ -196,19 +196,25 @@ pub async fn add_player_3rdparty_password(
 }
 
 #[tauri::command]
-pub fn add_player_from_selection(app: AppHandle, player: Player) -> SJMCLResult<()> {
+pub async fn add_player_from_selection(app: AppHandle, player: Player) -> SJMCLResult<()> {
+  let refreshed_player = authlib_injector::password::refresh(&app, player.into()).await?;
+
   let account_binding = app.state::<Mutex<AccountInfo>>();
   let mut account_state = account_binding.lock()?;
 
   let config_binding = app.state::<Mutex<LauncherConfig>>();
   let mut config_state = config_binding.lock()?;
 
-  if account_state.players.iter().any(|x| x.id == player.id) {
+  if account_state
+    .players
+    .iter()
+    .any(|x| x.id == refreshed_player.id)
+  {
     return Err(AccountError::Duplicate.into());
   }
 
-  config_state.states.shared.selected_player_id = player.id.clone();
-  account_state.players.push(player.into());
+  config_state.states.shared.selected_player_id = refreshed_player.id.clone();
+  account_state.players.push(refreshed_player);
 
   account_state.save()?;
   config_state.save()?;

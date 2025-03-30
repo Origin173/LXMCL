@@ -9,9 +9,10 @@ import {
   ModalOverlay,
   ModalProps,
   Radio,
+  VStack,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { OptionItemGroup } from "@/components/common/option-item";
+import { OptionItem } from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
 import { Player } from "@/models/account";
 import { base64ImgSrc } from "@/utils/string";
@@ -30,34 +31,36 @@ const SelectPlayerModal: React.FC<SelectPlayerModalProps> = ({
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 
-  const listItems = candidatePlayers.map((player) => ({
-    title: player.name,
-    prefixElement: (
-      <HStack spacing={2.5}>
-        <Radio
-          value={player.id}
-          onClick={() => onPlayerSelected(player)}
-          colorScheme={primaryColor}
-        />
-        <Image
-          boxSize="32px"
-          objectFit="cover"
-          src={base64ImgSrc(player.avatar)}
-          alt={player.name}
-        />
-      </HStack>
-    ),
-    children: <></>,
-  }));
-
   return (
-    <Modal size={{ base: "md", lg: "lg", xl: "xl" }} {...modalProps}>
+    <Modal size="md" {...modalProps}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{t("SelectPlayerModal.header.title")}</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={4}>
-          <OptionItemGroup items={listItems} />
+          <VStack spacing={4} alignItems="start">
+            {candidatePlayers.map((player) => (
+              <OptionItem
+                key={player.id}
+                title={player.name}
+                prefixElement={
+                  <HStack spacing={2.5}>
+                    <Radio
+                      value={player.id}
+                      onClick={() => onPlayerSelected(player)}
+                      colorScheme={primaryColor}
+                    />
+                    <Image
+                      boxSize="32px"
+                      objectFit="cover"
+                      src={base64ImgSrc(player.avatar)}
+                      alt={player.name}
+                    />
+                  </HStack>
+                }
+              />
+            ))}
+          </VStack>
         </ModalBody>
       </ModalContent>
     </Modal>

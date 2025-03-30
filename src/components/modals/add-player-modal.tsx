@@ -138,12 +138,17 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   }, [playerType]);
 
   useEffect(() => {
+    setPlayername("");
+    setPassword("");
+  }, [modalProps.isOpen]);
+
+  useEffect(() => {
     setOAuthCodeResponse(undefined);
   }, [showOAuth, playerType, modalProps.isOpen]);
 
   useEffect(() => {
     setCandidatePlayers([]);
-  }, [playerType, playername, authServer, modalProps.isOpen]);
+  }, [playerType, modalProps.isOpen]);
 
   useEffect(() => {
     if (candidatePlayers.length) onSelectPlayerModalOpen();
@@ -237,13 +242,13 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   };
 
   const handlePlayerSelect = (player: Player) => {
+    onSelectPlayerModalClose();
     AccountService.addPlayerFromSelection(player).then((response) => {
       if (response.status === "success") {
         afterLogin(response);
       } else {
         afterFailure(response);
       }
-      onSelectPlayerModalClose();
     });
   };
 
