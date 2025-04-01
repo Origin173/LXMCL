@@ -27,11 +27,11 @@ pub struct NeoforgeModSubItem {
   pub namespace: Option<String>,
   pub version: Option<String>,
   pub display_name: Option<String>,
+  pub display_url: Option<String>,
+  pub credits: Option<String>,
+  pub authors: Option<Value>,
   pub description: Option<String>,
   pub logo_file: Option<String>,
-  pub credits: Option<String>,
-  pub display_url: Option<String>,
-  pub authors: Option<Value>,
 }
 
 pub fn get_mod_metadata_from_jar<R: Read + Seek>(
@@ -70,6 +70,17 @@ pub fn get_mod_metadata_from_jar<R: Read + Seek>(
       }
     }
   }
+  if let Some(ref mut version) = meta.mods[0].version {
+    if version == "${file.jarVersion}" {
+      if let Ok(mf_file) = jar.by_name("META-INF/MANIFEST.MF") {
+        if let Ok(mf) = java_properties::read(mf_file) {
+          if let Some(jar_version) = mf.get("Implementation-Version") {
+            *version = jar_version.clone();
+          }
+        }
+      }
+    }
+  }
   Ok(meta)
 }
 
@@ -93,6 +104,18 @@ pub async fn get_mod_metadata_from_dir(dir_path: &Path) -> SJMCLResult<NeoforgeM
         if let Ok(img) = image_reader.decode() {
           if let Ok(b64) = image_to_base64(img.to_rgba8()) {
             mods.logo_file = Some(b64);
+          }
+        }
+      }
+    }
+  }
+  if let Some(ref mut version) = meta.mods[0].version {
+    if version == "${file.jarVersion}" {
+      if let Ok(mf_string) = tokio::fs::read_to_string(dir_path.join("META-INF/MANIFEST.MF")).await
+      {
+        if let Ok(mf) = java_properties::read(Cursor::new(mf_string)) {
+          if let Some(jar_version) = mf.get("Implementation-Version") {
+            *version = jar_version.clone();
           }
         }
       }
