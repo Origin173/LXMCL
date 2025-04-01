@@ -27,11 +27,12 @@ pub async fn get_mod_info_from_jar(path: &PathBuf) -> SJMCLResult<LocalModInfo> 
       file_path,
     });
   };
-  // use neoforge meta getter before newforge, ref: https://github.com/UNIkeEN/SJMCL/issues/341 (TODO)
+  // use neoforge mod meta getter before newforge, ref: https://github.com/UNIkeEN/SJMCL/issues/341
+  // TODO: merge neoforge and newforge mod meta getter
   if let Ok(mut meta) = neoforge::get_mod_metadata_from_jar(&mut jar) {
     let first_mod = meta.mods.remove(0);
     return Ok(LocalModInfo {
-      icon_src: first_mod.logo_file.unwrap_or_default(),
+      icon_src: meta.logo_file.unwrap_or_default(),
       enabled,
       name: first_mod.display_name.unwrap_or_default(),
       translated_name: None,
@@ -46,7 +47,7 @@ pub async fn get_mod_info_from_jar(path: &PathBuf) -> SJMCLResult<LocalModInfo> 
   if let Ok(mut meta) = forge::get_mod_metadata_from_jar(&mut jar) {
     let first_mod = meta.mods.remove(0);
     return Ok(LocalModInfo {
-      icon_src: first_mod.logo_file.unwrap_or_default(),
+      icon_src: meta.logo_file.unwrap_or_default(),
       enabled,
       name: first_mod.display_name.unwrap_or_default(),
       translated_name: None,
@@ -127,7 +128,7 @@ pub async fn get_mod_info_from_dir(path: &Path) -> SJMCLResult<LocalModInfo> {
   if let Ok(mut meta) = neoforge::get_mod_metadata_from_dir(path).await {
     let first_mod = meta.mods.remove(0);
     return Ok(LocalModInfo {
-      icon_src: first_mod.logo_file.unwrap_or_default(),
+      icon_src: meta.logo_file.unwrap_or_default(),
       enabled,
       name: first_mod.display_name.unwrap_or_default(),
       translated_name: None,
@@ -142,7 +143,7 @@ pub async fn get_mod_info_from_dir(path: &Path) -> SJMCLResult<LocalModInfo> {
   if let Ok(mut meta) = forge::get_mod_metadata_from_dir(path).await {
     let first_mod = meta.mods.remove(0);
     return Ok(LocalModInfo {
-      icon_src: first_mod.logo_file.unwrap_or_default(),
+      icon_src: meta.logo_file.unwrap_or_default(),
       enabled,
       name: first_mod.display_name.unwrap_or_default(),
       translated_name: None,
