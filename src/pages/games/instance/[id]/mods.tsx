@@ -287,7 +287,7 @@ const InstanceModsPage = () => {
       >
         {summary?.modLoader.loaderType === ModLoaderEnums.Unknown &&
           filteredMods.length > 0 && (
-            <HStack fontSize="xs" color="red.500" mt={-0.5} ml={1.5} mb={2}>
+            <HStack fontSize="xs" color="red.600" mt={-0.5} ml={1.5} mb={2}>
               <Icon as={LuTriangleAlert} />
               <Text>{t("InstanceModsPage.modList.warning")}</Text>
             </HStack>

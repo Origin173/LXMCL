@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   HStack,
   Icon,
@@ -11,6 +12,7 @@ import {
   ModalOverlay,
   ModalProps,
   Step,
+  StepDescription,
   StepIcon,
   StepIndicator,
   StepNumber,
@@ -49,6 +51,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
   const [launchingInstance, setLaunchingInstance] =
     useState<GameInstanceSummary>();
   const [errorPaused, setErrorPaused] = useState<boolean>(false);
+  const [errorDesc, setErrorDesc] = useState<string>("");
 
   useEffect(() => {
     setLaunchingInstance(
@@ -73,7 +76,6 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
           AccountService.refreshPlayer(selectedPlayer?.id!).then((response) => {
             if (response.status !== "success") {
               // todo: show re-login modal
-              setErrorPaused(true);
             }
           });
         },
@@ -118,6 +120,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
         }
       } else {
         setErrorPaused(true);
+        setErrorDesc(response.details);
         currentStep.onErrCallback(response.error);
       }
     });
@@ -133,11 +136,11 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
           })}
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody minH="8rem">
+        <ModalBody minH="12rem">
           <Stepper
             index={activeStep}
             orientation="vertical"
-            h="6rem"
+            h="12rem"
             gap="0"
             size="sm"
             colorScheme={errorPaused ? "red" : primaryColor}
@@ -157,14 +160,21 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
                     }
                   />
                 </StepIndicator>
-                <StepTitle>
-                  <HStack>
-                    <Text>{t(`LaunchProcessModal.step.${step.label}`)}</Text>
-                    {index === activeStep && !errorPaused && (
-                      <BeatLoader size={12} color="gray" />
-                    )}
-                  </HStack>
-                </StepTitle>
+                <Box flexShrink="0">
+                  <StepTitle>
+                    <HStack>
+                      <Text>{t(`LaunchProcessModal.step.${step.label}`)}</Text>
+                      {index === activeStep && !errorPaused && (
+                        <BeatLoader size={12} color="gray" />
+                      )}
+                    </HStack>
+                  </StepTitle>
+                  {errorPaused && errorDesc && index === activeStep && (
+                    <StepDescription color="red.600">
+                      {errorDesc}
+                    </StepDescription>
+                  )}
+                </Box>
                 <StepSeparator />
               </Step>
             ))}

@@ -1,5 +1,5 @@
-use crate::{storage::Storage, utils::image::ImageWrapper, EXE_DIR};
 use super::helpers::{authlib_injector::constants::PRESET_AUTH_SERVERS, skin::draw_avatar};
+use crate::{storage::Storage, utils::image::ImageWrapper, EXE_DIR};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::path::PathBuf;

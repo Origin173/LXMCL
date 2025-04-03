@@ -13,6 +13,8 @@ use systemstat::{saturating_sub_bytes, Platform};
 use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
+use tokio::time::Instant;
+use url::Url;
 
 #[tauri::command]
 pub fn retrieve_launcher_config(app: AppHandle) -> SJMCLResult<LauncherConfig> {
@@ -143,16 +145,6 @@ pub async fn import_launcher_config(app: AppHandle, code: String) -> SJMCLResult
 }
 
 #[tauri::command]
-pub fn retrieve_memory_info() -> SJMCLResult<MemoryInfo> {
-  let sys = systemstat::System::new();
-  let mem = sys.memory()?;
-  Ok(MemoryInfo {
-    total: mem.total.as_u64(),
-    used: saturating_sub_bytes(mem.total, mem.free).as_u64(),
-  })
-}
-
-#[tauri::command]
 pub fn retrieve_custom_background_list(app: AppHandle) -> SJMCLResult<Vec<String>> {
   let custom_bg_dir = app
     .path()
@@ -276,4 +268,36 @@ pub async fn check_game_directory(app: AppHandle, dir: String) -> SJMCLResult<St
   }
 
   Ok("".to_string())
+}
+
+// Below are some system info commands (In frontend, see services/utils.ts)
+#[tauri::command]
+pub fn retrieve_memory_info() -> SJMCLResult<MemoryInfo> {
+  let sys = systemstat::System::new();
+  let mem = sys.memory()?;
+  Ok(MemoryInfo {
+    total: mem.total.as_u64(),
+    used: saturating_sub_bytes(mem.total, mem.free).as_u64(),
+  })
+}
+
+#[tauri::command]
+pub async fn check_service_availability(url: String) -> SJMCLResult<u128> {
+  let parsed_url = Url::parse(&url)
+    .or_else(|_| Url::parse(&format!("https://{}", url)))
+    .map_err(|_| LauncherConfigError::FetchError)?;
+
+  let start = Instant::now();
+  let res = reqwest::get(parsed_url).await;
+
+  match res {
+    Ok(response) => {
+      if response.status().is_success() {
+        Ok(start.elapsed().as_millis())
+      } else {
+        Err(LauncherConfigError::FetchError.into())
+      }
+    }
+    Err(_) => Err(LauncherConfigError::FetchError.into()),
+  }
 }

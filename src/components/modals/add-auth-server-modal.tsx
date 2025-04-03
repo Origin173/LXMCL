@@ -111,12 +111,9 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
         <ModalCloseButton />
         <ModalBody>
           {!isNextStep ? (
-            <FormControl isInvalid={isServerUrlInvalid}>
+            <FormControl isInvalid={isServerUrlInvalid} isRequired>
               <FormLabel htmlFor="serverUrl">
-                {t("AddAuthServerModal.page1.serverUrl")}{" "}
-                <Text as="span" color="red.500">
-                  *
-                </Text>
+                {t("AddAuthServerModal.page1.serverUrl")}
               </FormLabel>
               <Input
                 id="serverUrl"
