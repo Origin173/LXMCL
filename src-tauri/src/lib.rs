@@ -10,7 +10,9 @@ mod storage;
 mod tasks;
 mod utils;
 
-use account::models::AccountInfo;
+use account::{
+  helpers::authlib_injector::info::refresh_and_update_auth_servers, models::AccountInfo,
+};
 use instance::helpers::misc::refresh_and_update_instances;
 use instance::models::misc::Instance;
 use launcher_config::{
@@ -71,7 +73,7 @@ pub async fn run() {
       account::commands::retrieve_auth_server_list,
       account::commands::add_auth_server,
       account::commands::delete_auth_server,
-      account::commands::fetch_auth_server_info,
+      account::commands::fetch_auth_server,
       instance::commands::retrieve_instance_list,
       instance::commands::update_instance_config,
       instance::commands::retrieve_instance_game_config,
@@ -123,10 +125,19 @@ pub async fn run() {
       let instances: Vec<Instance> = vec![];
       app.manage(Mutex::new(instances));
 
-      let account_info: AccountInfo = AccountInfo::load().unwrap_or_default();
+      let account_info = AccountInfo::load().unwrap_or_default();
       app.manage(Mutex::new(account_info));
+
       let notify = Arc::new(Notify::new());
       app.manage(Box::pin(TaskMonitor::new(app.handle().clone(), notify)));
+
+      // Refresh all auth servers
+      let app_handle = app.handle().clone();
+      tauri::async_runtime::spawn(async move {
+        refresh_and_update_auth_servers(&app_handle)
+          .await
+          .unwrap_or_default();
+      });
 
       // Refresh all instances
       let app_handle = app.handle().clone();
