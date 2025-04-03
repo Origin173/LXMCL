@@ -4,10 +4,9 @@ use crate::{
     models::{AccountError, PlayerInfo, PlayerType, Texture},
   },
   error::SJMCLResult,
-  utils::image::image_to_base64,
+  utils::image::load_image_from_dir,
 };
 use rand::seq::IndexedRandom;
-use std::fs;
 use tauri::{path::BaseDirectory, AppHandle, Manager};
 use uuid::Uuid;
 
@@ -20,16 +19,11 @@ pub fn load_preset_skin(app: &AppHandle, preset_role: String) -> SJMCLResult<Vec
     )
     .map_err(|_| AccountError::TextureError)?;
 
-  // Read the file as bytes
-  let texture_bytes = fs::read(texture_path).map_err(|_| AccountError::TextureError)?;
-
-  // Load the image from bytes
-  let texture_img =
-    image::load_from_memory(&texture_bytes).map_err(|_| AccountError::TextureError)?;
+  let texture_img = load_image_from_dir(&texture_path).ok_or(AccountError::TextureError)?;
 
   Ok(vec![Texture {
     texture_type: "SKIN".to_string(),
-    image: image_to_base64(texture_img.into())?,
+    image: texture_img.into(),
     model: "default".to_string(),
   }])
 }

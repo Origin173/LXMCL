@@ -4,6 +4,7 @@ use crate::{
     models::{AccountError, PlayerInfo, PlayerType, Texture},
   },
   error::SJMCLResult,
+  utils::image::decode_image,
 };
 use base64::{engine::general_purpose, Engine};
 use serde_json::Value;
@@ -50,6 +51,9 @@ pub async fn parse_profile(
     for texture_type in TEXTURE_TYPES {
       if let Some(skin) = texture_info_value["textures"].get(texture_type) {
         let img_url = skin["url"].as_str().unwrap_or_default();
+        if img_url.is_empty() {
+          continue;
+        }
         let img_bytes = reqwest::get(img_url)
           .await
           .map_err(|_| AccountError::NetworkError)?
@@ -58,7 +62,7 @@ pub async fn parse_profile(
           .map_err(|_| AccountError::ParseError)?;
 
         textures.push(Texture {
-          image: general_purpose::STANDARD.encode(img_bytes),
+          image: decode_image(img_bytes.to_vec())?.into(),
           texture_type: texture_type.to_string(),
           model: skin["metadata"]["model"]
             .as_str()

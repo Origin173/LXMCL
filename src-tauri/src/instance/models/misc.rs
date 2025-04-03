@@ -1,4 +1,4 @@
-use crate::launcher_config::models::GameConfig;
+use crate::{launcher_config::models::GameConfig, utils::image::ImageWrapper};
 use serde::{Deserialize, Serialize};
 use std::{
   cmp::{Ord, Ordering, PartialOrd},
@@ -85,7 +85,7 @@ structstruck::strike! {
   }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct InstanceSummary {
   pub id: usize,
@@ -115,7 +115,7 @@ pub struct GameServerInfo {
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct LocalModInfo {
-  pub icon_src: String,
+  pub icon_src: ImageWrapper,
   pub enabled: bool,
   pub name: String,
   pub translated_name: Option<String>,
@@ -154,7 +154,8 @@ impl Ord for LocalModInfo {
 pub struct ResourcePackInfo {
   pub name: String,
   pub description: String,
-  pub icon_src: Option<String>,
+  // TODO: is Option necessary?
+  pub icon_src: Option<ImageWrapper>,
   pub file_path: PathBuf,
 }
 

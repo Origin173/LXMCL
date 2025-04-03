@@ -1,9 +1,8 @@
 use super::constants::{CLIENT_ID, SCOPE, TOKEN_ENDPOINT};
 use crate::account::models::{AccountError, OAuthCodeResponse, PlayerInfo, PlayerType, Texture};
 use crate::error::SJMCLResult;
+use crate::utils::image::decode_image;
 use crate::utils::window::create_webview_window;
-use base64::engine::general_purpose;
-use base64::Engine;
 use serde_json::{json, Value};
 use std::sync::{Arc, Mutex};
 use tauri::AppHandle;
@@ -198,11 +197,15 @@ async fn parse_profile(
       if img_url.is_empty() {
         continue;
       }
-      let img_bytes = reqwest::get(img_url).await?.bytes().await?.to_vec();
-      let img_base64 = general_purpose::STANDARD.encode(img_bytes);
+      let img_bytes = reqwest::get(img_url)
+        .await
+        .map_err(|_| AccountError::NetworkError)?
+        .bytes()
+        .await
+        .map_err(|_| AccountError::ParseError)?;
       textures.push(Texture {
         texture_type: val.to_string(),
-        image: img_base64,
+        image: decode_image(img_bytes.to_vec())?.into(),
         model,
       });
     }

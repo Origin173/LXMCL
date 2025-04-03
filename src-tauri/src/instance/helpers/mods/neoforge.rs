@@ -1,7 +1,7 @@
 // https://docs.neoforged.net/docs/gettingstarted/modfiles/#neoforgemodstoml
 
 use crate::error::{SJMCLError, SJMCLResult};
-use crate::utils::image::{load_image_base64_from_dir, load_image_base64_from_jar};
+use crate::utils::image::{load_image_from_dir_async, load_image_from_jar, ImageWrapper};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::io::{Cursor, Read, Seek};
@@ -17,8 +17,9 @@ pub struct NeoforgeModMetadata {
   pub loader_version: String,
   pub license: String,
   pub mods: Vec<NeoforgeModSubItem>,
-  // used for base64 result.
   pub logo_file: Option<String>,
+  // not in file, added by sjmcl
+  pub valid_logo_file: Option<ImageWrapper>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
@@ -65,8 +66,8 @@ pub fn get_mod_metadata_from_jar<R: Read + Seek>(
     }
   }
   for path in logo_candidates {
-    if let Some(b64) = load_image_base64_from_jar(jar, &path) {
-      meta.logo_file = Some(b64);
+    if let Some(img) = load_image_from_jar(jar, &path) {
+      meta.valid_logo_file = Some(img.into());
       break;
     }
   }
@@ -108,8 +109,8 @@ pub async fn get_mod_metadata_from_dir(dir_path: &Path) -> SJMCLResult<NeoforgeM
     }
   }
   for path in logo_candidates {
-    if let Some(b64) = load_image_base64_from_dir(&path).await {
-      meta.logo_file = Some(b64);
+    if let Some(img) = load_image_from_dir_async(&path).await {
+      meta.valid_logo_file = Some(img.into());
       break;
     }
   }

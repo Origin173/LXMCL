@@ -1,5 +1,5 @@
+use crate::{storage::Storage, utils::image::ImageWrapper, EXE_DIR};
 use super::helpers::{authlib_injector::constants::PRESET_AUTH_SERVERS, skin::draw_avatar};
-use crate::{storage::Storage, utils::image::base64_to_image, EXE_DIR};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::path::PathBuf;
@@ -20,7 +20,7 @@ pub enum PlayerType {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Texture {
   pub texture_type: String,
-  pub image: String, // base64 encoded
+  pub image: ImageWrapper,
   pub model: String,
 }
 
@@ -31,7 +31,7 @@ pub struct Player {
   pub id: String,
   pub name: String,
   pub uuid: Uuid,
-  pub avatar: String, // base64 encoded
+  pub avatar: ImageWrapper,
   pub player_type: PlayerType,
   #[serde(default)]
   pub auth_account: String,
@@ -63,11 +63,7 @@ impl From<PlayerInfo> for Player {
       id: player_info.id,
       name: player_info.name,
       uuid: player_info.uuid,
-      avatar: draw_avatar(
-        36,
-        base64_to_image(player_info.textures[0].image.clone()).unwrap_or_default(),
-      )
-      .unwrap_or_default(),
+      avatar: draw_avatar(36, &player_info.textures[0].image.image).into(),
       player_type: player_info.player_type,
       auth_account: player_info.auth_account,
       password: player_info.password,

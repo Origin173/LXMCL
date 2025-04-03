@@ -30,6 +30,7 @@ use crate::{
   },
   partial::{PartialError, PartialUpdate},
   storage::{save_json_async, Storage},
+  utils::image::ImageWrapper,
 };
 use lazy_static::lazy_static;
 use regex::{Regex, RegexBuilder};
@@ -500,14 +501,14 @@ pub async fn retrieve_resource_pack_list(
       info_list.push(ResourcePackInfo {
         name,
         description,
-        icon_src,
+        icon_src: icon_src.map(ImageWrapper::from),
         file_path: path.clone(),
       });
     }
   }
 
   for path in get_subdirectories(&resource_packs_dir).unwrap_or(vec![]) {
-    if let Ok((description, icon_src)) = load_resourcepack_from_dir(&path) {
+    if let Ok((description, icon_src)) = load_resourcepack_from_dir(&path).await {
       let name = match path.file_stem() {
         Some(stem) => stem.to_string_lossy().to_string(),
         None => String::new(),
@@ -515,7 +516,7 @@ pub async fn retrieve_resource_pack_list(
       info_list.push(ResourcePackInfo {
         name,
         description,
-        icon_src,
+        icon_src: icon_src.map(ImageWrapper::from),
         file_path: path.clone(),
       });
     }
@@ -549,14 +550,14 @@ pub async fn retrieve_server_resource_pack_list(
       info_list.push(ResourcePackInfo {
         name,
         description,
-        icon_src,
+        icon_src: icon_src.map(ImageWrapper::from),
         file_path: path.clone(),
       });
     }
   }
 
   for path in get_subdirectories(&resource_packs_dir).unwrap_or(vec![]) {
-    if let Ok((description, icon_src)) = load_resourcepack_from_dir(&path) {
+    if let Ok((description, icon_src)) = load_resourcepack_from_dir(&path).await {
       let name = match path.file_stem() {
         Some(stem) => stem.to_string_lossy().to_string(),
         None => String::new(),
@@ -565,7 +566,7 @@ pub async fn retrieve_server_resource_pack_list(
       info_list.push(ResourcePackInfo {
         name,
         description,
-        icon_src,
+        icon_src: icon_src.map(ImageWrapper::from),
         file_path: path.clone(),
       });
     }
