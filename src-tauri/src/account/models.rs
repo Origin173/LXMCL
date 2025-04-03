@@ -1,4 +1,4 @@
-use super::helpers::skin::draw_avatar;
+use super::helpers::{authlib_injector::constants::PRESET_AUTH_SERVERS, skin::draw_avatar};
 use crate::{storage::Storage, utils::image::base64_to_image, EXE_DIR};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -197,11 +197,28 @@ impl From<AuthServerInfo> for AuthServer {
   }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct AccountInfo {
   pub players: Vec<PlayerInfo>,
   pub auth_servers: Vec<AuthServerInfo>,
+}
+
+impl Default for AccountInfo {
+  fn default() -> Self {
+    AccountInfo {
+      players: vec![],
+      auth_servers: PRESET_AUTH_SERVERS
+        .iter()
+        .map(|url| AuthServerInfo {
+          auth_url: url.to_string(),
+          client_id: "".to_string(),
+          metadata: Value::Null,
+          timestamp: 0,
+        })
+        .collect(),
+    }
+  }
 }
 
 impl AccountInfo {

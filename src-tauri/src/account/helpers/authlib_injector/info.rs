@@ -1,4 +1,4 @@
-use super::constants::{CLIENT_IDS, PRESET_AUTH_SERVERS};
+use super::constants::CLIENT_IDS;
 use crate::account::models::{AccountError, AccountInfo, AuthServerInfo};
 use crate::error::SJMCLResult;
 use std::sync::Mutex;
@@ -74,19 +74,24 @@ pub async fn fetch_auth_url(root: Url) -> SJMCLResult<String> {
   }
 }
 
-pub async fn init_preset_auth_server_info(app: &AppHandle) -> SJMCLResult<()> {
-  let preset_auth_server_info_list =
-    futures::future::join_all(PRESET_AUTH_SERVERS.iter().map(|url| async {
-      let auth_url = fetch_auth_url(Url::parse(url).unwrap())
-        .await
-        .unwrap_or_default();
-      fetch_auth_server_info(auth_url).await.unwrap_or_default()
+pub async fn refresh_and_update_auth_servers(app: &AppHandle) -> SJMCLResult<()> {
+  let account_binding = app.state::<Mutex<AccountInfo>>();
+  let cloned_account_state = account_binding.lock()?.clone();
+
+  let mut refreshed_auth_server_info_list =
+    futures::future::join_all(cloned_account_state.auth_servers.iter().map(|info| async {
+      if let Ok(refreshed_info) = fetch_auth_server_info(info.auth_url.clone()).await {
+        refreshed_info
+      } else {
+        info.clone()
+      }
     }))
     .await;
 
-  let account_binding = app.state::<Mutex<AccountInfo>>();
+  refreshed_auth_server_info_list.retain(|info| !info.metadata.is_null()); // remove invalid servers
+
   let mut account_state = account_binding.lock()?;
-  account_state.auth_servers = preset_auth_server_info_list;
+  account_state.auth_servers = refreshed_auth_server_info_list;
 
   Ok(())
 }

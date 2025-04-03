@@ -10,7 +10,9 @@ mod storage;
 mod tasks;
 mod utils;
 
-use account::{helpers::authlib_injector::info::init_preset_auth_server_info, models::AccountInfo};
+use account::{
+  helpers::authlib_injector::info::refresh_and_update_auth_servers, models::AccountInfo,
+};
 use instance::helpers::misc::refresh_and_update_instances;
 use instance::models::misc::Instance;
 use launcher_config::{
@@ -124,20 +126,18 @@ pub async fn run() {
       app.manage(Mutex::new(instances));
 
       let account_info = AccountInfo::load().unwrap_or_default();
-      let need_init_server = account_info.auth_servers.is_empty();
       app.manage(Mutex::new(account_info));
-
-      if need_init_server {
-        let app_handle = app.handle().clone();
-        tauri::async_runtime::spawn(async move {
-          init_preset_auth_server_info(&app_handle)
-            .await
-            .unwrap_or_default();
-        });
-      }
 
       let notify = Arc::new(Notify::new());
       app.manage(Box::pin(TaskMonitor::new(app.handle().clone(), notify)));
+
+      // Refresh all auth servers
+      let app_handle = app.handle().clone();
+      tauri::async_runtime::spawn(async move {
+        refresh_and_update_auth_servers(&app_handle)
+          .await
+          .unwrap_or_default();
+      });
 
       // Refresh all instances
       let app_handle = app.handle().clone();
