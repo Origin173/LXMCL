@@ -1060,7 +1060,7 @@
     "versionNotSelected": "未选择版本"
   },
   "ModLoaderSelector": {
-    "stable": "稳定版",
+    "stable": "正式版",
     "beta": "测试版",
     "releaseDate": "发布于 {{date}}"
   },
