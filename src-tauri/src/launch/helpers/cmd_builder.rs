@@ -3,7 +3,7 @@
 use crate::account::{
   helpers::{
     authlib_injector::jar::get_jar_path as get_authlib_injector_jar_path,
-    misc::get_selected_player_info,
+    misc::get_selected_player_info_with_server_meta,
   },
   models::PlayerType,
 };
@@ -216,8 +216,8 @@ pub async fn generate_launch_cmd(
   let mut cmd = Vec::new();
   let sjmcl_config = app.state::<Mutex<LauncherConfig>>().lock()?.clone();
   let java_list = app.state::<Mutex<Vec<JavaInfo>>>().lock()?.clone();
-  let selected_player =
-    get_selected_player_info(app).map_err(|_| SJMCLError("no selected player".to_string()))?;
+  let (selected_player, metadata) = get_selected_player_info_with_server_meta(app)
+    .map_err(|_| SJMCLError("no selected player".to_string()))?;
   let instance = app
     .state::<Mutex<Vec<Instance>>>()
     .lock()?
@@ -317,7 +317,7 @@ pub async fn generate_launch_cmd(
     cmd.push("-Dauthlibinjector.side=client".to_string());
     cmd.push(format!(
       "-Dauthlibinjector.yggdrasil.prefetched={}",
-      "BASE64TODO"
+      metadata
     ));
   }
   println!("{}:{}", std::file!(), std::line!());

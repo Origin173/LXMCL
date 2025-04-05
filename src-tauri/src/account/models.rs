@@ -241,6 +241,8 @@ pub enum AccountError {
   ParseError,
   Cancelled,
   CreateWebviewError,
+  NoDownloadApi,
+  SaveError,
 }
 
 impl std::error::Error for AccountError {}

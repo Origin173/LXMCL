@@ -1031,6 +1031,8 @@
       "title": "Launch Game - {{name}}"
     },
     "step": {
+      "checkAuthlibInjector": "Check Authlib-Injector",
+      "downloadAuthlibInjector": "Download Authlib-Injector",
       "validatePlayer": "Validate Player's Credentials",
       "validateGameFiles": "Validate Game and Dependency Files",
       "launchGame": "Waiting for Game to Launch"
@@ -1505,6 +1507,25 @@
           "title": "Failed to delete authentication server",
           "description": {
             "NOT_FOUND": "The authentication server does not exist"
+          }
+        }
+      },
+      "checkAuthlibInjector": {
+        "error": {
+          "title": "Authlib-Injector check failed",
+          "description": {
+            "NOT_FOUND": "JAR file not found"
+          }
+        }
+      },
+      "downloadAuthlibInjector": {
+        "error": {
+          "title": "Failed to download Authlib-Injector",
+          "description": {
+            "NO_DOWNLOAD_API": "No download strategy available, please check internet connection",
+            "NETWORK_ERROR": "Unable to connect to the server",
+            "PARSE_ERROR": "Unable to parse the JAR file",
+            "SAVE_ERROR": "Unable to save the JAR file"
           }
         }
       }

@@ -9,9 +9,13 @@ use super::{
   },
   models::{AccountError, AccountInfo, AuthServer, OAuthCodeResponse, Player, PlayerType},
 };
-use crate::{error::SJMCLResult, launcher_config::models::LauncherConfig, storage::Storage};
+use crate::{
+  error::SJMCLResult, launcher_config::models::LauncherConfig,
+  resource::helpers::misc::get_source_priority_list, storage::Storage,
+};
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
+use tauri_plugin_http::reqwest;
 use url::Url;
 
 #[tauri::command]
@@ -450,4 +454,44 @@ pub fn delete_auth_server(app: AppHandle, url: String) -> SJMCLResult<()> {
   account_state.save()?;
   config_state.save()?;
   Ok(())
+}
+
+#[tauri::command]
+pub fn check_authlib_injector(app: AppHandle) -> SJMCLResult<()> {
+  let jar_path = authlib_injector::jar::get_jar_path(&app).map_err(|_| AccountError::Invalid)?;
+  jar_path
+    .exists()
+    .then_some(())
+    .ok_or(AccountError::NotFound.into())
+}
+
+#[tauri::command]
+pub async fn download_authlib_injector(app: AppHandle) -> SJMCLResult<()> {
+  let jar_path = authlib_injector::jar::get_jar_path(&app)?;
+
+  if jar_path.exists() {
+    return Ok(());
+  }
+
+  let priority_list = {
+    let binding = app.state::<Mutex<LauncherConfig>>();
+    let state = binding.lock()?;
+    get_source_priority_list(&state)
+  };
+
+  let download_url = authlib_injector::jar::get_download_url(&priority_list).await?;
+
+  let response = reqwest::get(download_url)
+    .await
+    .map_err(|_| AccountError::NetworkError)?;
+  if response.status().is_success() {
+    let bytes = response
+      .bytes()
+      .await
+      .map_err(|_| AccountError::NetworkError)?;
+    std::fs::write(jar_path, bytes).map_err(|_| AccountError::SaveError)?;
+    Ok(())
+  } else {
+    Err(AccountError::NetworkError.into())
+  }
 }

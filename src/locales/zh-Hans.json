@@ -1031,6 +1031,8 @@
       "title": "启动游戏 - {{name}}"
     },
     "step": {
+      "checkAuthlibInjector": "检查 Authlib-Injector",
+      "downloadAuthlibInjector": "下载 Authlib-Injector",
       "validatePlayer": "验证账户凭证",
       "validateGameFiles": "验证游戏与依赖文件完整性",
       "launchGame": "等待游戏启动"
@@ -1505,6 +1507,25 @@
           "title": "认证服务器删除失败",
           "description": {
             "NOT_FOUND": "认证服务器不存在"
+          }
+        }
+      },
+      "checkAuthlibInjector": {
+        "error": {
+          "title": "检查 Authlib-Injector 失败",
+          "description": {
+            "NOT_FOUND": "JAR 文件不存在"
+          }
+        }
+      },
+      "downloadAuthlibInjector": {
+        "error": {
+          "title": "下载 Authlib-Injector 失败",
+          "description": {
+            "NO_DOWNLOAD_API": "无可用的下载策略，请检查网络连接",
+            "NETWORK_ERROR": "无法连接下载服务器",
+            "PARSE_ERROR": "无法解析 JAR 文件",
+            "SAVE_ERROR": "保存 JAR 文件失败"
           }
         }
       }
