@@ -52,6 +52,8 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
     useState<GameInstanceSummary>();
   const [errorPaused, setErrorPaused] = useState<boolean>(false);
   const [errorDesc, setErrorDesc] = useState<string>("");
+  const [authlibInjectorDownloading, setAuthlibInjectorDownloading] =
+    useState<boolean>(false);
 
   useEffect(() => {
     setLaunchingInstance(
@@ -67,6 +69,29 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
     onErrCallback: (error: ResponseError) => void;
   }> = useMemo(
     () => [
+      ...(selectedPlayer?.playerType === "3rdparty"
+        ? [
+            !authlibInjectorDownloading
+              ? {
+                  label: "checkAuthlibInjector",
+                  function: () => AccountService.checkAuthlibInjector(),
+                  isOK: (_: void) => true,
+                  onResCallback: (_: void) => {},
+                  onErrCallback: (_: ResponseError) => {
+                    setAuthlibInjectorDownloading(true);
+                    setErrorPaused(false);
+                    setErrorDesc("");
+                  },
+                }
+              : {
+                  label: "downloadAuthlibInjector",
+                  function: () => AccountService.downloadAuthlibInjector(),
+                  isOK: (_: void) => true,
+                  onResCallback: (_: void) => {},
+                  onErrCallback: (_: ResponseError) => {},
+                },
+          ]
+        : []),
       {
         label: "validatePlayer",
         function: () => AccountService.validatePlayer(selectedPlayer?.id!),
@@ -97,7 +122,12 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
       },
       // TODO: progress bar in last step, and cancel logic
     ],
-    [instanceId, selectedPlayer?.id]
+    [
+      authlibInjectorDownloading,
+      instanceId,
+      selectedPlayer?.id,
+      selectedPlayer?.playerType,
+    ]
   );
 
   const { activeStep, setActiveStep } = useSteps({
