@@ -4,6 +4,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { IconType } from "react-icons";
 import {
+  LuChartNoAxesColumnIncreasing,
   LuCircleHelp,
   LuCloudDownload,
   LuCoffee,
@@ -29,6 +30,7 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
     [
       { key: "global-game", icon: LuGamepad2 },
       { key: "java", icon: LuCoffee },
+      { key: "ping", icon: LuChartNoAxesColumnIncreasing },
     ],
     [
       { key: "general", icon: LuSettings },
