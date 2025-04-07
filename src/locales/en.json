@@ -1081,10 +1081,12 @@
     "PingServerList":{
       "title": "Service Connectivity Test",
       "offline": "Offline",
-      "online": "Online"
-    },
-    "button":{
-      "refresh": "Refresh"
+      "bmclapi" : "BMCLAPI",
+      "curseforge" : "CurseForge",
+      "modrinth" : "Modrinth",
+      "mojang" : "Mojang",
+      "github" : "GitHub",
+      "sjmclapi" : "SJMC Launcher API"
     }
   },
   "ReLogin3rdPartyPlayerModal": {

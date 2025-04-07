@@ -1,4 +1,4 @@
-import { HStack, Tag, TagLabel, Text } from "@chakra-ui/react";
+import { HStack, Tag, TagLabel } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuCheck, LuX } from "react-icons/lu";
@@ -6,7 +6,6 @@ import { BeatLoader } from "react-spinners";
 import { CommonIconButton } from "@/components/common/common-icon-button";
 import { OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
-import { useLauncherConfig } from "@/contexts/config";
 import { checkServiceAvailability } from "@/services/utils";
 
 interface ServiceStatus {
@@ -17,61 +16,27 @@ interface ServiceStatus {
 
 interface ServiceConfig {
   id: string;
-  title: string;
-  description: string;
+  url: string;
 }
 
 const PingTestPage = () => {
   const { t } = useTranslation();
-  const { config } = useLauncherConfig();
-  const primaryColor = config.appearance.theme.primaryColor;
 
   const [servicesStatus, setServicesStatus] = useState<
     Record<string, ServiceStatus>
   >({});
-  const [refreshCount, setRefreshCount] = useState(0);
 
   const services = useMemo<ServiceConfig[]>(
     () => [
-      {
-        id: "bmclapi",
-        title: "BMCLAPI",
-        description: "https://bmclapi2.bangbang93.com",
-      },
-      {
-        id: "curseforge",
-        title: "CurseForge",
-        description: "https://api.curseforge.com",
-      },
-      {
-        id: "modrinth",
-        title: "Modrinth",
-        description: "https://api.modrinth.com",
-      },
-      {
-        id: "mojang",
-        title: "Mojang",
-        description: "https://api.mojang.com",
-      },
-      {
-        id: "github",
-        title: "GitHub",
-        description: "https://www.github.com",
-      },
-      {
-        id: "SJMC",
-        title: "SJMC Launcher API",
-        description: "https://mc.sjtu.cn/api-sjmcl",
-      },
+      { id: "bmclapi", url: "https://bmclapi2.bangbang93.com" },
+      { id: "curseforge", url: "https://api.curseforge.com" },
+      { id: "modrinth", url: "https://api.modrinth.com" },
+      { id: "mojang", url: "https://api.mojang.com" },
+      { id: "github", url: "https://www.github.com" },
+      { id: "sjmclapi", url: "https://mc.sjtu.cn/api-sjmcl" },
     ],
     []
   );
-
-  const getLatencyColor = (latency?: number) => {
-    if (!latency) return "gray.500";
-    if (latency < 200) return "green.500";
-    return "yellow.500";
-  };
 
   const handleCheckServiceAvailability = useCallback(
     async (serviceId: string) => {
@@ -84,7 +49,7 @@ const PingTestPage = () => {
           [serviceId]: { loading: true, error: false },
         }));
 
-        const latency = await checkServiceAvailability(service.description);
+        const latency = await checkServiceAvailability(service.url);
 
         setServicesStatus((prev) => ({
           ...prev,
@@ -117,7 +82,6 @@ const PingTestPage = () => {
       await Promise.allSettled(
         services.map((s) => handleCheckServiceAvailability(s.id))
       );
-      setRefreshCount((prev) => prev + 1);
     } catch (error) {
       console.error(error);
     }
@@ -135,26 +99,21 @@ const PingTestPage = () => {
       const status = servicesStatus[service.id] || { loading: true };
 
       return {
-        title: service.title,
-        description: service.description,
+        title: t(`PingTestPage.PingServerList.${service.id}`),
+        description: service.url,
         children: status.loading ? (
-          <BeatLoader size={4} color="grey" />
+          <BeatLoader size={6} color="grey" />
         ) : (
-          <HStack>
-            {!status.error && (
-              <Text color={getLatencyColor(status.latency)} fontSize="xs-sm">
-                {`${status.latency} ms`}
-              </Text>
-            )}
-            <Tag
-              colorScheme={
-                status.error
-                  ? "red"
-                  : (status.latency || 0) < 200
-                    ? "green"
-                    : "yellow"
-              }
-            >
+          <Tag
+            colorScheme={
+              status.error
+                ? "red"
+                : (status.latency || 0) < 200
+                  ? "green"
+                  : "yellow"
+            }
+          >
+            <HStack>
               {status.error ? (
                 <>
                   <LuX />
@@ -165,13 +124,11 @@ const PingTestPage = () => {
               ) : (
                 <>
                   <LuCheck />
-                  <TagLabel ml={0.5}>
-                    {t("PingTestPage.PingServerList.online")}
-                  </TagLabel>
+                  <TagLabel ml={0.5}>{`${status.latency} ms`}</TagLabel>
                 </>
               )}
-            </Tag>
-          </HStack>
+            </HStack>
+          </Tag>
         ),
       };
     });
@@ -183,7 +140,6 @@ const PingTestPage = () => {
       headExtra={
         <CommonIconButton
           icon="refresh"
-          label={t("PingTestPage.button.refresh")}
           onClick={checkAllServices}
           size="xs"
           fontSize="sm"

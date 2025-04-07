@@ -122,7 +122,7 @@ const DownloadSettingsPage = () => {
         {
           title: t("PingTestPage.PingServerList.title"),
           children: (
-            <LinkIconButton aria-label="contributors" url="/settings/ping" />
+            <LinkIconButton aria-label="ping-test" url="/settings/ping-test" />
           ),
         },
       ],
