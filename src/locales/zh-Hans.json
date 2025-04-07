@@ -1077,10 +1077,11 @@
       "copyUUID": "复制 UUID"
     }
   },
-  "PingSettingsPage":{
+  "PingTestPage":{
     "PingServerList":{
-      "title": "测试服务器列表",
-      "offline": "离线"
+      "title": "服务连通性测试",
+      "offline": "离线",
+      "online": "在线"
     },
     "button":{
       "refresh": "刷新连接"
@@ -1713,7 +1714,6 @@
     "settingsDomainList": {
       "global-game": "全局游戏设置",
       "java": "Java",
-      "ping": "连通性",
       "general": "通用",
       "appearance": "外观",
       "download": "下载资源",

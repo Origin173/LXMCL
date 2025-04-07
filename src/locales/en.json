@@ -1077,10 +1077,11 @@
       "copyUUID": "Copy UUID"
     }
   },
-  "PingSettingsPage":{
+  "PingTestPage":{
     "PingServerList":{
-      "title": "Ping Server List",
-      "offline": "Offline"
+      "title": "Service Connectivity Test",
+      "offline": "Offline",
+      "online": "Online"
     },
     "button":{
       "refresh": "Refresh"
@@ -1713,7 +1714,6 @@
     "settingsDomainList": {
       "global-game": "Game Settings",
       "java": "Java",
-      "ping": "Ping",
       "general": "General",
       "appearance": "Appearance",
       "download": "Download",

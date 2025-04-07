@@ -1,6 +1,7 @@
-import { HStack, Text } from "@chakra-ui/react";
+import { HStack, Tag, TagLabel, Text } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { LuCheck, LuX } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
 import { CommonIconButton } from "@/components/common/common-icon-button";
 import { OptionItemGroup } from "@/components/common/option-item";
@@ -20,7 +21,7 @@ interface ServiceConfig {
   description: string;
 }
 
-const PingSettingsPage = () => {
+const PingTestPage = () => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
@@ -34,22 +35,22 @@ const PingSettingsPage = () => {
     () => [
       {
         id: "bmclapi",
-        title: "BMCLAPI 镜像服务",
+        title: "BMCLAPI",
         description: "https://bmclapi2.bangbang93.com",
       },
       {
         id: "curseforge",
-        title: "CurseForge API",
+        title: "CurseForge",
         description: "https://api.curseforge.com",
       },
       {
         id: "modrinth",
-        title: "Modrinth API",
+        title: "Modrinth",
         description: "https://api.modrinth.com",
       },
       {
         id: "mojang",
-        title: "BugJump",
+        title: "Mojang",
         description: "https://api.mojang.com",
       },
       {
@@ -58,15 +59,21 @@ const PingSettingsPage = () => {
         description: "https://www.github.com",
       },
       {
-        id: "sjtu",
-        title: "上海交通大学Minecraft社",
-        description: "https://mc.sjtu.cn",
+        id: "SJMC",
+        title: "SJMC Launcher API",
+        description: "https://mc.sjtu.cn/api-sjmcl",
       },
     ],
     []
   );
 
-  const checkService = useCallback(
+  const getLatencyColor = (latency?: number) => {
+    if (!latency) return "gray.500";
+    if (latency < 200) return "green.500";
+    return "yellow.500";
+  };
+
+  const handleCheckServiceAvailability = useCallback(
     async (serviceId: string) => {
       const service = services.find((s) => s.id === serviceId);
       if (!service) return;
@@ -107,12 +114,14 @@ const PingSettingsPage = () => {
     });
 
     try {
-      await Promise.allSettled(services.map((s) => checkService(s.id)));
+      await Promise.allSettled(
+        services.map((s) => handleCheckServiceAvailability(s.id))
+      );
       setRefreshCount((prev) => prev + 1);
     } catch (error) {
       console.error(error);
     }
-  }, [checkService, services]);
+  }, [handleCheckServiceAvailability, services]);
 
   useEffect(() => {
     const initialCheck = async () => {
@@ -120,13 +129,6 @@ const PingSettingsPage = () => {
     };
     initialCheck();
   }, [checkAllServices]);
-
-  const getStatusColor = (latency?: number) => {
-    if (!latency) return "gray.500";
-    if (latency < 200) return "green.500";
-    if (latency < 500) return "yellow.500";
-    return "red.500";
-  };
 
   const generateItems = () => {
     return services.map((service) => {
@@ -136,18 +138,40 @@ const PingSettingsPage = () => {
         title: service.title,
         description: service.description,
         children: status.loading ? (
-          <BeatLoader size={4} color="#666" />
+          <BeatLoader size={4} color="grey" />
         ) : (
-          <Text
-            color={status.error ? "red.500" : getStatusColor(status.latency)}
-            fontSize="sm"
-            minWidth="60px"
-            textAlign="right"
-          >
-            {status.error
-              ? t("PingSettingsPage.PingServerList.offline")
-              : `${status.latency}ms`}
-          </Text>
+          <HStack>
+            {!status.error && (
+              <Text color={getLatencyColor(status.latency)} fontSize="xs-sm">
+                {`${status.latency} ms`}
+              </Text>
+            )}
+            <Tag
+              colorScheme={
+                status.error
+                  ? "red"
+                  : (status.latency || 0) < 200
+                    ? "green"
+                    : "yellow"
+              }
+            >
+              {status.error ? (
+                <>
+                  <LuX />
+                  <TagLabel ml={0.5}>
+                    {t("PingTestPage.PingServerList.offline")}
+                  </TagLabel>
+                </>
+              ) : (
+                <>
+                  <LuCheck />
+                  <TagLabel ml={0.5}>
+                    {t("PingTestPage.PingServerList.online")}
+                  </TagLabel>
+                </>
+              )}
+            </Tag>
+          </HStack>
         ),
       };
     });
@@ -155,19 +179,17 @@ const PingSettingsPage = () => {
 
   return (
     <Section
-      title={t("PingSettingsPage.PingServerList.title")}
+      title={t("PingTestPage.PingServerList.title")}
       headExtra={
-        <HStack spacing={2}>
-          <CommonIconButton
-            icon="refresh"
-            label={t("PingSettingsPage.button.refresh")}
-            onClick={checkAllServices}
-            size="xs"
-            fontSize="sm"
-            h={21}
-            isLoading={Object.values(servicesStatus).some((s) => s.loading)}
-          />
-        </HStack>
+        <CommonIconButton
+          icon="refresh"
+          label={t("PingTestPage.button.refresh")}
+          onClick={checkAllServices}
+          size="xs"
+          fontSize="sm"
+          h={21}
+          isLoading={Object.values(servicesStatus).some((s) => s.loading)}
+        />
       }
     >
       <OptionItemGroup items={generateItems()} />
@@ -175,4 +197,4 @@ const PingSettingsPage = () => {
   );
 };
 
-export default PingSettingsPage;
+export default PingTestPage;
