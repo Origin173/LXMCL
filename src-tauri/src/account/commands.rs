@@ -4,18 +4,15 @@ use super::{
     authlib_injector::{
       self,
       info::{fetch_auth_server_info, fetch_auth_url, get_auth_server_info_by_url},
+      jar::check_authlib_jar,
     },
     microsoft, offline,
   },
   models::{AccountError, AccountInfo, AuthServer, OAuthCodeResponse, Player, PlayerType},
 };
-use crate::{
-  error::SJMCLResult, launcher_config::models::LauncherConfig,
-  resource::helpers::misc::get_source_priority_list, storage::Storage,
-};
+use crate::{error::SJMCLResult, launcher_config::models::LauncherConfig, storage::Storage};
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
-use tauri_plugin_http::reqwest;
 use url::Url;
 
 #[tauri::command]
@@ -89,6 +86,8 @@ pub async fn add_player_oauth(
 ) -> SJMCLResult<()> {
   let new_player = match server_type {
     PlayerType::ThirdParty => {
+      let _ = check_authlib_jar(&app).await; // ignore the error when logging in
+
       let auth_server =
         AuthServer::from(get_auth_server_info_by_url(&app, auth_server_url.clone())?);
 
@@ -138,6 +137,8 @@ pub async fn add_player_3rdparty_password(
   username: String,
   password: String,
 ) -> SJMCLResult<Vec<Player>> {
+  let _ = check_authlib_jar(&app).await; // ignore the error when logging in
+
   let mut new_players =
     authlib_injector::password::login(&app, auth_server_url, username, password).await?;
 
@@ -314,20 +315,23 @@ pub async fn refresh_player(app: AppHandle, player_id: String) -> SJMCLResult<()
 
 #[tauri::command]
 pub async fn validate_player(app: AppHandle, player_id: String) -> SJMCLResult<()> {
-  let account_binding = app.state::<Mutex<AccountInfo>>();
+  let player = {
+    let account_binding = app.state::<Mutex<AccountInfo>>();
+    let account_state = account_binding.lock()?;
 
-  let cloned_account_state = account_binding.lock()?.clone();
-
-  let player = cloned_account_state
-    .players
-    .iter()
-    .find(|player| player.id == player_id)
-    .ok_or(AccountError::NotFound)?;
+    account_state
+      .get_player_by_id(player_id.clone())
+      .ok_or(AccountError::NotFound)?
+      .clone()
+  };
 
   match player.player_type {
-    PlayerType::ThirdParty => authlib_injector::common::validate(player.clone()).await,
+    PlayerType::ThirdParty => {
+      check_authlib_jar(&app).await?;
+      authlib_injector::common::validate(&player).await
+    }
 
-    PlayerType::Microsoft => microsoft::oauth::validate(player.clone()).await,
+    PlayerType::Microsoft => microsoft::oauth::validate(&player).await,
 
     PlayerType::Offline => Ok(()),
   }
@@ -418,44 +422,4 @@ pub fn delete_auth_server(app: AppHandle, url: String) -> SJMCLResult<()> {
   account_state.save()?;
   config_state.save()?;
   Ok(())
-}
-
-#[tauri::command]
-pub fn check_authlib_injector(app: AppHandle) -> SJMCLResult<()> {
-  let jar_path = authlib_injector::jar::get_jar_path(&app).map_err(|_| AccountError::Invalid)?;
-  jar_path
-    .exists()
-    .then_some(())
-    .ok_or(AccountError::NotFound.into())
-}
-
-#[tauri::command]
-pub async fn download_authlib_injector(app: AppHandle) -> SJMCLResult<()> {
-  let jar_path = authlib_injector::jar::get_jar_path(&app)?;
-
-  if jar_path.exists() {
-    return Ok(());
-  }
-
-  let priority_list = {
-    let binding = app.state::<Mutex<LauncherConfig>>();
-    let state = binding.lock()?;
-    get_source_priority_list(&state)
-  };
-
-  let download_url = authlib_injector::jar::get_download_url(&priority_list).await?;
-
-  let response = reqwest::get(download_url)
-    .await
-    .map_err(|_| AccountError::NetworkError)?;
-  if response.status().is_success() {
-    let bytes = response
-      .bytes()
-      .await
-      .map_err(|_| AccountError::NetworkError)?;
-    std::fs::write(jar_path, bytes).map_err(|_| AccountError::SaveError)?;
-    Ok(())
-  } else {
-    Err(AccountError::NetworkError.into())
-  }
 }

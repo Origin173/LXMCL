@@ -353,7 +353,7 @@ pub async fn refresh(player: PlayerInfo) -> SJMCLResult<PlayerInfo> {
   parse_profile(microsoft_token, microsoft_refresh_token).await
 }
 
-pub async fn validate(player: PlayerInfo) -> SJMCLResult<()> {
+pub async fn validate(player: &PlayerInfo) -> SJMCLResult<()> {
   if (fetch_minecraft_profile(player.access_token.clone()).await).is_ok() {
     Ok(())
   } else {

@@ -189,22 +189,4 @@ export class AccountService {
   static async deleteAuthServer(url: string): Promise<InvokeResponse<void>> {
     return await invoke("delete_auth_server", { url });
   }
-
-  /**
-   * CHECK if authlib_injector is installed.
-   * @returns {Promise<InvokeResponse<boolean>>}
-   */
-  @responseHandler("account")
-  static async checkAuthlibInjector(): Promise<InvokeResponse<boolean>> {
-    return await invoke("check_authlib_injector");
-  }
-
-  /**
-   * DOWNLOAD the authlib_injector.jar file.
-   * @returns {Promise<InvokeResponse<void>>}
-   */
-  @responseHandler("account")
-  static async downloadAuthlibInjector(): Promise<InvokeResponse<void>> {
-    return await invoke("download_authlib_injector");
-  }
 }
