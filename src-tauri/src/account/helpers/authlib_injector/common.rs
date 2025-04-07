@@ -93,12 +93,15 @@ pub async fn parse_profile(
   )
 }
 
-pub async fn validate(player: PlayerInfo) -> SJMCLResult<()> {
+pub async fn validate(player: &PlayerInfo) -> SJMCLResult<()> {
   let client = reqwest::Client::new();
 
   let response = client
-    .post(format!("{}/authserver/validate", player.auth_server_url))
-    .form(&[("accessToken", player.access_token)])
+    .post(format!(
+      "{}/authserver/validate",
+      player.auth_server_url.clone()
+    ))
+    .form(&[("accessToken", player.access_token.clone())])
     .send()
     .await
     .map_err(|_| AccountError::NetworkError)?;

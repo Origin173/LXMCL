@@ -2,8 +2,10 @@
 
 use crate::account::{
   helpers::{
-    authlib_injector::jar::get_jar_path as get_authlib_injector_jar_path,
-    misc::get_selected_player_info_with_server_meta,
+    authlib_injector::{
+      info::get_auth_server_info_by_url, jar::get_jar_path as get_authlib_injector_jar_path,
+    },
+    misc::get_selected_player_info,
   },
   models::PlayerType,
 };
@@ -24,6 +26,7 @@ use crate::launcher_config::models::{
   GameJava, JavaInfo, LauncherConfig, Performance, ProxyConfig, ProxyType,
 };
 use crate::resource::models::ResourceError;
+use base64::{engine::general_purpose, Engine};
 use serde::{self, Deserialize, Serialize};
 use serde_json::Value;
 use std::cmp::Ordering;
@@ -216,8 +219,8 @@ pub async fn generate_launch_cmd(
   let mut cmd = Vec::new();
   let sjmcl_config = app.state::<Mutex<LauncherConfig>>().lock()?.clone();
   let java_list = app.state::<Mutex<Vec<JavaInfo>>>().lock()?.clone();
-  let (selected_player, metadata) = get_selected_player_info_with_server_meta(app)
-    .map_err(|_| SJMCLError("no selected player".to_string()))?;
+  let selected_player =
+    get_selected_player_info(app).map_err(|_| SJMCLError("no selected player".to_string()))?;
   let instance = app
     .state::<Mutex<Vec<Instance>>>()
     .lock()?
@@ -309,6 +312,8 @@ pub async fn generate_launch_cmd(
   // 3. jvm params
   // login user
   if selected_player.player_type == PlayerType::ThirdParty {
+    let metadata =
+      get_auth_server_info_by_url(app, selected_player.auth_server_url.clone())?.metadata;
     cmd.push(format!(
       "-javaagent:{}={}",
       get_authlib_injector_jar_path(app)?.to_string_lossy(),
@@ -317,7 +322,7 @@ pub async fn generate_launch_cmd(
     cmd.push("-Dauthlibinjector.side=client".to_string());
     cmd.push(format!(
       "-Dauthlibinjector.yggdrasil.prefetched={}",
-      metadata
+      general_purpose::STANDARD.encode(metadata.to_string())
     ));
   }
   println!("{}:{}", std::file!(), std::line!());

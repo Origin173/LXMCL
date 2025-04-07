@@ -95,3 +95,18 @@ pub async fn refresh_and_update_auth_servers(app: &AppHandle) -> SJMCLResult<()>
 
   Ok(())
 }
+
+pub fn get_auth_server_info_by_url(
+  app: &AppHandle,
+  auth_url: String,
+) -> SJMCLResult<AuthServerInfo> {
+  let account_binding = app.state::<Mutex<AccountInfo>>();
+  let account_state = account_binding.lock()?;
+
+  account_state
+    .auth_servers
+    .iter()
+    .find(|server| server.auth_url == auth_url)
+    .cloned()
+    .ok_or(AccountError::NotFound.into())
+}

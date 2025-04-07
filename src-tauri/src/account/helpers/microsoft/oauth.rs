@@ -237,7 +237,7 @@ pub async fn login(app: &AppHandle, auth_info: OAuthCodeResponse) -> SJMCLResult
   let is_cancelled = Arc::new(Mutex::new(false));
   let cancelled_clone = Arc::clone(&is_cancelled);
 
-  let auth_webview = create_webview_window(app, verification_url, 650.0, 500.0, true)
+  let auth_webview = create_webview_window(app, "oauth", verification_url, 650.0, 500.0, true)
     .await
     .map_err(|_| AccountError::CreateWebviewError)?;
 
@@ -353,7 +353,7 @@ pub async fn refresh(player: PlayerInfo) -> SJMCLResult<PlayerInfo> {
   parse_profile(microsoft_token, microsoft_refresh_token).await
 }
 
-pub async fn validate(player: PlayerInfo) -> SJMCLResult<()> {
+pub async fn validate(player: &PlayerInfo) -> SJMCLResult<()> {
   if (fetch_minecraft_profile(player.access_token.clone()).await).is_ok() {
     Ok(())
   } else {
