@@ -160,7 +160,7 @@ pub async fn login(
   let is_cancelled = Arc::new(Mutex::new(false));
   let cancelled_clone = Arc::clone(&is_cancelled);
 
-  let auth_webview = create_webview_window(app, verification_url, 650.0, 500.0, true)
+  let auth_webview = create_webview_window(app, "oauth", verification_url, 650.0, 500.0, true)
     .await
     .map_err(|_| AccountError::CreateWebviewError)?;
 

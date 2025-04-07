@@ -3,7 +3,7 @@ use super::{
   helpers::{
     authlib_injector::{
       self,
-      info::{fetch_auth_server_info, fetch_auth_url},
+      info::{fetch_auth_server_info, fetch_auth_url, get_auth_server_info_by_url},
     },
     microsoft, offline,
   },
@@ -65,17 +65,7 @@ pub async fn fetch_oauth_code(
   auth_server_url: String,
 ) -> SJMCLResult<OAuthCodeResponse> {
   if server_type == PlayerType::ThirdParty {
-    let binding = app.state::<Mutex<AccountInfo>>();
-
-    let auth_server = AuthServer::from({
-      let state = binding.lock()?;
-      state
-        .auth_servers
-        .iter()
-        .find(|server| server.auth_url == auth_server_url)
-        .ok_or(AccountError::NotFound)?
-        .clone()
-    });
+    let auth_server = AuthServer::from(get_auth_server_info_by_url(&app, auth_server_url)?);
 
     authlib_injector::oauth::device_authorization(
       &app,
@@ -97,19 +87,10 @@ pub async fn add_player_oauth(
   auth_info: OAuthCodeResponse,
   auth_server_url: String,
 ) -> SJMCLResult<()> {
-  let binding = app.state::<Mutex<AccountInfo>>();
-
   let new_player = match server_type {
     PlayerType::ThirdParty => {
-      let auth_server = AuthServer::from({
-        let state = binding.lock()?;
-        state
-          .auth_servers
-          .iter()
-          .find(|server| server.auth_url == auth_server_url)
-          .ok_or(AccountError::NotFound)?
-          .clone()
-      });
+      let auth_server =
+        AuthServer::from(get_auth_server_info_by_url(&app, auth_server_url.clone())?);
 
       authlib_injector::oauth::login(
         &app,
@@ -292,14 +273,10 @@ pub async fn refresh_player(app: AppHandle, player_id: String) -> SJMCLResult<()
 
   let refreshed_player = match player.player_type {
     PlayerType::ThirdParty => {
-      let auth_server = AuthServer::from(
-        cloned_account_state
-          .auth_servers
-          .iter()
-          .find(|server| server.auth_url == player.auth_server_url)
-          .ok_or(AccountError::NotFound)?
-          .clone(),
-      );
+      let auth_server = AuthServer::from(get_auth_server_info_by_url(
+        &app,
+        player.auth_server_url.clone(),
+      )?);
 
       if player.refresh_token.is_empty() {
         authlib_injector::password::refresh(&app, player.clone()).await?
@@ -378,17 +355,8 @@ pub async fn fetch_auth_server(app: AppHandle, url: String) -> SJMCLResult<AuthS
 
   let auth_url = fetch_auth_url(parsed_url).await?;
 
-  let binding = app.state::<Mutex<AccountInfo>>();
-  {
-    let state = binding.lock()?;
-
-    if state
-      .auth_servers
-      .iter()
-      .any(|server| server.auth_url == auth_url)
-    {
-      return Err(AccountError::Duplicate.into());
-    }
+  if get_auth_server_info_by_url(&app, auth_url.clone()).is_ok() {
+    return Err(AccountError::Duplicate.into());
   }
 
   Ok(AuthServer::from(fetch_auth_server_info(auth_url).await?))
@@ -396,17 +364,13 @@ pub async fn fetch_auth_server(app: AppHandle, url: String) -> SJMCLResult<AuthS
 
 #[tauri::command]
 pub async fn add_auth_server(app: AppHandle, auth_url: String) -> SJMCLResult<()> {
-  let binding = app.state::<Mutex<AccountInfo>>();
-  {
-    let state = binding.lock()?;
-
-    if state.auth_servers.iter().any(|s| s.auth_url == auth_url) {
-      // we need to strictly ensure the uniqueness of the url
-      return Err(AccountError::Duplicate.into());
-    }
+  if get_auth_server_info_by_url(&app, auth_url.clone()).is_ok() {
+    return Err(AccountError::Duplicate.into());
   }
 
   let server = fetch_auth_server_info(auth_url).await?;
+
+  let binding = app.state::<Mutex<AccountInfo>>();
   let mut state = binding.lock()?;
   state.auth_servers.push(server);
   state.save()?;

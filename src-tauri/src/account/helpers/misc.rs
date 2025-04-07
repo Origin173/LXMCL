@@ -3,13 +3,10 @@ use crate::{
   error::SJMCLResult,
   launcher_config::models::LauncherConfig,
 };
-use base64::{engine::general_purpose, Engine};
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
 
-pub fn get_selected_player_info_with_server_meta(
-  app: &AppHandle,
-) -> SJMCLResult<(PlayerInfo, String)> {
+pub fn get_selected_player_info(app: &AppHandle) -> SJMCLResult<PlayerInfo> {
   let account_binding = app.state::<Mutex<AccountInfo>>();
   let account_state = account_binding.lock()?;
 
@@ -27,14 +24,5 @@ pub fn get_selected_player_info_with_server_meta(
     .find(|player| player.id == *selected_player_id)
     .ok_or(AccountError::NotFound)?;
 
-  let auth_server = account_state
-    .auth_servers
-    .iter()
-    .find(|server| server.auth_url == player_info.auth_server_url)
-    .ok_or(AccountError::NotFound)?;
-
-  Ok((
-    player_info.clone(),
-    general_purpose::STANDARD.encode(auth_server.metadata.to_string()),
-  ))
+  Ok(player_info.clone())
 }
