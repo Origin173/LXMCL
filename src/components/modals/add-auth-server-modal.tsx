@@ -38,6 +38,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   const primaryColor = config.appearance.theme.primaryColor;
   const { isOpen, onClose } = modalProps;
   const initialRef = useRef(null);
+  const hasAutoPresetRef = useRef(false);
 
   const [serverUrl, setServerUrl] = useState<string>("");
   const [serverName, setServerName] = useState<string>("");
@@ -49,6 +50,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
+      hasAutoPresetRef.current = false;
       setIsNextStep(false);
       setServerUrl(presetUrl);
       setIsServerUrlTouched(false);
@@ -78,8 +80,14 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
   }, [serverUrl, toast]);
 
   useEffect(() => {
-    if (isOpen && serverUrl === presetUrl && presetUrl) {
+    if (
+      isOpen &&
+      presetUrl &&
+      serverUrl === presetUrl &&
+      !hasAutoPresetRef.current
+    ) {
       handleNextStep();
+      hasAutoPresetRef.current = true;
     }
   }, [isOpen, presetUrl, serverUrl, handleNextStep]);
 
