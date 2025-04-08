@@ -5,7 +5,7 @@ use super::{
 use crate::{
   error::SJMCLResult, instance::helpers::misc::refresh_instances, partial::PartialUpdate,
 };
-use crate::{storage::Storage, utils::path::get_subdirectories};
+use crate::{storage::Storage, utils::fs::get_subdirectories};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
@@ -282,13 +282,16 @@ pub fn retrieve_memory_info() -> SJMCLResult<MemoryInfo> {
 }
 
 #[tauri::command]
-pub async fn check_service_availability(url: String) -> SJMCLResult<u128> {
+pub async fn check_service_availability(
+  client: tauri::State<'_, reqwest::Client>,
+  url: String,
+) -> SJMCLResult<u128> {
   let parsed_url = Url::parse(&url)
     .or_else(|_| Url::parse(&format!("https://{}", url)))
     .map_err(|_| LauncherConfigError::FetchError)?;
 
   let start = Instant::now();
-  let res = reqwest::get(parsed_url).await;
+  let res = client.get(parsed_url).send().await;
 
   match res {
     Ok(response) => {

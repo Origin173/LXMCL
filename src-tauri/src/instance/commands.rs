@@ -1,7 +1,6 @@
 use super::{
-  super::utils::{
-    fs::{copy_whole_dir, generate_unique_filename},
-    path::{get_files_with_regex, get_subdirectories},
+  super::utils::fs::{
+    copy_whole_dir, generate_unique_filename, get_files_with_regex, get_subdirectories,
   },
   constants::INSTANCE_CFG_FILE_NAME,
   helpers::{

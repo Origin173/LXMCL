@@ -24,6 +24,7 @@ use std::sync::{Arc, LazyLock, Mutex};
 use storage::Storage;
 use tasks::monitor::TaskMonitor;
 use tokio::sync::Notify;
+use utils::web::build_sjmcl_client;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use tauri::menu::MenuBuilder;
@@ -121,16 +122,22 @@ pub async fn run() {
       let mut launcher_config: LauncherConfig = LauncherConfig::load().unwrap_or_default();
       launcher_config.setup_with_app(app.handle()).unwrap();
       launcher_config.save().unwrap();
-
       app.manage(Mutex::new(launcher_config));
-      let instances: Vec<Instance> = vec![];
-      app.manage(Mutex::new(instances));
 
       let account_info = AccountInfo::load().unwrap_or_default();
       app.manage(Mutex::new(account_info));
 
+      let instances: Vec<Instance> = vec![];
+      app.manage(Mutex::new(instances));
+
+      let javas: Vec<JavaInfo> = vec![];
+      app.manage(Mutex::new(javas));
+
       let notify = Arc::new(Notify::new());
       app.manage(Box::pin(TaskMonitor::new(app.handle().clone(), notify)));
+
+      let client = build_sjmcl_client(app.handle(), true, false);
+      app.manage(client);
 
       // Refresh all auth servers
       let app_handle = app.handle().clone();
@@ -145,9 +152,6 @@ pub async fn run() {
       tauri::async_runtime::spawn(async move {
         refresh_and_update_instances(&app_handle).await;
       });
-
-      let javas: Vec<JavaInfo> = vec![];
-      app.manage(Mutex::new(javas));
 
       // Refresh all javas
       let app_handle = app.handle().clone();

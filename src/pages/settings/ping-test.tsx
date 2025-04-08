@@ -113,18 +113,19 @@ const PingTestPage = () => {
                   : "yellow"
             }
           >
-            <HStack>
+            <HStack spacing={0.5}>
               {status.error ? (
                 <>
                   <LuX />
-                  <TagLabel ml={0.5}>
+                  <TagLabel>
                     {t("PingTestPage.PingServerList.offline")}
                   </TagLabel>
                 </>
               ) : (
                 <>
                   <LuCheck />
-                  <TagLabel ml={0.5}>{`${status.latency} ms`}</TagLabel>
+                  <TagLabel>{status.latency}</TagLabel>
+                  <TagLabel>ms</TagLabel>
                 </>
               )}
             </HStack>
