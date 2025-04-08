@@ -24,6 +24,7 @@ import { open as openFolder } from "@tauri-apps/plugin-shell";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuChevronDown, LuChevronUp } from "react-icons/lu";
+import LinkIconButton from "@/components/common/link-icon-button";
 import {
   OptionItemGroup,
   OptionItemGroupProps,
@@ -116,6 +117,12 @@ const DownloadSettingsPage = () => {
                 </MenuOptionGroup>
               </MenuList>
             </Menu>
+          ),
+        },
+        {
+          title: t("PingTestPage.PingServerList.title"),
+          children: (
+            <LinkIconButton aria-label="ping-test" url="/settings/ping-test" />
           ),
         },
       ],

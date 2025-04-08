@@ -1075,6 +1075,18 @@
       "copyUUID": "复制 UUID"
     }
   },
+  "PingTestPage":{
+    "PingServerList":{
+      "title": "服务连通性测试",
+      "offline": "离线",
+      "bmclapi" : "BMCLAPI",
+      "curseforge" : "CurseForge",
+      "modrinth" : "Modrinth",
+      "mojang" : "Mojang",
+      "github" : "GitHub",
+      "sjmclapi" : "SJMC Launcher API"
+    }
+  },
   "ReLogin3rdPartyPlayerModal": {
     "modal": {
       "title": "重新登录"
