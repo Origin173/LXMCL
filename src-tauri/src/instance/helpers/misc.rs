@@ -1,8 +1,11 @@
-use super::super::{
-  constants::INSTANCE_CFG_FILE_NAME,
-  models::misc::{Instance, InstanceError, InstanceSubdirType, ModLoader},
-};
 use super::client_json::McClientInfo;
+use super::{
+  super::{
+    constants::INSTANCE_CFG_FILE_NAME,
+    models::misc::{Instance, InstanceError, InstanceSubdirType, ModLoader},
+  },
+  client_jar::load_game_version_from_jar,
+};
 use crate::error::SJMCLResult;
 use crate::launcher_config::{helpers::get_global_game_config, models::GameConfig};
 use crate::storage::{load_json_async, save_json_async};
@@ -12,8 +15,9 @@ use crate::{
 };
 use sanitize_filename;
 use serde_json::Value;
-use std::{fs, path::PathBuf, sync::Mutex};
+use std::{fs, io::Cursor, path::PathBuf, sync::Mutex};
 use tauri::{AppHandle, Manager};
+use zip::ZipArchive;
 
 pub fn get_instance_client_json_path(app: &AppHandle, instance_id: usize) -> Option<PathBuf> {
   let binding = app.state::<Mutex<Vec<Instance>>>();
@@ -155,7 +159,15 @@ pub async fn refresh_instances(
       .await
       .unwrap_or_default();
 
-    let (game_version, mod_version, loader_type) = patchs_to_info(&client_data.patches);
+    let (mut game_version, mod_version, loader_type) = patchs_to_info(&client_data.patches);
+    // TODO: patches related logic
+    if game_version.is_none() {
+      let file = Cursor::new(tokio::fs::read(jar_path).await?);
+      if let Ok(mut jar) = ZipArchive::new(file) {
+        game_version = load_game_version_from_jar(&mut jar);
+      }
+    }
+
     if cfg_read.icon_src.is_empty() {
       cfg_read.icon_src = loader_type.to_icon_path().to_string();
     }
