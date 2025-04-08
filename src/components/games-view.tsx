@@ -13,7 +13,7 @@ import { OptionItemGroup } from "@/components/common/option-item";
 import { WrapCardGroup } from "@/components/common/wrap-card";
 import GameMenu from "@/components/game-menu";
 import { useLauncherConfig } from "@/contexts/config";
-import { useData, useDataDispatch } from "@/contexts/data";
+import { useData } from "@/contexts/data";
 import { GameInstanceSummary } from "@/models/instance/misc";
 
 interface GamesViewProps extends BoxProps {
@@ -30,11 +30,9 @@ const GamesView: React.FC<GamesViewProps> = ({
   withMenu = true,
   ...boxProps
 }) => {
-  const { config } = useLauncherConfig();
+  const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const { selectedGameInstance } = useData();
-
-  const { setSelectedGameInstance } = useDataDispatch(); // TODO：remove global state setter here after replace mock logic
 
   const generateDesc = (game: GameInstanceSummary) => {
     if (game.modLoader.loaderType === "Unknown") {
@@ -49,8 +47,7 @@ const GamesView: React.FC<GamesViewProps> = ({
   };
 
   const handleUpdateSelectedGameInstance = (game: GameInstanceSummary) => {
-    // TODO: add service logic
-    setSelectedGameInstance(game);
+    update("states.shared.selectedInstanceId", game.id.toString());
     onSelectCallback();
   };
 
