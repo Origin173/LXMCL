@@ -7,7 +7,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { exists } from "@tauri-apps/plugin-fs";
-import { open } from "@tauri-apps/plugin-shell";
+import { openPath } from "@tauri-apps/plugin-opener";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuFolder, LuFolderX } from "react-icons/lu";
@@ -93,7 +93,7 @@ const GlobalGameSettingsPage = () => {
       icon: "openFolder",
       danger: false,
       onClick: () => {
-        open(directory.dir);
+        openPath(directory.dir);
       },
     },
     ...(directory.name !== "CURRENT_DIR"

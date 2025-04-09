@@ -20,7 +20,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-dialog";
-import { open as openFolder } from "@tauri-apps/plugin-shell";
+import { openPath } from "@tauri-apps/plugin-opener";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuChevronDown, LuChevronUp } from "react-icons/lu";
@@ -284,7 +284,7 @@ const DownloadSettingsPage = () => {
                 variant="subtle"
                 size="xs"
                 onClick={() => {
-                  openFolder(downloadConfigs.cache.directory);
+                  openPath(downloadConfigs.cache.directory);
                 }}
               >
                 {t("DownloadSettingPage.cache.settings.directory.open")}

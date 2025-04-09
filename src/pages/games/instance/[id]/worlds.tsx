@@ -7,7 +7,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { convertFileSrc } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-shell";
+import { openPath } from "@tauri-apps/plugin-opener";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuCheck, LuX } from "react-icons/lu";
@@ -139,7 +139,7 @@ const InstanceWorldsPage = () => {
     {
       label: "",
       icon: "revealFile",
-      onClick: () => open(save.dirPath),
+      onClick: () => openPath(save.dirPath),
     },
     {
       label: t("InstanceWorldsPage.worldList.viewLevelData"),

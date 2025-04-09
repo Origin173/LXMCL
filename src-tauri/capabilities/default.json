@@ -14,8 +14,6 @@
     "dialog:default",
     "http:default",
     "os:default",
-    "opener:default",
-    "process:default",
-    "shell:default"
+    "process:default"
   ]
 }

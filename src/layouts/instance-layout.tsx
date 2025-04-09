@@ -1,5 +1,5 @@
 import { Button, HStack, Icon, Text, VStack } from "@chakra-ui/react";
-import { open } from "@tauri-apps/plugin-shell";
+import { openPath } from "@tauri-apps/plugin-opener";
 import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -55,7 +55,7 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
       icon: "openFolder",
       danger: false,
       onClick: () => {
-        open(summary?.versionPath || "");
+        openPath(summary?.versionPath || "");
       },
     },
     {
