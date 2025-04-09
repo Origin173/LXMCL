@@ -1035,6 +1035,9 @@
       "validateGameFiles": "验证游戏与依赖文件完整性",
       "validateSelectedPlayer": "验证账户状态",
       "launchGame": "等待游戏启动"
+    },
+    "toast": {
+      "noSelectedPlayer": "请先添加并选择游戏角色"
     }
   },
   "ManageSkinModal": {

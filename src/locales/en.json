@@ -1035,6 +1035,9 @@
       "validateGameFiles": "Validate Game and Dependency Files",
       "validateSelectedPlayer": "Validate Player's Credentials",
       "launchGame": "Waiting for Game to Launch"
+    },
+    "toast": {
+      "noSelectedPlayer": "Please add and select a player first"
     }
   },
   "ManageSkinModal": {

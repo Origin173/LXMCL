@@ -23,12 +23,14 @@ import {
   Text,
   useSteps,
 } from "@chakra-ui/react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuX } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
+import { useToast } from "@/contexts/toast";
+import { AccountServiceError } from "@/enums/service-error";
 import { GameInstanceSummary } from "@/models/instance/misc";
 import { ResponseError } from "@/models/response";
 import { AccountService } from "@/services/account";
@@ -44,6 +46,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
   ...props
 }) => {
   const { t } = useTranslation();
+  const toast = useToast();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const { selectedPlayer, getGameInstanceList } = useData();
@@ -59,12 +62,11 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
     );
   }, [getGameInstanceList, instanceId]);
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     LaunchService.cancelLaunchProcess();
-    setActiveStep(0);
     setErrorPaused(false);
     props.onClose();
-  };
+  }, [props]);
 
   const launchProcessSteps: Array<{
     label: string;
@@ -78,7 +80,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
         label: "selectSuitableJRE",
         function: () => LaunchService.selectSuitableJRE(instanceId),
         isOK: (data: any) => true,
-        onResCallback: (data: any) => {}, // TODO
+        onResCallback: (data: any) => {},
         onErrCallback: (error: ResponseError) => {}, // TODO
       },
       {
@@ -91,22 +93,25 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
       {
         label: "validateSelectedPlayer",
         function: () =>
-          LaunchService.validateSelectedPlayer(selectedPlayer?.id!),
+          LaunchService.validateSelectedPlayer(selectedPlayer?.id || ""),
         isOK: (data: any) => true,
         onResCallback: (data: any) => {},
         onErrCallback: (error: ResponseError) => {
-          AccountService.refreshPlayer(selectedPlayer?.id!).then((response) => {
-            if (response.status !== "success") {
-              // todo: show re-login modal
-            }
-          });
+          if (error.raw_error === AccountServiceError.Expired)
+            AccountService.refreshPlayer(selectedPlayer?.id || "").then(
+              (response) => {
+                if (response.status !== "success") {
+                  // todo: show re-login modal
+                }
+              }
+            );
         },
       },
       {
         label: "launchGame",
         function: () => LaunchService.launchGame(instanceId),
         isOK: (data: any) => true,
-        onResCallback: (data: any) => {}, // TODO
+        onResCallback: (data: any) => {},
         onErrCallback: (error: ResponseError) => {}, // TODO
       },
       // TODO: progress bar in last step, and cancel logic
@@ -120,7 +125,16 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
   });
 
   useEffect(() => {
+    if (!selectedPlayer) {
+      toast({
+        title: t("LaunchProcessModal.toast.noSelectedPlayer"),
+        status: "warning",
+      });
+      handleCloseModal();
+      return;
+    }
     if (activeStep >= launchProcessSteps.length) {
+      handleCloseModal();
       return;
       // TODO
     }
@@ -135,11 +149,19 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
       } else {
         setErrorPaused(true);
         setErrorDesc(response.details);
-        currentStep.onErrCallback(response.error);
+        currentStep.onErrCallback(response);
         console.error(response.details);
       }
     });
-  }, [activeStep, setActiveStep, launchProcessSteps]);
+  }, [
+    activeStep,
+    setActiveStep,
+    launchProcessSteps,
+    handleCloseModal,
+    selectedPlayer,
+    t,
+    toast,
+  ]);
 
   return (
     <Modal
