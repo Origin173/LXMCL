@@ -31,22 +31,16 @@ pub fn get_instance_game_config(app: &AppHandle, instance: &Instance) -> GameCon
 // if instance_id not exists, return None
 pub fn get_instance_subdir_path(
   app: &AppHandle,
-  instance_id: usize,
+  instance: &Instance,
   directory_type: &InstanceSubdirType,
 ) -> Option<PathBuf> {
-  let binding = app.state::<Mutex<Vec<Instance>>>();
-  let state = binding.lock().unwrap();
-  let instance = state.get(instance_id)?;
-
   let version_path = &instance.version_path;
-  let game_dir = version_path.parent().unwrap().parent().unwrap(); // TODO: remove unwrap
-
-  let version_isolation = get_instance_game_config(app, instance).version_isolation;
+  let game_dir = version_path.parent()?.parent()?; // safe unwrap to `?`
 
   let path = match directory_type {
-    InstanceSubdirType::Assets | InstanceSubdirType::Libraries => game_dir, // no version isolation
+    InstanceSubdirType::Assets | InstanceSubdirType::Libraries => game_dir,
     _ => {
-      // others
+      let version_isolation = get_instance_game_config(app, instance).version_isolation;
       if version_isolation {
         version_path
       } else {
@@ -55,19 +49,30 @@ pub fn get_instance_subdir_path(
     }
   };
 
-  match directory_type {
-    // enum to string
-    InstanceSubdirType::Assets => Some(path.join("assets")),
-    InstanceSubdirType::Libraries => Some(path.join("libraries")),
-    InstanceSubdirType::Mods => Some(path.join("mods")),
-    InstanceSubdirType::ResourcePacks => Some(path.join("resourcepacks")),
-    InstanceSubdirType::Root => Some(path.to_path_buf()),
-    InstanceSubdirType::Saves => Some(path.join("saves")),
-    InstanceSubdirType::Schematics => Some(path.join("schematics")),
-    InstanceSubdirType::Screenshots => Some(path.join("screenshots")),
-    InstanceSubdirType::ServerResourcePacks => Some(path.join("server-resource-packs")),
-    InstanceSubdirType::ShaderPacks => Some(path.join("shaderpacks")),
-  }
+  Some(match directory_type {
+    InstanceSubdirType::Assets => path.join("assets"),
+    InstanceSubdirType::Libraries => path.join("libraries"),
+    InstanceSubdirType::Mods => path.join("mods"),
+    InstanceSubdirType::ResourcePacks => path.join("resourcepacks"),
+    InstanceSubdirType::Root => path.to_path_buf(),
+    InstanceSubdirType::Saves => path.join("saves"),
+    InstanceSubdirType::Schematics => path.join("schematics"),
+    InstanceSubdirType::Screenshots => path.join("screenshots"),
+    InstanceSubdirType::ServerResourcePacks => path.join("server-resource-packs"),
+    InstanceSubdirType::ShaderPacks => path.join("shaderpacks"),
+  })
+}
+
+pub fn get_instance_subdir_path_by_id(
+  app: &AppHandle,
+  instance_id: usize,
+  directory_type: &InstanceSubdirType,
+) -> Option<PathBuf> {
+  let binding = app.state::<Mutex<Vec<Instance>>>();
+  let state = binding.lock().unwrap();
+  let instance = state.get(instance_id)?;
+
+  get_instance_subdir_path(app, instance, directory_type)
 }
 
 pub fn unify_instance_name(src_version_path: &PathBuf, tgt_name: &String) -> SJMCLResult<PathBuf> {

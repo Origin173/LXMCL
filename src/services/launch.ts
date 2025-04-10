@@ -31,15 +31,12 @@ export class LaunchService {
   }
 
   /**
-   * VALIDATE the selected player by player ID.
-   * @param {string} playerId - The player ID of the player to be refreshed.
+   * VALIDATE the selected player.
    * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("launch")
-  static async validateSelectedPlayer(
-    playerId: string
-  ): Promise<InvokeResponse<void>> {
-    return await invoke("validate_selected_player", { playerId });
+  static async validateSelectedPlayer(): Promise<InvokeResponse<void>> {
+    return await invoke("validate_selected_player");
   }
 
   /**

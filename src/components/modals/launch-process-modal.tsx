@@ -92,8 +92,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
       },
       {
         label: "validateSelectedPlayer",
-        function: () =>
-          LaunchService.validateSelectedPlayer(selectedPlayer?.id || ""),
+        function: () => LaunchService.validateSelectedPlayer(),
         isOK: (data: any) => true,
         onResCallback: (data: any) => {},
         onErrCallback: (error: ResponseError) => {

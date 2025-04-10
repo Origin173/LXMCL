@@ -14,13 +14,6 @@ pub enum LaunchError {
 
 impl std::error::Error for LaunchError {}
 
-#[derive(Debug, Clone)]
-pub struct CommandContent {
-  pub exec: String,
-  pub args: Vec<String>,
-  pub nice: i32,
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize, SmartDefault)]
 #[serde(rename_all = "camelCase", default)]
 pub struct LaunchingState {
@@ -30,6 +23,6 @@ pub struct LaunchingState {
   pub selected_java: JavaInfo,
   pub game_config: GameConfig,
   pub client_info: McClientInfo,
-  pub selected_player: Option<PlayerInfo>,
-  pub auth_server_meta: Option<String>,
+  pub selected_player: Option<PlayerInfo>, // use Option to avoid SmartDefault trait error
+  pub auth_server_meta: String,
 }

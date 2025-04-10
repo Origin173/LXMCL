@@ -1,27 +1,27 @@
 use super::{
   helpers::{
-    cmd_builder::generate_launch_cmd, file_validator::validate_library_files,
+    command_generator::generate_launch_command, file_validator::validate_library_files,
     jre_selector::select_java_runtime,
   },
   models::LaunchingState,
 };
 use crate::{
   account::{
-    helpers::{authlib_injector, microsoft},
-    models::{AccountError, AccountInfo, PlayerType},
+    helpers::{authlib_injector, microsoft, misc::get_selected_player_info},
+    models::PlayerType,
   },
   error::SJMCLResult,
   instance::{
     helpers::{
       client_json::{DownloadsArtifact, McClientInfo},
-      misc::{get_instance_game_config, get_instance_subdir_path},
+      misc::{get_instance_game_config, get_instance_subdir_path_by_id},
     },
     models::misc::{Instance, InstanceError, InstanceSubdirType},
   },
-  launch::helpers::cmd_builder::{execute_cmd, ExecuteType},
   launcher_config::models::JavaInfo,
   storage::load_json_async,
 };
+use std::process::{Command, Stdio};
 use std::sync::Mutex;
 use tauri::{AppHandle, State};
 
@@ -74,9 +74,11 @@ pub async fn validate_game_files(
     launching.client_info.clone()
   };
 
-  let library_dir = get_instance_subdir_path(&app, instance_id, &InstanceSubdirType::Libraries)
-    .ok_or(InstanceError::InstanceNotFoundByID)?;
+  let library_dir =
+    get_instance_subdir_path_by_id(&app, instance_id, &InstanceSubdirType::Libraries)
+      .ok_or(InstanceError::InstanceNotFoundByID)?;
 
+  // TODO: validate strategy in game config
   let bad_artifacts = validate_library_files(&library_dir, &client_info).await?;
   Ok(bad_artifacts)
 }
@@ -85,17 +87,9 @@ pub async fn validate_game_files(
 #[tauri::command]
 pub async fn validate_selected_player(
   app: AppHandle,
-  player_id: String, // for simplicity, obtain the selected_player id from the frontend here
-  account_state: State<'_, Mutex<AccountInfo>>,
   launching_state: State<'_, Mutex<LaunchingState>>,
 ) -> SJMCLResult<()> {
-  let player = {
-    let account_info = account_state.lock().unwrap();
-    account_info
-      .get_player_by_id(player_id.clone())
-      .ok_or(AccountError::NotFound)?
-      .clone()
-  };
+  let player = get_selected_player_info(&app)?;
 
   {
     let mut launching = launching_state.lock().unwrap();
@@ -108,7 +102,7 @@ pub async fn validate_selected_player(
           .metadata
           .to_string();
 
-      launching.auth_server_meta = Some(meta);
+      launching.auth_server_meta = meta;
     }
   }
 
@@ -122,23 +116,26 @@ pub async fn validate_selected_player(
   }
 }
 
-// Step 4: generate launch command and execute it.
 #[tauri::command]
 pub async fn launch_game(
   app: AppHandle,
   instance_id: usize,
   launching_state: State<'_, Mutex<LaunchingState>>,
 ) -> SJMCLResult<()> {
-  let client_info = {
+  let selected_java = {
     let mut launching = launching_state.lock().unwrap();
     launching.current_step = 4;
-    launching.client_info.clone()
+    launching.selected_java.clone()
   };
 
-  let cmd = generate_launch_cmd(&app, &instance_id, client_info).await?;
-  println!("{}", cmd.args.join(" "));
+  let cmd_args = generate_launch_command(&app, &instance_id).await?;
+  println!("{}", cmd_args.join(" "));
 
-  let output = execute_cmd(cmd, &ExecuteType::NormalExecution).await?;
+  // TODO: make a command executor to handle exec (in different mode), set nice and pipe output
+  let mut cmd_base = Command::new(selected_java.exec_path);
+  let child = cmd_base.args(cmd_args).stdout(Stdio::piped()).spawn()?;
+  let output = child.wait_with_output()?;
+
   println!("{}", String::from_utf8_lossy(&output.stdout));
   println!("{}", String::from_utf8_lossy(&output.stderr));
 

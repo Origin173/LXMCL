@@ -80,7 +80,7 @@ const SwitchButton: React.FC<SwitchButtonProps> = ({
           </PopoverTrigger>
         </Box>
       </Tooltip>
-      <PopoverContent maxH="2xs" overflow="auto">
+      <PopoverContent maxH="3xs" overflow="auto">
         <PopoverBody p={0}>
           {cloneElement(popoverContent, {
             // Delay close after selecting an item for better UX.
