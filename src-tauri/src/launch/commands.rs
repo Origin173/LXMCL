@@ -132,7 +132,7 @@ pub async fn validate_selected_player(
 }
 
 #[tauri::command]
-pub async fn launch_game(
+pub fn launch_game(
   app: AppHandle,
   launching_state: State<'_, Mutex<LaunchingState>>,
 ) -> SJMCLResult<()> {
@@ -142,7 +142,7 @@ pub async fn launch_game(
     launching.selected_java.clone()
   };
 
-  let cmd_args = generate_launch_command(&app).await?;
+  let cmd_args = generate_launch_command(&app)?;
   println!("{}", cmd_args.join(" "));
 
   // TODO: make a command executor to handle exec (in different mode), set nice and pipe output

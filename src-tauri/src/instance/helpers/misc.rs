@@ -63,8 +63,6 @@ pub fn get_instance_subdir_paths(
           tauri_plugin_os::platform(),
           tauri_plugin_os::arch()
         )),
-        // game dir
-        InstanceSubdirType::GameDirRoot => game_dir.to_path_buf(),
       }
     })
     .collect();

@@ -96,9 +96,9 @@ impl LaunchArguments {
   }
 }
 
-pub async fn generate_launch_command(app: &AppHandle) -> SJMCLResult<Vec<String>> {
-  let launcher_config = app.state::<Mutex<LauncherConfig>>().lock()?.clone();
-  let launching = app.state::<Mutex<LaunchingState>>().lock()?.clone();
+pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<Vec<String>> {
+  let launcher_config = { app.state::<Mutex<LauncherConfig>>().lock()?.clone() };
+  let launching = { app.state::<Mutex<LaunchingState>>().lock()?.clone() };
 
   let LauncherConfig { basic_info, .. } = launcher_config;
   let LaunchingState {
@@ -133,7 +133,7 @@ pub async fn generate_launch_command(app: &AppHandle) -> SJMCLResult<Vec<String>
     app,
     &selected_instance,
     &[
-      &InstanceSubdirType::GameDirRoot,
+      &InstanceSubdirType::Root,
       &InstanceSubdirType::Assets,
       &InstanceSubdirType::Libraries,
       &InstanceSubdirType::NativeLibraries,
@@ -141,7 +141,7 @@ pub async fn generate_launch_command(app: &AppHandle) -> SJMCLResult<Vec<String>
   )
   .ok_or(InstanceError::InstanceNotFoundByID)?;
 
-  let [game_dir, assets_dir, libraries_dir, natives_dir] = related_dirs.as_slice() else {
+  let [root_dir, assets_dir, libraries_dir, natives_dir] = related_dirs.as_slice() else {
     return Err(InstanceError::InstanceNotFoundByID.into());
   };
 
@@ -154,7 +154,7 @@ pub async fn generate_launch_command(app: &AppHandle) -> SJMCLResult<Vec<String>
   let arguments_value = LaunchArguments {
     assets_root: assets_dir.to_string_lossy().to_string(),
     assets_index_name: client_info.asset_index.id,
-    game_directory: game_dir.to_string_lossy().to_string(), // TODO: may use version path?
+    game_directory: root_dir.to_string_lossy().to_string(),
 
     version_name: selected_instance.version.clone(),
     version_type: if !game_config.game_window.custom_info.is_empty() {
