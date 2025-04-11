@@ -10,8 +10,10 @@ use strum_macros::Display;
 #[derive(Debug, Deserialize, Serialize)]
 pub enum InstanceSubdirType {
   Assets,
+  GameDirRoot,
   Libraries,
   Mods,
+  NativeLibraries,
   ResourcePacks,
   Root,
   Saves,

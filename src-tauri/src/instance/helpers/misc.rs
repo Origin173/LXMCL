@@ -28,39 +28,48 @@ pub fn get_instance_game_config(app: &AppHandle, instance: &Instance) -> GameCon
   get_global_game_config(app)
 }
 
-// if instance_id not exists, return None
-pub fn get_instance_subdir_path(
+pub fn get_instance_subdir_paths(
   app: &AppHandle,
   instance: &Instance,
-  directory_type: &InstanceSubdirType,
-) -> Option<PathBuf> {
+  directory_types: &[&InstanceSubdirType],
+) -> Option<Vec<PathBuf>> {
   let version_path = &instance.version_path;
   let game_dir = version_path.parent()?.parent()?; // safe unwrap to `?`
 
-  let path = match directory_type {
-    InstanceSubdirType::Assets | InstanceSubdirType::Libraries => game_dir,
-    _ => {
-      let version_isolation = get_instance_game_config(app, instance).version_isolation;
-      if version_isolation {
-        version_path
-      } else {
-        game_dir
-      }
-    }
+  let version_isolation = get_instance_game_config(app, instance).version_isolation;
+  let path = if version_isolation {
+    version_path
+  } else {
+    game_dir
   };
 
-  Some(match directory_type {
-    InstanceSubdirType::Assets => path.join("assets"),
-    InstanceSubdirType::Libraries => path.join("libraries"),
-    InstanceSubdirType::Mods => path.join("mods"),
-    InstanceSubdirType::ResourcePacks => path.join("resourcepacks"),
-    InstanceSubdirType::Root => path.to_path_buf(),
-    InstanceSubdirType::Saves => path.join("saves"),
-    InstanceSubdirType::Schematics => path.join("schematics"),
-    InstanceSubdirType::Screenshots => path.join("screenshots"),
-    InstanceSubdirType::ServerResourcePacks => path.join("server-resource-packs"),
-    InstanceSubdirType::ShaderPacks => path.join("shaderpacks"),
-  })
+  let paths = directory_types
+    .iter()
+    .map(|directory_type| {
+      match directory_type {
+        InstanceSubdirType::Assets => game_dir.join("assets"),
+        InstanceSubdirType::Libraries => game_dir.join("libraries"),
+        InstanceSubdirType::Mods => path.join("mods"),
+        InstanceSubdirType::ResourcePacks => path.join("resourcepacks"),
+        InstanceSubdirType::Root => path.to_path_buf(),
+        InstanceSubdirType::Saves => path.join("saves"),
+        InstanceSubdirType::Schematics => path.join("schematics"),
+        InstanceSubdirType::Screenshots => path.join("screenshots"),
+        InstanceSubdirType::ServerResourcePacks => path.join("server-resource-packs"),
+        InstanceSubdirType::ShaderPacks => path.join("shaderpacks"),
+        // native libraries extracted by SJMCL
+        InstanceSubdirType::NativeLibraries => version_path.join(format!(
+          "natives-{}-{}",
+          tauri_plugin_os::platform(),
+          tauri_plugin_os::arch()
+        )),
+        // game dir
+        InstanceSubdirType::GameDirRoot => game_dir.to_path_buf(),
+      }
+    })
+    .collect();
+
+  Some(paths) // if instance_id not exists, return None
 }
 
 pub fn get_instance_subdir_path_by_id(
@@ -72,7 +81,7 @@ pub fn get_instance_subdir_path_by_id(
   let state = binding.lock().unwrap();
   let instance = state.get(instance_id)?;
 
-  get_instance_subdir_path(app, instance, directory_type)
+  get_instance_subdir_paths(app, instance, &[directory_type]).and_then(|mut paths| paths.pop())
 }
 
 pub fn unify_instance_name(src_version_path: &PathBuf, tgt_name: &String) -> SJMCLResult<PathBuf> {

@@ -1,6 +1,7 @@
 use super::{
   helpers::{
-    command_generator::generate_launch_command, file_validator::validate_library_files,
+    command_generator::generate_launch_command,
+    file_validator::{extract_native_libraries, validate_library_files},
     jre_selector::select_java_runtime,
   },
   models::LaunchingState,
@@ -14,7 +15,7 @@ use crate::{
   instance::{
     helpers::{
       client_json::{DownloadsArtifact, McClientInfo},
-      misc::{get_instance_game_config, get_instance_subdir_path_by_id},
+      misc::{get_instance_game_config, get_instance_subdir_paths},
     },
     models::misc::{Instance, InstanceError, InstanceSubdirType},
   },
@@ -56,30 +57,44 @@ pub async fn select_suitable_jre(
 
   launching.game_config = game_config;
   launching.client_info = client_info;
-  launching.selected_java = selected_java.clone();
+  launching.selected_java = selected_java;
+  launching.selected_instance = instance;
 
   Ok(())
 }
 
-// Step 2: validate game and dependency files.
+// Step 2: extract native libraries, validate game and dependency files.
 #[tauri::command]
 pub async fn validate_game_files(
   app: AppHandle,
-  instance_id: usize,
   launching_state: State<'_, Mutex<LaunchingState>>,
 ) -> SJMCLResult<Vec<DownloadsArtifact>> {
-  let client_info = {
+  let (instance, client_info) = {
     let mut launching = launching_state.lock().unwrap();
     launching.current_step = 2;
-    launching.client_info.clone()
+    (
+      launching.selected_instance.clone(),
+      launching.client_info.clone(),
+    )
   };
 
-  let library_dir =
-    get_instance_subdir_path_by_id(&app, instance_id, &InstanceSubdirType::Libraries)
-      .ok_or(InstanceError::InstanceNotFoundByID)?;
+  // extract native libraries
+  let dirs = get_instance_subdir_paths(
+    &app,
+    &instance,
+    &[
+      &InstanceSubdirType::Libraries,
+      &InstanceSubdirType::NativeLibraries,
+    ],
+  )
+  .ok_or(InstanceError::InstanceNotFoundByID)?;
+  let [libraries_dir, natives_dir] = dirs.as_slice() else {
+    return Err(InstanceError::InstanceNotFoundByID.into());
+  };
+  extract_native_libraries(&client_info, libraries_dir, natives_dir).await?;
 
-  // TODO: validate strategy in game config
-  let bad_artifacts = validate_library_files(&library_dir, &client_info).await?;
+  // validate files (TODO: validate strategy in game config)
+  let bad_artifacts = validate_library_files(libraries_dir, &client_info).await?;
   Ok(bad_artifacts)
 }
 
@@ -119,7 +134,6 @@ pub async fn validate_selected_player(
 #[tauri::command]
 pub async fn launch_game(
   app: AppHandle,
-  instance_id: usize,
   launching_state: State<'_, Mutex<LaunchingState>>,
 ) -> SJMCLResult<()> {
   let selected_java = {
@@ -128,7 +142,7 @@ pub async fn launch_game(
     launching.selected_java.clone()
   };
 
-  let cmd_args = generate_launch_command(&app, &instance_id).await?;
+  let cmd_args = generate_launch_command(&app).await?;
   println!("{}", cmd_args.join(" "));
 
   // TODO: make a command executor to handle exec (in different mode), set nice and pipe output

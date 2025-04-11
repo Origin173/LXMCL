@@ -5,11 +5,11 @@ use crate::account::{
 use crate::error::{SJMCLError, SJMCLResult};
 use crate::instance::{
   helpers::client_json::FeaturesInfo,
-  models::misc::{Instance, InstanceError},
+  helpers::misc::get_instance_subdir_paths,
+  models::misc::{InstanceError, InstanceSubdirType},
 };
 use crate::launch::{
-  helpers::file_validator::{extract_native_libraries, get_nonnative_library_paths},
-  helpers::misc::replace_arguments,
+  helpers::file_validator::get_nonnative_library_paths, helpers::misc::replace_arguments,
   models::LaunchingState,
 };
 use crate::launcher_config::models::*;
@@ -96,32 +96,25 @@ impl LaunchArguments {
   }
 }
 
-pub async fn generate_launch_command(
-  app: &AppHandle,
-  instance_id: &usize,
-) -> SJMCLResult<Vec<String>> {
+pub async fn generate_launch_command(app: &AppHandle) -> SJMCLResult<Vec<String>> {
   let launcher_config = app.state::<Mutex<LauncherConfig>>().lock()?.clone();
-  let instances = app.state::<Mutex<Vec<Instance>>>().lock()?.clone();
   let launching = app.state::<Mutex<LaunchingState>>().lock()?.clone();
 
-  let instance = instances
-    .get(*instance_id)
-    .ok_or(InstanceError::InstanceNotFoundByID)?
-    .clone();
-  let client_jar_path = instance
-    .version_path
-    .join(format!("{}.jar", instance.name))
-    .to_string_lossy()
-    .to_string();
   let LauncherConfig { basic_info, .. } = launcher_config;
   let LaunchingState {
     selected_java,
+    selected_instance,
     game_config,
     client_info,
     auth_server_meta,
     ..
   } = launching;
   let selected_player = launching.selected_player.ok_or(AccountError::NotFound)?;
+  let client_jar_path = selected_instance
+    .version_path
+    .join(format!("{}.jar", selected_instance.name))
+    .to_string_lossy()
+    .to_string();
 
   let mut cmd = Vec::new();
 
@@ -134,28 +127,25 @@ pub async fn generate_launch_command(
   // }
 
   // -----------------------------------------
-  // Part 1: Extract Native Libraries (TODO: move to launching step 2?)
+  // Part 1: Prepare Arguments
   // -----------------------------------------
-  let game_dir = instance
-    .version_path
-    .parent()
-    .ok_or(InstanceError::FileNotFoundError)?
-    .parent()
-    .ok_or(InstanceError::FileNotFoundError)?;
+  let related_dirs = get_instance_subdir_paths(
+    app,
+    &selected_instance,
+    &[
+      &InstanceSubdirType::GameDirRoot,
+      &InstanceSubdirType::Assets,
+      &InstanceSubdirType::Libraries,
+      &InstanceSubdirType::NativeLibraries,
+    ],
+  )
+  .ok_or(InstanceError::InstanceNotFoundByID)?;
 
-  let libraries_dir = game_dir.join("libraries");
+  let [game_dir, assets_dir, libraries_dir, natives_dir] = related_dirs.as_slice() else {
+    return Err(InstanceError::InstanceNotFoundByID.into());
+  };
 
-  let natives_dir = instance.version_path.join(format!(
-    "natives-{}-{}",
-    basic_info.platform, basic_info.arch
-  ));
-  extract_native_libraries(&client_info, &libraries_dir, &natives_dir).await?;
-
-  // -----------------------------------------
-  // Part 2: Prepare Arguments
-  // -----------------------------------------
-  let assets_dir = game_dir.join("assets");
-  let mut class_paths: Vec<String> = get_nonnative_library_paths(&client_info, &libraries_dir)?
+  let mut class_paths: Vec<String> = get_nonnative_library_paths(&client_info, libraries_dir)?
     .into_iter()
     .map(|p| p.to_string_lossy().to_string())
     .collect();
@@ -166,7 +156,7 @@ pub async fn generate_launch_command(
     assets_index_name: client_info.asset_index.id,
     game_directory: game_dir.to_string_lossy().to_string(), // TODO: may use version path?
 
-    version_name: instance.version.clone(),
+    version_name: selected_instance.version.clone(),
     version_type: if !game_config.game_window.custom_info.is_empty() {
       game_config.game_window.custom_info.clone()
     } else {
@@ -193,7 +183,7 @@ pub async fn generate_launch_command(
   };
 
   // -----------------------------------------
-  // Part 3: JVM
+  // Part 2: JVM
   // ref: https://github.com/HMCL-dev/HMCL/blob/c33ef5170b2cc726f01674fe6fca28035b1eef8b/HMCLCore/src/main/java/org/jackhuang/hmcl/launch/DefaultLauncher.java#L106
   // -----------------------------------------
 
@@ -245,7 +235,8 @@ pub async fn generate_launch_command(
   if !game_config.advanced.workaround.no_jvm_args {
     cmd.push(format!("-Dminecraft.client.jar={}", client_jar_path));
 
-    if basic_info.os_type == "macos" {
+    #[cfg(target_os = "macos")]
+    {
       cmd.push("-Xdock:name=Minecraft".to_string());
       // TODO: Xdock icon (HMCL DefaultLauncher.java#L183)
     }
@@ -271,7 +262,7 @@ pub async fn generate_launch_command(
   }
 
   // -----------------------------------------
-  // Part 4: Replace JVM and game arguments
+  // Part 3: Replace JVM and game arguments
   // -----------------------------------------
   let map = arguments_value.into_hashmap()?;
 
@@ -290,13 +281,30 @@ pub async fn generate_launch_command(
     let client_jvm_args = client_args.to_jvm_arguments(&launch_feature)?;
     cmd.extend(replace_arguments(client_jvm_args, &map));
   } else {
-    let client_jvm_args = vec![
+    // ref: https://github.com/HMCL-dev/HMCL/blob/e8ff42c4b29d0b0a5a417c9d470390311c6d9a72/HMCLCore/src/main/java/org/jackhuang/hmcl/game/Arguments.java#L112
+    let mut client_jvm_args = vec![];
+
+    #[cfg(target_os = "windows")]
+    {
+      client_jvm_args.push(
+        "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump"
+          .to_string(),
+      );
+      use regex::Regex;
+      let re = Regex::new(r"^10\.").unwrap();
+      if re.is_match(&basic_info.platform_version) {
+        client_jvm_args.push("-Dos.name=Windows 10".to_string());
+        client_jvm_args.push("-Dos.version=10.0".to_string());
+      }
+    }
+
+    client_jvm_args.extend(vec![
       "-Djava.library.path=${natives_directory}".to_string(),
       "-Dminecraft.launcher.brand=${launcher_name}".to_string(),
       "-Dminecraft.launcher.version=${launcher_version}".to_string(),
       "-cp".to_string(),
       "${classpath}".to_string(),
-    ];
+    ]);
     cmd.extend(replace_arguments(client_jvm_args, &map));
   }
 

@@ -1,5 +1,6 @@
 use crate::account::models::PlayerInfo;
 use crate::instance::helpers::client_json::McClientInfo;
+use crate::instance::models::misc::Instance;
 use crate::launcher_config::models::{GameConfig, JavaInfo};
 use serde::{Deserialize, Serialize};
 use smart_default::SmartDefault;
@@ -21,6 +22,7 @@ pub struct LaunchingState {
   pub current_step: usize,
   // shared variables between steps.
   pub selected_java: JavaInfo,
+  pub selected_instance: Instance,
   pub game_config: GameConfig,
   pub client_info: McClientInfo,
   pub selected_player: Option<PlayerInfo>, // use Option to avoid SmartDefault trait error

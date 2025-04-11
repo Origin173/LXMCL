@@ -85,7 +85,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
       },
       {
         label: "validateGameFiles",
-        function: () => LaunchService.validateGameFiles(instanceId),
+        function: () => LaunchService.validateGameFiles(),
         isOK: (data: any) => data && data.length === 0,
         onResCallback: (data: any) => {}, // TODO
         onErrCallback: (error: ResponseError) => {}, // TODO
@@ -108,7 +108,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
       },
       {
         label: "launchGame",
-        function: () => LaunchService.launchGame(instanceId),
+        function: () => LaunchService.launchGame(),
         isOK: (data: any) => true,
         onResCallback: (data: any) => {},
         onErrCallback: (error: ResponseError) => {}, // TODO
