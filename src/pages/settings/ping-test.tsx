@@ -138,6 +138,7 @@ const PingTestPage = () => {
   return (
     <Section
       title={t("PingTestPage.PingServerList.title")}
+      withBackButton
       headExtra={
         <CommonIconButton
           icon="refresh"

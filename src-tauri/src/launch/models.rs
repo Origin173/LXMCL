@@ -1,5 +1,6 @@
 use crate::account::models::PlayerInfo;
 use crate::instance::helpers::client_json::McClientInfo;
+use crate::instance::models::misc::Instance;
 use crate::launcher_config::models::{GameConfig, JavaInfo};
 use serde::{Deserialize, Serialize};
 use smart_default::SmartDefault;
@@ -14,13 +15,6 @@ pub enum LaunchError {
 
 impl std::error::Error for LaunchError {}
 
-#[derive(Debug, Clone)]
-pub struct CommandContent {
-  pub exec: String,
-  pub args: Vec<String>,
-  pub nice: i32,
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize, SmartDefault)]
 #[serde(rename_all = "camelCase", default)]
 pub struct LaunchingState {
@@ -28,8 +22,9 @@ pub struct LaunchingState {
   pub current_step: usize,
   // shared variables between steps.
   pub selected_java: JavaInfo,
+  pub selected_instance: Instance,
   pub game_config: GameConfig,
   pub client_info: McClientInfo,
-  pub selected_player: Option<PlayerInfo>,
-  pub auth_server_meta: Option<String>,
+  pub selected_player: Option<PlayerInfo>, // use Option to avoid SmartDefault trait error
+  pub auth_server_meta: String,
 }

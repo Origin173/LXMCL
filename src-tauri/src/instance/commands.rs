@@ -5,7 +5,7 @@ use super::{
   constants::INSTANCE_CFG_FILE_NAME,
   helpers::{
     misc::{
-      get_instance_game_config, get_instance_subdir_path, refresh_and_update_instances,
+      get_instance_game_config, get_instance_subdir_path_by_id, refresh_and_update_instances,
       unify_instance_name,
     },
     mods::common::{get_mod_info_from_dir, get_mod_info_from_jar},
@@ -169,7 +169,7 @@ pub fn open_instance_subdir(
   instance_id: usize,
   dir_type: InstanceSubdirType,
 ) -> SJMCLResult<()> {
-  let subdir_path = match get_instance_subdir_path(&app, instance_id, &dir_type) {
+  let subdir_path = match get_instance_subdir_path_by_id(&app, instance_id, &dir_type) {
     Some(path) => path,
     None => return Err(InstanceError::InstanceNotFoundByID.into()),
   };
@@ -244,7 +244,7 @@ pub fn copy_resource_to_instances(
       .ok_or(InstanceError::InvalidSourcePath)?;
 
     for tgt_inst_id in tgt_inst_ids {
-      let tgt_path = match get_instance_subdir_path(&app, tgt_inst_id, &tgt_dir_type) {
+      let tgt_path = match get_instance_subdir_path_by_id(&app, tgt_inst_id, &tgt_dir_type) {
         Some(path) => path,
         None => return Err(InstanceError::InstanceNotFoundByID.into()),
       };
@@ -277,7 +277,7 @@ pub fn copy_resource_to_instances(
     }
   } else if src_path.is_dir() {
     for tgt_inst_id in tgt_inst_ids {
-      let tgt_path = match get_instance_subdir_path(&app, tgt_inst_id, &tgt_dir_type) {
+      let tgt_path = match get_instance_subdir_path_by_id(&app, tgt_inst_id, &tgt_dir_type) {
         Some(path) => path,
         None => return Err(InstanceError::InstanceNotFoundByID.into()),
       };
@@ -302,7 +302,7 @@ pub fn move_resource_to_instance(
   tgt_inst_id: usize,
   tgt_dir_type: InstanceSubdirType,
 ) -> SJMCLResult<()> {
-  let tgt_path = match get_instance_subdir_path(&app, tgt_inst_id, &tgt_dir_type) {
+  let tgt_path = match get_instance_subdir_path_by_id(&app, tgt_inst_id, &tgt_dir_type) {
     Some(path) => path,
     None => return Err(InstanceError::InstanceNotFoundByID.into()),
   };
@@ -330,10 +330,11 @@ pub async fn retrieve_world_list(
   app: AppHandle,
   instance_id: usize,
 ) -> SJMCLResult<Vec<WorldInfo>> {
-  let worlds_dir = match get_instance_subdir_path(&app, instance_id, &InstanceSubdirType::Saves) {
-    Some(path) => path,
-    None => return Ok(Vec::new()),
-  };
+  let worlds_dir =
+    match get_instance_subdir_path_by_id(&app, instance_id, &InstanceSubdirType::Saves) {
+      Some(path) => path,
+      None => return Ok(Vec::new()),
+    };
 
   let world_dirs = match get_subdirectories(worlds_dir) {
     Ok(val) => val,
@@ -368,10 +369,11 @@ pub async fn retrieve_game_server_list(
 ) -> SJMCLResult<Vec<GameServerInfo>> {
   // query_online is false, return local data from nbt (servers.dat)
   let mut game_servers: Vec<GameServerInfo> = Vec::new();
-  let game_root_dir = match get_instance_subdir_path(&app, instance_id, &InstanceSubdirType::Root) {
-    Some(path) => path,
-    None => return Ok(Vec::new()),
-  };
+  let game_root_dir =
+    match get_instance_subdir_path_by_id(&app, instance_id, &InstanceSubdirType::Root) {
+      Some(path) => path,
+      None => return Ok(Vec::new()),
+    };
 
   let nbt_path = game_root_dir.join("servers.dat");
   let servers = match load_servers_info_from_path(&nbt_path).await {
@@ -427,7 +429,8 @@ pub async fn retrieve_local_mod_list(
   app: AppHandle,
   instance_id: usize,
 ) -> SJMCLResult<Vec<LocalModInfo>> {
-  let mods_dir = match get_instance_subdir_path(&app, instance_id, &InstanceSubdirType::Mods) {
+  let mods_dir = match get_instance_subdir_path_by_id(&app, instance_id, &InstanceSubdirType::Mods)
+  {
     Some(path) => path,
     None => return Ok(Vec::new()),
   };
@@ -480,7 +483,7 @@ pub async fn retrieve_resource_pack_list(
 ) -> SJMCLResult<Vec<ResourcePackInfo>> {
   // Get the resource packs list based on the instance
   let resource_packs_dir =
-    match get_instance_subdir_path(&app, instance_id, &InstanceSubdirType::ResourcePacks) {
+    match get_instance_subdir_path_by_id(&app, instance_id, &InstanceSubdirType::ResourcePacks) {
       Some(path) => path,
       None => return Ok(Vec::new()),
     };
@@ -528,11 +531,14 @@ pub async fn retrieve_server_resource_pack_list(
   app: AppHandle,
   instance_id: usize,
 ) -> SJMCLResult<Vec<ResourcePackInfo>> {
-  let resource_packs_dir =
-    match get_instance_subdir_path(&app, instance_id, &InstanceSubdirType::ServerResourcePacks) {
-      Some(path) => path,
-      None => return Ok(Vec::new()),
-    };
+  let resource_packs_dir = match get_instance_subdir_path_by_id(
+    &app,
+    instance_id,
+    &InstanceSubdirType::ServerResourcePacks,
+  ) {
+    Some(path) => path,
+    None => return Ok(Vec::new()),
+  };
   let mut info_list: Vec<ResourcePackInfo> = Vec::new();
 
   let valid_extensions = RegexBuilder::new(r".*")
@@ -579,7 +585,7 @@ pub fn retrieve_schematic_list(
   instance_id: usize,
 ) -> SJMCLResult<Vec<SchematicInfo>> {
   let schematics_dir =
-    match get_instance_subdir_path(&app, instance_id, &InstanceSubdirType::Schematics) {
+    match get_instance_subdir_path_by_id(&app, instance_id, &InstanceSubdirType::Schematics) {
       Some(path) => path,
       None => return Ok(Vec::new()),
     };
@@ -613,7 +619,7 @@ pub fn retrieve_shader_pack_list(
 ) -> SJMCLResult<Vec<ShaderPackInfo>> {
   // Get the shaderpacks directory based on the instance
   let shaderpacks_dir =
-    match get_instance_subdir_path(&app, instance_id, &InstanceSubdirType::ShaderPacks) {
+    match get_instance_subdir_path_by_id(&app, instance_id, &InstanceSubdirType::ShaderPacks) {
       Some(path) => path,
       None => return Ok(Vec::new()),
     };
@@ -643,7 +649,7 @@ pub fn retrieve_screenshot_list(
   instance_id: usize,
 ) -> SJMCLResult<Vec<ScreenshotInfo>> {
   let screenshots_dir =
-    match get_instance_subdir_path(&app, instance_id, &InstanceSubdirType::Screenshots) {
+    match get_instance_subdir_path_by_id(&app, instance_id, &InstanceSubdirType::Screenshots) {
       Some(path) => path,
       None => return Ok(Vec::new()),
     };
@@ -726,10 +732,11 @@ pub async fn retrieve_world_details(
   instance_id: usize,
   world_name: String,
 ) -> SJMCLResult<LevelData> {
-  let worlds_dir = match get_instance_subdir_path(&app, instance_id, &InstanceSubdirType::Saves) {
-    Some(path) => path,
-    None => return Err(InstanceError::WorldNotExistError.into()),
-  };
+  let worlds_dir =
+    match get_instance_subdir_path_by_id(&app, instance_id, &InstanceSubdirType::Saves) {
+      Some(path) => path,
+      None => return Err(InstanceError::WorldNotExistError.into()),
+    };
   let level_path = worlds_dir.join(world_name).join("level.dat");
   if tokio::fs::metadata(&level_path).await.is_err() {
     return Err(InstanceError::LevelNotExistError.into());

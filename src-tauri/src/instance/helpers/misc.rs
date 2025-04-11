@@ -28,8 +28,49 @@ pub fn get_instance_game_config(app: &AppHandle, instance: &Instance) -> GameCon
   get_global_game_config(app)
 }
 
-// if instance_id not exists, return None
-pub fn get_instance_subdir_path(
+pub fn get_instance_subdir_paths(
+  app: &AppHandle,
+  instance: &Instance,
+  directory_types: &[&InstanceSubdirType],
+) -> Option<Vec<PathBuf>> {
+  let version_path = &instance.version_path;
+  let game_dir = version_path.parent()?.parent()?; // safe unwrap to `?`
+
+  let version_isolation = get_instance_game_config(app, instance).version_isolation;
+  let path = if version_isolation {
+    version_path
+  } else {
+    game_dir
+  };
+
+  let paths = directory_types
+    .iter()
+    .map(|directory_type| {
+      match directory_type {
+        InstanceSubdirType::Assets => game_dir.join("assets"),
+        InstanceSubdirType::Libraries => game_dir.join("libraries"),
+        InstanceSubdirType::Mods => path.join("mods"),
+        InstanceSubdirType::ResourcePacks => path.join("resourcepacks"),
+        InstanceSubdirType::Root => path.to_path_buf(),
+        InstanceSubdirType::Saves => path.join("saves"),
+        InstanceSubdirType::Schematics => path.join("schematics"),
+        InstanceSubdirType::Screenshots => path.join("screenshots"),
+        InstanceSubdirType::ServerResourcePacks => path.join("server-resource-packs"),
+        InstanceSubdirType::ShaderPacks => path.join("shaderpacks"),
+        // native libraries extracted by SJMCL
+        InstanceSubdirType::NativeLibraries => version_path.join(format!(
+          "natives-{}-{}",
+          tauri_plugin_os::platform(),
+          tauri_plugin_os::arch()
+        )),
+      }
+    })
+    .collect();
+
+  Some(paths) // if instance_id not exists, return None
+}
+
+pub fn get_instance_subdir_path_by_id(
   app: &AppHandle,
   instance_id: usize,
   directory_type: &InstanceSubdirType,
@@ -38,36 +79,7 @@ pub fn get_instance_subdir_path(
   let state = binding.lock().unwrap();
   let instance = state.get(instance_id)?;
 
-  let version_path = &instance.version_path;
-  let game_dir = version_path.parent().unwrap().parent().unwrap(); // TODO: remove unwrap
-
-  let version_isolation = get_instance_game_config(app, instance).version_isolation;
-
-  let path = match directory_type {
-    InstanceSubdirType::Assets | InstanceSubdirType::Libraries => game_dir, // no version isolation
-    _ => {
-      // others
-      if version_isolation {
-        version_path
-      } else {
-        game_dir
-      }
-    }
-  };
-
-  match directory_type {
-    // enum to string
-    InstanceSubdirType::Assets => Some(path.join("assets")),
-    InstanceSubdirType::Libraries => Some(path.join("libraries")),
-    InstanceSubdirType::Mods => Some(path.join("mods")),
-    InstanceSubdirType::ResourcePacks => Some(path.join("resourcepacks")),
-    InstanceSubdirType::Root => Some(path.to_path_buf()),
-    InstanceSubdirType::Saves => Some(path.join("saves")),
-    InstanceSubdirType::Schematics => Some(path.join("schematics")),
-    InstanceSubdirType::Screenshots => Some(path.join("screenshots")),
-    InstanceSubdirType::ServerResourcePacks => Some(path.join("server-resource-packs")),
-    InstanceSubdirType::ShaderPacks => Some(path.join("shaderpacks")),
-  }
+  get_instance_subdir_paths(app, instance, &[directory_type]).and_then(|mut paths| paths.pop())
 }
 
 pub fn unify_instance_name(src_version_path: &PathBuf, tgt_name: &String) -> SJMCLResult<PathBuf> {

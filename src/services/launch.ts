@@ -7,7 +7,8 @@ import { responseHandler } from "@/utils/response";
  */
 export class LaunchService {
   /**
-   * SELECT suitable Java runtime environment for the specified instance.
+   * Launching Step 1: select suitable Java runtime environment for the specified instance.
+   * At this step, pass the ID of the instance to be launched (which may not be the same as the selected instance ID), and no further input is required afterwards.
    * @param {number} instanceId - The ID of the instance.
    * @returns {Promise<InvokeResponse<void>>}
    */
@@ -19,37 +20,31 @@ export class LaunchService {
   }
 
   /**
-   * VALIDATE the specified instance's game files.
-   * @param {number} instanceId - The ID of the instance.
+   * Launching Step 2: extract native libraries, validate the specified instance's game files.
    * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("launch")
-  static async validateGameFiles(
-    instanceId: number
-  ): Promise<InvokeResponse<void>> {
-    return await invoke("validate_game_files", { instanceId });
+  static async validateGameFiles(): Promise<InvokeResponse<void>> {
+    return await invoke("validate_game_files");
   }
 
   /**
-   * VALIDATE the selected player by player ID.
-   * @param {string} playerId - The player ID of the player to be refreshed.
+   * Launching Step 3: validate the selected player, prepare prefetched server meta for authlib-injector.
+   * The selected player ID is retrieved by the backend itself from the config state.
    * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("launch")
-  static async validateSelectedPlayer(
-    playerId: string
-  ): Promise<InvokeResponse<void>> {
-    return await invoke("validate_selected_player", { playerId });
+  static async validateSelectedPlayer(): Promise<InvokeResponse<void>> {
+    return await invoke("validate_selected_player");
   }
 
   /**
-   * LAUNCH the specified game instance.
-   * @param {number} instanceId - The ID of the instance.
+   * Launching Step 4: generate command args, launch the game instance.
    * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("launch")
-  static async launchGame(instanceId: number): Promise<InvokeResponse<void>> {
-    return await invoke("launch_game", { instanceId });
+  static async launchGame(): Promise<InvokeResponse<void>> {
+    return await invoke("launch_game");
   }
 
   /**
