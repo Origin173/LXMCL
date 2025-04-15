@@ -1087,6 +1087,10 @@
       "curseforge" : "CurseForge",
       "modrinth" : "Modrinth",
       "mojang" : "Mojang",
+      "forge": "Forge",
+      "fabric": "Fabric",
+      "neoforge": "NeoForge",
+      "authlibInjector": "Authlib Injector",
       "github" : "GitHub",
       "sjmclapi" : "SJMC Launcher API"
     }

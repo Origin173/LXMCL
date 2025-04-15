@@ -295,7 +295,7 @@ pub async fn check_service_availability(
 
   match res {
     Ok(response) => {
-      if response.status().is_success() {
+      if response.status().is_success() || response.status().is_client_error() {
         Ok(start.elapsed().as_millis())
       } else {
         Err(LauncherConfigError::FetchError.into())
