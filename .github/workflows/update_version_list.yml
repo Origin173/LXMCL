@@ -20,9 +20,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install dependencies (if needed)
-        run: npm install
-
       - name: Run version fetch script
         run: node scripts/game/fetch_version_list.js
 
