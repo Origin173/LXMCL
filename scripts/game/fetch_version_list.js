@@ -12,6 +12,10 @@ const outputPath = path.resolve(
 
 https
   .get(url, (res) => {
+    if (res.statusCode !== 200) {
+      console.error(`Request failed with status code: ${res.statusCode}`);
+      return;
+    }
     let data = "";
 
     res.on("data", (chunk) => {
