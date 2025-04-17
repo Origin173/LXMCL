@@ -1,0 +1,34 @@
+name: Update Minecraft Versions
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Every day at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  update-versions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Run version fetch script
+        run: node scripts/game/fetch_version_list.js
+
+      - name: Create Pull Request if changes exist
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: auto update Minecraft version list"
+          title: "chore: auto update Minecraft version list"
+          body: "This pull request updates the Minecraft version list from Mojang's API."
+          branch: auto/update-minecraft-version-list
+          base: main
