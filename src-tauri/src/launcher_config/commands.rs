@@ -1,5 +1,5 @@
 use super::{
-  helpers::refresh_and_update_javas,
+  helpers::java::refresh_and_update_javas,
   models::{GameDirectory, JavaInfo, LauncherConfig, LauncherConfigError, MemoryInfo},
 };
 use crate::{

@@ -24,7 +24,7 @@ use super::{
 use crate::{
   error::SJMCLResult,
   launcher_config::{
-    helpers::get_global_game_config,
+    helpers::misc::get_global_game_config,
     models::{GameConfig, LauncherConfig},
   },
   partial::{PartialError, PartialUpdate},

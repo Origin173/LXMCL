@@ -115,7 +115,7 @@ const JavaSettingsPage = () => {
       : []),
     {
       icon: "revealFile",
-      onClick: () => async () => await revealItemInDir(java.execPath),
+      onClick: () => revealItemInDir(java.execPath),
     },
   ];
 

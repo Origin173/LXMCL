@@ -17,7 +17,7 @@ use instance::helpers::misc::refresh_and_update_instances;
 use instance::models::misc::Instance;
 use launch::models::LaunchingState;
 use launcher_config::{
-  helpers::refresh_and_update_javas,
+  helpers::java::refresh_and_update_javas,
   models::{JavaInfo, LauncherConfig},
 };
 use std::path::PathBuf;

@@ -7,7 +7,7 @@ use super::{
   client_jar::load_game_version_from_jar,
 };
 use crate::error::SJMCLResult;
-use crate::launcher_config::{helpers::get_global_game_config, models::GameConfig};
+use crate::launcher_config::{helpers::misc::get_global_game_config, models::GameConfig};
 use crate::storage::{load_json_async, save_json_async};
 use crate::{
   instance::helpers::client_json::patchs_to_info,
