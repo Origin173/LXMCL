@@ -265,10 +265,12 @@ pub async fn relogin_player_3rdparty_password(
   )
   .await?;
 
-  let refreshed_player = player_list
+  let new_player = player_list
     .into_iter()
     .find(|player| player.uuid == old_player.uuid)
     .ok_or(AccountError::NotFound)?;
+
+  let refreshed_player = authlib_injector::password::refresh(&app, &new_player).await?;
 
   let mut account_state = account_binding.lock()?;
 

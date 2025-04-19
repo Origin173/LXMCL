@@ -258,9 +258,9 @@ pub async fn refresh(
   let token_response = client
     .post(token_endpoint)
     .json(&serde_json::json!({
-        "client_id": client_id,
-        "refresh_token": player.refresh_token,
-        "grant_type": "refresh_token",
+      "client_id": client_id,
+      "refresh_token": player.refresh_token,
+      "grant_type": "refresh_token",
     }))
     .send()
     .await?;
