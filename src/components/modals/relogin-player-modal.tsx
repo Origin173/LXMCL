@@ -46,6 +46,11 @@ const ReLoginPlayerModal: React.FC<ReLoginPlayerModalProps> = ({
 
   if (player.playerType === "offline") return null;
 
+  const handleCloseModal = () => {
+    props.onClose();
+    onError?.();
+  };
+
   const handleReLogin = async (isOAuth = false) => {
     setIsLoading(true);
     if (isOAuth) {
@@ -85,7 +90,6 @@ const ReLoginPlayerModal: React.FC<ReLoginPlayerModalProps> = ({
               description: response.details,
               status: "error",
             });
-            onError?.();
           }
           setIsLoading(false);
           setPassword("");
@@ -116,7 +120,7 @@ const ReLoginPlayerModal: React.FC<ReLoginPlayerModalProps> = ({
   };
 
   return (
-    <Modal {...props}>
+    <Modal {...props} onClose={handleCloseModal}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{t("ReLoginPlayerModal.modal.title")}</ModalHeader>
