@@ -4,6 +4,7 @@ import CopyOrMoveModal from "@/components/modals/copy-or-move-modal";
 import DeleteGameInstanceDialog from "@/components/modals/delete-game-instance-alert-dialog";
 import DownloadResourceModal from "@/components/modals/download-resource-modal";
 import LaunchProcessModal from "@/components/modals/launch-process-modal";
+import ReLoginPlayerModal from "@/components/modals/relogin-player-modal";
 import SpotlightSearchModal from "@/components/modals/spotlight-search-modal";
 import { SharedModalContextProvider } from "@/contexts/shared-modal";
 import { useSharedModals } from "@/contexts/shared-modal";
@@ -33,6 +34,7 @@ const SharedModals: React.FC<{ children: React.ReactNode }> = ({
     "delete-game-instance-alert": DeleteGameInstanceDialog,
     "download-resource": DownloadResourceModal,
     launch: LaunchProcessModal,
+    relogin: ReLoginPlayerModal,
     "spotlight-search": SpotlightSearchModal,
   };
 

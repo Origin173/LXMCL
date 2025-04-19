@@ -31,10 +31,10 @@ export class LaunchService {
   /**
    * Launching Step 3: validate the selected player, prepare prefetched server meta for authlib-injector.
    * The selected player ID is retrieved by the backend itself from the config state.
-   * @returns {Promise<InvokeResponse<void>>}
+   * @returns {Promise<InvokeResponse<boolean>>} false if the access token is expired.
    */
   @responseHandler("launch")
-  static async validateSelectedPlayer(): Promise<InvokeResponse<void>> {
+  static async validateSelectedPlayer(): Promise<InvokeResponse<boolean>> {
     return await invoke("validate_selected_player");
   }
 

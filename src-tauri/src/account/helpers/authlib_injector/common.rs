@@ -1,14 +1,15 @@
+use super::{oauth, password};
 use crate::{
   account::{
     helpers::offline::load_preset_skin,
-    models::{AccountError, PlayerInfo, PlayerType, Texture},
+    models::{AccountError, AuthServer, PlayerInfo, PlayerType, Texture},
   },
   error::SJMCLResult,
   utils::image::decode_image,
 };
 use base64::{engine::general_purpose, Engine};
-use serde_json::Value;
-use tauri::AppHandle;
+use serde_json::{json, Value};
+use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 use uuid::Uuid;
 
@@ -71,7 +72,9 @@ pub async fn parse_profile(
         });
       }
     }
-  } else {
+  }
+
+  if textures.is_empty() {
     // this player didn't have a texture, use preset Steve skin instead
     textures = load_preset_skin(app, "steve".to_string())?;
   }
@@ -93,22 +96,44 @@ pub async fn parse_profile(
   )
 }
 
-pub async fn validate(player: &PlayerInfo) -> SJMCLResult<()> {
-  let client = reqwest::Client::new();
+pub async fn validate(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<bool> {
+  println!(
+    "Validating player {}, access token {}",
+    player.name,
+    player.access_token.clone()
+  );
+  let client = app.state::<reqwest::Client>().clone();
 
   let response = client
     .post(format!(
       "{}/authserver/validate",
       player.auth_server_url.clone()
     ))
-    .form(&[("accessToken", player.access_token.clone())])
+    .header("Content-Type", "application/json")
+    .body(json!({ "accessToken": player.access_token.clone() }).to_string())
     .send()
     .await
     .map_err(|_| AccountError::NetworkError)?;
 
-  if !response.status().is_success() {
-    return Err(AccountError::Expired)?;
-  }
+  println!("Response: {:?}", response);
 
-  Ok(())
+  Ok(response.status().is_success())
+}
+
+pub async fn refresh(
+  app: &AppHandle,
+  player: &PlayerInfo,
+  auth_server: &AuthServer,
+) -> SJMCLResult<PlayerInfo> {
+  if player.refresh_token.is_empty() {
+    password::refresh(app, player).await
+  } else {
+    oauth::refresh(
+      app,
+      player,
+      auth_server.client_id.clone(),
+      auth_server.features.openid_configuration_url.clone(),
+    )
+    .await
+  }
 }

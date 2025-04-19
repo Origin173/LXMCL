@@ -7,8 +7,9 @@ use serde::{Deserialize, Serialize};
 use std::future::Future;
 use std::path::PathBuf;
 use std::time::Duration;
-use tauri::{AppHandle, Url};
-use tauri_plugin_http::reqwest::{header::RANGE, Client};
+use tauri::{AppHandle, Manager, Url};
+use tauri_plugin_http::reqwest;
+use tauri_plugin_http::reqwest::header::RANGE;
 use tokio::io::AsyncSeekExt;
 use tokio_util::{bytes, compat::FuturesAsyncReadCompatExt};
 
@@ -58,10 +59,11 @@ impl DownloadTask {
   }
 
   async fn create_resp(
+    app_handle: &AppHandle,
     task_state: &mut TaskState,
     param: &DownloadParam,
   ) -> SJMCLResult<impl Stream<Item = Result<bytes::Bytes, std::io::Error>>> {
-    let client = Client::new();
+    let client = app_handle.state::<reqwest::Client>().clone();
     Ok(
       if task_state.total == 0 && task_state.current == 0 {
         let r = client
@@ -136,7 +138,7 @@ impl DownloadTask {
     impl Future<Output = SJMCLResult<()>> + Sync + '_,
     Arc<Mutex<TaskState>>,
   )> {
-    let resp = Self::create_resp(&mut self.task_state, &self.param)
+    let resp = Self::create_resp(&self.app_handle, &mut self.task_state, &self.param)
       .await?
       .ratelimit_stream(lim);
     Self::future_impl(self, resp).await
@@ -148,7 +150,7 @@ impl DownloadTask {
     impl Future<Output = SJMCLResult<()>> + Sync,
     Arc<Mutex<TaskState>>,
   )> {
-    let resp = Self::create_resp(&mut self.task_state, &self.param).await?;
+    let resp = Self::create_resp(&self.app_handle, &mut self.task_state, &self.param).await?;
     Self::future_impl(self, resp).await
   }
 }

@@ -1079,23 +1079,23 @@
       "copyUUID": "Copy UUID"
     }
   },
-  "PingTestPage":{
-    "PingServerList":{
+  "PingTestPage": {
+    "PingServerList": {
       "title": "Service Connectivity Test",
       "offline": "Offline",
-      "bmclapi" : "BMCLAPI",
-      "curseforge" : "CurseForge",
-      "modrinth" : "Modrinth",
-      "mojang" : "Mojang",
+      "bmclapi": "BMCLAPI",
+      "curseforge": "CurseForge",
+      "modrinth": "Modrinth",
+      "mojang": "Mojang",
       "forge": "Forge",
       "fabric": "Fabric",
       "neoforge": "NeoForge",
       "authlibInjector": "Authlib Injector",
-      "github" : "GitHub",
-      "sjmclapi" : "SJMC Launcher API"
+      "github": "GitHub",
+      "sjmclapi": "SJMC Launcher API"
     }
   },
-  "ReLogin3rdPartyPlayerModal": {
+  "ReLoginPlayerModal": {
     "modal": {
       "title": "Re-login"
     },
@@ -1495,22 +1495,35 @@
           }
         }
       },
-      "validatePlayer": {
-        "error": {
-          "title": "Failed to validate player",
-          "description": {
-            "NOT_FOUND": "The player does not exist",
-            "EXPIRED": "The access token has expired, please re-login",
-            "NETWORK_ERROR": "Failed to connect to the server",
-            "PARSE_ERROR": "The server returned data in an incorrect format",
-            "NO_DOWNLOAD_API": "Failed to download Authlib-Injector, please check internet connection",
-            "SAVE_ERROR": "Failed to save Authlib-Injector"
-          }
-        }
-      },
       "retrieveAuthServerList": {
         "error": {
           "title": "Failed to retrieve server list"
+        }
+      },
+      "reloginPlayerOAuth": {
+        "success": "Successfully re-logged in",
+        "error": {
+          "title": "Failed to re-login",
+          "description": {
+            "NOT_FOUND": "The player does not exist",
+            "EXPIRED": "The access token has expired, please re-login",
+            "PARSE_ERROR": "The server returned data in an incorrect format",
+            "NETWORK_ERROR": "Failed to connect to the server",
+            "INVALID": "The player type is invalid"
+          }
+        }
+      },
+      "reloginPlayer3rdPartyPassword": {
+        "success": "Successfully re-logged in",
+        "error": {
+          "title": "Failed to re-login",
+          "description": {
+            "NOT_FOUND": "The player does not exist",
+            "EXPIRED": "The access token has expired, please re-login",
+            "PARSE_ERROR": "The server returned data in an incorrect format",
+            "NETWORK_ERROR": "Failed to connect to the server",
+            "INVALID": "Wrong account or password"
+          }
         }
       },
       "fetchAuthServer": {
@@ -1538,6 +1551,38 @@
           "title": "Failed to delete authentication server",
           "description": {
             "NOT_FOUND": "The authentication server does not exist"
+          }
+        }
+      }
+    },
+    "launch": {
+      "selectSuitableJRE": {
+        "error": {
+          "title": "Failed to select suitable JRE",
+          "description": {
+            "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist",
+            "NO_SUITABLE_JAVA": "No suitable Java version found"
+          }
+        }
+      },
+      "validateGameFiles": {
+        "error": {
+          "title": "Failed to validate game files",
+          "description": {
+            "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist"
+          }
+        }
+      },
+      "validateSelectedPlayer": {
+        "error": {
+          "title": "Failed to validate player",
+          "description": {
+            "NOT_FOUND": "The player does not exist",
+            "EXPIRED": "The access token has expired, please re-login",
+            "NETWORK_ERROR": "Failed to connect to the server",
+            "PARSE_ERROR": "The server returned data in an incorrect format",
+            "NO_DOWNLOAD_API": "Failed to download Authlib-Injector, please check internet connection",
+            "SAVE_ERROR": "Failed to save Authlib-Injector"
           }
         }
       }
