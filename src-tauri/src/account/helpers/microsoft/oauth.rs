@@ -15,7 +15,7 @@ use uuid::Uuid;
 include!(concat!(env!("OUT_DIR"), "/secrets.rs"));
 
 pub async fn device_authorization(app: &AppHandle) -> SJMCLResult<OAuthCodeResponse> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
   let response: Value = client
     .post("https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode")
     .form(&[("client_id", CLIENT_ID), ("scope", SCOPE)])
@@ -56,7 +56,7 @@ pub async fn device_authorization(app: &AppHandle) -> SJMCLResult<OAuthCodeRespo
 }
 
 async fn fetch_xbl_token(app: &AppHandle, microsoft_token: String) -> SJMCLResult<String> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
 
   let response = client
     .post("https://user.auth.xboxlive.com/user/authenticate")
@@ -88,7 +88,7 @@ async fn fetch_xbl_token(app: &AppHandle, microsoft_token: String) -> SJMCLResul
 }
 
 async fn fetch_xsts_token(app: &AppHandle, xbl_token: String) -> SJMCLResult<(String, String)> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
 
   let response = client
     .post("https://xsts.auth.xboxlive.com/xsts/authorize")
@@ -130,7 +130,7 @@ async fn fetch_minecraft_token(
   xsts_userhash: String,
   xsts_token: String,
 ) -> SJMCLResult<String> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
 
   let response: Value = client
     .post("https://api.minecraftservices.com/authentication/login_with_xbox")
@@ -153,7 +153,7 @@ async fn fetch_minecraft_token(
 }
 
 async fn fetch_minecraft_profile(app: &AppHandle, minecraft_token: String) -> SJMCLResult<Value> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
 
   Ok(
     client
@@ -185,7 +185,7 @@ async fn parse_profile(
   let mut textures: Vec<Texture> = vec![];
   const TEXTURE_MAP: [(&str, &str); 2] = [("skins", "SKIN"), ("capes", "CAPE")];
 
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
 
   for (key, val) in TEXTURE_MAP {
     if let Some(skin) = profile[key]
@@ -233,7 +233,7 @@ async fn parse_profile(
 }
 
 pub async fn login(app: &AppHandle, auth_info: OAuthCodeResponse) -> SJMCLResult<PlayerInfo> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
 
   let verification_url =
     Url::parse(auth_info.verification_uri.as_str()).map_err(|_| AccountError::ParseError)?;
@@ -322,7 +322,7 @@ pub async fn login(app: &AppHandle, auth_info: OAuthCodeResponse) -> SJMCLResult
 }
 
 pub async fn refresh(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<PlayerInfo> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
 
   let token_response = client
     .post(TOKEN_ENDPOINT)
@@ -358,7 +358,7 @@ pub async fn refresh(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<Player
 }
 
 pub async fn validate(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<bool> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
   let response = client
     .get("https://api.minecraftservices.com/minecraft/profile")
     .header("Authorization", format!("Bearer {}", player.access_token))

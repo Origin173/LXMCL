@@ -11,21 +11,23 @@ use crate::{
   launcher_config::models::LauncherConfig,
 };
 use std::sync::Mutex;
-use tauri::State;
+use tauri::{AppHandle, State};
 
 #[tauri::command]
 pub async fn fetch_game_version_list(
+  app: AppHandle,
   state: State<'_, Mutex<LauncherConfig>>,
 ) -> SJMCLResult<Vec<GameResourceInfo>> {
   let priority_list = {
     let state = state.lock()?;
     get_source_priority_list(&state)
   };
-  get_game_version_manifest(&priority_list).await
+  get_game_version_manifest(&app, &priority_list).await
 }
 
 #[tauri::command]
 pub async fn fetch_mod_loader_version_list(
+  app: AppHandle,
   game_version: String,
   mod_loader_type: ModLoaderType,
   state: State<'_, Mutex<LauncherConfig>>,
@@ -36,13 +38,13 @@ pub async fn fetch_mod_loader_version_list(
   };
   match mod_loader_type {
     ModLoaderType::Forge | ModLoaderType::ForgeOld => {
-      Ok(get_forge_meta_by_game_version(&priority_list, &game_version).await?)
+      Ok(get_forge_meta_by_game_version(&app, &priority_list, &game_version).await?)
     }
     ModLoaderType::Fabric => {
-      Ok(get_fabric_meta_by_game_version(&priority_list, &game_version).await?)
+      Ok(get_fabric_meta_by_game_version(&app, &priority_list, &game_version).await?)
     }
     ModLoaderType::NeoForge => {
-      Ok(get_neoforge_meta_by_game_version(&priority_list, &game_version).await?)
+      Ok(get_neoforge_meta_by_game_version(&app, &priority_list, &game_version).await?)
     }
     // TODO here
     _ => Err(ResourceError::NoDownloadApi.into()),

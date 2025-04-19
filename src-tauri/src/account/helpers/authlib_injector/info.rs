@@ -10,7 +10,7 @@ pub async fn fetch_auth_server_info(
   app: &AppHandle,
   auth_url: String,
 ) -> SJMCLResult<AuthServerInfo> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
   match client.get(&auth_url).send().await {
     Ok(response) => {
       let json: serde_json::Value = response.json().await.map_err(|_| AccountError::Invalid)?;
@@ -60,7 +60,7 @@ pub fn get_client_id(domain: String) -> String {
 }
 
 pub async fn fetch_auth_url(app: &AppHandle, root: Url) -> SJMCLResult<String> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
   let response = client
     .get(root.clone())
     .send()

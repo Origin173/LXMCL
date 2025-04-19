@@ -2,8 +2,8 @@ use serde_json::json;
 use tauri_plugin_http::reqwest;
 use tauri_plugin_os::locale;
 
-pub async fn send_statistics(version: String, os: String) {
-  _ = reqwest::Client::new()
+pub async fn send_statistics(client: reqwest::Client, version: String, os: String) {
+  _ = client
     .post("https://mc.sjtu.cn/api-sjmcl/statistics")
     .json(&json!({
       "version": version,

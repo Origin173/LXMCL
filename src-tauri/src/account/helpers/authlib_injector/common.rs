@@ -22,6 +22,8 @@ pub async fn parse_profile(
   auth_account: String,
   password: String,
 ) -> SJMCLResult<PlayerInfo> {
+  let client = app.state::<reqwest::Client>();
+
   let uuid = Uuid::parse_str(profile["id"].as_str().unwrap_or_default())
     .map_err(|_| AccountError::ParseError)?;
 
@@ -55,7 +57,9 @@ pub async fn parse_profile(
         if img_url.is_empty() {
           continue;
         }
-        let img_bytes = reqwest::get(img_url)
+        let img_bytes = client
+          .get(img_url)
+          .send()
           .await
           .map_err(|_| AccountError::NetworkError)?
           .bytes()
@@ -102,7 +106,7 @@ pub async fn validate(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<bool>
     player.name,
     player.access_token.clone()
   );
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
 
   let response = client
     .post(format!(

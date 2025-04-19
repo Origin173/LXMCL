@@ -16,7 +16,7 @@ async fn fetch_openid_configuration(
   app: &AppHandle,
   openid_configuration_url: String,
 ) -> SJMCLResult<Value> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
 
   let res = client
     .get(&openid_configuration_url)
@@ -31,7 +31,7 @@ async fn fetch_openid_configuration(
 }
 
 async fn fetch_jwks(app: &AppHandle, jwks_uri: String) -> SJMCLResult<Value> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
 
   let res = client
     .get(&jwks_uri)
@@ -50,7 +50,7 @@ pub async fn device_authorization(
   openid_configuration_url: String,
   client_id: String,
 ) -> SJMCLResult<OAuthCodeResponse> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
 
   let openid_configuration = fetch_openid_configuration(app, openid_configuration_url).await?;
 
@@ -150,7 +150,7 @@ pub async fn login(
   client_id: String,
   auth_info: OAuthCodeResponse,
 ) -> SJMCLResult<PlayerInfo> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
 
   let openid_configuration = fetch_openid_configuration(app, openid_configuration_url).await?;
 
@@ -253,7 +253,7 @@ pub async fn refresh(
 
   let jwks = fetch_jwks(app, jwks_uri.to_string()).await?;
 
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
 
   let token_response = client
     .post(token_endpoint)

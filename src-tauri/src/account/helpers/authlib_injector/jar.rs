@@ -33,7 +33,7 @@ async fn get_latest_meta(
   app: &AppHandle,
   priority_list: &[SourceType],
 ) -> SJMCLResult<AuthlibInjectorMeta> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
 
   for source in priority_list.iter() {
     let url = get_download_api(*source, ResourceType::AuthlibInjector)?;
@@ -86,7 +86,7 @@ fn get_local_version(app: &AppHandle) -> SJMCLResult<String> {
 }
 
 async fn download(app: &AppHandle, url: Url) -> SJMCLResult<()> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
   let jar_path = get_jar_path(app)?;
 
   let response = client

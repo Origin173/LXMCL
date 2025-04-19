@@ -2,6 +2,7 @@ use crate::error::{SJMCLError, SJMCLResult};
 use quartz_nbt::io::Flavor;
 use serde::{self, Deserialize, Serialize};
 use std::path::Path;
+use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
 #[derive(Debug, Serialize, Deserialize, Default)]
@@ -39,10 +40,14 @@ pub struct Players {
   pub max: u64,
 }
 
-pub async fn query_server_status(server: &String) -> SJMCLResult<SjmcServerQueryResult> {
+pub async fn query_server_status(
+  app: AppHandle,
+  server: &String,
+) -> SJMCLResult<SjmcServerQueryResult> {
   // construct request url
+  let client = app.state::<reqwest::Client>();
   let url = format!("https://mc.sjtu.cn/custom/serverlist/?query={}", server);
-  let response = reqwest::get(&url).await?;
+  let response = client.get(&url).send().await?;
   if !response.status().is_success() {
     return Err(SJMCLError(format!("http error: {}", response.status())));
   }

@@ -13,7 +13,7 @@ pub async fn fetch_post_sources_info(app: AppHandle) -> SJMCLResult<Vec<PostSour
     state.discover_source_endpoints.clone()
   };
 
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
 
   let tasks: Vec<_> = post_source_urls
     .into_iter()

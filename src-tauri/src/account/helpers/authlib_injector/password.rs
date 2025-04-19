@@ -15,7 +15,7 @@ async fn get_profile(
   auth_account: String,
   password: String,
 ) -> SJMCLResult<PlayerInfo> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
   let profile = client
     .get(format!(
       "{}/sessionserver/session/minecraft/profile/{}",
@@ -46,7 +46,7 @@ pub async fn login(
   username: String,
   password: String,
 ) -> SJMCLResult<Vec<PlayerInfo>> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
 
   let response = client
     .post(format!("{}/authserver/authenticate", auth_server_url))
@@ -132,7 +132,7 @@ pub async fn login(
 }
 
 pub async fn refresh(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<PlayerInfo> {
-  let client = app.state::<reqwest::Client>().clone();
+  let client = app.state::<reqwest::Client>();
 
   let response = client
     .post(format!("{}/authserver/refresh", player.auth_server_url))
