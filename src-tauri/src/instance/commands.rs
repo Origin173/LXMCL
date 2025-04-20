@@ -395,20 +395,22 @@ pub async fn retrieve_game_server_list(
   // query_online is true, amend query and return player count and online status
   if query_online {
     let query_tasks = game_servers.clone().into_iter().map(|mut server| {
-      tokio::spawn(async move {
-        match query_server_status(&server.ip).await {
-          Ok(query_result) => {
-            server.is_queried = true;
-            server.players_online = query_result.players.online as usize;
-            server.players_max = query_result.players.max as usize;
-            server.online = query_result.online;
-            server.icon_src = query_result.favicon.unwrap_or_default();
+      tokio::spawn({
+        async move {
+          match query_server_status(&server.ip).await {
+            Ok(query_result) => {
+              server.is_queried = true;
+              server.players_online = query_result.players.online as usize;
+              server.players_max = query_result.players.max as usize;
+              server.online = query_result.online;
+              server.icon_src = query_result.favicon.unwrap_or_default();
+            }
+            Err(_) => {
+              server.is_queried = false;
+            }
           }
-          Err(_) => {
-            server.is_queried = false;
-          }
+          server
         }
-        server
       })
     });
     let mut updated_servers = Vec::new();

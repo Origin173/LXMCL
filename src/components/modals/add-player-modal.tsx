@@ -363,7 +363,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
             {playerType === "microsoft" && (
               <OAuthLoginPanel
                 authType="microsoft"
-                authCode={oauthCodeResponse && oauthCodeResponse.userCode}
+                authCode={oauthCodeResponse?.userCode}
                 callback={() =>
                   oauthCodeResponse ? handleLogin(true) : handleFetchOAuthCode()
                 }

@@ -8,7 +8,9 @@ use super::{
     },
     microsoft, offline,
   },
-  models::{AccountError, AccountInfo, AuthServer, OAuthCodeResponse, Player, PlayerType},
+  models::{
+    AccountError, AccountInfo, AuthServer, OAuthCodeResponse, Player, PlayerInfo, PlayerType,
+  },
 };
 use crate::{error::SJMCLResult, launcher_config::models::LauncherConfig, storage::Storage};
 use std::sync::Mutex;
@@ -131,6 +133,60 @@ pub async fn add_player_oauth(
 }
 
 #[tauri::command]
+pub async fn relogin_player_oauth(
+  app: AppHandle,
+  player_id: String,
+  auth_info: OAuthCodeResponse,
+) -> SJMCLResult<()> {
+  let account_binding = app.state::<Mutex<AccountInfo>>();
+
+  let cloned_account_state = account_binding.lock()?.clone();
+
+  let old_player = cloned_account_state
+    .players
+    .iter()
+    .find(|player| player.id == player_id)
+    .ok_or(AccountError::NotFound)?;
+
+  let new_player = match old_player.player_type {
+    PlayerType::ThirdParty => {
+      let auth_server = AuthServer::from(get_auth_server_info_by_url(
+        &app,
+        old_player.auth_server_url.clone(),
+      )?);
+
+      authlib_injector::oauth::login(
+        &app,
+        old_player.auth_server_url.clone(),
+        auth_server.features.openid_configuration_url,
+        auth_server.client_id,
+        auth_info,
+      )
+      .await?
+    }
+
+    PlayerType::Microsoft => microsoft::oauth::login(&app, auth_info).await?,
+
+    PlayerType::Offline => {
+      return Err(AccountError::Invalid.into());
+    }
+  };
+
+  let mut account_state = account_binding.lock()?;
+
+  if let Some(player) = account_state
+    .players
+    .iter_mut()
+    .find(|player| player.id == player_id)
+  {
+    *player = new_player;
+    account_state.save()?;
+  }
+
+  Ok(())
+}
+
+#[tauri::command]
 pub async fn add_player_3rdparty_password(
   app: AppHandle,
   auth_server_url: String,
@@ -182,8 +238,58 @@ pub async fn add_player_3rdparty_password(
 }
 
 #[tauri::command]
+pub async fn relogin_player_3rdparty_password(
+  app: AppHandle,
+  player_id: String,
+  password: String,
+) -> SJMCLResult<()> {
+  let account_binding = app.state::<Mutex<AccountInfo>>();
+
+  let cloned_account_state = account_binding.lock()?.clone();
+
+  let old_player = cloned_account_state
+    .players
+    .iter()
+    .find(|player| player.id == player_id)
+    .ok_or(AccountError::NotFound)?;
+
+  if old_player.player_type != PlayerType::ThirdParty {
+    return Err(AccountError::Invalid.into());
+  }
+
+  let player_list = authlib_injector::password::login(
+    &app,
+    old_player.auth_server_url.clone(),
+    old_player.auth_account.clone(),
+    password,
+  )
+  .await?;
+
+  let new_player = player_list
+    .into_iter()
+    .find(|player| player.uuid == old_player.uuid)
+    .ok_or(AccountError::NotFound)?;
+
+  let refreshed_player = authlib_injector::password::refresh(&app, &new_player).await?;
+
+  let mut account_state = account_binding.lock()?;
+
+  if let Some(player) = account_state
+    .players
+    .iter_mut()
+    .find(|player| player.id == player_id)
+  {
+    *player = refreshed_player;
+    account_state.save()?;
+  }
+
+  Ok(())
+}
+
+#[tauri::command]
 pub async fn add_player_from_selection(app: AppHandle, player: Player) -> SJMCLResult<()> {
-  let refreshed_player = authlib_injector::password::refresh(&app, player.into()).await?;
+  let player_info: PlayerInfo = player.into();
+  let refreshed_player = authlib_injector::password::refresh(&app, &player_info).await?;
 
   let account_binding = app.state::<Mutex<AccountInfo>>();
   let mut account_state = account_binding.lock()?;
@@ -279,20 +385,10 @@ pub async fn refresh_player(app: AppHandle, player_id: String) -> SJMCLResult<()
         player.auth_server_url.clone(),
       )?);
 
-      if player.refresh_token.is_empty() {
-        authlib_injector::password::refresh(&app, player.clone()).await?
-      } else {
-        authlib_injector::oauth::refresh(
-          &app,
-          player.clone(),
-          auth_server.client_id,
-          auth_server.features.openid_configuration_url,
-        )
-        .await?
-      }
+      authlib_injector::common::refresh(&app, player, &auth_server).await?
     }
 
-    PlayerType::Microsoft => microsoft::oauth::refresh(player.clone()).await?,
+    PlayerType::Microsoft => microsoft::oauth::refresh(&app, player).await?,
 
     PlayerType::Offline => {
       return Err(AccountError::Invalid.into());
@@ -312,7 +408,6 @@ pub async fn refresh_player(app: AppHandle, player_id: String) -> SJMCLResult<()
 
   Ok(())
 }
-
 #[tauri::command]
 pub fn retrieve_auth_server_list(app: AppHandle) -> SJMCLResult<Vec<AuthServer>> {
   let binding = app.state::<Mutex<AccountInfo>>();
@@ -333,13 +428,15 @@ pub async fn fetch_auth_server(app: AppHandle, url: String) -> SJMCLResult<AuthS
     .or(Url::parse(&format!("https://{}", url)))
     .map_err(|_| AccountError::Invalid)?;
 
-  let auth_url = fetch_auth_url(parsed_url).await?;
+  let auth_url = fetch_auth_url(&app, parsed_url).await?;
 
   if get_auth_server_info_by_url(&app, auth_url.clone()).is_ok() {
     return Err(AccountError::Duplicate.into());
   }
 
-  Ok(AuthServer::from(fetch_auth_server_info(auth_url).await?))
+  Ok(AuthServer::from(
+    fetch_auth_server_info(&app, auth_url).await?,
+  ))
 }
 
 #[tauri::command]
@@ -348,7 +445,7 @@ pub async fn add_auth_server(app: AppHandle, auth_url: String) -> SJMCLResult<()
     return Err(AccountError::Duplicate.into());
   }
 
-  let server = fetch_auth_server_info(auth_url).await?;
+  let server = fetch_auth_server_info(&app, auth_url).await?;
 
   let binding = app.state::<Mutex<AccountInfo>>();
   let mut state = binding.lock()?;

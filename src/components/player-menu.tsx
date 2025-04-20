@@ -19,7 +19,9 @@ import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
 import ManageSkinModal from "@/components/modals/manage-skin-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
+import { useSharedModals } from "@/contexts/shared-modal";
 import { useToast } from "@/contexts/toast";
+import { AccountServiceError } from "@/enums/service-error";
 import { Player } from "@/models/account";
 import { AccountService } from "@/services/account";
 import { copyText } from "@/utils/copy";
@@ -38,6 +40,7 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
   const { refreshConfig } = useLauncherConfig();
   const toast = useToast();
   const { getPlayerList } = useData();
+  const { openSharedModal } = useSharedModals();
 
   const {
     isOpen: isDeleteOpen,
@@ -87,6 +90,14 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
             description: response.details,
             status: "error",
           });
+          if (response.raw_error === AccountServiceError.Expired) {
+            openSharedModal("relogin", {
+              player,
+              onSuccess: () => {
+                Promise.all([getPlayerList(true), refreshConfig()]);
+              },
+            });
+          }
         }
       })
       .finally(() => setIsRefreshing(false));

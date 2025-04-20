@@ -5,9 +5,9 @@ use crate::utils::image::decode_image;
 use crate::utils::window::create_webview_window;
 use serde_json::{json, Value};
 use std::sync::{Arc, Mutex};
-use tauri::AppHandle;
+use tauri::{AppHandle, Manager};
 use tauri_plugin_clipboard_manager::ClipboardExt;
-use tauri_plugin_http::reqwest::{self, Client};
+use tauri_plugin_http::reqwest;
 use tokio::time::{sleep, Duration};
 use url::Url;
 use uuid::Uuid;
@@ -15,7 +15,7 @@ use uuid::Uuid;
 include!(concat!(env!("OUT_DIR"), "/secrets.rs"));
 
 pub async fn device_authorization(app: &AppHandle) -> SJMCLResult<OAuthCodeResponse> {
-  let client = Client::new();
+  let client = app.state::<reqwest::Client>();
   let response: Value = client
     .post("https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode")
     .form(&[("client_id", CLIENT_ID), ("scope", SCOPE)])
@@ -55,8 +55,8 @@ pub async fn device_authorization(app: &AppHandle) -> SJMCLResult<OAuthCodeRespo
   })
 }
 
-async fn fetch_xbl_token(microsoft_token: String) -> SJMCLResult<String> {
-  let client = Client::new();
+async fn fetch_xbl_token(app: &AppHandle, microsoft_token: String) -> SJMCLResult<String> {
+  let client = app.state::<reqwest::Client>();
 
   let response = client
     .post("https://user.auth.xboxlive.com/user/authenticate")
@@ -87,8 +87,8 @@ async fn fetch_xbl_token(microsoft_token: String) -> SJMCLResult<String> {
   )
 }
 
-async fn fetch_xsts_token(xbl_token: String) -> SJMCLResult<(String, String)> {
-  let client = Client::new();
+async fn fetch_xsts_token(app: &AppHandle, xbl_token: String) -> SJMCLResult<(String, String)> {
+  let client = app.state::<reqwest::Client>();
 
   let response = client
     .post("https://xsts.auth.xboxlive.com/xsts/authorize")
@@ -125,8 +125,12 @@ async fn fetch_xsts_token(xbl_token: String) -> SJMCLResult<(String, String)> {
   Ok((xsts_userhash, xsts_token))
 }
 
-async fn fetch_minecraft_token(xsts_userhash: String, xsts_token: String) -> SJMCLResult<String> {
-  let client = Client::new();
+async fn fetch_minecraft_token(
+  app: &AppHandle,
+  xsts_userhash: String,
+  xsts_token: String,
+) -> SJMCLResult<String> {
+  let client = app.state::<reqwest::Client>();
 
   let response: Value = client
     .post("https://api.minecraftservices.com/authentication/login_with_xbox")
@@ -148,8 +152,8 @@ async fn fetch_minecraft_token(xsts_userhash: String, xsts_token: String) -> SJM
   )
 }
 
-async fn fetch_minecraft_profile(minecraft_token: String) -> SJMCLResult<Value> {
-  let client = Client::new();
+async fn fetch_minecraft_profile(app: &AppHandle, minecraft_token: String) -> SJMCLResult<Value> {
+  let client = app.state::<reqwest::Client>();
 
   Ok(
     client
@@ -165,25 +169,23 @@ async fn fetch_minecraft_profile(minecraft_token: String) -> SJMCLResult<Value> 
 }
 
 async fn parse_profile(
+  app: &AppHandle,
   microsoft_token: String,
   microsoft_refresh_token: String,
 ) -> SJMCLResult<PlayerInfo> {
-  let xbl_token = fetch_xbl_token(microsoft_token).await?;
-
-  let (xsts_userhash, xsts_token) = fetch_xsts_token(xbl_token).await?;
-
-  let minecraft_token = fetch_minecraft_token(xsts_userhash, xsts_token).await?;
-
-  let profile = fetch_minecraft_profile(minecraft_token.clone()).await?;
+  let xbl_token = fetch_xbl_token(app, microsoft_token).await?;
+  let (xsts_userhash, xsts_token) = fetch_xsts_token(app, xbl_token).await?;
+  let minecraft_token = fetch_minecraft_token(app, xsts_userhash, xsts_token).await?;
+  let profile = fetch_minecraft_profile(app, minecraft_token.clone()).await?;
 
   let uuid = Uuid::parse_str(profile["id"].as_str().unwrap_or_default())
     .map_err(|_| AccountError::ParseError)?;
-
   let name = profile["name"].as_str().unwrap_or_default().to_string();
 
   let mut textures: Vec<Texture> = vec![];
-
   const TEXTURE_MAP: [(&str, &str); 2] = [("skins", "SKIN"), ("capes", "CAPE")];
+
+  let client = app.state::<reqwest::Client>();
 
   for (key, val) in TEXTURE_MAP {
     if let Some(skin) = profile[key]
@@ -197,7 +199,9 @@ async fn parse_profile(
       if img_url.is_empty() {
         continue;
       }
-      let img_bytes = reqwest::get(img_url)
+      let img_bytes = client
+        .get(img_url)
+        .send()
         .await
         .map_err(|_| AccountError::NetworkError)?
         .bytes()
@@ -229,7 +233,7 @@ async fn parse_profile(
 }
 
 pub async fn login(app: &AppHandle, auth_info: OAuthCodeResponse) -> SJMCLResult<PlayerInfo> {
-  let client = Client::new();
+  let client = app.state::<reqwest::Client>();
 
   let verification_url =
     Url::parse(auth_info.verification_uri.as_str()).map_err(|_| AccountError::ParseError)?;
@@ -314,11 +318,11 @@ pub async fn login(app: &AppHandle, auth_info: OAuthCodeResponse) -> SJMCLResult
     sleep(Duration::from_secs(interval)).await;
   }
 
-  parse_profile(microsoft_token, microsoft_refresh_token).await
+  parse_profile(app, microsoft_token, microsoft_refresh_token).await
 }
 
-pub async fn refresh(player: PlayerInfo) -> SJMCLResult<PlayerInfo> {
-  let client = Client::new();
+pub async fn refresh(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<PlayerInfo> {
+  let client = app.state::<reqwest::Client>();
 
   let token_response = client
     .post(TOKEN_ENDPOINT)
@@ -350,13 +354,17 @@ pub async fn refresh(player: PlayerInfo) -> SJMCLResult<PlayerInfo> {
     .ok_or(AccountError::ParseError)?
     .to_string();
 
-  parse_profile(microsoft_token, microsoft_refresh_token).await
+  parse_profile(app, microsoft_token, microsoft_refresh_token).await
 }
 
-pub async fn validate(player: &PlayerInfo) -> SJMCLResult<()> {
-  if (fetch_minecraft_profile(player.access_token.clone()).await).is_ok() {
-    Ok(())
-  } else {
-    Err(AccountError::Expired)?
-  }
+pub async fn validate(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<bool> {
+  let client = app.state::<reqwest::Client>();
+  let response = client
+    .get("https://api.minecraftservices.com/minecraft/profile")
+    .header("Authorization", format!("Bearer {}", player.access_token))
+    .send()
+    .await
+    .map_err(|_| AccountError::NetworkError)?;
+
+  Ok(response.status().is_success())
 }

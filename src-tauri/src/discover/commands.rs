@@ -3,7 +3,7 @@ use crate::{error::SJMCLResult, launcher_config::models::LauncherConfig};
 use futures::future;
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
-use tauri_plugin_http::reqwest::Client;
+use tauri_plugin_http::reqwest;
 
 #[tauri::command]
 pub async fn fetch_post_sources_info(app: AppHandle) -> SJMCLResult<Vec<PostSourceInfo>> {
@@ -13,7 +13,7 @@ pub async fn fetch_post_sources_info(app: AppHandle) -> SJMCLResult<Vec<PostSour
     state.discover_source_endpoints.clone()
   };
 
-  let client = Client::new();
+  let client = app.state::<reqwest::Client>();
 
   let tasks: Vec<_> = post_source_urls
     .into_iter()

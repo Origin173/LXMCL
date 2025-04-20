@@ -1079,23 +1079,23 @@
       "copyUUID": "复制 UUID"
     }
   },
-  "PingTestPage":{
-    "PingServerList":{
+  "PingTestPage": {
+    "PingServerList": {
       "title": "服务连通性测试",
       "offline": "离线",
-      "bmclapi" : "BMCLAPI",
-      "curseforge" : "CurseForge",
-      "modrinth" : "Modrinth",
-      "mojang" : "Mojang",
+      "bmclapi": "BMCLAPI",
+      "curseforge": "CurseForge",
+      "modrinth": "Modrinth",
+      "mojang": "Mojang",
       "forge": "Forge",
       "fabric": "Fabric",
       "neoforge": "NeoForge",
       "authlibInjector": "Authlib Injector",
-      "github" : "GitHub",
-      "sjmclapi" : "SJMC Launcher API"
+      "github": "GitHub",
+      "sjmclapi": "SJMC Launcher API"
     }
   },
-  "ReLogin3rdPartyPlayerModal": {
+  "ReLoginPlayerModal": {
     "modal": {
       "title": "重新登录"
     },
@@ -1495,16 +1495,29 @@
           }
         }
       },
-      "validatePlayer": {
+      "reloginPlayerOAuth": {
+        "success": "角色重新登录成功",
         "error": {
-          "title": "验证角色失败",
+          "title": "角色重新登录失败",
           "description": {
             "NOT_FOUND": "角色不存在",
-            "EXPIRED": "访问令牌已过期，请重新登录",
-            "NETWORK_ERROR": "无法连接到服务器",
-            "PARSE_ERROR": "服务器返回的数据格式错误",
-            "NO_DOWNLOAD_API": "下载 Authlib-Injector 失败，请检查网络连接",
-            "SAVE_ERROR": "保存 Authlib-Injector 失败"
+            "EXPIRED": "令牌已过期，请重新登录",
+            "PARSE_ERROR": "服务器返回数据格式错误",
+            "NETWORK_ERROR": "无法连接至认证服务器",
+            "INVALID": "不支持离线角色刷新"
+          }
+        }
+      },
+      "reloginPlayer3rdPartyPassword": {
+        "success": "角色重新登录成功",
+        "error": {
+          "title": "角色重新登录失败",
+          "description": {
+            "NOT_FOUND": "角色不存在",
+            "EXPIRED": "令牌已过期，请重新登录",
+            "PARSE_ERROR": "服务器返回数据格式错误",
+            "NETWORK_ERROR": "无法连接至认证服务器",
+            "INVALID": "账号或密码错误"
           }
         }
       },
@@ -1538,6 +1551,38 @@
           "title": "认证服务器删除失败",
           "description": {
             "NOT_FOUND": "认证服务器不存在"
+          }
+        }
+      }
+    },
+    "launch": {
+      "selectSuitableJRE": {
+        "error": {
+          "title": "选择合适 Java 运行时失败",
+          "description": {
+            "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在",
+            "NO_SUITABLE_JAVA": "没有合适的 Java 运行时可供选择"
+          }
+        }
+      },
+      "validateGameFiles": {
+        "error": {
+          "title": "验证游戏文件失败",
+          "description": {
+            "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在"
+          }
+        }
+      },
+      "validateSelectedPlayer": {
+        "error": {
+          "title": "验证角色失败",
+          "description": {
+            "NOT_FOUND": "角色不存在",
+            "EXPIRED": "访问令牌已过期，请重新登录",
+            "NETWORK_ERROR": "无法连接到服务器",
+            "PARSE_ERROR": "服务器返回的数据格式错误",
+            "NO_DOWNLOAD_API": "下载 Authlib-Injector 失败，请检查网络连接",
+            "SAVE_ERROR": "保存 Authlib-Injector 失败"
           }
         }
       }

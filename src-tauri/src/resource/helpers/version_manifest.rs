@@ -2,6 +2,7 @@ use crate::error::SJMCLError;
 use crate::resource::models::{ResourceError, ResourceType, SourceType};
 use crate::{error::SJMCLResult, resource::models::GameResourceInfo};
 use serde::{Deserialize, Serialize};
+use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
 use super::misc::get_download_api;
@@ -30,11 +31,13 @@ struct LatestVersion {
 }
 
 pub async fn get_game_version_manifest(
+  app: &AppHandle,
   priority_list: &[SourceType],
 ) -> SJMCLResult<Vec<GameResourceInfo>> {
+  let client = app.state::<reqwest::Client>();
   for source_type in priority_list.iter() {
     let url = get_download_api(*source_type, ResourceType::VersionManifest)?;
-    match reqwest::get(url).await {
+    match client.get(url).send().await {
       Ok(response) => {
         if response.status().is_success() {
           match response.json::<VersionManifest>().await {

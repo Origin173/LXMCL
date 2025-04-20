@@ -57,10 +57,12 @@ pub fn restore_launcher_config(app: AppHandle) -> SJMCLResult<LauncherConfig> {
 }
 
 #[tauri::command]
-pub async fn export_launcher_config(app: AppHandle) -> SJMCLResult<String> {
+pub async fn export_launcher_config(
+  app: AppHandle,
+  client: tauri::State<'_, reqwest::Client>,
+) -> SJMCLResult<String> {
   let binding = app.state::<Mutex<LauncherConfig>>();
   let state = { binding.lock()?.clone() };
-  let client = reqwest::Client::new();
   match client
     .post("https://mc.sjtu.cn/api-sjmcl/settings")
     .header("Content-Type", "application/json")
@@ -96,8 +98,11 @@ pub async fn export_launcher_config(app: AppHandle) -> SJMCLResult<String> {
 }
 
 #[tauri::command]
-pub async fn import_launcher_config(app: AppHandle, code: String) -> SJMCLResult<LauncherConfig> {
-  let client = reqwest::Client::new();
+pub async fn import_launcher_config(
+  app: AppHandle,
+  client: tauri::State<'_, reqwest::Client>,
+  code: String,
+) -> SJMCLResult<LauncherConfig> {
   match client
     .post("https://mc.sjtu.cn/api-sjmcl/validate")
     .header("Content-Type", "application/json")
