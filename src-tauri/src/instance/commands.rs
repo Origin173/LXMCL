@@ -396,9 +396,8 @@ pub async fn retrieve_game_server_list(
   if query_online {
     let query_tasks = game_servers.clone().into_iter().map(|mut server| {
       tokio::spawn({
-        let cloned_app = app.clone();
         async move {
-          match query_server_status(cloned_app, &server.ip).await {
+          match query_server_status(&server.ip).await {
             Ok(query_result) => {
               server.is_queried = true;
               server.players_online = query_result.players.online as usize;

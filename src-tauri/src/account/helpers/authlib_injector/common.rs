@@ -101,11 +101,6 @@ pub async fn parse_profile(
 }
 
 pub async fn validate(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<bool> {
-  println!(
-    "Validating player {}, access token {}",
-    player.name,
-    player.access_token.clone()
-  );
   let client = app.state::<reqwest::Client>();
 
   let response = client
@@ -118,8 +113,6 @@ pub async fn validate(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<bool>
     .send()
     .await
     .map_err(|_| AccountError::NetworkError)?;
-
-  println!("Response: {:?}", response);
 
   Ok(response.status().is_success())
 }

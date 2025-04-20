@@ -141,7 +141,7 @@ pub async fn run() {
       app.manage(Box::pin(TaskMonitor::new(app.handle().clone(), notify)));
 
       let client = build_sjmcl_client(app.handle(), true, false);
-      app.manage(client.clone());
+      app.manage(client);
 
       let launching = LaunchingState::default();
       app.manage(Mutex::new(launching));
@@ -180,7 +180,7 @@ pub async fn run() {
 
       // send statistics
       tokio::spawn(async move {
-        utils::sys_info::send_statistics(client.clone(), version, os).await;
+        utils::sys_info::send_statistics(version, os).await;
       });
 
       // Log in debug mode
