@@ -26,6 +26,13 @@ export interface ModLoaderResourceInfo {
   stable: boolean;
 }
 
+export interface ResourceVersionPack {
+  name: string;
+  items: OtherResourceInfo[];
+  versionLabel: string;
+  modLoader?: ModLoaderType;
+}
+
 export const defaultModLoaderResourceInfo: ModLoaderResourceInfo = {
   loaderType: "Unknown",
   version: "",

@@ -433,6 +433,19 @@
       }
     }
   },
+  "DownloadSpecificResourceModal": {
+    "title": "Download Resource - {{name}}",
+    "goTo": {
+      "curseforge": "CurseForge",
+      "modrinth": "Modrinth",
+      "mcmod": "MCMod"
+    },
+    "label": {
+      "all": "All",
+      "currentVersion": "Current Version",
+      "currentModLoader": "Current Loader"
+    }
+  },
   "DownloadTasksPage": {
     "title": "Downloading Tasks",
     "button": {
