@@ -46,10 +46,10 @@ impl DownloadTask {
       desc: ProgressiveTaskDescriptor::new(
         task_id,
         task_group,
-        ActiveTaskType::Download,
+        ProgressiveTaskType::Download,
         0,
         cache_dir.clone(),
-        ActiveTaskState::Download(param.clone()),
+        ProgressiveTaskParam::Download(param.clone()),
         ProgressState::InProgress,
       ),
       param: param.clone(),
@@ -89,9 +89,9 @@ impl DownloadTask {
 
   async fn future_impl(
     self,
-    resp: impl Stream<Item = Result<bytes::Bytes, std::io::Error>> + Sync + Unpin,
+    resp: impl Stream<Item = Result<bytes::Bytes, std::io::Error>> + Send + Unpin,
   ) -> SJMCLResult<(
-    impl Future<Output = SJMCLResult<()>> + Sync,
+    impl Future<Output = SJMCLResult<()>> + Send,
     Arc<Mutex<ProgressiveTaskDescriptor>>,
   )> {
     let stream = ProgressStream::new(
@@ -117,7 +117,7 @@ impl DownloadTask {
             .await?;
           f
         };
-        TaskEvent::emit_started(
+        ProgressiveTaskEvent::emit_started(
           &handle,
           start_desc.task_id,
           start_desc.task_group.as_deref(),
@@ -137,7 +137,7 @@ impl DownloadTask {
     mut self,
     lim: &'_ DefaultDirectRateLimiter,
   ) -> SJMCLResult<(
-    impl Future<Output = SJMCLResult<()>> + Sync + '_,
+    impl Future<Output = SJMCLResult<()>> + Send + '_,
     Arc<Mutex<ProgressiveTaskDescriptor>>,
   )> {
     let resp = Self::create_resp(&self.app_handle, &mut self.desc, &self.param)

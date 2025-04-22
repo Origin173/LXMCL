@@ -20,7 +20,7 @@ pub mod monitor;
 const TASK_PROGRESS_LISTENER: &str = "SJMCL://task-progress";
 
 #[derive(Serialize, Deserialize, Clone)]
-pub enum TaskEventPayload {
+pub enum ProgressiveTaskEventPayload {
   Created,
   Started {
     total: i64,
@@ -39,13 +39,13 @@ pub enum TaskEventPayload {
 }
 
 #[derive(Serialize, Clone)]
-pub struct TaskEvent<'a> {
+pub struct ProgressiveTaskEvent<'a> {
   pub id: u32,
   pub task_group: Option<&'a str>,
-  pub event: TaskEventPayload,
+  pub event: ProgressiveTaskEventPayload,
 }
 
-impl<'a> TaskEvent<'a> {
+impl<'a> ProgressiveTaskEvent<'a> {
   pub fn emit(self, app: &AppHandle) {
     if let Some(tg) = self.task_group {
       app.emit_to(TASK_PROGRESS_LISTENER, tg, self).unwrap();
@@ -61,44 +61,44 @@ impl<'a> TaskEvent<'a> {
   }
 
   pub fn emit_started(app: &AppHandle, id: u32, task_group: Option<&'a str>, total: i64) {
-    TaskEvent {
+    ProgressiveTaskEvent {
       id,
       task_group,
-      event: TaskEventPayload::Started { total },
+      event: ProgressiveTaskEventPayload::Started { total },
     }
     .emit(app);
   }
 
   pub fn emit_failed(app: &AppHandle, id: u32, task_group: Option<&'a str>, reason: String) {
-    TaskEvent {
+    ProgressiveTaskEvent {
       id,
       task_group,
-      event: TaskEventPayload::Failed { reason },
+      event: ProgressiveTaskEventPayload::Failed { reason },
     }
     .emit(app);
   }
 
   pub fn emit_cancelled(app: &AppHandle, id: u32, task_group: Option<&'a str>) {
-    TaskEvent {
+    ProgressiveTaskEvent {
       id,
       task_group,
-      event: TaskEventPayload::Cancelled,
+      event: ProgressiveTaskEventPayload::Cancelled,
     }
     .emit(app);
   }
   pub fn emit_completed(app: &AppHandle, id: u32, task_group: Option<&'a str>) {
-    TaskEvent {
+    ProgressiveTaskEvent {
       id,
       task_group,
-      event: TaskEventPayload::Completed,
+      event: ProgressiveTaskEventPayload::Completed,
     }
     .emit(app);
   }
   pub fn emit_created(app: &AppHandle, id: u32, task_group: Option<&'a str>) {
-    TaskEvent {
+    ProgressiveTaskEvent {
       id,
       task_group,
-      event: TaskEventPayload::Created,
+      event: ProgressiveTaskEventPayload::Created,
     }
     .emit(app);
   }
@@ -111,10 +111,10 @@ impl<'a> TaskEvent<'a> {
     current: i64,
     estimated_time: Option<Duration>,
   ) {
-    TaskEvent {
+    ProgressiveTaskEvent {
       id,
       task_group,
-      event: TaskEventPayload::InProgress {
+      event: ProgressiveTaskEventPayload::InProgress {
         percent,
         current,
         estimated_time,
@@ -124,8 +124,38 @@ impl<'a> TaskEvent<'a> {
   }
 }
 
+#[derive(Serialize, Clone)]
+pub struct TransientTaskEvent<'a> {
+  pub id: u32,
+  pub task_group: Option<&'a str>,
+  pub state: &'a str,
+}
+
+impl<'a> TransientTaskEvent<'a> {
+  pub fn new(desc: &'a TransientTaskDescriptor) -> Self {
+    Self {
+      id: desc.task_id,
+      task_group: desc.task_group.as_deref(),
+      state: desc.state.as_str(),
+    }
+  }
+  pub fn emit(self, app: &AppHandle) {
+    if let Some(tg) = self.task_group {
+      app.emit_to(TASK_PROGRESS_LISTENER, tg, self).unwrap();
+    } else {
+      app
+        .emit_to(
+          TASK_PROGRESS_LISTENER,
+          std::format!("task-{}", self.id).as_str(),
+          self,
+        )
+        .unwrap();
+    }
+  }
+}
+
 #[derive(Serialize, Deserialize, Clone, Hash, PartialEq, Eq)]
-pub enum ActiveTaskType {
+pub enum ProgressiveTaskType {
   Download,
 }
 
@@ -133,19 +163,21 @@ pub enum ActiveTaskType {
 pub struct ProgressiveTaskDescriptor {
   pub task_id: u32,
   pub task_group: Option<String>,
-  pub task_type: ActiveTaskType,
+  pub task_type: ProgressiveTaskType,
   pub current: i64,
   pub total: i64,
   #[serde(skip)]
   pub store_path: PathBuf,
-  pub task_param: ActiveTaskState,
+  pub task_param: ProgressiveTaskParam,
   pub state: ProgressState,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct TransientTaskDescriptor {
+  #[serde(default)]
   pub task_id: u32,
   pub task_group: Option<String>,
+  pub task_type: String,
   pub state: String,
 }
 
@@ -153,10 +185,10 @@ impl ProgressiveTaskDescriptor {
   pub fn new(
     task_id: u32,
     task_group: Option<String>,
-    task_type: ActiveTaskType,
+    task_type: ProgressiveTaskType,
     total: i64,
     cache_dir: PathBuf,
-    task_param: ActiveTaskState,
+    task_param: ProgressiveTaskParam,
     monitor_state: ProgressState,
   ) -> Self {
     Self {
@@ -344,7 +376,7 @@ where
             None
           };
           *p.last_reported = current;
-          TaskEvent::emit_in_progress(
+          ProgressiveTaskEvent::emit_in_progress(
             p.app_handle,
             desc.task_id,
             desc.task_group.as_deref(),
@@ -385,6 +417,6 @@ where
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(tag = "task_type")]
-pub enum ActiveTaskState {
+pub enum ProgressiveTaskParam {
   Download(DownloadParam),
 }

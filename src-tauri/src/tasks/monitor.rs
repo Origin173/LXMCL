@@ -9,7 +9,6 @@ use std::future::Future;
 use std::num::NonZero;
 use std::pin::Pin;
 use std::sync::atomic::AtomicU32;
-use std::sync::RwLock;
 use std::vec::Vec;
 use tauri::AppHandle;
 use tokio::sync::Semaphore;
@@ -24,24 +23,26 @@ pub enum ProgressState {
 
 type SJMCLBoxedFuture = Pin<Box<dyn Future<Output = SJMCLResult<u32>> + Send>>;
 
-pub struct ProgressiveTaskMonitor {
+pub struct TaskMonitor {
   app_handle: AppHandle,
   id_counter: AtomicU32,
-  p_descs: RwLock<HashMap<u32, Arc<Mutex<ProgressiveTaskDescriptor>>>>,
+  p_descs: Mutex<HashMap<u32, Arc<Mutex<ProgressiveTaskDescriptor>>>>,
+  t_descs: Mutex<HashMap<u32, TransientTaskDescriptor>>,
   concurrency: Arc<Semaphore>,
   tx: FlumeSender<SJMCLBoxedFuture>,
   rx: FlumeReceiver<SJMCLBoxedFuture>,
   pub download_rate_limiter: Option<DefaultDirectRateLimiter>,
 }
 
-impl ProgressiveTaskMonitor {
+impl TaskMonitor {
   pub fn new(app_handle: AppHandle) -> Self {
     let config = retrieve_launcher_config(app_handle.clone()).unwrap();
     let (tx, rx) = flume::unbounded();
-    ProgressiveTaskMonitor {
+    TaskMonitor {
       app_handle: app_handle.clone(),
       id_counter: AtomicU32::new(0),
-      p_descs: RwLock::new(HashMap::new()),
+      p_descs: Mutex::new(HashMap::new()),
+      t_descs: Mutex::new(HashMap::new()),
       concurrency: Arc::new(Semaphore::new(
         if config.download.transmission.auto_concurrent {
           let parallelism: usize = std::thread::available_parallelism().unwrap().into();
@@ -84,8 +85,8 @@ impl ProgressiveTaskMonitor {
       unimplemented!()
     };
 
-    self.p_descs.write().unwrap().insert(id, state.clone());
-    TaskEvent::emit_created(&handle, id, task_group.clone().as_deref());
+    self.p_descs.lock().unwrap().insert(id, state.clone());
+    ProgressiveTaskEvent::emit_created(&handle, id, task_group.clone().as_deref());
 
     let task = Box::pin(async move {
       if state.lock().unwrap().is_cancelled() {
@@ -96,13 +97,13 @@ impl ProgressiveTaskMonitor {
       let state = state.lock().unwrap();
 
       if let Err(e) = result {
-        TaskEvent::emit_failed(&handle, id, state.task_group.as_deref(), e.0.clone());
+        ProgressiveTaskEvent::emit_failed(&handle, id, state.task_group.as_deref(), e.0.clone());
       }
 
       if state.is_cancelled() {
-        TaskEvent::emit_cancelled(&handle, id, state.task_group.as_deref());
+        ProgressiveTaskEvent::emit_cancelled(&handle, id, state.task_group.as_deref());
       } else if state.is_completed() {
-        TaskEvent::emit_completed(&handle, id, state.task_group.as_deref());
+        ProgressiveTaskEvent::emit_completed(&handle, id, state.task_group.as_deref());
         state.delete().unwrap();
       }
       Ok(id)
@@ -133,27 +134,48 @@ impl ProgressiveTaskMonitor {
   }
 
   pub fn stop_progress(&self, id: u32) {
-    if let Some(state) = self.p_descs.write().unwrap().get_mut(&id) {
+    if let Some(state) = self.p_descs.lock().unwrap().get_mut(&id) {
       state.lock().unwrap().stop();
     }
   }
 
   pub fn resume_progress(&self, id: u32) {
-    if let Some(state) = self.p_descs.write().unwrap().get_mut(&id) {
+    if let Some(state) = self.p_descs.lock().unwrap().get_mut(&id) {
       state.lock().unwrap().resume();
     }
   }
 
   pub fn cancel_progress(&self, id: u32) {
-    if let Some(state) = self.p_descs.write().unwrap().get_mut(&id) {
+    if let Some(state) = self.p_descs.lock().unwrap().get_mut(&id) {
       state.lock().unwrap().cancel()
     }
+  }
+
+  pub fn create_transient_task(&self, app: tauri::AppHandle, mut desc: TransientTaskDescriptor) {
+    desc.task_id = self.get_new_id();
+    TransientTaskEvent::new(&desc).emit(&app);
+    self.t_descs.lock().unwrap().insert(desc.task_id, desc);
+  }
+
+  pub fn set_transient_task(&self, app: tauri::AppHandle, task_id: u32, state: String) {
+    if let Some(desc) = self.t_descs.lock().unwrap().get_mut(&task_id) {
+      desc.state = state;
+      TransientTaskEvent::new(&desc).emit(&app);
+    }
+  }
+
+  pub fn cancel_transient_task(&self, task_id: u32) {
+    self.t_descs.lock().unwrap().remove(&task_id);
+  }
+
+  pub fn get_transient_task(&self, task_id: u32) -> Option<TransientTaskDescriptor> {
+    self.t_descs.lock().unwrap().get(&task_id).cloned()
   }
 
   pub fn state_list(&self) -> Vec<ProgressiveTaskDescriptor> {
     self
       .p_descs
-      .read()
+      .lock()
       .unwrap()
       .values()
       .map(|v| v.lock().unwrap().clone())
