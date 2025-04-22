@@ -15,7 +15,9 @@ import {
   VStack,
   Wrap,
   WrapItem,
+  useDisclosure,
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuChevronDown, LuDownload, LuGlobe, LuUpload } from "react-icons/lu";
@@ -24,6 +26,7 @@ import Empty from "@/components/common/empty";
 import { OptionItemProps } from "@/components/common/option-item";
 import { VirtualOptionItemGroup } from "@/components/common/option-item-virtual";
 import { useLauncherConfig } from "@/contexts/config";
+import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
 import {
   modTagList,
@@ -33,10 +36,12 @@ import {
   sortByList,
   worldTagList,
 } from "@/enums/resource";
+import { GameInstanceSummary } from "@/models/instance/misc";
 import { mockDownloadResourceList } from "@/models/mock/resource";
 import { GameResourceInfo, OtherResourceInfo } from "@/models/resource";
 import { ResourceService } from "@/services/resource";
 import { ISOToDate } from "@/utils/datetime";
+import DownloadSpecificResourceModal from "./modals/download-specific-resource-modal";
 
 interface ResourceDownloaderProps {
   resourceType: string;
@@ -103,6 +108,26 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
 }) => {
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const router = useRouter();
+  const { getGameInstanceList } = useData();
+
+  const [selectedItem, setSelectedItem] = useState<OtherResourceInfo | null>(
+    null
+  );
+  const [curInstance, setCurInstance] = useState<
+    GameInstanceSummary | undefined
+  >();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  useEffect(() => {
+    const instanceList = getGameInstanceList() || [];
+    const { id } = router.query;
+    const instanceId = Array.isArray(id) ? id[0] : id;
+    const currentInstance = instanceList.find(
+      (instance) => instance.id === Number(instanceId)
+    );
+    setCurInstance(currentInstance);
+  }, [getGameInstanceList, router.query]);
 
   const buildOptionItems = (item: OtherResourceInfo): OptionItemProps => ({
     key: item.name,
@@ -158,6 +183,11 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
       />
     ),
     children: <></>,
+    isFullClickZone: true,
+    onClick: () => {
+      setSelectedItem(item);
+      onOpen();
+    },
   });
 
   return (
@@ -172,6 +202,20 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
         />
       ) : (
         <Empty withIcon={false} size="sm" />
+      )}
+      {selectedItem && (
+        <DownloadSpecificResourceModal
+          isOpen={isOpen}
+          onClose={onClose}
+          resource={selectedItem}
+          curInstanceVersion={curInstance?.version}
+          curInstanceModLoader={
+            selectedItem.type === "mods" &&
+            curInstance?.modLoader.loaderType !== "Unknown"
+              ? curInstance?.modLoader.loaderType
+              : undefined
+          }
+        />
       )}
     </>
   );
