@@ -21,10 +21,10 @@ pub struct DownloadParam {
 
 pub struct DownloadTask {
   app_handle: AppHandle,
-  task_state: TaskState,
-  report_interval: Duration,
+  desc: ProgressiveTaskDescriptor,
   param: DownloadParam,
-  path: PathBuf,
+  dest_path: PathBuf,
+  report_interval: Duration,
 }
 
 impl DownloadTask {
@@ -43,41 +43,41 @@ impl DownloadTask {
 
     DownloadTask {
       app_handle,
-      task_state: TaskState::new(
+      desc: ProgressiveTaskDescriptor::new(
         task_id,
         task_group,
-        TaskType::Download,
+        ActiveTaskType::Download,
         0,
         cache_dir.clone(),
-        TaskParam::Download(param.clone()),
-        MonitorState::InProgress,
+        ActiveTaskState::Download(param.clone()),
+        ProgressState::InProgress,
       ),
       param: param.clone(),
-      path: cache_dir.clone().join(param.dest.clone()),
+      dest_path: cache_dir.clone().join(param.dest.clone()),
       report_interval,
     }
   }
 
   async fn create_resp(
     app_handle: &AppHandle,
-    task_state: &mut TaskState,
+    desc: &mut ProgressiveTaskDescriptor,
     param: &DownloadParam,
   ) -> SJMCLResult<impl Stream<Item = Result<bytes::Bytes, std::io::Error>>> {
     let client = app_handle.state::<reqwest::Client>().clone();
     Ok(
-      if task_state.total == 0 && task_state.current == 0 {
+      if desc.total == 0 && desc.current == 0 {
         let r = client
           .get(param.src.clone())
           .send()
           .await?
           .error_for_status()?;
-        task_state.total = r.content_length().unwrap_or_default() as i64;
-        task_state.save()?;
+        desc.total = r.content_length().unwrap_or_default() as i64;
+        desc.save()?;
         r
       } else {
         client
           .get(param.src.clone())
-          .header(RANGE, format!("bytes={}-", task_state.current))
+          .header(RANGE, format!("bytes={}-", desc.current))
           .send()
           .await?
           .error_for_status()?
@@ -92,42 +92,44 @@ impl DownloadTask {
     resp: impl Stream<Item = Result<bytes::Bytes, std::io::Error>> + Sync + Unpin,
   ) -> SJMCLResult<(
     impl Future<Output = SJMCLResult<()>> + Sync,
-    Arc<Mutex<TaskState>>,
+    Arc<Mutex<ProgressiveTaskDescriptor>>,
   )> {
     let stream = ProgressStream::new(
       self.app_handle.clone(),
       resp,
-      self.task_state.clone(),
+      self.desc.clone(),
       self.report_interval,
     );
-    let task_state = self.task_state.clone();
-    let monitor_state = stream.state();
-    let stream_state = monitor_state.clone();
+
+    let start_desc = self.desc.clone();
+    let descriptor = stream.descriptor();
+    let stream_desc = descriptor.clone();
+
     Ok((
       async move {
         let handle = self.app_handle.clone();
-        tokio::fs::create_dir_all(&self.path.parent().unwrap()).await?;
-        let mut file = if task_state.current == 0 {
-          tokio::fs::File::create(&self.path).await?
+        tokio::fs::create_dir_all(&self.dest_path.parent().unwrap()).await?;
+        let mut file = if start_desc.current == 0 {
+          tokio::fs::File::create(&self.dest_path).await?
         } else {
-          let mut f = tokio::fs::OpenOptions::new().open(&self.path).await?;
-          f.seek(std::io::SeekFrom::Start(task_state.current as u64))
+          let mut f = tokio::fs::OpenOptions::new().open(&self.dest_path).await?;
+          f.seek(std::io::SeekFrom::Start(start_desc.current as u64))
             .await?;
           f
         };
         TaskEvent::emit_started(
           &handle,
-          task_state.task_id,
-          task_state.task_group.as_deref(),
-          task_state.total,
+          start_desc.task_id,
+          start_desc.task_group.as_deref(),
+          start_desc.total,
         );
         tokio::io::copy(&mut stream.into_async_read().compat(), &mut file).await?;
-        if stream_state.lock().unwrap().is_cancelled() {
-          tokio::fs::remove_file(&self.path).await?;
+        if stream_desc.lock().unwrap().is_cancelled() {
+          tokio::fs::remove_file(&self.dest_path).await?;
         }
         Ok(())
       },
-      monitor_state,
+      descriptor,
     ))
   }
 
@@ -136,9 +138,9 @@ impl DownloadTask {
     lim: &'_ DefaultDirectRateLimiter,
   ) -> SJMCLResult<(
     impl Future<Output = SJMCLResult<()>> + Sync + '_,
-    Arc<Mutex<TaskState>>,
+    Arc<Mutex<ProgressiveTaskDescriptor>>,
   )> {
-    let resp = Self::create_resp(&self.app_handle, &mut self.task_state, &self.param)
+    let resp = Self::create_resp(&self.app_handle, &mut self.desc, &self.param)
       .await?
       .ratelimit_stream(lim);
     Self::future_impl(self, resp).await
@@ -148,9 +150,9 @@ impl DownloadTask {
     mut self,
   ) -> SJMCLResult<(
     impl Future<Output = SJMCLResult<()>> + Sync,
-    Arc<Mutex<TaskState>>,
+    Arc<Mutex<ProgressiveTaskDescriptor>>,
   )> {
-    let resp = Self::create_resp(&self.app_handle, &mut self.task_state, &self.param).await?;
+    let resp = Self::create_resp(&self.app_handle, &mut self.desc, &self.param).await?;
     Self::future_impl(self, resp).await
   }
 }

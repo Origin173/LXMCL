@@ -5,7 +5,10 @@ use tauri::Manager;
 
 use crate::{
   error::SJMCLResult,
-  tasks::{download::DownloadTask, monitor::TaskMonitor, TaskParam, TaskState},
+  tasks::{
+    download::DownloadTask, monitor::ProgressiveTaskMonitor, ActiveTaskState,
+    ProgressiveTaskDescriptor,
+  },
 };
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -18,9 +21,9 @@ pub struct TaskResult {
 pub async fn schedule_task_group(
   app: tauri::AppHandle,
   task_group: String,
-  params: Vec<TaskParam>,
+  params: Vec<ActiveTaskState>,
 ) -> SJMCLResult<TaskResult> {
-  let monitor = app.state::<Pin<Box<TaskMonitor>>>();
+  let monitor = app.state::<Pin<Box<ProgressiveTaskMonitor>>>();
   // SAFETY: THIS IS A SHITTY WORKAROUND CAUSED BY TAURI.
   // Notably, Task monitor is a STATIC state managed by Tauri Globally.
   // AppHandle implementation lost track of lifetime of the state reference.
@@ -34,7 +37,7 @@ pub async fn schedule_task_group(
   for param in params {
     let task_id = monitor.get_new_id();
     match param {
-      TaskParam::Download(param) => {
+      ActiveTaskState::Download(param) => {
         let task = DownloadTask::new(
           app.clone(),
           task_id,
@@ -67,28 +70,28 @@ pub async fn schedule_task_group(
 }
 
 #[tauri::command]
-pub fn cancel_task(app: tauri::AppHandle, task_id: u32) -> SJMCLResult<()> {
-  let monitor = app.state::<Pin<Box<TaskMonitor>>>();
+pub fn cancel_progressive_task(app: tauri::AppHandle, task_id: u32) -> SJMCLResult<()> {
+  let monitor = app.state::<Pin<Box<ProgressiveTaskMonitor>>>();
   monitor.cancel_progress(task_id);
   Ok(())
 }
 
 #[tauri::command]
-pub fn resume_task(app: tauri::AppHandle, task_id: u32) -> SJMCLResult<()> {
-  let monitor = app.state::<Pin<Box<TaskMonitor>>>();
+pub fn resume_progressive_task(app: tauri::AppHandle, task_id: u32) -> SJMCLResult<()> {
+  let monitor = app.state::<Pin<Box<ProgressiveTaskMonitor>>>();
   monitor.resume_progress(task_id);
   Ok(())
 }
 
 #[tauri::command]
-pub fn stop_task(app: tauri::AppHandle, task_id: u32) -> SJMCLResult<()> {
-  let monitor = app.state::<Pin<Box<TaskMonitor>>>();
+pub fn stop_progressive_task(app: tauri::AppHandle, task_id: u32) -> SJMCLResult<()> {
+  let monitor = app.state::<Pin<Box<ProgressiveTaskMonitor>>>();
   monitor.stop_progress(task_id);
   Ok(())
 }
 
 #[tauri::command]
-pub fn retrieve_task_list(app: tauri::AppHandle) -> Vec<TaskState> {
-  let monitor = app.state::<Pin<Box<TaskMonitor>>>();
+pub fn retrieve_progressive_task_list(app: tauri::AppHandle) -> Vec<ProgressiveTaskDescriptor> {
+  let monitor = app.state::<Pin<Box<ProgressiveTaskMonitor>>>();
   monitor.state_list()
 }

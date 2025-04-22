@@ -1,8 +1,8 @@
-use super::monitor::TaskMonitor;
+use super::monitor::ProgressiveTaskMonitor;
 use std::pin::Pin;
 use tauri::{AppHandle, Manager};
 
 pub async fn monitor_background_process(app: AppHandle) {
-  let monitor = app.state::<Pin<Box<TaskMonitor>>>();
+  let monitor = app.state::<Pin<Box<ProgressiveTaskMonitor>>>();
   monitor.background_process().await;
 }

@@ -9,12 +9,13 @@ use std::future::Future;
 use std::num::NonZero;
 use std::pin::Pin;
 use std::sync::atomic::AtomicU32;
+use std::sync::RwLock;
 use std::vec::Vec;
 use tauri::AppHandle;
-use tokio::sync::{Notify, Semaphore};
+use tokio::sync::Semaphore;
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
-pub enum MonitorState {
+pub enum ProgressState {
   Stopped,
   Completed,
   Cancelled,
@@ -23,25 +24,24 @@ pub enum MonitorState {
 
 type SJMCLBoxedFuture = Pin<Box<dyn Future<Output = SJMCLResult<u32>> + Send>>;
 
-pub struct TaskMonitor {
-  handle: AppHandle,
+pub struct ProgressiveTaskMonitor {
+  app_handle: AppHandle,
   id_counter: AtomicU32,
-  states: Mutex<HashMap<u32, Arc<Mutex<TaskState>>>>,
+  p_descs: RwLock<HashMap<u32, Arc<Mutex<ProgressiveTaskDescriptor>>>>,
   concurrency: Arc<Semaphore>,
-  notify: Arc<Notify>,
   tx: FlumeSender<SJMCLBoxedFuture>,
   rx: FlumeReceiver<SJMCLBoxedFuture>,
   pub download_rate_limiter: Option<DefaultDirectRateLimiter>,
 }
 
-impl TaskMonitor {
-  pub fn new(handle: AppHandle, notify: Arc<Notify>) -> Self {
-    let config = retrieve_launcher_config(handle.clone()).unwrap();
+impl ProgressiveTaskMonitor {
+  pub fn new(app_handle: AppHandle) -> Self {
+    let config = retrieve_launcher_config(app_handle.clone()).unwrap();
     let (tx, rx) = flume::unbounded();
-    TaskMonitor {
-      handle: handle.clone(),
+    ProgressiveTaskMonitor {
+      app_handle: app_handle.clone(),
       id_counter: AtomicU32::new(0),
-      states: Mutex::new(HashMap::new()),
+      p_descs: RwLock::new(HashMap::new()),
       concurrency: Arc::new(Semaphore::new(
         if config.download.transmission.auto_concurrent {
           let parallelism: usize = std::thread::available_parallelism().unwrap().into();
@@ -50,7 +50,6 @@ impl TaskMonitor {
           config.download.transmission.concurrent_count
         },
       )),
-      notify,
       tx,
       rx,
       download_rate_limiter: if config.download.transmission.enable_speed_limit {
@@ -74,18 +73,18 @@ impl TaskMonitor {
     id: u32,
     task_group: Option<String>,
     task: T,
-    task_state: Option<Arc<Mutex<TaskState>>>,
+    task_state: Option<Arc<Mutex<ProgressiveTaskDescriptor>>>,
   ) where
     T: Future<Output = SJMCLResult<()>> + Send + 'static,
   {
-    let handle = self.handle.clone();
+    let handle = self.app_handle.clone();
     let state = if let Some(state) = task_state {
       state
     } else {
       unimplemented!()
     };
 
-    self.states.lock().unwrap().insert(id, state.clone());
+    self.p_descs.write().unwrap().insert(id, state.clone());
     TaskEvent::emit_created(&handle, id, task_group.clone().as_deref());
 
     let task = Box::pin(async move {
@@ -110,17 +109,12 @@ impl TaskMonitor {
     });
 
     self.tx.send_async(task).await.unwrap();
-    self.notify.notify_one();
   }
 
   pub async fn background_process(&self) {
     loop {
-      if self.rx.is_empty() {
-        self.notify.notified().await;
-      }
-
+      let task = self.rx.recv_async().await.unwrap();
       if self.concurrency.acquire().await.is_ok() {
-        let task = self.rx.recv_async().await.unwrap();
         let concurrency = self.concurrency.clone();
         tokio::spawn(async move {
           let r = task.await;
@@ -139,27 +133,27 @@ impl TaskMonitor {
   }
 
   pub fn stop_progress(&self, id: u32) {
-    if let Some(state) = self.states.lock().unwrap().get_mut(&id) {
+    if let Some(state) = self.p_descs.write().unwrap().get_mut(&id) {
       state.lock().unwrap().stop();
     }
   }
 
   pub fn resume_progress(&self, id: u32) {
-    if let Some(state) = self.states.lock().unwrap().get_mut(&id) {
+    if let Some(state) = self.p_descs.write().unwrap().get_mut(&id) {
       state.lock().unwrap().resume();
     }
   }
 
   pub fn cancel_progress(&self, id: u32) {
-    if let Some(state) = self.states.lock().unwrap().get_mut(&id) {
+    if let Some(state) = self.p_descs.write().unwrap().get_mut(&id) {
       state.lock().unwrap().cancel()
     }
   }
 
-  pub fn state_list(&self) -> Vec<TaskState> {
+  pub fn state_list(&self) -> Vec<ProgressiveTaskDescriptor> {
     self
-      .states
-      .lock()
+      .p_descs
+      .read()
       .unwrap()
       .values()
       .map(|v| v.lock().unwrap().clone())
