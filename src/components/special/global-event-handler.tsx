@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { useSharedModals } from "@/contexts/shared-modal";
+import useDeepLink from "@/hooks/deep-link";
 import useDragAndDrop from "@/hooks/drag-and-drop";
 import useKeyboardShortcut from "@/hooks/keyboard-shortcut";
 
@@ -27,13 +28,21 @@ const GlobalEventHandler: React.FC<{ children: React.ReactNode }> = ({
     onDrop: (data) => {
       const prefix = "authlib-injector:yggdrasil-server:";
       if (data.startsWith(prefix)) {
-        try {
-          const url = decodeURIComponent(data.slice(prefix.length));
-          if (!isStandAlone)
-            openSharedModal("add-auth-server", { presetUrl: url });
-        } catch (e) {
-          console.error("Dropped invalid URL:", e);
-        }
+        const url = data.slice(prefix.length);
+        const decodeUrl = decodeURIComponent(url);
+        if (!isStandAlone && decodeUrl)
+          openSharedModal("add-auth-server", { presetUrl: decodeUrl });
+      }
+    },
+  });
+
+  useDeepLink({
+    trigger: "add-auth-server*",
+    onCall: (path, _) => {
+      const url = new URL(path).searchParams.get("url") || "";
+      const decodeUrl = decodeURIComponent(url);
+      if (!isStandAlone && decodeUrl) {
+        openSharedModal("add-auth-server", { presetUrl: decodeUrl });
       }
     },
   });

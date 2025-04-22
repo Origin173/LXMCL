@@ -42,6 +42,7 @@ static EXE_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
 pub async fn run() {
   tauri::Builder::default()
     .plugin(tauri_plugin_clipboard_manager::init())
+    .plugin(tauri_plugin_deep_link::init())
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_fs::init())
     .plugin(tauri_plugin_http::init())
@@ -178,10 +179,18 @@ pub async fn run() {
         app.set_menu(menu)?;
       };
 
-      // send statistics
+      // Send statistics
       tokio::spawn(async move {
         utils::sys_info::send_statistics(version, os).await;
       });
+
+      // Registering the deep links at runtime on Linux and Windows
+      // ref: https://v2.tauri.app/plugin/deep-linking/#registering-desktop-deep-links-at-runtime
+      #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
+      {
+        use tauri_plugin_deep_link::DeepLinkExt;
+        app.deep_link().register_all()?;
+      }
 
       // Log in debug mode
       if is_dev {
