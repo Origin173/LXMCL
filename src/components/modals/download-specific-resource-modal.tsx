@@ -47,12 +47,11 @@ const DownloadSpecificResourceModal: React.FC<
   const primaryColor = config.appearance.theme.primaryColor;
 
   const [versionLabels, setVersionLabels] = useState<string[]>([]);
-  const [selectedVersionLabel, setSelectedVersionLabel] = useState<string>(
-    curInstanceVersion || "All"
-  );
+  const [selectedVersionLabel, setSelectedVersionLabel] =
+    useState<string>("All");
   const [selectedModLoader, setSelectedModLoader] = useState<
     ModLoaderType | "All"
-  >(curInstanceModLoader || "All");
+  >("All");
   const [versionPacks, setVersionPacks] = useState<ResourceVersionPack[]>([]);
   const [selectedVersionPacks, setSelectedVersionPacks] = useState<
     ResourceVersionPack[]
@@ -78,7 +77,18 @@ const DownloadSpecificResourceModal: React.FC<
 
   useEffect(() => {
     setSelectedModLoader(curInstanceModLoader || "All");
-    setSelectedVersionLabel(curInstanceVersion || "All");
+
+    if (curInstanceVersion) {
+      const releaseVersionPattern = /^(\d+)\.(\d+)(?:\.\d+)?$/;
+      const match = curInstanceVersion.match(releaseVersionPattern);
+      if (match) {
+        setSelectedVersionLabel(`${match[1]}.${match[2]}`);
+      } else {
+        setSelectedVersionLabel("All");
+      }
+    } else {
+      setSelectedVersionLabel("All");
+    }
   }, [curInstanceModLoader, curInstanceVersion]);
 
   useEffect(() => {
