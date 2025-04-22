@@ -5,7 +5,8 @@ import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { initReactI18next } from "react-i18next";
 import { Fade } from "@/components/common/transition";
-import SharedModalsProvider from "@/components/shared-modals-provider";
+import GlobalEventHandler from "@/components/special/global-event-handler";
+import SharedModalsProvider from "@/components/special/shared-modals-provider";
 import { LauncherConfigContextProvider } from "@/contexts/config";
 import { DataContextProvider } from "@/contexts/data";
 import { RoutingHistoryContextProvider } from "@/contexts/routing-history";
@@ -83,13 +84,15 @@ export default function App({ Component, pageProps }: AppProps) {
           <LauncherConfigContextProvider>
             <DataContextProvider>
               <SharedModalsProvider>
-                <MainLayout>
-                  <Fade key={router.pathname.split("/")[1] || ""} in>
-                    <SpecLayout>
-                      <Component {...pageProps} />
-                    </SpecLayout>
-                  </Fade>
-                </MainLayout>
+                <GlobalEventHandler>
+                  <MainLayout>
+                    <Fade key={router.pathname.split("/")[1] || ""} in>
+                      <SpecLayout>
+                        <Component {...pageProps} />
+                      </SpecLayout>
+                    </Fade>
+                  </MainLayout>
+                </GlobalEventHandler>
               </SharedModalsProvider>
             </DataContextProvider>
           </LauncherConfigContextProvider>
