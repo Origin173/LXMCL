@@ -1,9 +1,10 @@
-use crate::error::SJMCLResult;
+use crate::error::{SJMCLError, SJMCLResult};
 use crate::launcher_config::commands::retrieve_launcher_config;
 use crate::tasks::*;
 use futures::stream::TryStreamExt;
 use governor::{prelude::StreamRateLimitExt, DefaultDirectRateLimiter};
 use serde::{Deserialize, Serialize};
+use sha1::{Digest, Sha1};
 use std::future::Future;
 use std::path::PathBuf;
 use std::time::Duration;
@@ -17,6 +18,7 @@ use tokio_util::{bytes, compat::FuturesAsyncReadCompatExt};
 pub struct DownloadParam {
   src: Url,
   dest: PathBuf,
+  sha1: String,
 }
 
 pub struct DownloadTask {
@@ -87,6 +89,27 @@ impl DownloadTask {
     )
   }
 
+  fn validate_sha1(&self) -> SJMCLResult<()> {
+    let mut f = std::fs::File::options()
+      .read(true)
+      .create(false)
+      .write(false)
+      .open(&self.dest_path)
+      .unwrap();
+    let mut hasher = Sha1::new();
+    std::io::copy(&mut f, &mut hasher).unwrap();
+    let sha1 = hex::encode(hasher.finalize());
+    if sha1 != self.param.sha1 {
+      return Err(SJMCLError(format!(
+        "SHA1 mismatch for {}: expected {}, got {}",
+        self.dest_path.display(),
+        self.param.sha1,
+        sha1
+      )));
+    } else {
+      Ok(())
+    }
+  }
   async fn future_impl(
     self,
     resp: impl Stream<Item = Result<bytes::Bytes, std::io::Error>> + Send + Unpin,
@@ -104,6 +127,7 @@ impl DownloadTask {
     let start_desc = self.desc.clone();
     let descriptor = stream.descriptor();
     let stream_desc = descriptor.clone();
+    let sha1 = self.param.sha1.clone();
 
     Ok((
       async move {
@@ -127,7 +151,8 @@ impl DownloadTask {
         if stream_desc.lock().unwrap().is_cancelled() {
           tokio::fs::remove_file(&self.dest_path).await?;
         }
-        Ok(())
+        drop(file);
+        self.validate_sha1()
       },
       descriptor,
     ))
