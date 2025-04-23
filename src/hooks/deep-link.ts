@@ -1,6 +1,6 @@
 import { getCurrent, onOpenUrl } from "@tauri-apps/plugin-deep-link";
 import micromatch from "micromatch";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 const SJMCL_LINK_PREFIX = "sjmcl://";
 
@@ -12,9 +12,10 @@ interface UseDeepLinkOptions {
 }
 
 export const useDeepLink = ({ trigger, onCall }: UseDeepLinkOptions) => {
-  useEffect(() => {
-    let unlisten: (() => void) | undefined;
+  const didInit = useRef(false);
+  const unlistenRef = useRef<() => void>();
 
+  useEffect(() => {
     function matchSubpath(path: string, rule: TriggerRule): boolean {
       if (typeof rule === "string" || Array.isArray(rule)) {
         return micromatch.isMatch(path, rule);
@@ -38,13 +39,21 @@ export const useDeepLink = ({ trigger, onCall }: UseDeepLinkOptions) => {
     };
 
     const setup = async () => {
-      try {
-        const currentUrls = await getCurrent(); // check deeplink if app is opened with deeplink.
-        if (currentUrls) {
-          handleUrls(currentUrls);
-        }
+      if (!didInit.current) {
+        didInit.current = true;
 
-        unlisten = await onOpenUrl(handleUrls); // listen to deeplink when running
+        try {
+          const currentUrls = await getCurrent(); // check deeplink if app is launched through deeplink
+          if (currentUrls) {
+            handleUrls(currentUrls);
+          }
+        } catch (err) {
+          console.error("getCurrent failed:", err);
+        }
+      }
+
+      try {
+        unlistenRef.current = await onOpenUrl(handleUrls); // listen for deeplink when app is running
       } catch (err) {
         console.error("Failed to listen to deep links:", err);
       }
@@ -53,7 +62,9 @@ export const useDeepLink = ({ trigger, onCall }: UseDeepLinkOptions) => {
     setup();
 
     return () => {
-      if (unlisten) unlisten();
+      if (unlistenRef.current) {
+        unlistenRef.current();
+      }
     };
   }, [trigger, onCall]);
 };
