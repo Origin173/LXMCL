@@ -49,6 +49,12 @@ pub async fn run() {
     .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_os::init())
     .plugin(tauri_plugin_process::init())
+    .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+      let _ = app
+        .get_webview_window("main")
+        .expect("no main window")
+        .set_focus(); // Focus the running instance
+    }))
     .plugin(tauri_plugin_window_state::Builder::new().build())
     .invoke_handler(tauri::generate_handler![
       launcher_config::commands::retrieve_launcher_config,
@@ -114,16 +120,15 @@ pub async fn run() {
     .setup(|app| {
       let is_dev = cfg!(debug_assertions);
 
-      // get version and os information
+      // Get version and os information
       let version = if is_dev {
         "dev".to_string()
       } else {
         app.package_info().version.to_string()
       };
-
       let os = tauri_plugin_os::platform().to_string();
 
-      // Set the launcher config
+      // Set the launcher config and other states
       let mut launcher_config: LauncherConfig = LauncherConfig::load().unwrap_or_default();
       launcher_config.setup_with_app(app.handle()).unwrap();
       launcher_config.save().unwrap();
