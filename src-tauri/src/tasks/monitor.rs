@@ -1,7 +1,9 @@
 use crate::error::SJMCLResult;
 use crate::launcher_config::commands::retrieve_launcher_config;
 use crate::tasks::*;
+use download::DownloadTask;
 use flume::{Receiver as FlumeReceiver, Sender as FlumeSender};
+use glob::glob;
 use governor::{DefaultDirectRateLimiter, Quota, RateLimiter};
 use log::info;
 use std::collections::HashMap;
@@ -63,6 +65,52 @@ impl TaskMonitor {
     }
   }
 
+  #[allow(clippy::manual_flatten)]
+  pub async fn load_saved_tasks(&self) {
+    let cache_dir = retrieve_launcher_config(self.app_handle.clone())
+      .unwrap()
+      .download
+      .cache
+      .directory;
+
+    for entry in glob(&format!(
+      "{}/descriptors/task_*.json",
+      cache_dir.to_str().unwrap()
+    ))
+    .unwrap()
+    {
+      if let Ok(task) = entry {
+        match ProgressiveTaskDescriptor::load(task.clone()) {
+          Ok(desc) => {
+            let task_id = desc.task_id;
+            let task_group = desc.task_group.clone();
+            match desc.task_type {
+              ProgressiveTaskType::Download => {
+                let task = DownloadTask::from_descriptor(
+                  self.app_handle.clone(),
+                  &desc,
+                  Duration::from_secs(1),
+                );
+                if let Some(ratelimiter) = &self.download_rate_limiter {
+                  let r: &'static DefaultDirectRateLimiter =
+                    unsafe { std::mem::transmute(ratelimiter) };
+                  let (f, state) = task.future_with_ratelimiter(r).await.unwrap();
+                  self.enqueue_task(task_id, task_group, f, Some(state)).await;
+                } else {
+                  let (f, state) = task.future().await.unwrap();
+                  self.enqueue_task(task_id, task_group, f, Some(state)).await;
+                };
+              }
+            }
+          }
+          Err(_) => {
+            info!("Failed to load task descriptor: {}", task.display());
+          }
+        }
+      }
+    }
+  }
+
   pub fn get_new_id(&self) -> u32 {
     self
       .id_counter
@@ -74,12 +122,12 @@ impl TaskMonitor {
     id: u32,
     task_group: Option<String>,
     task: T,
-    task_state: Option<Arc<Mutex<ProgressiveTaskDescriptor>>>,
+    desc: Option<Arc<Mutex<ProgressiveTaskDescriptor>>>,
   ) where
     T: Future<Output = SJMCLResult<()>> + Send + 'static,
   {
     let handle = self.app_handle.clone();
-    let state = if let Some(state) = task_state {
+    let state = if let Some(state) = desc {
       state
     } else {
       unimplemented!()
@@ -151,16 +199,16 @@ impl TaskMonitor {
     }
   }
 
-  pub fn create_transient_task(&self, app: tauri::AppHandle, mut desc: TransientTaskDescriptor) {
+  pub fn create_transient_task(&self, app: AppHandle, mut desc: TransientTaskDescriptor) {
     desc.task_id = self.get_new_id();
     TransientTaskEvent::new(&desc).emit(&app);
     self.t_descs.lock().unwrap().insert(desc.task_id, desc);
   }
 
-  pub fn set_transient_task(&self, app: tauri::AppHandle, task_id: u32, state: String) {
+  pub fn set_transient_task(&self, app: AppHandle, task_id: u32, state: String) {
     if let Some(desc) = self.t_descs.lock().unwrap().get_mut(&task_id) {
       desc.state = state;
-      TransientTaskEvent::new(&desc).emit(&app);
+      TransientTaskEvent::new(desc).emit(&app);
     }
   }
 

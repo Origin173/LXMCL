@@ -166,7 +166,6 @@ pub struct ProgressiveTaskDescriptor {
   pub task_type: ProgressiveTaskType,
   pub current: i64,
   pub total: i64,
-  #[serde(skip)]
   pub store_path: PathBuf,
   pub task_param: ProgressiveTaskParam,
   pub state: ProgressState,
@@ -197,7 +196,7 @@ impl ProgressiveTaskDescriptor {
       task_type,
       current: 0,
       total,
-      store_path: cache_dir.join(std::format!("states/task-{}.json", task_id)),
+      store_path: cache_dir.join(std::format!("descriptors/task_{}.json", task_id)),
       task_param,
       state: monitor_state,
     }
@@ -217,6 +216,11 @@ impl ProgressiveTaskDescriptor {
 
   pub fn delete(&self) -> Result<(), std::io::Error> {
     std::fs::remove_file(&self.store_path)
+  }
+
+  #[inline]
+  pub fn state(&self) -> ProgressState {
+    self.state.clone()
   }
 
   #[inline]
@@ -349,11 +353,13 @@ where
   fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
     let p = self.project();
 
-    if p.desc.lock().unwrap().is_stopped() {
+    let state = p.desc.lock().unwrap().state();
+
+    if state == ProgressState::Stopped {
       return Poll::Pending;
     }
 
-    if !p.desc.lock().unwrap().is_in_progress() {
+    if state != ProgressState::InProgress {
       return Poll::Ready(None);
     }
 

@@ -60,6 +60,25 @@ impl DownloadTask {
     }
   }
 
+  pub fn from_descriptor(
+    app_handle: AppHandle,
+    desc: &ProgressiveTaskDescriptor,
+    report_interval: Duration,
+  ) -> Self {
+    DownloadTask {
+      app_handle,
+      desc: ProgressiveTaskDescriptor {
+        state: ProgressState::Stopped,
+        ..desc.clone()
+      },
+      param: match &desc.task_param {
+        ProgressiveTaskParam::Download(param) => param.clone(),
+      },
+      dest_path: desc.store_path.clone(),
+      report_interval,
+    }
+  }
+
   async fn create_resp(
     app_handle: &AppHandle,
     desc: &mut ProgressiveTaskDescriptor,
@@ -100,12 +119,12 @@ impl DownloadTask {
     std::io::copy(&mut f, &mut hasher).unwrap();
     let sha1 = hex::encode(hasher.finalize());
     if sha1 != self.param.sha1 {
-      return Err(SJMCLError(format!(
+      Err(SJMCLError(format!(
         "SHA1 mismatch for {}: expected {}, got {}",
         self.dest_path.display(),
         self.param.sha1,
         sha1
-      )));
+      )))
     } else {
       Ok(())
     }
@@ -127,7 +146,6 @@ impl DownloadTask {
     let start_desc = self.desc.clone();
     let descriptor = stream.descriptor();
     let stream_desc = descriptor.clone();
-    let sha1 = self.param.sha1.clone();
 
     Ok((
       async move {
@@ -148,11 +166,13 @@ impl DownloadTask {
           start_desc.total,
         );
         tokio::io::copy(&mut stream.into_async_read().compat(), &mut file).await?;
+        drop(file);
         if stream_desc.lock().unwrap().is_cancelled() {
           tokio::fs::remove_file(&self.dest_path).await?;
+          Ok(())
+        } else {
+          self.validate_sha1()
         }
-        drop(file);
-        self.validate_sha1()
       },
       descriptor,
     ))
