@@ -13,6 +13,7 @@ use zip::ZipArchive;
 #[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase", default)]
 pub struct NewforgeModMetadata {
+  pub is_neoforge: bool,
   pub mod_loader: String,
   pub loader_version: String,
   pub license: String,
@@ -40,30 +41,38 @@ pub struct NewforgeModSubItem {
 pub fn get_mod_metadata_from_jar<R: Read + Seek>(
   jar: &mut ZipArchive<R>,
 ) -> SJMCLResult<NewforgeModMetadata> {
-  let meta = match jar.by_name("META-INF/mods.toml") {
-    Ok(mut val) => {
+  let mut meta_result = None;
+  if let Ok(mut file) = jar.by_name("META-INF/mods.toml") {
+    let mut buf = String::new();
+    file.read_to_string(&mut buf)?;
+    let mut meta = toml::from_str::<NewforgeModMetadata>(&buf)?;
+    meta.is_neoforge = false;
+    meta_result = Some(meta);
+  }
+  if meta_result.is_none() {
+    if let Ok(mut file) = jar.by_name("META-INF/neoforge.mods.toml") {
       let mut buf = String::new();
-      if let Err(e) = val.read_to_string(&mut buf) {
-        return Err(SJMCLError::from(e));
-      }
-      Ok(toml::from_str::<NewforgeModMetadata>(&buf)?)
+      file.read_to_string(&mut buf)?;
+      let mut meta = toml::from_str::<NewforgeModMetadata>(&buf)?;
+      meta.is_neoforge = true;
+      meta_result = Some(meta);
     }
-    Err(e) => Err(SJMCLError::from(e)),
-  };
-  let mut meta = match meta {
-    Ok(val) => val,
-    Err(e) => {
-      if jar.by_name("META-INF/MANIFEST.MF").is_ok() {
-        return Ok(NewforgeModMetadata {
+  }
+  let mut meta = match meta_result {
+    Some(val) => val,
+    None => {
+      return if jar.by_name("META-INF/MANIFEST.MF").is_ok() {
+        Ok(NewforgeModMetadata {
+          is_neoforge: false,
           mod_loader: "javafml".to_string(),
           loader_version: String::new(),
           license: String::new(),
           mods: vec![NewforgeModSubItem::default()],
           logo_file: None,
           valid_logo_file: None,
-        });
+        })
       } else {
-        return Err(e);
+        Err(SJMCLError("no mods.toml or MANIFEST.MF found".to_string()))
       }
     }
   };
@@ -102,13 +111,39 @@ pub fn get_mod_metadata_from_jar<R: Read + Seek>(
 }
 
 pub async fn get_mod_metadata_from_dir(dir_path: &Path) -> SJMCLResult<NewforgeModMetadata> {
-  let newforge_file_path = dir_path.join("META-INF/mods.toml");
-  let mut meta: NewforgeModMetadata = match tokio::fs::read_to_string(newforge_file_path).await {
-    Ok(val) => match serde_json::from_str(val.as_str()) {
-      Ok(val) => val,
-      Err(e) => return Err(SJMCLError::from(e)),
-    },
-    Err(e) => return Err(SJMCLError::from(e)),
+  let mut meta_result = None;
+  if let Ok(val) = tokio::fs::read_to_string(dir_path.join("META-INF/mods.toml")).await {
+    let mut meta = toml::from_str::<NewforgeModMetadata>(val.as_str())?;
+    meta.is_neoforge = false;
+    meta_result = Some(meta);
+  }
+  if meta_result.is_none() {
+    if let Ok(val) = tokio::fs::read_to_string(dir_path.join("META-INF/neoforge.mods.toml")).await {
+      let mut meta = toml::from_str::<NewforgeModMetadata>(val.as_str())?;
+      meta.is_neoforge = true;
+      meta_result = Some(meta);
+    }
+  }
+  let mut meta = match meta_result {
+    Some(val) => val,
+    None => {
+      return if tokio::fs::read_to_string(dir_path.join("META-INF/MANIFEST.MF"))
+        .await
+        .is_ok()
+      {
+        Ok(NewforgeModMetadata {
+          is_neoforge: false,
+          mod_loader: "javafml".to_string(),
+          loader_version: String::new(),
+          license: String::new(),
+          mods: vec![NewforgeModSubItem::default()],
+          logo_file: None,
+          valid_logo_file: None,
+        })
+      } else {
+        Err(SJMCLError("no mods.toml or MANIFEST.MF found".to_string()))
+      }
+    }
   };
   if meta.mods.is_empty() {
     return Err(SJMCLError("newforge mod len(mods) == 0".to_string()));

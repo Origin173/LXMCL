@@ -1,4 +1,4 @@
-use super::{fabric, forge, liteloader, neoforge, oldforge, quilt};
+use super::{fabric, forge, liteloader, oldforge, quilt};
 use crate::error::{SJMCLError, SJMCLResult};
 use crate::instance::models::misc::{LocalModInfo, ModLoaderType};
 use crate::utils::image::{load_image_from_dir_async, load_image_from_jar};
@@ -35,22 +35,6 @@ pub async fn get_mod_info_from_jar(path: &PathBuf) -> SJMCLResult<LocalModInfo> 
     });
   };
   // use neoforge mod meta getter before newforge, ref: https://github.com/UNIkeEN/SJMCL/issues/341
-  // TODO: merge neoforge and newforge mod meta getter
-  if let Ok(mut meta) = neoforge::get_mod_metadata_from_jar(&mut jar) {
-    let first_mod = meta.mods.remove(0);
-    return Ok(LocalModInfo {
-      icon_src: meta.valid_logo_file.unwrap_or_default(),
-      enabled,
-      name: first_mod.display_name.unwrap_or_default(),
-      translated_name: None,
-      version: first_mod.version.unwrap_or_default(),
-      file_name: file_stem,
-      description: first_mod.description.unwrap_or_default(),
-      potential_incompatibility: false,
-      loader_type: ModLoaderType::NeoForge,
-      file_path,
-    });
-  }
   if let Ok(mut meta) = forge::get_mod_metadata_from_jar(&mut jar) {
     let first_mod = meta.mods.remove(0);
     return Ok(LocalModInfo {
@@ -62,7 +46,11 @@ pub async fn get_mod_info_from_jar(path: &PathBuf) -> SJMCLResult<LocalModInfo> 
       file_name: file_stem,
       description: first_mod.description.unwrap_or_default(),
       potential_incompatibility: false,
-      loader_type: ModLoaderType::Forge,
+      loader_type: if meta.is_neoforge {
+        ModLoaderType::NeoForge
+      } else {
+        ModLoaderType::Forge
+      },
       file_path,
     });
   }
@@ -152,21 +140,6 @@ pub async fn get_mod_info_from_dir(path: &Path) -> SJMCLResult<LocalModInfo> {
       file_path: path.to_path_buf(),
     });
   };
-  if let Ok(mut meta) = neoforge::get_mod_metadata_from_dir(path).await {
-    let first_mod = meta.mods.remove(0);
-    return Ok(LocalModInfo {
-      icon_src: meta.valid_logo_file.unwrap_or_default(),
-      enabled,
-      name: first_mod.display_name.unwrap_or_default(),
-      translated_name: None,
-      version: first_mod.version.unwrap_or_default(),
-      file_name: file_stem,
-      description: first_mod.description.unwrap_or_default(),
-      potential_incompatibility: false,
-      loader_type: ModLoaderType::NeoForge,
-      file_path: path.to_path_buf(),
-    });
-  }
   if let Ok(mut meta) = forge::get_mod_metadata_from_dir(path).await {
     let first_mod = meta.mods.remove(0);
     return Ok(LocalModInfo {
@@ -178,7 +151,11 @@ pub async fn get_mod_info_from_dir(path: &Path) -> SJMCLResult<LocalModInfo> {
       file_name: file_stem,
       description: first_mod.description.unwrap_or_default(),
       potential_incompatibility: false,
-      loader_type: ModLoaderType::Forge,
+      loader_type: if meta.is_neoforge {
+        ModLoaderType::NeoForge
+      } else {
+        ModLoaderType::Forge
+      },
       file_path: path.to_path_buf(),
     });
   }
