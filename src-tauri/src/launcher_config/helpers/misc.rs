@@ -54,6 +54,7 @@ impl LauncherConfig {
         }
       }
     }
+
     self.basic_info = BasicInfo {
       launcher_version: version,
       platform: tauri_plugin_os::platform().to_string(),
