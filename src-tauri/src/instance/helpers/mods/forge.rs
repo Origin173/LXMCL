@@ -1,5 +1,6 @@
 // https://forge.gemwire.uk/wiki/Mods.toml
 use crate::error::{SJMCLError, SJMCLResult};
+use crate::instance::models::misc::ModLoaderType;
 use crate::utils::image::{load_image_from_dir_async, load_image_from_jar, ImageWrapper};
 use java_properties;
 use serde::{Deserialize, Serialize};
@@ -13,7 +14,7 @@ use zip::ZipArchive;
 #[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase", default)]
 pub struct ForgeModMetadata {
-  pub is_neoforge: bool,
+  pub loader_type: ModLoaderType,
   pub mod_loader: String,
   pub loader_version: String,
   pub license: String,
@@ -46,7 +47,7 @@ pub fn get_mod_metadata_from_jar<R: Read + Seek>(
     let mut buf = String::new();
     file.read_to_string(&mut buf)?;
     let mut meta = toml::from_str::<ForgeModMetadata>(&buf)?;
-    meta.is_neoforge = false;
+    meta.loader_type = ModLoaderType::Forge;
     meta_result = Some(meta);
   }
   if meta_result.is_none() {
@@ -54,7 +55,7 @@ pub fn get_mod_metadata_from_jar<R: Read + Seek>(
       let mut buf = String::new();
       file.read_to_string(&mut buf)?;
       let mut meta = toml::from_str::<ForgeModMetadata>(&buf)?;
-      meta.is_neoforge = true;
+      meta.loader_type = ModLoaderType::NeoForge;
       meta_result = Some(meta);
     }
   }
@@ -63,7 +64,7 @@ pub fn get_mod_metadata_from_jar<R: Read + Seek>(
     None => {
       return if jar.by_name("META-INF/MANIFEST.MF").is_ok() {
         Ok(ForgeModMetadata {
-          is_neoforge: false,
+          loader_type: ModLoaderType::Forge,
           mod_loader: "javafml".to_string(),
           loader_version: String::new(),
           license: String::new(),
@@ -114,13 +115,13 @@ pub async fn get_mod_metadata_from_dir(dir_path: &Path) -> SJMCLResult<ForgeModM
   let mut meta_result = None;
   if let Ok(val) = tokio::fs::read_to_string(dir_path.join("META-INF/mods.toml")).await {
     let mut meta = toml::from_str::<ForgeModMetadata>(val.as_str())?;
-    meta.is_neoforge = false;
+    meta.loader_type = ModLoaderType::Forge;
     meta_result = Some(meta);
   }
   if meta_result.is_none() {
     if let Ok(val) = tokio::fs::read_to_string(dir_path.join("META-INF/neoforge.mods.toml")).await {
       let mut meta = toml::from_str::<ForgeModMetadata>(val.as_str())?;
-      meta.is_neoforge = true;
+      meta.loader_type = ModLoaderType::NeoForge;
       meta_result = Some(meta);
     }
   }
@@ -132,7 +133,7 @@ pub async fn get_mod_metadata_from_dir(dir_path: &Path) -> SJMCLResult<ForgeModM
         .is_ok()
       {
         Ok(ForgeModMetadata {
-          is_neoforge: false,
+          loader_type: ModLoaderType::Forge,
           mod_loader: "javafml".to_string(),
           loader_version: String::new(),
           license: String::new(),
