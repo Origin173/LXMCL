@@ -12,12 +12,12 @@ use zip::ZipArchive;
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase", default)]
-pub struct NewforgeModMetadata {
+pub struct ForgeModMetadata {
   pub is_neoforge: bool,
   pub mod_loader: String,
   pub loader_version: String,
   pub license: String,
-  pub mods: Vec<NewforgeModSubItem>,
+  pub mods: Vec<ForgeModSubItem>,
   // some non-standard mods write logo_file field in toml meta section.
   pub logo_file: Option<String>,
   // not in file, added by sjmcl
@@ -26,7 +26,7 @@ pub struct NewforgeModMetadata {
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase", default)]
-pub struct NewforgeModSubItem {
+pub struct ForgeModSubItem {
   pub mod_id: String,
   pub namespace: Option<String>,
   pub version: Option<String>,
@@ -40,12 +40,12 @@ pub struct NewforgeModSubItem {
 
 pub fn get_mod_metadata_from_jar<R: Read + Seek>(
   jar: &mut ZipArchive<R>,
-) -> SJMCLResult<NewforgeModMetadata> {
+) -> SJMCLResult<ForgeModMetadata> {
   let mut meta_result = None;
   if let Ok(mut file) = jar.by_name("META-INF/mods.toml") {
     let mut buf = String::new();
     file.read_to_string(&mut buf)?;
-    let mut meta = toml::from_str::<NewforgeModMetadata>(&buf)?;
+    let mut meta = toml::from_str::<ForgeModMetadata>(&buf)?;
     meta.is_neoforge = false;
     meta_result = Some(meta);
   }
@@ -53,7 +53,7 @@ pub fn get_mod_metadata_from_jar<R: Read + Seek>(
     if let Ok(mut file) = jar.by_name("META-INF/neoforge.mods.toml") {
       let mut buf = String::new();
       file.read_to_string(&mut buf)?;
-      let mut meta = toml::from_str::<NewforgeModMetadata>(&buf)?;
+      let mut meta = toml::from_str::<ForgeModMetadata>(&buf)?;
       meta.is_neoforge = true;
       meta_result = Some(meta);
     }
@@ -62,12 +62,12 @@ pub fn get_mod_metadata_from_jar<R: Read + Seek>(
     Some(val) => val,
     None => {
       return if jar.by_name("META-INF/MANIFEST.MF").is_ok() {
-        Ok(NewforgeModMetadata {
+        Ok(ForgeModMetadata {
           is_neoforge: false,
           mod_loader: "javafml".to_string(),
           loader_version: String::new(),
           license: String::new(),
-          mods: vec![NewforgeModSubItem::default()],
+          mods: vec![ForgeModSubItem::default()],
           logo_file: None,
           valid_logo_file: None,
         })
@@ -77,7 +77,7 @@ pub fn get_mod_metadata_from_jar<R: Read + Seek>(
     }
   };
   if meta.mods.is_empty() {
-    return Err(SJMCLError("new forge mod len(mods) == 0".to_string()));
+    return Err(SJMCLError("forge mod len(mods) == 0".to_string()));
   }
   // seek logo
   let mut logo_candidates = vec![];
@@ -110,16 +110,16 @@ pub fn get_mod_metadata_from_jar<R: Read + Seek>(
   Ok(meta)
 }
 
-pub async fn get_mod_metadata_from_dir(dir_path: &Path) -> SJMCLResult<NewforgeModMetadata> {
+pub async fn get_mod_metadata_from_dir(dir_path: &Path) -> SJMCLResult<ForgeModMetadata> {
   let mut meta_result = None;
   if let Ok(val) = tokio::fs::read_to_string(dir_path.join("META-INF/mods.toml")).await {
-    let mut meta = toml::from_str::<NewforgeModMetadata>(val.as_str())?;
+    let mut meta = toml::from_str::<ForgeModMetadata>(val.as_str())?;
     meta.is_neoforge = false;
     meta_result = Some(meta);
   }
   if meta_result.is_none() {
     if let Ok(val) = tokio::fs::read_to_string(dir_path.join("META-INF/neoforge.mods.toml")).await {
-      let mut meta = toml::from_str::<NewforgeModMetadata>(val.as_str())?;
+      let mut meta = toml::from_str::<ForgeModMetadata>(val.as_str())?;
       meta.is_neoforge = true;
       meta_result = Some(meta);
     }
@@ -131,12 +131,12 @@ pub async fn get_mod_metadata_from_dir(dir_path: &Path) -> SJMCLResult<NewforgeM
         .await
         .is_ok()
       {
-        Ok(NewforgeModMetadata {
+        Ok(ForgeModMetadata {
           is_neoforge: false,
           mod_loader: "javafml".to_string(),
           loader_version: String::new(),
           license: String::new(),
-          mods: vec![NewforgeModSubItem::default()],
+          mods: vec![ForgeModSubItem::default()],
           logo_file: None,
           valid_logo_file: None,
         })
@@ -146,7 +146,7 @@ pub async fn get_mod_metadata_from_dir(dir_path: &Path) -> SJMCLResult<NewforgeM
     }
   };
   if meta.mods.is_empty() {
-    return Err(SJMCLError("newforge mod len(mods) == 0".to_string()));
+    return Err(SJMCLError("forge mod len(mods) == 0".to_string()));
   }
   // seek logo
   let mut logo_candidates = vec![];

@@ -1,4 +1,4 @@
-use super::{fabric, forge, liteloader, oldforge, quilt};
+use super::{fabric, forge, legacy_forge, liteloader, quilt};
 use crate::error::{SJMCLError, SJMCLResult};
 use crate::instance::models::misc::{LocalModInfo, ModLoaderType};
 use crate::utils::image::{load_image_from_dir_async, load_image_from_jar};
@@ -34,7 +34,6 @@ pub async fn get_mod_info_from_jar(path: &PathBuf) -> SJMCLResult<LocalModInfo> 
       file_path,
     });
   };
-  // use neoforge mod meta getter before newforge, ref: https://github.com/UNIkeEN/SJMCL/issues/341
   if let Ok(mut meta) = forge::get_mod_metadata_from_jar(&mut jar) {
     let first_mod = meta.mods.remove(0);
     return Ok(LocalModInfo {
@@ -54,7 +53,7 @@ pub async fn get_mod_info_from_jar(path: &PathBuf) -> SJMCLResult<LocalModInfo> 
       file_path,
     });
   }
-  if let Ok(meta) = oldforge::get_mod_metadata_from_jar(&mut jar) {
+  if let Ok(meta) = legacy_forge::get_mod_metadata_from_jar(&mut jar) {
     let icon_src = if let Some(icon) = meta.logo_file {
       load_image_from_jar(&mut jar, &icon).unwrap_or_default()
     } else {
@@ -159,7 +158,7 @@ pub async fn get_mod_info_from_dir(path: &Path) -> SJMCLResult<LocalModInfo> {
       file_path: path.to_path_buf(),
     });
   }
-  if let Ok(meta) = oldforge::get_mod_metadata_from_dir(path).await {
+  if let Ok(meta) = legacy_forge::get_mod_metadata_from_dir(path).await {
     let icon_src = if let Some(icon) = meta.logo_file {
       load_image_from_dir_async(&path.join(icon))
         .await
