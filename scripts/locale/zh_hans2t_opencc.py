@@ -4,7 +4,7 @@ This script converts zh-Hans locale to zh-Hant by OpenCC.
 
 Usage:
     pip install opencc
-    python convert_locale.py
+    python zh_hans2t_opencc.py
 """
 
 import json
@@ -21,7 +21,7 @@ def convert_simplified_to_traditional(obj):
     else:
         return obj
 
-converter = OpenCC('s2twp')  # Conversion mode: 's2twp' (Simplified Chinese to Traditional Chinese (Taiwan Standard) with Taiwanese idiom)
+converter = OpenCC('s2twp')  # Conversion mode: 's2twp', Simplified Chinese to Traditional Chinese (Taiwan Standard) with Taiwanese idiom
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.dirname(os.path.dirname(script_dir))

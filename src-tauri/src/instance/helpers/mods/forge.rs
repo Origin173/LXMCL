@@ -1,4 +1,6 @@
+// This file is used to read mod info for Forge or NeoForge (structure almost identical)
 // https://forge.gemwire.uk/wiki/Mods.toml
+// https://docs.neoforged.net/docs/gettingstarted/modfiles/#neoforgemodstoml
 use crate::error::{SJMCLError, SJMCLResult};
 use crate::instance::models::misc::ModLoaderType;
 use crate::utils::image::{load_image_from_dir_async, load_image_from_jar, ImageWrapper};

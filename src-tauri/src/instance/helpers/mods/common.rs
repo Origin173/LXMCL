@@ -45,7 +45,7 @@ pub async fn get_mod_info_from_jar(path: &PathBuf) -> SJMCLResult<LocalModInfo> 
       file_name: file_stem,
       description: first_mod.description.unwrap_or_default(),
       potential_incompatibility: false,
-      loader_type: meta.loader_type,
+      loader_type: meta.loader_type, // Forge or NeoForge
       file_path,
     });
   }
@@ -146,7 +146,7 @@ pub async fn get_mod_info_from_dir(path: &Path) -> SJMCLResult<LocalModInfo> {
       file_name: file_stem,
       description: first_mod.description.unwrap_or_default(),
       potential_incompatibility: false,
-      loader_type: meta.loader_type,
+      loader_type: meta.loader_type, // Forge or NeoForge
       file_path: path.to_path_buf(),
     });
   }

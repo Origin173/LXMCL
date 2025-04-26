@@ -1605,7 +1605,8 @@
         "error": {
           "title": "Failed to fetch game version list",
           "description": {
-            "PARSE_ERROR": "The server returned data in an incorrect format"
+            "PARSE_ERROR": "The server returned data in an incorrect format",
+            "NETWORK_ERROR": "Failed to connect to the server"
           }
         }
       },

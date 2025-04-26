@@ -1605,7 +1605,8 @@
         "error": {
           "title": "获取游戏版本列表失败",
           "description": {
-            "PARSE_ERROR": "服务器返回数据格式错误"
+            "PARSE_ERROR": "服务器返回数据格式错误",
+            "NETWORK_ERROR": "无法连接到服务器"
           }
         }
       },
