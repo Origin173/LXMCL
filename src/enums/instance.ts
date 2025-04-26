@@ -15,7 +15,7 @@ export enum ModLoaderEnums {
   Unknown = "Unknown",
   Fabric = "Fabric",
   Forge = "Forge",
-  ForgeOld = "ForgeOld",
+  LegacyForge = "LegacyForge",
   NeoForge = "NeoForge",
   LiteLoader = "LiteLoader",
   Quilt = "Quilt",

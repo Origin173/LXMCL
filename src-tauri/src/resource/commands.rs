@@ -37,7 +37,7 @@ pub async fn fetch_mod_loader_version_list(
     get_source_priority_list(&state)
   };
   match mod_loader_type {
-    ModLoaderType::Forge | ModLoaderType::ForgeOld => {
+    ModLoaderType::Forge | ModLoaderType::LegacyForge => {
       Ok(get_forge_meta_by_game_version(&app, &priority_list, &game_version).await?)
     }
     ModLoaderType::Fabric => {
