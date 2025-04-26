@@ -7,7 +7,7 @@ const url = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
 // Resolve output path relative to the script location
 const outputPath = path.resolve(
   __dirname,
-  "../../src-tauri/assets/game/version.txt"
+  "../../src-tauri/assets/game/versions.txt"
 );
 
 https
@@ -26,7 +26,7 @@ https
       try {
         const json = JSON.parse(data);
         const versionIds = json.versions.map((v) => v.id).reverse(); // Oldest to newest
-        const text = versionIds.join("\n");
+        const text = versionIds.join("\n") + '\n';
 
         // Ensure the directory exists
         fs.mkdirSync(path.dirname(outputPath), { recursive: true });
