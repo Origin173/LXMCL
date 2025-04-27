@@ -58,7 +58,8 @@
       }
     },
     "resources": [
-      "assets/skins/*"
+      "assets/skins/*",
+      "assets/game/*"
     ]
   },
   "plugins": {
