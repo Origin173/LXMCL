@@ -191,7 +191,7 @@ pub async fn run() {
 
       // Registering the deep links at runtime on Linux and Windows
       // ref: https://v2.tauri.app/plugin/deep-linking/#registering-desktop-deep-links-at-runtime
-      #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
+      #[cfg(any(target_os = "linux", target_os = "windows"))]
       {
         use tauri_plugin_deep_link::DeepLinkExt;
         app.deep_link().register_all()?;
