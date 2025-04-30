@@ -161,7 +161,7 @@ pub async fn refresh_instances(
       .await
       .unwrap_or_default();
 
-    let (mut game_version, mod_version, loader_type) = patchs_to_info(&client_data.patches);
+    let (mut game_version, loader_version, loader_type) = patchs_to_info(&client_data.patches);
     // TODO: patches related logic
     if game_version.is_none() {
       let file = Cursor::new(tokio::fs::read(jar_path).await?);
@@ -180,7 +180,7 @@ pub async fn refresh_instances(
       version_path,
       mod_loader: ModLoader {
         loader_type,
-        version: mod_version.unwrap_or_default(),
+        version: loader_version.unwrap_or_default(),
       },
       ..cfg_read
     };
