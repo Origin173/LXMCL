@@ -13,12 +13,12 @@ import {
 import { LuPenLine } from "react-icons/lu";
 import SelectableButton from "@/components/common/selectable-button";
 
-interface GameIconSelectorProps extends StackProps {
+interface InstanceIconSelectorProps extends StackProps {
   value?: string;
   onIconSelect: (value: string) => void;
 }
 
-export const GameIconSelector: React.FC<GameIconSelectorProps> = ({
+export const InstanceIconSelector: React.FC<InstanceIconSelectorProps> = ({
   value,
   onIconSelect,
   ...stackProps
@@ -66,9 +66,9 @@ export const GameIconSelector: React.FC<GameIconSelectorProps> = ({
   );
 };
 
-export const GameIconSelectorPopover: React.FC<GameIconSelectorProps> = ({
-  ...props
-}) => {
+export const InstanceIconSelectorPopover: React.FC<
+  InstanceIconSelectorProps
+> = ({ ...props }) => {
   return (
     <Popover>
       <PopoverTrigger>
@@ -81,7 +81,7 @@ export const GameIconSelectorPopover: React.FC<GameIconSelectorProps> = ({
       </PopoverTrigger>
       <PopoverContent width="auto">
         <PopoverBody>
-          <GameIconSelector {...props} />
+          <InstanceIconSelector {...props} />
         </PopoverBody>
       </PopoverContent>
     </Popover>

@@ -107,7 +107,7 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
   const primaryColor = config.appearance.theme.primaryColor;
   const initialRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
-  const { getGameInstanceList } = useData();
+  const { getInstanceList } = useData();
 
   const [dirName, setDirName] = useState<string>("");
   const [dirPath, setDirPath] = useState<string>("");
@@ -231,7 +231,7 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
         )
       );
     }
-    getGameInstanceList(true); // refresh frontend state of instance list
+    getInstanceList(true); // refresh frontend state of instance list
     setDirName("");
     setDirPath("");
     setSubDirPath("");

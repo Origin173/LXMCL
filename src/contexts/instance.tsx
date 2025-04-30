@@ -13,7 +13,7 @@ import { InstanceSubdirEnums } from "@/enums/instance";
 import { useGetState } from "@/hooks/get-state";
 import { GameConfig } from "@/models/config";
 import {
-  GameInstanceSummary,
+  InstanceSummary,
   LocalModInfo,
   ResourcePackInfo,
   SchematicInfo,
@@ -25,7 +25,7 @@ import { InstanceService } from "@/services/instance";
 import { updateByKeyPath } from "@/utils/partial";
 
 export interface InstanceContextType {
-  summary: GameInstanceSummary | undefined;
+  summary: InstanceSummary | undefined;
   updateSummaryInContext: (path: string, value: any) => void;
   gameConfig: GameConfig | undefined;
   getWorldList: (sync?: boolean) => WorldInfo[] | undefined;
@@ -52,11 +52,11 @@ export const InstanceContextProvider: React.FC<{
 }> = ({ children }) => {
   const router = useRouter();
   const toast = useToast();
-  const { getGameInstanceList } = useData();
-  const { setGameInstanceList } = useDataDispatch();
+  const { getInstanceList } = useData();
+  const { setInstanceList } = useDataDispatch();
 
   const [instanceSummary, setInstanceSummary] = useState<
-    GameInstanceSummary | undefined
+    InstanceSummary | undefined
   >(undefined);
   const [instanceGameConfig, setInstanceGameConfig] = useState<
     GameConfig | undefined
@@ -78,17 +78,17 @@ export const InstanceContextProvider: React.FC<{
 
       const newSummary = { ...instanceSummary };
       updateByKeyPath(newSummary, path, value);
-      setInstanceSummary(newSummary as GameInstanceSummary);
+      setInstanceSummary(newSummary as InstanceSummary);
 
-      const gameInstanceList = getGameInstanceList() || [];
-      const updatedList = gameInstanceList.map((instance) =>
+      const instanceList = getInstanceList() || [];
+      const updatedList = instanceList.map((instance) =>
         instance.id === newSummary.id
-          ? (newSummary as GameInstanceSummary)
+          ? (newSummary as InstanceSummary)
           : instance
       );
-      setGameInstanceList(updatedList);
+      setInstanceList(updatedList);
     },
-    [getGameInstanceList, instanceSummary, setGameInstanceList]
+    [getInstanceList, instanceSummary, setInstanceList]
   );
 
   const handleRetrieveInstanceGameConfig = useCallback(() => {
@@ -109,18 +109,19 @@ export const InstanceContextProvider: React.FC<{
   }, [instanceSummary?.id, setInstanceGameConfig, toast]);
 
   useEffect(() => {
-    const gameInstanceList = getGameInstanceList() || [];
-    const { id } = router.query;
+    const instanceList = getInstanceList() || [];
+    let id = router.query.id;
     const instanceId = Array.isArray(id) ? id[0] : id;
     // get summary
     if (instanceId !== undefined) {
-      const summary = gameInstanceList.find(
+      const summary = instanceList.find(
         (instance) => instance.id === Number(instanceId)
       );
       setInstanceSummary(summary);
       handleRetrieveInstanceGameConfig();
     }
-  }, [router.query, getGameInstanceList, handleRetrieveInstanceGameConfig]);
+    console.warn("update");
+  }, [router.query.id, getInstanceList, handleRetrieveInstanceGameConfig]);
 
   const handleOpenInstanceSubdir = useCallback(
     (dirType: InstanceSubdirEnums) => {

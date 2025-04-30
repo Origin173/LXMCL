@@ -94,7 +94,7 @@ const AddAndImportInstancePage = () => {
 
   const optionGroups: OptionItemGroupProps[] = [
     {
-      title: t("AllGamesPage.button.addAndImport"),
+      title: t("AllInstancesPage.button.addAndImport"),
       items: Object.keys(addAndImportOptions).map((key) => ({
         title: t(`AddAndImportInstancePage.addAndImportOptions.${key}.title`),
         description: t(

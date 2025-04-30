@@ -35,7 +35,7 @@ const HeadNavBar = () => {
 
   const navList = [
     { icon: LuZap, label: "launch", path: "/launch" },
-    { icon: LuBox, label: "games", path: "/games" },
+    { icon: LuBox, label: "instances", path: "/instances" },
     { icon: LuCircleUserRound, label: "accounts", path: "/accounts" },
     ...(config.general.functionality.discoverPage
       ? [{ icon: LuCompass, label: "discover", path: "/discover" }]

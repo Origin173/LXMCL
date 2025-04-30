@@ -7,7 +7,7 @@ import {
   OptionItemGroupProps,
   OptionItemProps,
 } from "@/components/common/option-item";
-import { GameIconSelectorPopover } from "@/components/game-icon-selector";
+import { InstanceIconSelectorPopover } from "@/components/instance-icon-selector";
 import { useLauncherConfig } from "@/contexts/config";
 import { GameDirectory } from "@/models/config";
 
@@ -80,7 +80,7 @@ export const InstanceBasicSettings: React.FC<InstanceBasicSettingsProps> = ({
                 boxSize="28px"
                 objectFit="cover"
               />
-              <GameIconSelectorPopover
+              <InstanceIconSelectorPopover
                 value={iconSrc}
                 onIconSelect={setIconSrc}
               />

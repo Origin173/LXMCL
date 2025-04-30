@@ -17,20 +17,20 @@ import NavMenu from "@/components/common/nav-menu";
 import SelectableButton from "@/components/common/selectable-button";
 import { useData } from "@/contexts/data";
 
-interface GamesLayoutProps {
+interface InstancesLayoutProps {
   children: React.ReactNode;
 }
 
-const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
+const InstancesLayout: React.FC<InstancesLayoutProps> = ({ children }) => {
   const router = useRouter();
   const { t } = useTranslation();
-  const { getGameInstanceList } = useData();
-  const gameInstanceList = getGameInstanceList() || [];
+  const { getInstanceList } = useData();
+  const instanceList = getInstanceList() || [];
 
-  const gameInstanceItems: { key: string; icon: IconType; label: string }[] = [
-    { key: "all", icon: LuBoxes, label: t("AllGamesPage.title") },
-    ...gameInstanceList.map((item) => ({
-      key: `instance/${item.id}`,
+  const instanceItems: { key: string; icon: IconType; label: string }[] = [
+    { key: "all", icon: LuBoxes, label: t("AllInstancesPage.title") },
+    ...instanceList.map((item) => ({
+      key: `details/${item.id}`,
       icon: item.starred ? FaStar : LuBox,
       label: item.name,
     })),
@@ -39,7 +39,8 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
   // Truncate to the ID, excluding subpage routes
   const prefixAsPathPart = router.asPath.split("/").slice(0, 4).join("/");
 
-  const isInstancePage = (path: String) => path.startsWith("/games/instance/");
+  const isInstancePage = (path: String) =>
+    path.startsWith("/instances/details/");
 
   return (
     <Grid templateColumns="1fr 3fr" gap={4} h="100%">
@@ -56,7 +57,7 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
                   );
                 } else router.push(value);
               }}
-              items={gameInstanceItems.map((item) => ({
+              items={instanceItems.map((item) => ({
                 label: (
                   <HStack spacing={2} overflow="hidden">
                     <Icon as={item.icon} />
@@ -65,7 +66,7 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
                     </Text>
                   </HStack>
                 ),
-                value: `/games/${item.key}`,
+                value: `/instances/${item.key}`,
                 tooltip: item.key === "all" ? "" : item.label,
               }))}
             />
@@ -74,14 +75,14 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
             <SelectableButton
               size="sm"
               onClick={() => {
-                router.push("/games/add-import");
+                router.push("/instances/add-import");
               }}
-              isSelected={router.asPath === "/games/add-import"}
+              isSelected={router.asPath === "/instances/add-import"}
             >
               <HStack spacing={2}>
                 <Icon as={LuCirclePlus} />
                 <Text fontSize="sm">
-                  {t("AllGamesPage.button.addAndImport")}
+                  {t("AllInstancesPage.button.addAndImport")}
                 </Text>
               </HStack>
             </SelectableButton>
@@ -106,4 +107,4 @@ const GamesLayout: React.FC<GamesLayoutProps> = ({ children }) => {
   );
 };
 
-export default GamesLayout;
+export default InstancesLayout;

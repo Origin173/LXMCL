@@ -29,7 +29,7 @@ const GlobalGameSettingsPage = () => {
   const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const globalGameConfigs = config.globalGameConfig;
-  const { getGameInstanceList } = useData();
+  const { getInstanceList } = useData();
 
   const [selectedDir, setSelectedDir] = useState<GameDirectory>({
     name: "",
@@ -84,7 +84,7 @@ const GlobalGameSettingsPage = () => {
       "localGameDirectories",
       config.localGameDirectories.filter((dir) => dir.dir !== selectedDir.dir)
     );
-    getGameInstanceList(true); // refresh frontend state of instance list
+    getInstanceList(true); // refresh frontend state of instance list
     onDeleteDirDialogClose();
   };
 

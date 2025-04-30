@@ -53,7 +53,9 @@ const InstanceResourcePacksPage = () => {
           icon: "add",
           onClick: () => {
             handleImportResource({
-              filterName: t("InstanceLayout.instanceTabList.resourcepacks"),
+              filterName: t(
+                "InstanceDetailsLayout.instanceTabList.resourcepacks"
+              ),
               filterExt: ["zip"],
               tgtDirType: InstanceSubdirEnums.ResourcePacks,
               decompress: false,

@@ -15,8 +15,8 @@ import {
   OptionItemGroup,
   OptionItemGroupProps,
 } from "@/components/common/option-item";
-import { GameIconSelectorPopover } from "@/components/game-icon-selector";
 import GameSettingsGroups from "@/components/game-settings-groups";
+import { InstanceIconSelectorPopover } from "@/components/instance-icon-selector";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useToast } from "@/contexts/toast";
@@ -103,7 +103,7 @@ const InstanceSettingsPage = () => {
                 boxSize="28px"
                 objectFit="cover"
               />
-              <GameIconSelectorPopover
+              <InstanceIconSelectorPopover
                 value={summary?.iconSrc}
                 onIconSelect={(value) => {
                   handleUpdateInstanceConfig("iconSrc", value);

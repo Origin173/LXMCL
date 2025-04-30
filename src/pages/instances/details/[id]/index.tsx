@@ -9,7 +9,7 @@ const InstanceDetailIndexPage = () => {
 
   useEffect(() => {
     if (id === undefined) {
-      router.push("/games/all");
+      router.push("/instances/all");
       return;
     }
 
@@ -18,8 +18,9 @@ const InstanceDetailIndexPage = () => {
     router.replace(
       [...history]
         .reverse()
-        .find((route) => route.startsWith(`/games/instance/${instanceId}/`)) ||
-        `/games/instance/${instanceId}/overview`
+        .find((route) =>
+          route.startsWith(`/instances/details/${instanceId}/`)
+        ) || `/instances/details/${instanceId}/overview`
     );
   }, [history, router, id]);
 

@@ -192,7 +192,7 @@ export const InstanceScreenshotsWidget = () => {
           onClick={() => {
             router.push(
               {
-                pathname: `/games/instance/${instanceId}/screenshots`,
+                pathname: `/instances/details/${instanceId}/screenshots`,
                 query: {
                   screenshotIndex: currentIndex.toString(),
                 },
@@ -262,7 +262,7 @@ export const InstanceModsWidget = () => {
           justifyContent="flex-start"
           colorScheme={primaryColor}
           onClick={() => {
-            router.push(`/games/instance/${instanceId}/mods`);
+            router.push(`/instances/details/${instanceId}/mods`);
           }}
         >
           <HStack spacing={1.5}>
@@ -383,20 +383,20 @@ export const InstanceMoreWidget = () => {
               size="lg"
               colorScheme={primaryColor}
               onClick={() =>
-                router.push(`/games/instance/${instanceId}/${key}`)
+                router.push(`/instances/details/${instanceId}/${key}`)
               }
             >
               <VStack spacing={1} align="center">
                 <Icon as={icon} boxSize="24px" />
                 <Text fontSize="xs">
-                  {t(`InstanceLayout.instanceTabList.${key}`)}
+                  {t(`InstanceDetailsLayout.instanceTabList.${key}`)}
                 </Text>
               </VStack>
             </Button>
           ) : (
             <Tooltip
               key={key}
-              label={t(`InstanceLayout.instanceTabList.${key}`)}
+              label={t(`InstanceDetailsLayout.instanceTabList.${key}`)}
             >
               <IconButton
                 icon={<Icon as={icon} boxSize="32px" />}
@@ -404,9 +404,9 @@ export const InstanceMoreWidget = () => {
                 size="lg"
                 colorScheme={primaryColor}
                 onClick={() =>
-                  router.push(`/games/instance/${instanceId}/${key}`)
+                  router.push(`/instances/details/${instanceId}/${key}`)
                 }
-                aria-label={t(`InstanceLayout.instanceTabList.${key}`)}
+                aria-label={t(`InstanceDetailsLayout.instanceTabList.${key}`)}
               />
             </Tooltip>
           )

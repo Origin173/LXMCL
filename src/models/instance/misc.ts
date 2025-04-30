@@ -1,6 +1,6 @@
 import { ModLoaderType } from "@/enums/instance";
 
-export interface GameInstanceSummary {
+export interface InstanceSummary {
   id: number;
   iconSrc: string;
   name: string;

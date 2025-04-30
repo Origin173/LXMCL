@@ -241,7 +241,7 @@ structstruck::strike! {
         #[default = "grid"]
         pub view_type: String
       },
-      pub all_games_page: struct {
+      pub all_instances_page: struct {
         #[default = "list"]
         pub view_type: String
       },

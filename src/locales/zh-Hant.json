@@ -192,7 +192,7 @@
       "usePasswordLogin": "賬號密碼登入"
     }
   },
-  "AllGamesPage": {
+  "AllInstancesPage": {
     "button": {
       "addAndImport": "新增與匯入",
       "globalSettings": "全域性遊戲設定",
@@ -320,10 +320,10 @@
       "info": "基本設定"
     }
   },
-  "DeleteGameInstanceAlertDialog": {
+  "DeleteInstanceAlertDialog": {
     "dialog": {
       "title": "刪除遊戲例項",
-      "content": "確定要刪除遊戲例項 “{{gameName}}” 嗎？它將會永久消失！（真的很久！）",
+      "content": "確定要刪除遊戲例項 “{{instanceName}}” 嗎？它將會永久消失！（真的很久！）",
       "warning": {
         "withVerIso": "請注意，由於此例項已啟用版本隔離，刪除該例項將導致存檔等資料一同被刪除。如需保留相關資料，請先遷移。",
         "woVerIso": "請注意，如果該例項此前啟用過版本隔離，未遷移的存檔等資料將一同被刪除。"
@@ -626,12 +626,6 @@
     "exportLogs": "匯出日誌",
     "clearLogs": "清除所有日誌"
   },
-  "GameMenu": {
-    "label": {
-      "details": "例項詳情",
-      "delete": "刪除例項"
-    }
-  },
   "GameVersionSelector": {
     "old_beta": "遠古版",
     "release": "正式版",
@@ -815,7 +809,7 @@
   "HeadNavBar": {
     "navList": {
       "launch": "啟動",
-      "games": "遊戲",
+      "instances": "遊戲",
       "accounts": "賬戶",
       "discover": "發現",
       "search": "搜尋",
@@ -866,7 +860,7 @@
   "InstanceBasicSettings": {
     "selectDirectory": "選擇遊戲目錄"
   },
-  "InstanceLayout": {
+  "InstanceDetailsLayout": {
     "secMenu": {
       "exportModPack": "匯出為整合包",
       "star": "星標此例項",
@@ -884,6 +878,12 @@
     },
     "button": {
       "launch": "啟動例項"
+    }
+  },
+  "InstanceMenu": {
+    "label": {
+      "details": "例項詳情",
+      "delete": "刪除例項"
     }
   },
   "InstanceModsPage": {
