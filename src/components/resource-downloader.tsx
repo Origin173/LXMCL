@@ -186,6 +186,7 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
       setSelectedItem(item);
       onOpen();
     },
+    fontWeight: 400,
   });
 
   return (

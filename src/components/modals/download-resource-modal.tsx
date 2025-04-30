@@ -45,7 +45,7 @@ const DownloadResourceModal: React.FC<DownloadResourceModalProps> = ({
       {...modalProps}
     >
       <ModalOverlay />
-      <ModalContent h="100%">
+      <ModalContent h="100%" pb={4}>
         <ModalHeader>
           <HStack w="100%" justify="flex-start" align="center">
             <Text>{t("DownloadResourceModal.header.title")}</Text>

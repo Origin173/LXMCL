@@ -1,8 +1,8 @@
 import {
   Avatar,
-  Box,
   Card,
   HStack,
+  Link,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -12,13 +12,13 @@ import {
   ModalProps,
   Tag,
   Text,
-  VStack,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuDownload, LuUpload } from "react-icons/lu";
+import { LuDownload, LuExternalLink, LuUpload } from "react-icons/lu";
 import { useLauncherConfig } from "@/contexts/config";
 import { ModLoaderEnums, ModLoaderType } from "@/enums/instance";
 import { useThemedCSSStyle } from "@/hooks/themed-css";
@@ -26,7 +26,6 @@ import { mockResourceVersionPacks } from "@/models/mock/resource";
 import { OtherResourceInfo, ResourceVersionPack } from "@/models/resource";
 import { ISOToDate } from "@/utils/datetime";
 import CountTag from "../common/count-tag";
-import LinkIconButton from "../common/link-icon-button";
 import NavMenu from "../common/nav-menu";
 import { OptionItem, OptionItemGroup } from "../common/option-item";
 import { Section } from "../common/section";
@@ -46,6 +45,12 @@ const DownloadSpecificResourceModal: React.FC<
   const themedStyles = useThemedCSSStyle();
   const primaryColor = config.appearance.theme.primaryColor;
 
+  const modLoaderLabels = [
+    "All",
+    ModLoaderEnums.Fabric,
+    ModLoaderEnums.Forge,
+    ModLoaderEnums.NeoForge,
+  ];
   const [versionLabels, setVersionLabels] = useState<string[]>([]);
   const [selectedVersionLabel, setSelectedVersionLabel] =
     useState<string>("All");
@@ -121,16 +126,21 @@ const DownloadSpecificResourceModal: React.FC<
       {...modalProps}
     >
       <ModalOverlay />
-      <ModalContent h="100%">
+      <ModalContent h="100%" pb={4}>
         <ModalHeader>
-          <Text>
-            {t("DownloadSpecificResourceModal.title", {
-              name: resource.translatedName
-                ? `${resource.translatedName} (${resource.name})`
-                : resource.name,
-            })}
-          </Text>
-          <Card className={themedStyles.card["card-front"]} mt={1.5}>
+          {t("DownloadSpecificResourceModal.title", {
+            name: resource.translatedName
+              ? `${resource.translatedName} (${resource.name})`
+              : resource.name,
+          })}
+        </ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <Card
+            className={themedStyles.card["card-front"]}
+            mb={3}
+            fontWeight={400}
+          >
             <OptionItem
               title={
                 resource.translatedName
@@ -149,169 +159,164 @@ const DownloadSpecificResourceModal: React.FC<
                 </Wrap>
               }
               description={
-                <VStack
+                <Text
                   fontSize="xs"
-                  className="secondary-text no-select"
-                  spacing={1}
-                  align="flex-start"
-                  w="100%"
+                  className="secondary-text"
+                  wordBreak="break-all"
+                  whiteSpace="pre-wrap"
                 >
-                  <Text overflow="hidden" className="ellipsis-text">
-                    {resource.description}
-                  </Text>
-                </VStack>
+                  {resource.description}
+                </Text>
               }
               prefixElement={
                 <Avatar
                   src={resource.iconSrc}
                   name={resource.name}
-                  boxSize="32px"
-                  borderRadius="2px"
+                  boxSize="40px"
+                  borderRadius="4px"
                 />
               }
+              fontWeight={400}
             />
             <HStack mt={1.5} spacing={8}>
-              <HStack spacing={0}>
-                <LinkIconButton
-                  url="https://www.curseforge.com/minecraft" //TBD
-                  aria-label="curseforge"
-                  isExternal
-                  withTooltip
-                  h={18}
-                />
-                <Text fontSize="xs">
+              <HStack spacing={1}>
+                <LuExternalLink />
+                <Link
+                  fontSize="xs"
+                  color={`${primaryColor}.500`}
+                  onClick={() => {
+                    openUrl(
+                      "https://www.curseforge.com/minecraft" //TBD
+                    );
+                  }}
+                >
                   {t("DownloadSpecificResourceModal.goTo.curseforge")}
-                </Text>
+                </Link>
               </HStack>
-              <HStack spacing={0}>
-                <LinkIconButton
-                  url="https://modrinth.com" //TBD
-                  aria-label="curseforge"
-                  isExternal
-                  withTooltip
-                  h={18}
-                />
-                <Text fontSize="xs">
+              <HStack spacing={1}>
+                <LuExternalLink />
+                <Link
+                  fontSize="xs"
+                  color={`${primaryColor}.500`}
+                  onClick={() => {
+                    openUrl(
+                      "https://modrinth.com" //TBD
+                    );
+                  }}
+                >
                   {t("DownloadSpecificResourceModal.goTo.modrinth")}
-                </Text>
+                </Link>
               </HStack>
-              <HStack spacing={0}>
-                <LinkIconButton
-                  url="https://www.mcmod.cn/" //TBD
-                  aria-label="curseforge"
-                  isExternal
-                  withTooltip
-                  h={18}
-                />
-                <Text fontSize="xs">
+              <HStack spacing={1}>
+                <LuExternalLink />
+                <Link
+                  fontSize="xs"
+                  color={`${primaryColor}.500`}
+                  onClick={() => {
+                    openUrl(
+                      "https://www.mcmod.cn/" //TBD
+                    );
+                  }}
+                >
                   {t("DownloadSpecificResourceModal.goTo.mcmod")}
-                </Text>
+                </Link>
               </HStack>
             </HStack>
           </Card>
-        </ModalHeader>
-        <ModalCloseButton />
-        <ModalBody h="100%" display="flex" flexDir="column">
-          <Box flexShrink={0}>
+          <NavMenu
+            className="no-scrollbar"
+            selectedKeys={[selectedVersionLabel]}
+            onClick={setSelectedVersionLabel}
+            direction="row"
+            size="xs"
+            spacing={3}
+            flex={1}
+            mb={1.5}
+            display="flex"
+            items={versionLabels.map((item) => ({
+              value: item,
+              label:
+                item !== "All"
+                  ? item === curInstanceVersion
+                    ? `${item} (${t("DownloadSpecificResourceModal.label.currentVersion")})`
+                    : item
+                  : t("DownloadSpecificResourceModal.label.all"),
+            }))}
+          />
+          {resource.type === "mods" && (
             <NavMenu
               className="no-scrollbar"
-              selectedKeys={[selectedVersionLabel]}
-              onClick={setSelectedVersionLabel}
+              selectedKeys={[selectedModLoader]}
+              onClick={setSelectedModLoader}
               direction="row"
               size="xs"
               spacing={3}
               flex={1}
-              mb={1.5}
+              mb={2}
               display="flex"
-              items={versionLabels.map((item) => ({
+              items={modLoaderLabels.map((item) => ({
                 value: item,
                 label:
                   item !== "All"
-                    ? item === curInstanceVersion
-                      ? `${item} (${t("DownloadSpecificResourceModal.label.currentVersion")})`
+                    ? item === curInstanceModLoader
+                      ? `${item} (${t("DownloadSpecificResourceModal.label.currentModLoader")})`
                       : item
                     : t("DownloadSpecificResourceModal.label.all"),
               }))}
             />
-            {resource.type === "mods" && (
-              <NavMenu
-                className="no-scrollbar"
-                selectedKeys={[selectedModLoader]}
-                onClick={setSelectedModLoader}
-                direction="row"
-                size="xs"
-                spacing={3}
-                flex={1}
-                mb={2}
-                display="flex"
-                items={["All", ...Object.values(ModLoaderEnums)]
-                  .filter((item) => item !== "Unknown")
-                  .map((item) => ({
-                    value: item,
-                    label:
-                      item !== "All"
-                        ? item === curInstanceModLoader
-                          ? `${item} (${t("DownloadSpecificResourceModal.label.currentModLoader")})`
-                          : item
-                        : t("DownloadSpecificResourceModal.label.all"),
-                  }))}
-              />
-            )}
-          </Box>
-          <Box flex={1} flexDir="column" overflow="auto">
-            {selectedVersionPacks.map((pack, index) => (
-              <Section
-                key={index}
-                isAccordion
-                title={pack.name}
-                initialIsOpen={false}
-                titleExtra={<CountTag count={pack.items.length} />}
-                mb={2}
-              >
-                <OptionItemGroup
-                  items={pack.items.map((item, index) => (
-                    <OptionItem
-                      key={index}
-                      title={item.name}
-                      description={
-                        <HStack
-                          fontSize="xs"
-                          className="secondary-text no-select"
-                          spacing={6}
-                          align="flex-start"
-                          w="100%"
-                        >
-                          <Text overflow="hidden" className="ellipsis-text">
-                            {item.description}
-                          </Text>
-                          <HStack spacing={1}>
-                            <LuUpload />
-                            <Text>{ISOToDate(item.lastUpdated)}</Text>
-                          </HStack>
-                          <HStack spacing={1}>
-                            <LuDownload />
-                            <Text>{item.downloads}</Text>
-                          </HStack>
+          )}
+          {selectedVersionPacks.map((pack, index) => (
+            <Section
+              key={index}
+              isAccordion
+              title={pack.name}
+              initialIsOpen={false}
+              titleExtra={<CountTag count={pack.items.length} />}
+              mb={2}
+            >
+              <OptionItemGroup
+                items={pack.items.map((item, index) => (
+                  <OptionItem
+                    key={index}
+                    title={item.name}
+                    description={
+                      <HStack
+                        fontSize="xs"
+                        className="secondary-text no-select"
+                        spacing={6}
+                        align="flex-start"
+                        w="100%"
+                      >
+                        <Text overflow="hidden" className="ellipsis-text">
+                          {item.description}
+                        </Text>
+                        <HStack spacing={1}>
+                          <LuUpload />
+                          <Text>{ISOToDate(item.lastUpdated)}</Text>
                         </HStack>
-                      }
-                      prefixElement={
-                        <Avatar
-                          src={item.iconSrc}
-                          name={item.name}
-                          boxSize="32px"
-                          borderRadius="4px"
-                        />
-                      }
-                      isFullClickZone
-                      onClick={() => {
-                        console.log("Downloading", resource.name, item.name); // TBD
-                      }}
-                    />
-                  ))}
-                />
-              </Section>
-            ))}
-          </Box>
+                        <HStack spacing={1}>
+                          <LuDownload />
+                          <Text>{item.downloads}</Text>
+                        </HStack>
+                      </HStack>
+                    }
+                    prefixElement={
+                      <Avatar
+                        src={item.iconSrc}
+                        name={item.name}
+                        boxSize="32px"
+                        borderRadius="4px"
+                      />
+                    }
+                    isFullClickZone
+                    onClick={() => {
+                      console.log("Downloading", resource.name, item.name); // TBD
+                    }}
+                  />
+                ))}
+              />
+            </Section>
+          ))}
         </ModalBody>
       </ModalContent>
     </Modal>
