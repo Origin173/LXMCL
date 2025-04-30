@@ -2,14 +2,14 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useRoutingHistory } from "@/contexts/routing-history";
 
-const GamesPage = () => {
+const InstancesPage = () => {
   const router = useRouter();
   const { history } = useRoutingHistory();
 
   useEffect(() => {
     let lastRecord =
-      [...history].reverse().find((route) => route.startsWith("/games/")) ||
-      "/games/all";
+      [...history].reverse().find((route) => route.startsWith("/instances/")) ||
+      "/instances/all";
     if (lastRecord.endsWith("settings/advanced"))
       lastRecord = lastRecord.replace("settings/advanced", "settings");
     router.replace(lastRecord);
@@ -18,4 +18,4 @@ const GamesPage = () => {
   return null;
 };
 
-export default GamesPage;
+export default InstancesPage;

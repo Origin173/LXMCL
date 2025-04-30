@@ -5,28 +5,27 @@ import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { useToast } from "@/contexts/toast";
-import { GameInstanceSummary } from "@/models/instance/misc";
+import { InstanceSummary } from "@/models/instance/misc";
 import { InstanceService } from "@/services/instance";
 
-interface DeleteGameInstanceDialogProps
-  extends Omit<AlertDialogProps, "children"> {
-  game: GameInstanceSummary;
+interface DeleteInstanceDialogProps extends Omit<AlertDialogProps, "children"> {
+  instance: InstanceSummary;
 }
 
 // Make it a separate component for use with the shared-modal-provider (and context).
-const DeleteGameInstanceDialog: React.FC<DeleteGameInstanceDialogProps> = ({
-  game,
+const DeleteInstanceDialog: React.FC<DeleteInstanceDialogProps> = ({
+  instance,
   ...dialogProps
 }) => {
   const { t } = useTranslation();
   const toast = useToast();
   const router = useRouter();
-  const { getGameInstanceList } = useData();
+  const { getInstanceList } = useData();
   const { refreshConfig } = useLauncherConfig();
 
   const handleDeleteInstance = (instanceId: number) => {
     InstanceService.deleteInstance(instanceId).then((response) => {
-      Promise.all([getGameInstanceList(true), refreshConfig()]);
+      Promise.all([getInstanceList(true), refreshConfig()]);
       if (response.status === "success") {
         toast({
           title: response.message,
@@ -41,26 +40,26 @@ const DeleteGameInstanceDialog: React.FC<DeleteGameInstanceDialogProps> = ({
       }
     });
 
-    // Navigate to /games/all
-    getGameInstanceList(true);
-    router.push("/games/all");
+    // Navigate to /instances/all
+    getInstanceList(true);
+    router.push("/instances/all");
   };
 
   return (
     <GenericConfirmDialog
       isOpen={dialogProps.isOpen}
       onClose={dialogProps.onClose}
-      title={t("DeleteGameInstanceAlertDialog.dialog.title")}
+      title={t("DeleteInstanceAlertDialog.dialog.title")}
       body={
         <VStack align="stretch">
           <Text>
-            {t("DeleteGameInstanceAlertDialog.dialog.content", {
-              gameName: game.name,
+            {t("DeleteInstanceAlertDialog.dialog.content", {
+              instanceName: instance.name,
             })}
           </Text>
           <Text>
             {t(
-              `DeleteGameInstanceAlertDialog.dialog.warning.${game.isVersionIsolated ? "withVerIso" : "woVerIso"}`
+              `DeleteInstanceAlertDialog.dialog.warning.${instance.isVersionIsolated ? "withVerIso" : "woVerIso"}`
             )}
           </Text>
         </VStack>
@@ -68,7 +67,7 @@ const DeleteGameInstanceDialog: React.FC<DeleteGameInstanceDialogProps> = ({
       btnOK={t("General.delete")}
       btnCancel={t("General.cancel")}
       onOKCallback={() => {
-        handleDeleteInstance(game.id);
+        handleDeleteInstance(instance.id);
         dialogProps.onClose();
       }}
       isAlert
@@ -76,4 +75,4 @@ const DeleteGameInstanceDialog: React.FC<DeleteGameInstanceDialogProps> = ({
   );
 };
 
-export default DeleteGameInstanceDialog;
+export default DeleteInstanceDialog;

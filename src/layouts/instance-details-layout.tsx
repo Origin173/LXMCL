@@ -27,17 +27,17 @@ import {
 } from "@/contexts/instance";
 import { useSharedModals } from "@/contexts/shared-modal";
 
-const InstanceLayout: React.FC<{ children: React.ReactNode }> = ({
+const InstanceDetailsLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   return (
     <InstanceContextProvider>
-      <InstanceLayoutContent>{children}</InstanceLayoutContent>
+      <InstanceDetailsLayoutContent>{children}</InstanceDetailsLayoutContent>
     </InstanceContextProvider>
   );
 };
 
-const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
+const InstanceDetailsLayoutContent: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const router = useRouter();
@@ -50,6 +50,12 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 
+  // useEffect(() => {
+  //   if (summary === undefined) {
+  //     router.push("/instances/all");
+  //   }
+  // }, [summary])
+
   const instanceSecMenuOperations = [
     {
       icon: "openFolder",
@@ -60,17 +66,17 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
     },
     {
       icon: LuPackagePlus,
-      label: t("InstanceLayout.secMenu.exportModPack"),
+      label: t("InstanceDetailsLayout.secMenu.exportModPack"),
       danger: false,
       onClick: () => {},
     },
     {
       icon: "delete",
-      label: t("GameMenu.label.delete"),
+      label: t("InstanceMenu.label.delete"),
       danger: true,
       onClick: () => {
         if (summary)
-          openSharedModal("delete-game-instance-alert", { game: summary });
+          openSharedModal("delete-instance-alert", { instance: summary });
       },
     },
   ];
@@ -96,7 +102,7 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
         <CommonIconButton
           icon={summary?.starred ? FaStar : FaRegStar}
           label={t(
-            `InstanceLayout.secMenu.${summary?.starred ? "unstar" : "star"}`
+            `InstanceDetailsLayout.secMenu.${summary?.starred ? "unstar" : "star"}`
           )}
           color={summary?.starred ? "yellow.500" : "inherit"}
           onClick={() => {
@@ -130,7 +136,7 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
               openSharedModal("launch", { instanceId: summary?.id });
             }}
           >
-            {t("InstanceLayout.button.launch")}
+            {t("InstanceDetailsLayout.button.launch")}
           </Button>
         </HStack>
       }
@@ -146,12 +152,12 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
           config.general.general.language.startsWith("zh") ? "0.05rem" : 0.5
         }
         items={instanceTabList.map((item) => ({
-          value: `/games/instance/${instanceId}/${item.key}`,
+          value: `/instances/details/${instanceId}/${item.key}`,
           label: (
             <HStack spacing={1.5}>
               <Icon as={item.icon} />
               <Text fontSize="sm">
-                {t(`InstanceLayout.instanceTabList.${item.key}`)}
+                {t(`InstanceDetailsLayout.instanceTabList.${item.key}`)}
               </Text>
             </HStack>
           ),
@@ -164,4 +170,4 @@ const InstanceLayoutContent: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-export default InstanceLayout;
+export default InstanceDetailsLayout;

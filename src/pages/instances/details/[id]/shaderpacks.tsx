@@ -2,7 +2,6 @@ import { HStack } from "@chakra-ui/react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuEye } from "react-icons/lu";
 import { CommonIconButton } from "@/components/common/common-icon-button";
 import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
@@ -11,83 +10,86 @@ import { Section } from "@/components/common/section";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { InstanceSubdirEnums } from "@/enums/instance";
-import { SchematicInfo } from "@/models/instance/misc";
+import { ShaderPackInfo } from "@/models/instance/misc";
 
-const InstanceSchematicsPage = () => {
+const InstanceShaderPacksPage = () => {
   const { t } = useTranslation();
   const {
     summary,
     handleOpenInstanceSubdir,
     handleImportResource,
-    getSchematicList,
+    getShaderPackList,
   } = useInstanceSharedData();
   const { openSharedModal } = useSharedModals();
 
-  const [schematics, setSchematics] = useState<SchematicInfo[]>([]);
+  const [shaderPacks, setShaderPacks] = useState<ShaderPackInfo[]>([]);
 
   useEffect(() => {
-    setSchematics(getSchematicList() || []);
-  }, [getSchematicList]);
+    setShaderPacks(getShaderPackList() || []);
+  }, [getShaderPackList]);
 
-  const schemSecMenuOperations = [
+  const shaderSecMenuOperations = [
     {
       icon: "openFolder",
       onClick: () => {
-        handleOpenInstanceSubdir(InstanceSubdirEnums.Schematics);
+        handleOpenInstanceSubdir(InstanceSubdirEnums.ShaderPacks);
       },
     },
     {
       icon: "add",
       onClick: () => {
         handleImportResource({
-          filterName: t("InstanceLayout.instanceTabList.schematics"),
-          filterExt: ["schematic", "litematic"],
-          tgtDirType: InstanceSubdirEnums.Schematics,
+          filterName: t("InstanceDetailsLayout.instanceTabList.shaderpacks"),
+          filterExt: ["zip"],
+          tgtDirType: InstanceSubdirEnums.ShaderPacks,
           decompress: false,
           onSuccessCallback: () => {
-            setSchematics(getSchematicList(true) || []);
+            setShaderPacks(getShaderPackList(true) || []);
           },
+        });
+      },
+    },
+    {
+      icon: "download",
+      onClick: () => {
+        openSharedModal("download-resource", {
+          initialResourceType: "shaderpack",
         });
       },
     },
     {
       icon: "refresh",
       onClick: () => {
-        setSchematics(getSchematicList(true) || []);
+        setShaderPacks(getShaderPackList(true) || []);
       },
     },
   ];
 
-  const schemItemMenuOperations = (schematic: SchematicInfo) => [
-    {
-      label: t("InstanceSchematicsPage.schematicList.preview"),
-      icon: LuEye,
-      onClick: () => {},
-    },
+  const shaderItemMenuOperations = (pack: ShaderPackInfo) => [
     {
       label: "",
       icon: "copyOrMove",
       onClick: () => {
         openSharedModal("copy-or-move", {
-          srcResName: schematic.name,
-          srcFilePath: schematic.filePath,
+          srcResName: pack.fileName,
+          srcFilePath: pack.filePath,
         });
       },
     },
     {
       label: "",
       icon: "revealFile",
-      onClick: () => revealItemInDir(schematic.filePath),
+      onClick: () => revealItemInDir(pack.filePath),
     },
   ];
 
   return (
     <Section
-      title={t("InstanceSchematicsPage.schematicList.title")}
-      titleExtra={<CountTag count={schematics.length} />}
+      title={t("InstanceShaderPacksPage.shaderPackList.title")}
+      titleExtra={<CountTag count={shaderPacks.length} />}
       headExtra={
         <HStack spacing={2}>
-          {schemSecMenuOperations.map((btn, index) => (
+          {shaderSecMenuOperations.map((btn, index) => (
             <CommonIconButton
               key={index}
               icon={btn.icon}
@@ -100,12 +102,12 @@ const InstanceSchematicsPage = () => {
         </HStack>
       }
     >
-      {schematics.length > 0 ? (
+      {shaderPacks.length > 0 ? (
         <OptionItemGroup
-          items={schematics.map((schem) => (
-            <OptionItem key={schem.name} title={schem.name}>
+          items={shaderPacks.map((pack) => (
+            <OptionItem key={pack.fileName} title={pack.fileName}>
               <HStack spacing={0}>
-                {schemItemMenuOperations(schem).map((item, index) => (
+                {shaderItemMenuOperations(pack).map((item, index) => (
                   <CommonIconButton
                     key={index}
                     icon={item.icon}
@@ -125,4 +127,4 @@ const InstanceSchematicsPage = () => {
   );
 };
 
-export default InstanceSchematicsPage;
+export default InstanceShaderPacksPage;

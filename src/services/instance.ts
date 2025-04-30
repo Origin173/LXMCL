@@ -2,8 +2,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { InstanceSubdirEnums } from "@/enums/instance";
 import { GameConfig } from "@/models/config";
 import {
-  GameInstanceSummary,
   GameServerInfo,
+  InstanceSummary,
   LocalModInfo,
   ResourcePackInfo,
   SchematicInfo,
@@ -20,11 +20,11 @@ import { responseHandler } from "@/utils/response";
 export class InstanceService {
   /**
    * RETRIEVE the list of local instances.
-   * @returns {Promise<InvokeResponse<GameInstanceSummary[]>>}
+   * @returns {Promise<InvokeResponse<InstanceSummary[]>>}
    */
   @responseHandler("instance")
   static async retrieveInstanceList(): Promise<
-    InvokeResponse<GameInstanceSummary[]>
+    InvokeResponse<InstanceSummary[]>
   > {
     return await invoke("retrieve_instance_list");
   }

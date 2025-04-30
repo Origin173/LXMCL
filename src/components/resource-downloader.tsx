@@ -36,7 +36,7 @@ import {
   sortByList,
   worldTagList,
 } from "@/enums/resource";
-import { GameInstanceSummary } from "@/models/instance/misc";
+import { InstanceSummary } from "@/models/instance/misc";
 import { mockDownloadResourceList } from "@/models/mock/resource";
 import { GameResourceInfo, OtherResourceInfo } from "@/models/resource";
 import { ResourceService } from "@/services/resource";
@@ -109,25 +109,23 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const router = useRouter();
-  const { getGameInstanceList } = useData();
+  const { getInstanceList } = useData();
 
   const [selectedItem, setSelectedItem] = useState<OtherResourceInfo | null>(
     null
   );
-  const [curInstance, setCurInstance] = useState<
-    GameInstanceSummary | undefined
-  >();
+  const [curInstance, setCurInstance] = useState<InstanceSummary | undefined>();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
-    const instanceList = getGameInstanceList() || [];
+    const instanceList = getInstanceList() || [];
     const { id } = router.query;
     const instanceId = Array.isArray(id) ? id[0] : id;
     const currentInstance = instanceList.find(
       (instance) => instance.id === Number(instanceId)
     );
     setCurInstance(currentInstance);
-  }, [getGameInstanceList, router.query]);
+  }, [getInstanceList, router.query]);
 
   const buildOptionItems = (item: OtherResourceInfo): OptionItemProps => ({
     key: item.name,

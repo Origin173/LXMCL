@@ -8,16 +8,16 @@ import React, {
 import { useToast } from "@/contexts/toast";
 import { useGetState } from "@/hooks/get-state";
 import { AuthServer, Player } from "@/models/account";
-import { GameInstanceSummary } from "@/models/instance/misc";
+import { InstanceSummary } from "@/models/instance/misc";
 import { AccountService } from "@/services/account";
 import { InstanceService } from "@/services/instance";
 import { useLauncherConfig } from "./config";
 
 interface DataContextType {
   selectedPlayer: Player | undefined;
-  selectedGameInstance: GameInstanceSummary | undefined;
+  selectedInstance: InstanceSummary | undefined;
   getPlayerList: (sync?: boolean) => Player[] | undefined;
-  getGameInstanceList: (sync?: boolean) => GameInstanceSummary[] | undefined;
+  getInstanceList: (sync?: boolean) => InstanceSummary[] | undefined;
   getAuthServerList: (sync?: boolean) => AuthServer[] | undefined;
 }
 
@@ -25,8 +25,8 @@ interface DataContextType {
 interface DataDispatchContextType {
   setPlayerList: React.Dispatch<Player[]>;
   setSelectedPlayer: React.Dispatch<Player | undefined>;
-  setGameInstanceList: React.Dispatch<GameInstanceSummary[]>;
-  setSelectedGameInstance: React.Dispatch<GameInstanceSummary | undefined>;
+  setInstanceList: React.Dispatch<InstanceSummary[]>;
+  setSelectedInstance: React.Dispatch<InstanceSummary | undefined>;
   setAuthServerList: React.Dispatch<AuthServer[]>;
 }
 
@@ -44,10 +44,8 @@ export const DataContextProvider: React.FC<{
 
   const [playerList, setPlayerList] = useState<Player[]>();
   const [selectedPlayer, setSelectedPlayer] = useState<Player>();
-  const [gameInstanceList, setGameInstanceList] =
-    useState<GameInstanceSummary[]>();
-  const [selectedGameInstance, setSelectedGameInstance] =
-    useState<GameInstanceSummary>();
+  const [instanceList, setInstanceList] = useState<InstanceSummary[]>();
+  const [selectedInstance, setSelectedInstance] = useState<InstanceSummary>();
   const [authServerList, setAuthServerList] = useState<AuthServer[]>();
 
   useEffect(() => {
@@ -59,12 +57,12 @@ export const DataContextProvider: React.FC<{
 
   useEffect(() => {
     const selectedInstanceId = config.states.shared.selectedInstanceId;
-    setSelectedGameInstance(
-      gameInstanceList?.find(
+    setSelectedInstance(
+      instanceList?.find(
         (instance) => instance.id === Number(selectedInstanceId)
       )
     );
-  }, [gameInstanceList, config.states.shared.selectedInstanceId]);
+  }, [instanceList, config.states.shared.selectedInstanceId]);
 
   const handleRetrievePlayerList = useCallback(() => {
     AccountService.retrievePlayerList().then((response) => {
@@ -94,7 +92,7 @@ export const DataContextProvider: React.FC<{
 
   const handleRetrieveInstanceList = useCallback(() => {
     InstanceService.retrieveInstanceList().then((response) => {
-      if (response.status === "success") setGameInstanceList(response.data);
+      if (response.status === "success") setInstanceList(response.data);
       else
         toast({
           title: response.message,
@@ -102,16 +100,14 @@ export const DataContextProvider: React.FC<{
           status: "error",
         });
     });
-  }, [setGameInstanceList, toast]);
+  }, [setInstanceList, toast]);
 
   const getPlayerList = useGetState(playerList, handleRetrievePlayerList);
 
-  const getGameInstanceList = useGetState(
+  const getInstanceList = useGetState(
     // put starred instances at the top
-    gameInstanceList
-      ? [...gameInstanceList].sort(
-          (a, b) => Number(b.starred) - Number(a.starred)
-        )
+    instanceList
+      ? [...instanceList].sort((a, b) => Number(b.starred) - Number(a.starred))
       : undefined,
     handleRetrieveInstanceList
   );
@@ -125,9 +121,9 @@ export const DataContextProvider: React.FC<{
     <DataContext.Provider
       value={{
         selectedPlayer,
-        selectedGameInstance,
+        selectedInstance,
         getPlayerList,
-        getGameInstanceList,
+        getInstanceList,
         getAuthServerList,
       }}
     >
@@ -135,8 +131,8 @@ export const DataContextProvider: React.FC<{
         value={{
           setPlayerList,
           setSelectedPlayer,
-          setGameInstanceList,
-          setSelectedGameInstance,
+          setInstanceList,
+          setSelectedInstance,
           setAuthServerList,
         }}
       >

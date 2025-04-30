@@ -192,7 +192,7 @@
       "usePasswordLogin": "账号密码登录"
     }
   },
-  "AllGamesPage": {
+  "AllInstancesPage": {
     "button": {
       "addAndImport": "添加与导入",
       "globalSettings": "全局游戏设置",
@@ -320,10 +320,10 @@
       "info": "基本设置"
     }
   },
-  "DeleteGameInstanceAlertDialog": {
+  "DeleteInstanceAlertDialog": {
     "dialog": {
       "title": "删除游戏实例",
-      "content": "确定要删除游戏实例 “{{gameName}}” 吗？它将会永久消失！（真的很久！）",
+      "content": "确定要删除游戏实例 “{{instanceName}}” 吗？它将会永久消失！（真的很久！）",
       "warning": {
         "withVerIso": "请注意，由于此实例已启用版本隔离，删除该实例将导致存档等数据一同被删除。如需保留相关数据，请先迁移。",
         "woVerIso": "请注意，如果该实例此前启用过版本隔离，未迁移的存档等数据将一同被删除。"
@@ -639,12 +639,6 @@
     "exportLogs": "导出日志",
     "clearLogs": "清除所有日志"
   },
-  "GameMenu": {
-    "label": {
-      "details": "实例详情",
-      "delete": "删除实例"
-    }
-  },
   "GameVersionSelector": {
     "old_beta": "远古版",
     "release": "正式版",
@@ -828,7 +822,7 @@
   "HeadNavBar": {
     "navList": {
       "launch": "启动",
-      "games": "游戏",
+      "instances": "实例",
       "accounts": "账户",
       "discover": "发现",
       "search": "搜索",
@@ -879,7 +873,7 @@
   "InstanceBasicSettings": {
     "selectDirectory": "选择游戏目录"
   },
-  "InstanceLayout": {
+  "InstanceDetailsLayout": {
     "secMenu": {
       "exportModPack": "导出为整合包",
       "star": "星标此实例",
@@ -897,6 +891,12 @@
     },
     "button": {
       "launch": "启动实例"
+    }
+  },
+  "InstanceMenu": {
+    "label": {
+      "details": "实例详情",
+      "delete": "删除实例"
     }
   },
   "InstanceModsPage": {

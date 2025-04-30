@@ -30,7 +30,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { useToast } from "@/contexts/toast";
-import { GameInstanceSummary } from "@/models/instance/misc";
+import { InstanceSummary } from "@/models/instance/misc";
 import { ResponseError } from "@/models/response";
 import { AccountService } from "@/services/account";
 import { LaunchService } from "@/services/launch";
@@ -48,11 +48,10 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
   const toast = useToast();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const { selectedPlayer, getGameInstanceList } = useData();
+  const { selectedPlayer, getInstanceList } = useData();
   const { openSharedModal } = useSharedModals();
 
-  const [launchingInstance, setLaunchingInstance] =
-    useState<GameInstanceSummary>();
+  const [launchingInstance, setLaunchingInstance] = useState<InstanceSummary>();
   const [errorPaused, setErrorPaused] = useState<boolean>(false);
   const [errorDesc, setErrorDesc] = useState<string>("");
   const [activeStep, setActiveStep] = useState<number>(0);
@@ -60,9 +59,9 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
 
   useEffect(() => {
     setLaunchingInstance(
-      getGameInstanceList()?.find((instance) => instance.id === instanceId)
+      getInstanceList()?.find((instance) => instance.id === instanceId)
     );
-  }, [getGameInstanceList, instanceId]);
+  }, [getInstanceList, instanceId]);
 
   const handleCloseModal = useCallback(() => {
     LaunchService.cancelLaunchProcess();

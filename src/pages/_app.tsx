@@ -11,8 +11,8 @@ import { LauncherConfigContextProvider } from "@/contexts/config";
 import { DataContextProvider } from "@/contexts/data";
 import { RoutingHistoryContextProvider } from "@/contexts/routing-history";
 import { ToastContextProvider } from "@/contexts/toast";
-import GamesLayout from "@/layouts/games-layout";
-import InstanceLayout from "@/layouts/instance-layout";
+import InstanceDetailsLayout from "@/layouts/instance-details-layout";
+import InstancesLayout from "@/layouts/instances-layout";
 import MainLayout from "@/layouts/main-layout";
 import SettingsLayout from "@/layouts/settings-layout";
 import { localeResources } from "@/locales";
@@ -58,8 +58,11 @@ export default function App({ Component, pageProps }: AppProps) {
     layouts: React.ComponentType<{ children: React.ReactNode }>[];
   }[] = [
     { prefix: "/settings", layouts: [SettingsLayout] },
-    { prefix: "/games/instance", layouts: [GamesLayout, InstanceLayout] },
-    { prefix: "/games", layouts: [GamesLayout] },
+    {
+      prefix: "/instances/details",
+      layouts: [InstancesLayout, InstanceDetailsLayout],
+    },
+    { prefix: "/instances", layouts: [InstancesLayout] },
   ]; // not nest MainLayout to avoid tab flashing
 
   let SpecLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (

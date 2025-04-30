@@ -124,7 +124,7 @@ export interface LauncherConfig {
     accountsPage: {
       viewType: string;
     };
-    allGamesPage: {
+    allInstancesPage: {
       viewType: string;
     };
     gameVersionSelector: {
@@ -263,7 +263,7 @@ export const defaultConfig: LauncherConfig = {
     accountsPage: {
       viewType: "grid",
     },
-    allGamesPage: {
+    allInstancesPage: {
       viewType: "list",
     },
     gameVersionSelector: {

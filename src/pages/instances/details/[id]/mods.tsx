@@ -137,7 +137,7 @@ const InstanceModsPage = () => {
       icon: "add",
       onClick: () => {
         handleImportResource({
-          filterName: t("InstanceLayout.instanceTabList.mods"),
+          filterName: t("InstanceDetailsLayout.instanceTabList.mods"),
           filterExt: ["zip", "jar", "disabled"],
           tgtDirType: InstanceSubdirEnums.Mods,
           decompress: false,

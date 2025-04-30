@@ -21,14 +21,14 @@ import { useRouter } from "next/router";
 import { cloneElement, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuArrowLeftRight } from "react-icons/lu";
-import GamesView from "@/components/games-view";
+import InstancesView from "@/components/instances-view";
 import PlayersView from "@/components/players-view";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { useThemedCSSStyle } from "@/hooks/themed-css";
 import { Player } from "@/models/account";
-import { GameInstanceSummary } from "@/models/instance/misc";
+import { InstanceSummary } from "@/models/instance/misc";
 import styles from "@/styles/launch.module.css";
 import { base64ImgSrc } from "@/utils/string";
 
@@ -98,25 +98,19 @@ const LaunchPage = () => {
   const themedStyles = useThemedCSSStyle();
   const { openSharedModal } = useSharedModals();
 
-  const {
-    selectedPlayer,
-    getPlayerList,
-    getGameInstanceList,
-    selectedGameInstance,
-  } = useData();
+  const { selectedPlayer, getPlayerList, getInstanceList, selectedInstance } =
+    useData();
 
   const [playerList, setPlayerList] = useState<Player[]>([]);
-  const [gameInstanceList, setGameInstanceList] = useState<
-    GameInstanceSummary[]
-  >([]);
+  const [instanceList, setInstanceList] = useState<InstanceSummary[]>([]);
 
   useEffect(() => {
     setPlayerList(getPlayerList() || []);
   }, [getPlayerList]);
 
   useEffect(() => {
-    setGameInstanceList(getGameInstanceList() || []);
-  }, [getGameInstanceList]);
+    setInstanceList(getInstanceList() || []);
+  }, [getInstanceList]);
 
   return (
     <HStack position="absolute" bottom={7} right={7} spacing={4}>
@@ -183,9 +177,9 @@ const LaunchPage = () => {
           colorScheme="blackAlpha"
           className={styles["launch-button"]}
           onClick={() => {
-            if (selectedGameInstance) {
+            if (selectedInstance) {
               openSharedModal("launch", {
-                instanceId: selectedGameInstance.id,
+                instanceId: selectedInstance.id,
               });
             }
           }}
@@ -195,8 +189,8 @@ const LaunchPage = () => {
               {t("LaunchPage.button.launch")}
             </Text>
             <Text fontSize="sm" className="ellipsis-text">
-              {selectedGameInstance
-                ? selectedGameInstance.name
+              {selectedInstance
+                ? selectedInstance.name
                 : t("LaunchPage.Text.noSelectedGame")}
             </Text>
           </VStack>
@@ -207,13 +201,13 @@ const LaunchPage = () => {
           aria-label="switch-game"
           colorScheme={useColorModeValue("blackAlpha", "gray")}
           popoverContent={
-            <GamesView
-              games={gameInstanceList}
+            <InstancesView
+              instances={instanceList}
               viewType="list"
               withMenu={false}
             />
           }
-          onClick={() => router.push("/games/all")}
+          onClick={() => router.push("/instances/all")}
         />
       </Box>
     </HStack>

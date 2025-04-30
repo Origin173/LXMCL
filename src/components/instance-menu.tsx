@@ -20,42 +20,42 @@ import {
 } from "react-icons/lu";
 import { CommonIconButton } from "@/components/common/common-icon-button";
 import { useSharedModals } from "@/contexts/shared-modal";
-import { GameInstanceSummary } from "@/models/instance/misc";
+import { InstanceSummary } from "@/models/instance/misc";
 
-interface GameMenuProps {
-  game: GameInstanceSummary;
+interface InstanceMenuProps {
+  instance: InstanceSummary;
   variant?: "dropdown" | "buttonGroup";
 }
 
-export const GameMenu: React.FC<GameMenuProps> = ({
-  game,
+export const InstanceMenu: React.FC<InstanceMenuProps> = ({
+  instance,
   variant = "dropdown",
 }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { openSharedModal } = useSharedModals();
 
-  const gameMenuOperations = [
+  const instanceMenuOperations = [
     {
       icon: LuFolderOpen,
       label: t("General.openFolder"),
       onClick: () => {
-        openPath(game.versionPath);
+        openPath(instance.versionPath);
       },
     },
     {
       icon: LuLayoutList,
-      label: t("GameMenu.label.details"),
+      label: t("InstanceMenu.label.details"),
       onClick: () => {
-        router.push(`/games/instance/${game.id}`);
+        router.push(`/instances/details/${instance.id}`);
       },
     },
     {
       icon: LuTrash,
-      label: t("GameMenu.label.delete"),
+      label: t("InstanceMenu.label.delete"),
       danger: true,
       onClick: () => {
-        openSharedModal("delete-game-instance-alert", { game });
+        openSharedModal("delete-instance-alert", { instance });
       },
     },
   ];
@@ -73,7 +73,7 @@ export const GameMenu: React.FC<GameMenuProps> = ({
           />
           <Portal>
             <MenuList>
-              {gameMenuOperations.map((item) => (
+              {instanceMenuOperations.map((item) => (
                 <MenuItem
                   key={item.label}
                   fontSize="xs"
@@ -91,7 +91,7 @@ export const GameMenu: React.FC<GameMenuProps> = ({
         </Menu>
       ) : (
         <HStack spacing={0}>
-          {gameMenuOperations.map((item) => (
+          {instanceMenuOperations.map((item) => (
             <CommonIconButton
               key={item.label}
               icon={item.icon}
@@ -106,4 +106,4 @@ export const GameMenu: React.FC<GameMenuProps> = ({
   );
 };
 
-export default GameMenu;
+export default InstanceMenu;

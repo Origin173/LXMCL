@@ -6,39 +6,37 @@ import { LuLayoutGrid, LuLayoutList, LuPlay, LuPlus } from "react-icons/lu";
 import { CommonIconButton } from "@/components/common/common-icon-button";
 import { Section } from "@/components/common/section";
 import SegmentedControl from "@/components/common/segmented";
-import GamesView from "@/components/games-view";
+import InstancesView from "@/components/instances-view";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { useSharedModals } from "@/contexts/shared-modal";
-import { GameInstanceSummary } from "@/models/instance/misc";
+import { InstanceSummary } from "@/models/instance/misc";
 
-const AllGamesPage = () => {
+const AllInstancesPage = () => {
   const router = useRouter();
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const selectedViewType = config.states.allGamesPage.viewType;
+  const selectedViewType = config.states.allInstancesPage.viewType;
   const { openSharedModal } = useSharedModals();
 
-  const { selectedGameInstance, getGameInstanceList } = useData();
-  const [gameInstanceList, setGameInstanceList] = useState<
-    GameInstanceSummary[]
-  >([]);
+  const { selectedInstance, getInstanceList } = useData();
+  const [instanceList, setInstanceList] = useState<InstanceSummary[]>([]);
 
   useEffect(() => {
-    setGameInstanceList(getGameInstanceList() || []);
-  }, [getGameInstanceList]);
+    setInstanceList(getInstanceList() || []);
+  }, [getInstanceList]);
 
   const viewTypeList = [
     {
       key: "grid",
       icon: LuLayoutGrid,
-      tooltip: t("AllGamesPage.viewTypeList.grid"),
+      tooltip: t("AllInstancesPage.viewTypeList.grid"),
     },
     {
       key: "list",
       icon: LuLayoutList,
-      tooltip: t("AllGamesPage.viewTypeList.list"),
+      tooltip: t("AllInstancesPage.viewTypeList.list"),
     },
   ];
 
@@ -47,7 +45,7 @@ const AllGamesPage = () => {
       display="flex"
       flexDirection="column"
       height="100%"
-      title={t("AllGamesPage.title")}
+      title={t("AllInstancesPage.title")}
       headExtra={
         <HStack spacing={2}>
           <CommonIconButton
@@ -55,13 +53,13 @@ const AllGamesPage = () => {
             size="xs"
             fontSize="sm"
             onClick={() => {
-              setGameInstanceList(getGameInstanceList(true) || []);
+              setInstanceList(getInstanceList(true) || []);
             }}
           />
           <SegmentedControl
             selected={selectedViewType}
             onSelectItem={(s) => {
-              update("states.allGamesPage.viewType", s as string);
+              update("states.allInstancesPage.viewType", s as string);
             }}
             size="2xs"
             ml={1}
@@ -78,34 +76,34 @@ const AllGamesPage = () => {
             colorScheme={primaryColor}
             variant={primaryColor === "gray" ? "subtle" : "outline"}
             onClick={() => {
-              router.push("/games/add-import");
+              router.push("/instances/add-import");
             }}
           >
-            {t("AllGamesPage.button.addAndImport")}
+            {t("AllInstancesPage.button.addAndImport")}
           </Button>
           <Button
             leftIcon={<LuPlay />}
             size="xs"
             colorScheme={primaryColor}
-            isDisabled={!selectedGameInstance}
+            isDisabled={!selectedInstance}
             onClick={() => {
-              if (selectedGameInstance) {
+              if (selectedInstance) {
                 openSharedModal("launch", {
-                  instanceId: selectedGameInstance.id,
+                  instanceId: selectedInstance.id,
                 });
               }
             }}
           >
-            {t("AllGamesPage.button.launch")}
+            {t("AllInstancesPage.button.launch")}
           </Button>
         </HStack>
       }
     >
       <Box overflow="auto" flexGrow={1} rounded="md">
-        <GamesView games={gameInstanceList} viewType={selectedViewType} />
+        <InstancesView instances={instanceList} viewType={selectedViewType} />
       </Box>
     </Section>
   );
 };
 
-export default AllGamesPage;
+export default AllInstancesPage;

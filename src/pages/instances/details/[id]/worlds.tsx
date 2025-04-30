@@ -98,7 +98,7 @@ const InstanceWorldsPage = () => {
       icon: "add",
       onClick: () => {
         handleImportResource({
-          filterName: t("InstanceLayout.instanceTabList.worlds"),
+          filterName: t("InstanceDetailsLayout.instanceTabList.worlds"),
           filterExt: ["zip"],
           tgtDirType: InstanceSubdirEnums.Saves,
           decompress: true,
