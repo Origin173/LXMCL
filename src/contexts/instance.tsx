@@ -91,22 +91,24 @@ export const InstanceContextProvider: React.FC<{
     [getInstanceList, instanceSummary, setInstanceList]
   );
 
-  const handleRetrieveInstanceGameConfig = useCallback(() => {
-    if (instanceSummary?.id !== undefined) {
-      InstanceService.retrieveInstanceGameConfig(instanceSummary.id).then(
-        (response) => {
+  const handleRetrieveInstanceGameConfig = useCallback(
+    (id: number) => {
+      if (!isNaN(id)) {
+        InstanceService.retrieveInstanceGameConfig(id).then((response) => {
           if (response.status === "success") {
             setInstanceGameConfig(response.data);
-          } else
+          } else {
             toast({
               title: response.message,
               description: response.details,
               status: "error",
             });
-        }
-      );
-    }
-  }, [instanceSummary?.id, setInstanceGameConfig, toast]);
+          }
+        });
+      }
+    },
+    [setInstanceGameConfig, toast]
+  );
 
   useEffect(() => {
     const instanceList = getInstanceList() || [];
@@ -118,9 +120,8 @@ export const InstanceContextProvider: React.FC<{
         (instance) => instance.id === Number(instanceId)
       );
       setInstanceSummary(summary);
-      handleRetrieveInstanceGameConfig();
+      handleRetrieveInstanceGameConfig(Number(instanceId));
     }
-    console.warn("update");
   }, [router.query.id, getInstanceList, handleRetrieveInstanceGameConfig]);
 
   const handleOpenInstanceSubdir = useCallback(
@@ -338,7 +339,7 @@ export const InstanceContextProvider: React.FC<{
                 updateSummaryInContext("isVersionIsolated", value);
             } else if (path === "useSpecGameConfig") {
               updateSummaryInContext(path, value);
-              if (value) handleRetrieveInstanceGameConfig();
+              if (value) handleRetrieveInstanceGameConfig(instanceSummary.id);
             } else {
               updateSummaryInContext(path, value);
             }
@@ -358,14 +359,14 @@ export const InstanceContextProvider: React.FC<{
 
   const handleResetInstanceGameConfig = useCallback(() => {
     if (instanceSummary?.id !== undefined) {
-      InstanceService.resetInstanceGameConfig(Number(instanceSummary.id)).then(
+      InstanceService.resetInstanceGameConfig(instanceSummary.id).then(
         (response) => {
           if (response.status === "success") {
             toast({
               title: response.message,
               status: "success",
             });
-            handleRetrieveInstanceGameConfig();
+            handleRetrieveInstanceGameConfig(instanceSummary.id);
           } else
             toast({
               title: response.message,
