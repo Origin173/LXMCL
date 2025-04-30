@@ -4,6 +4,13 @@ use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 use std::{fs, io};
 
+/// Recursively copies the contents of a source directory to a destination directory.
+///
+/// # Examples
+///
+/// ```rust
+/// copy_whole_dir(src_path, &dest_path).map_err(|_| InstanceError::FileCopyFailed)?;
+/// ```
 pub fn copy_whole_dir(src: &Path, dst: &Path) -> std::io::Result<()> {
   if !dst.exists() {
     fs::create_dir_all(dst)?;
@@ -23,6 +30,13 @@ pub fn copy_whole_dir(src: &Path, dst: &Path) -> std::io::Result<()> {
   Ok(())
 }
 
+/// Generates a unique filename in the specified directory.
+///
+/// # Examples
+///
+/// ```rust
+/// let dest_path = generate_unique_filename(&tgt_path, base_name);
+/// ```
 pub fn generate_unique_filename(base_path: &Path, filename: &OsStr) -> PathBuf {
   let (name, extension) = split_filename(filename);
   let mut dest_path = base_path.join(filename);
@@ -52,6 +66,13 @@ pub fn generate_unique_filename(base_path: &Path, filename: &OsStr) -> PathBuf {
   dest_path
 }
 
+/// Splits a filename into its base name and extension.
+///
+/// # Examples
+///
+/// ```rust
+/// let (name, extension) = split_filename(filename);
+/// ```
 pub fn split_filename(filename: &OsStr) -> (String, String) {
   let filename_str = filename.to_string_lossy();
   if let Some(dot_index) = filename_str.rfind('.') {
@@ -63,6 +84,13 @@ pub fn split_filename(filename: &OsStr) -> (String, String) {
   }
 }
 
+/// Retrieves a list of subdirectories within a given path.
+///
+/// # Examples
+///
+/// ```rust
+/// let sub_dirs = get_subdirectories(&directory).unwrap_or_default();
+/// ```
 pub fn get_subdirectories<P: AsRef<Path>>(path: P) -> Result<Vec<PathBuf>, SJMCLError> {
   fs::read_dir(path)?
     .filter_map(|entry| match entry {
@@ -79,6 +107,13 @@ pub fn get_subdirectories<P: AsRef<Path>>(path: P) -> Result<Vec<PathBuf>, SJMCL
     .collect()
 }
 
+/// Retrieves a list of files within a given path that match a specified regular expression.
+///
+/// # Examples
+///
+/// ```rust
+/// let mod_paths = get_files_with_regex(&mods_dir, &valid_extensions).unwrap_or_default();
+/// ```
 pub fn get_files_with_regex<P: AsRef<Path>>(
   path: P,
   pattern: &Regex,
