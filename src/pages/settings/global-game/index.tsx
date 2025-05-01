@@ -23,6 +23,7 @@ import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { GameDirectory } from "@/models/config";
+import { getGameDirName } from "@/utils/instance";
 
 const GlobalGameSettingsPage = () => {
   const { t } = useTranslation();
@@ -134,11 +135,7 @@ const GlobalGameSettingsPage = () => {
         ...config.localGameDirectories.map(
           (directory) =>
             ({
-              title: ["CURRENT_DIR", "OFFICIAL_DIR"].includes(directory.name)
-                ? t(
-                    `GlobalGameSettingsPage.directories.settings.directories.special.${directory.name}`
-                  )
-                : directory.name,
+              title: getGameDirName(directory),
               description: (
                 <VStack spacing={0} align="start" fontSize="xs">
                   <Text className="secondary-text">{directory.dir}</Text>

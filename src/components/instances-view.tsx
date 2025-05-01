@@ -15,6 +15,7 @@ import InstanceMenu from "@/components/instance-menu";
 import { useLauncherConfig } from "@/contexts/config";
 import { useData } from "@/contexts/data";
 import { InstanceSummary } from "@/models/instance/misc";
+import { generateInstanceDesc } from "@/utils/instance";
 
 interface InstancesViewProps extends BoxProps {
   instances: InstanceSummary[];
@@ -34,18 +35,6 @@ const InstancesView: React.FC<InstancesViewProps> = ({
   const primaryColor = config.appearance.theme.primaryColor;
   const { selectedInstance } = useData();
 
-  const generateDesc = (instance: InstanceSummary) => {
-    if (instance.modLoader.loaderType === "Unknown") {
-      return instance.version || "";
-    }
-    return [
-      instance.version,
-      `${instance.modLoader.loaderType} ${instance.modLoader.version}`,
-    ]
-      .filter(Boolean)
-      .join(", ");
-  };
-
   const handleUpdateSelectedInstance = (instance: InstanceSummary) => {
     update("states.shared.selectedInstanceId", instance.id.toString());
     onSelectCallback();
@@ -53,7 +42,7 @@ const InstancesView: React.FC<InstancesViewProps> = ({
 
   const listItems = instances.map((instance) => ({
     title: instance.name,
-    description: [generateDesc(instance), instance.description]
+    description: [generateInstanceDesc(instance), instance.description]
       .filter(Boolean)
       .join(", "),
     ...{
@@ -92,7 +81,7 @@ const InstancesView: React.FC<InstancesViewProps> = ({
   const gridItems = instances.map((instance) => ({
     cardContent: {
       title: instance.name,
-      description: generateDesc(instance) || String.fromCharCode(160),
+      description: generateInstanceDesc(instance) || String.fromCharCode(160),
       image: instance.iconSrc,
       extraContent: (
         <HStack spacing={1} position="absolute" top={0.5} right={1}>

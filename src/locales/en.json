@@ -711,9 +711,11 @@
           }
         },
         "instancesNavType": {
-          "title": "Instance Navigation Menu Grouping",
+          "title": "Instance Page Navigation Mode",
+          "description": "Change whether the instance page's left navigation bar is displayed and its grouping method.",
           "instance": "By Instance",
-          "directory": "By Directory"
+          "directory": "By Directory",
+          "hidden": "Hidden"
         },
         "launchPageQuickSwitch": {
           "title": "Quick Switch for Accounts & Instances",

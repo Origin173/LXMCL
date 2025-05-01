@@ -49,6 +49,7 @@ const InstanceDetailsLayoutContent: React.FC<{ children: React.ReactNode }> = ({
   const { summary, handleUpdateInstanceConfig } = useInstanceSharedData();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const navBarType = config.general.functionality.instancesNavType;
 
   // useEffect(() => {
   //   if (summary === undefined) {
@@ -98,6 +99,8 @@ const InstanceDetailsLayoutContent: React.FC<{ children: React.ReactNode }> = ({
       flexDirection="column"
       height="100%"
       title={summary?.name}
+      withBackButton={navBarType !== "instance"}
+      backRoutePath="/instances/all"
       titleExtra={
         <CommonIconButton
           icon={summary?.starred ? FaStar : FaRegStar}

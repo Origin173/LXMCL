@@ -208,6 +208,7 @@ export const InstanceScreenshotsWidget = () => {
     </InstanceWidgetBase>
   );
 };
+
 export const InstanceModsWidget = () => {
   const { t } = useTranslation();
   const router = useRouter();

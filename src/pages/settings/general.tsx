@@ -1,11 +1,23 @@
-import { Badge, Kbd, Switch, Text, useDisclosure } from "@chakra-ui/react";
+import {
+  Badge,
+  Button,
+  Kbd,
+  Menu,
+  MenuButton,
+  MenuItemOption,
+  MenuList,
+  MenuOptionGroup,
+  Switch,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { LuChevronDown } from "react-icons/lu";
 import {
   OptionItemGroup,
   OptionItemGroupProps,
 } from "@/components/common/option-item";
-import SegmentedControl from "@/components/common/segmented";
 import LanguageMenu from "@/components/language-menu";
 import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
 import { useLauncherConfig } from "@/contexts/config";
@@ -22,7 +34,7 @@ const GeneralSettingsPage = () => {
     onClose: onDiscoverNoticeDialogClose,
   } = useDisclosure();
 
-  const instancesNavTypes = ["instance", "directory"];
+  const instancesNavTypes = ["instance", "directory", "hidden"];
 
   const generalSettingGroups: OptionItemGroupProps[] = [
     {
@@ -64,20 +76,41 @@ const GeneralSettingsPage = () => {
           title: t(
             "GeneralSettingsPage.functions.settings.instancesNavType.title"
           ),
+          description: t(
+            "GeneralSettingsPage.functions.settings.instancesNavType.description"
+          ),
           children: (
-            <SegmentedControl
-              selected={generalConfigs.functionality.instancesNavType}
-              onSelectItem={(s) => {
-                update("general.functionality.instancesNavType", s as string);
-              }}
-              size="xs"
-              items={instancesNavTypes.map((s) => ({
-                label: t(
-                  `GeneralSettingsPage.functions.settings.instancesNavType.${s}`
-                ),
-                value: s,
-              }))}
-            />
+            <Menu>
+              <MenuButton
+                as={Button}
+                size="xs"
+                w="auto"
+                rightIcon={<LuChevronDown />}
+                variant="outline"
+                textAlign="left"
+              >
+                {t(
+                  `GeneralSettingsPage.functions.settings.instancesNavType.${generalConfigs.functionality.instancesNavType}`
+                )}
+              </MenuButton>
+              <MenuList>
+                <MenuOptionGroup
+                  value={generalConfigs.functionality.instancesNavType}
+                  type="radio"
+                  onChange={(value) => {
+                    update("general.functionality.instancesNavType", value);
+                  }}
+                >
+                  {instancesNavTypes.map((type) => (
+                    <MenuItemOption value={type} fontSize="xs" key={type}>
+                      {t(
+                        `GeneralSettingsPage.functions.settings.instancesNavType.${type}`
+                      )}
+                    </MenuItemOption>
+                  ))}
+                </MenuOptionGroup>
+              </MenuList>
+            </Menu>
           ),
         },
         {

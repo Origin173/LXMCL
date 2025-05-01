@@ -711,9 +711,11 @@
           }
         },
         "instancesNavType": {
-          "title": "实例导航栏分组方式",
+          "title": "实例页导航栏模式",
+          "description": "更改实例页左侧导航栏是否显示、分组方式",
           "instance": "按实例",
-          "directory": "按目录"
+          "directory": "按目录",
+          "hidden": "隐藏"
         },
         "launchPageQuickSwitch": {
           "title": "快捷切换实例与账户",

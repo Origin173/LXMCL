@@ -32,6 +32,7 @@ import { InstanceSubdirEnums } from "@/enums/instance";
 import { InstanceError } from "@/enums/service-error";
 import { InstanceSummary } from "@/models/instance/misc";
 import { InstanceService } from "@/services/instance";
+import { generateInstanceDesc } from "@/utils/instance";
 
 interface CopyOrMoveModalProps extends Omit<ModalProps, "children"> {
   srcResName: string;
@@ -209,18 +210,6 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
     setIsLoading(false);
   };
 
-  const generateDesc = (instance: InstanceSummary) => {
-    if (instance.modLoader.loaderType === "Unknown") {
-      return instance.version || "";
-    }
-    return [
-      instance.version,
-      `${instance.modLoader.loaderType} ${instance.modLoader.version}`,
-    ]
-      .filter(Boolean)
-      .join(", ");
-  };
-
   const buildOptionItems = (instance: InstanceSummary) => ({
     title: instance.name,
     titleExtra: instance.id === _srcInstanceId && (
@@ -228,7 +217,7 @@ const CopyOrMoveModal: React.FC<CopyOrMoveModalProps> = ({
         {t("CopyOrMoveModal.tag.source")}
       </Tag>
     ),
-    description: [generateDesc(instance), instance.description]
+    description: [generateInstanceDesc(instance), instance.description]
       .filter(Boolean)
       .join(", "),
     prefixElement: (
