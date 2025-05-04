@@ -502,7 +502,8 @@
       "dirName": {
         "tooLong": "Directory name cannot be longer than 20 characters",
         "empty": "Directory name cannot be empty",
-        "exist": "Directory name already exists"
+        "exist": "Directory name already exists",
+        "hasInvalidChar": "Directory name has invalid characters"
       },
       "dirPath": {
         "exist": "Directory already exists"

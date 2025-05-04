@@ -20,6 +20,7 @@ use launcher_config::{
   helpers::java::refresh_and_update_javas,
   models::{JavaInfo, LauncherConfig},
 };
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, LazyLock, Mutex};
 use storage::Storage;
@@ -137,7 +138,7 @@ pub async fn run() {
       let account_info = AccountInfo::load().unwrap_or_default();
       app.manage(Mutex::new(account_info));
 
-      let instances: Vec<Instance> = vec![];
+      let instances: HashMap<String, Instance> = HashMap::new();
       app.manage(Mutex::new(instances));
 
       let javas: Vec<JavaInfo> = vec![];
