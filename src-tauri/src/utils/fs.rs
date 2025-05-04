@@ -32,6 +32,9 @@ pub fn copy_whole_dir(src: &Path, dst: &Path) -> std::io::Result<()> {
 
 /// Generates a unique filename in the specified directory.
 ///
+/// If a file with the same name already exists, appends `" copy"`, `" copy 2"`, `" copy 3"`
+/// and so on until a non-conflicting name is found.
+///
 /// # Examples
 ///
 /// ```rust

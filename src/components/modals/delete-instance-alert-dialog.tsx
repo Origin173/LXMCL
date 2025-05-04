@@ -23,7 +23,7 @@ const DeleteInstanceDialog: React.FC<DeleteInstanceDialogProps> = ({
   const { getInstanceList } = useGlobalData();
   const { refreshConfig } = useLauncherConfig();
 
-  const handleDeleteInstance = (instanceId: number) => {
+  const handleDeleteInstance = (instanceId: string) => {
     InstanceService.deleteInstance(instanceId).then((response) => {
       Promise.all([getInstanceList(true), refreshConfig()]);
       if (response.status === "success") {
