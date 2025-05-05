@@ -317,4 +317,18 @@ export class InstanceService {
       worldName,
     });
   }
+
+  /**
+   * CREATE a desktop shortcut for launching a specific instance.
+   * @param {string} instanceId - The instance ID for which to create the shortcut.
+   * @returns {Promise<InvokeResponse<null>>}
+   */
+  @responseHandler("instance")
+  static async createLaunchDesktopShortcut(
+    instanceId: string
+  ): Promise<InvokeResponse<null>> {
+    return await invoke("create_launch_desktop_shortcut", {
+      instanceId,
+    });
+  }
 }

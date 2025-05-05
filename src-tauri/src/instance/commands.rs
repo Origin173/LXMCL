@@ -29,7 +29,7 @@ use crate::{
   },
   partial::{PartialError, PartialUpdate},
   storage::{save_json_async, Storage},
-  utils::image::ImageWrapper,
+  utils::{fs::create_url_shortcut, image::ImageWrapper},
 };
 use lazy_static::lazy_static;
 use regex::{Regex, RegexBuilder};
@@ -751,4 +751,20 @@ pub async fn retrieve_world_details(
   } else {
     Err(InstanceError::LevelParseError.into())
   }
+}
+
+#[tauri::command]
+pub fn create_launch_desktop_shortcut(app: AppHandle, instance_id: String) -> SJMCLResult<()> {
+  let binding = app.state::<Mutex<HashMap<String, Instance>>>();
+  let state = binding
+    .lock()
+    .map_err(|_| InstanceError::InstanceNotFoundByID)?;
+  let instance = state
+    .get(&instance_id)
+    .ok_or(InstanceError::InstanceNotFoundByID)?;
+
+  let name = instance.name.clone();
+  let url = format!("sjmcl://launch?id={}", instance.id);
+
+  create_url_shortcut(&app, name, url, None)
 }
