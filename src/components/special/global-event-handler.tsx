@@ -37,7 +37,7 @@ const GlobalEventHandler: React.FC<{ children: React.ReactNode }> = ({
   });
 
   useDeepLink({
-    trigger: "add-auth-server*",
+    trigger: /^add-auth-server\/?(?:\?.*)?$/,
     onCall: (path, _) => {
       const url = new URL(path).searchParams.get("url") || "";
       const decodeUrl = decodeURIComponent(url);
@@ -48,7 +48,7 @@ const GlobalEventHandler: React.FC<{ children: React.ReactNode }> = ({
   });
 
   useDeepLink({
-    trigger: "launch*",
+    trigger: /^launch\/?(?:\?.*)?$/,
     onCall: (path, _) => {
       const id = new URL(path).searchParams.get("id") || "";
       const decodeId = decodeURIComponent(id);
