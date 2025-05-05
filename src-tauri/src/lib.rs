@@ -23,8 +23,8 @@ use launcher_config::{
 use std::path::PathBuf;
 use std::sync::{LazyLock, Mutex};
 use storage::Storage;
-use utils::web::build_sjmcl_client;
 use tasks::monitor::TaskMonitor;
+use utils::web::build_sjmcl_client;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use tauri::menu::MenuBuilder;

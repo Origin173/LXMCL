@@ -6,7 +6,9 @@ import { useEffect, useState } from "react";
 import DownloadResourceModal from "@/components/modals/download-resource-modal";
 import SkinPreview from "@/components/skin-preview";
 import { DownloadParam } from "@/models/download";
+import { TaskParam } from "@/models/download";
 import { TaskService } from "@/services/download";
+import { isProd } from "@/utils/env";
 import { createWindow } from "@/utils/window";
 
 // ============================================================
