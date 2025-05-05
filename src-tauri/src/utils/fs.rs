@@ -239,11 +239,7 @@ pub fn create_url_shortcut(
   // Platform-specific shortcut creation
   #[cfg(target_os = "windows")]
   {
-    let icon_line = final_icon_path
-      .as_ref()
-      .map(|p| format!("IconFile={}", p.to_string_lossy()))
-      .unwrap_or_default();
-
+    let icon_line = format!("IconFile={}", final_icon_path.to_string_lossy());
     let content = format!(
       "[InternetShortcut]\nURL={}\n{}\nIconIndex=0\n",
       url, icon_line
