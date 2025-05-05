@@ -209,6 +209,7 @@ pub fn create_url_shortcut(
   let final_icon_path: PathBuf = match icon_path {
     Some(path) => path,
     None => {
+      use tauri::path::BaseDirectory;
       // Use default icon from resources
       #[cfg(target_os = "windows")]
       let icon_name = "icon.ico";
@@ -219,13 +220,13 @@ pub fn create_url_shortcut(
         .path()
         .resolve(
           format!("assets/icons/{}", icon_name),
-          tauri::api::path::BaseDirectory::Resource,
+          BaseDirectory::Resource,
         )
         .map_err(|e| SJMCLError(format!("Failed to resolve resource icon: {}", e)))?;
 
       let appdata_icon = app
         .path()
-        .resolve(icon_name, tauri::api::path::BaseDirectory::AppData)
+        .resolve(icon_name, BaseDirectory::AppData)
         .map_err(|e| SJMCLError(format!("Failed to resolve appdata icon path: {}", e)))?;
 
       fs::copy(&resource_icon, &appdata_icon)
