@@ -766,5 +766,7 @@ pub fn create_launch_desktop_shortcut(app: AppHandle, instance_id: String) -> SJ
   let name = instance.name.clone();
   let url = format!("sjmcl://launch?id={}", instance.id);
 
-  create_url_shortcut(&app, name, url, None)
+  create_url_shortcut(&app, name, url, None).map_err(|_| InstanceError::ShortcutCreationFailed)?;
+
+  Ok(())
 }

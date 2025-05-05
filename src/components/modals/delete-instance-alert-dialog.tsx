@@ -40,9 +40,9 @@ const DeleteInstanceDialog: React.FC<DeleteInstanceDialogProps> = ({
       }
     });
 
-    // Navigate to /instances/all
+    // Navigate to /instances/list
     getInstanceList(true);
-    router.push("/instances/all");
+    router.push("/instances/list");
   };
 
   return (

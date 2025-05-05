@@ -134,7 +134,7 @@ const InstanceDetailsLayoutContent: React.FC<{ children: React.ReactNode }> = ({
       height="100%"
       title={summary?.name}
       withBackButton={navBarType !== "instance"}
-      backRoutePath="/instances/all"
+      backRoutePath="/instances/list"
       titleExtra={
         <CommonIconButton
           icon={summary?.starred ? FaStar : FaRegStar}

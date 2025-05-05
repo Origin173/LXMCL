@@ -193,6 +193,7 @@ pub enum InstanceError {
   FileCopyFailed,
   FileMoveFailed,
   FolderCreationFailed,
+  ShortcutCreationFailed,
   ZipFileProcessFailed,
   WorldNotExistError,
   LevelParseError,

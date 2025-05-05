@@ -55,10 +55,10 @@ const GlobalEventHandler: React.FC<{ children: React.ReactNode }> = ({
       if (!isStandAlone && decodeId) {
         // Delay the modal opening to ensure required app state/data (e.g. selected player in global-data context) is ready.
         // This is important when the app is opened via deeplink.
-        // TODO: try to find a better way to handle this.
+        // FIXME: find a better way to handle this.
         setTimeout(() => {
           openSharedModal("launch", { instanceId: decodeId });
-        }, 200);
+        }, 500);
       }
     },
   });
