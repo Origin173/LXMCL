@@ -1,5 +1,4 @@
 import {
-  Button,
   Flex,
   HStack,
   IconButton,
@@ -8,7 +7,6 @@ import {
   Tooltip,
   VStack,
 } from "@chakra-ui/react";
-import { listen } from "@tauri-apps/api/event";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -24,10 +22,8 @@ import { CommonIconButton } from "@/components/common/common-icon-button";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
-import { DownloadParam, TaskParam } from "@/models/download";
 import { mockDownloadTasks } from "@/models/mock/task";
 import { DownloadTask } from "@/models/task";
-import { TaskService } from "@/services/download";
 import { formatTimeInterval } from "@/utils/datetime";
 import { formatByteSize } from "@/utils/string";
 
@@ -68,41 +64,6 @@ export const DownloadTasksPage = () => {
         />
       }
     >
-      <Button
-        onClick={() => {
-          console.log("Download button clicked");
-          let dl: DownloadParam[] = [
-            {
-              src: "https://piston-data.mojang.com/v1/objects/99da672b78a9ff683da6961096e4a6fd6e8db1ca/server.jar",
-              dest: "server.jar",
-              task_type: "Download",
-            },
-            {
-              src: "https://piston-data.mojang.com/v1/objects/99da672b78a9ff683da6961096e4a6fd6e8db1ca/server.jar",
-              dest: "client.jar",
-              task_type: "Download",
-            },
-          ];
-          TaskService.schedule_task_group("group1", dl as TaskParam[]).then(
-            (response) => {
-              console.log(response);
-              if (response.status == "success") {
-                listen(
-                  `group1`,
-                  (event) => {
-                    console.log(event);
-                  },
-                  {
-                    target: `SJMCL://task-progress`,
-                  }
-                ).then((unlisten) => {
-                  console.log(unlisten);
-                });
-              }
-            }
-          );
-        }}
-      />
       <VStack align="stretch" px="10%" spacing={4}>
         {tasks.map((task) => (
           <OptionItemGroup
