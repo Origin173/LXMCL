@@ -207,6 +207,14 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
     skipCheck: boolean = false
   ) => {
     if (!add && currentPath === _dirPath) {
+      if (currentName !== dirName) {
+        update(
+          "localGameDirectories",
+          config.localGameDirectories.map((dir) =>
+            dir.dir === currentPath ? { name: dirName, dir: _dirPath } : dir
+          )
+        );
+      }
       setDirName("");
       setDirPath("");
       modalProps.onClose();
