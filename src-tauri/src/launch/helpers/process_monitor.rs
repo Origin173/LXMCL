@@ -6,6 +6,7 @@ use crate::utils::window::create_webview_window;
 use chrono;
 use std::io::{BufRead, BufReader};
 use std::process::{Child, Command};
+use std::sync::{atomic, mpsc::Sender};
 use std::thread;
 use tauri::{AppHandle, Emitter};
 
@@ -94,6 +95,7 @@ pub async fn monitor_process_output(
   app: AppHandle,
   child: &mut Child,
   display_log_window: bool,
+  ready_tx: Sender<()>,
 ) -> SJMCLResult<()> {
   // create unique log window
   let timestamp = chrono::Local::now().format("%Y%m%d%H%M%S").to_string();
@@ -105,29 +107,62 @@ pub async fn monitor_process_output(
   let stdout = child.stdout.take();
   let stderr = child.stderr.take();
 
-  if display_log_window {
-    if let Some(out) = stdout {
-      let app_clone = app.clone();
-      let label_clone = label.clone();
-      thread::spawn(move || {
-        let reader = BufReader::new(out);
-        for line in reader.lines().map_while(Result::ok) {
-          let _ = app_clone.emit_to(&label_clone, GAME_PROCESS_OUTPUT_CHANNEL, line);
-        }
-      });
-    }
+  // this flag becomes true when the game window is 'ready'(the first time when log contains 'Render thread') or the process exits.
+  // TODO: find a better way.
+  let game_ready_flag = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
 
-    if let Some(err) = stderr {
-      let app_clone = app.clone();
-      let label_clone = label.clone();
-      thread::spawn(move || {
-        let reader = BufReader::new(err);
-        for line in reader.lines().map_while(Result::ok) {
-          let _ = app_clone.emit_to(&label_clone, GAME_PROCESS_OUTPUT_CHANNEL, line);
+  if let Some(out) = stdout {
+    let app_stdout = app.clone();
+    let label_stdout = label.clone();
+    let tx_clone_stdout = ready_tx.clone();
+    let found_flag = game_ready_flag.clone();
+    thread::spawn(move || {
+      let reader = BufReader::new(out);
+      for line in reader.lines().map_while(Result::ok) {
+        if display_log_window {
+          let _ = app_stdout.emit_to(&label_stdout, GAME_PROCESS_OUTPUT_CHANNEL, &line);
         }
-      });
-    }
+
+        if !found_flag.load(atomic::Ordering::SeqCst) && line.contains("Render thread") {
+          found_flag.store(true, atomic::Ordering::SeqCst);
+          let _ = tx_clone_stdout.send(());
+          // send signal to launch command, close frontend modal.
+        }
+      }
+    });
   }
+
+  if let Some(err) = stderr {
+    let app_stderr = app.clone();
+    let label_stderr = label.clone();
+    let tx_clone_stderr = ready_tx.clone();
+    let found_flag = game_ready_flag.clone();
+    thread::spawn(move || {
+      let reader = BufReader::new(err);
+      for line in reader.lines().map_while(Result::ok) {
+        if display_log_window {
+          let _ = app_stderr.emit_to(&label_stderr, GAME_PROCESS_OUTPUT_CHANNEL, &line);
+        }
+
+        if !found_flag.load(atomic::Ordering::SeqCst) && line.contains("Render thread") {
+          found_flag.store(true, atomic::Ordering::SeqCst);
+          let _ = tx_clone_stderr.send(());
+        }
+      }
+    });
+  }
+
+  let mut dummy_child = Command::new("true").spawn()?;
+  let _ = dummy_child.wait();
+  let mut child = std::mem::replace(child, dummy_child);
+  let found_flag = game_ready_flag.clone();
+  thread::spawn(move || {
+    if let Ok(status) = child.wait() {
+      if status.success() && !found_flag.load(atomic::Ordering::SeqCst) {
+        let _ = ready_tx.send(());
+      }
+    }
+  });
 
   // TODO: show error window (get stderr or process exit with error code?)
 

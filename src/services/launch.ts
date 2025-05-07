@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
+import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { InvokeResponse } from "@/models/response";
 import { responseHandler } from "@/utils/response";
 
@@ -62,9 +62,12 @@ export class LaunchService {
    * @param callback The callback function to be called when the game log is output.
    */
   static onGameProcessOutput(callback: (payload: string) => void) {
-    const unlisten = listen<string>("launch://game-process-output", (event) => {
-      callback(event.payload);
-    });
+    const unlisten = getCurrentWebview().listen<string>(
+      "launch://game-process-output",
+      (event) => {
+        callback(event.payload);
+      }
+    );
 
     return () => {
       unlisten.then((f) => f());

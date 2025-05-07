@@ -25,7 +25,7 @@ use crate::{
 };
 use std::collections::HashMap;
 use std::process::{Command, Stdio};
-use std::sync::Mutex;
+use std::sync::{mpsc, Mutex};
 use tauri::{AppHandle, State};
 
 // Step 1: select suitable java runtime environment.
@@ -188,12 +188,16 @@ pub async fn launch_game(
   // set process priority
   set_process_priority(pid, &process_priority)?;
 
-  monitor_process_output(app.clone(), &mut child, display_game_log).await?;
+  // wait for the game window, create log window if needed
+  let (tx, rx) = mpsc::channel();
+  monitor_process_output(app.clone(), &mut child, display_game_log, tx).await?;
+  let _ = rx.recv();
+
+  // TODO: launcher main window should do some operation here due to `launching.game_config.launcher_visiablity` setting.
 
   // clear launching state
   *launching_state.lock().unwrap() = LaunchingState::default();
 
-  // FIXME: wait game window before return OK (it will close front modal)
   Ok(())
 }
 
