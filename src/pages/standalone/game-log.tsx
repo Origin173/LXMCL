@@ -9,11 +9,12 @@ import {
   Tooltip,
   VStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuFileInput, LuTrash } from "react-icons/lu";
 import Empty from "@/components/common/empty";
 import { useLauncherConfig } from "@/contexts/config";
+import { LaunchService } from "@/services/launch";
 import styles from "@/styles/game-log.module.css";
 
 const GameLogPage: React.FC = () => {
@@ -21,18 +22,7 @@ const GameLogPage: React.FC = () => {
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 
-  const [logs, setLogs] = useState<string[]>([
-    "16:14:57.388 [INFO] Using default game log configuration client-1.21.2.xml",
-    "16:14:59.111 [DEBUG] Datafiner optimization took 292 milliseconds",
-    "16:14:52.821 [WARN] Error parsing option value 0 for option Msx framerate",
-    "16:14:52.944 [ERROR] Value 0 outside of range [10:260]",
-    "16:14:55.628 [INFO] OpensL initialized on device OpensL Soft",
-    "16:14:55.628 [INFO] Another info log",
-    "16:14:55.628 [DEBUG] Debugging log",
-    "16:14:55.628 [WARN] Warning log",
-    "16:14:55.628 [ERROR] Error log",
-    "16:14:55.628 [FATAL] Fatal error occurred",
-  ]);
+  const [logs, setLogs] = useState<string[]>([]);
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterStates, setFilterStates] = useState<{ [key: string]: boolean }>({
@@ -45,8 +35,26 @@ const GameLogPage: React.FC = () => {
 
   const clearLogs = () => setLogs([]);
 
+  useEffect(() => {
+    const unlisten = LaunchService.onGameProcessOutput((payload) => {
+      setLogs((prevLogs) => [...prevLogs, payload]);
+    });
+    return () => unlisten();
+  }, []);
+
+  const getLogLevel = (log: string): string => {
+    for (const keyword of Object.keys(filterStates)) {
+      const index = log.indexOf(keyword);
+      if (index !== -1) {
+        return keyword;
+      }
+    }
+
+    return "INFO";
+  };
+
   const filteredLogs = logs.filter((log) => {
-    const level = log.split(" ")[1].slice(1, -1);
+    const level = getLogLevel(log);
     return (
       filterStates[level] &&
       log.toLowerCase().includes(searchTerm.toLowerCase())
@@ -65,7 +73,7 @@ const GameLogPage: React.FC = () => {
 
   const logCounts = filteredLogs.reduce<{ [key: string]: number }>(
     (acc, log) => {
-      const level = log.split(" ")[1].slice(1, -1);
+      const level = getLogLevel(log);
       acc[level] = (acc[level] || 0) + 1;
       return acc;
     },
@@ -136,7 +144,7 @@ const GameLogPage: React.FC = () => {
         {filteredLogs.length > 0 ? (
           <VStack align="start" spacing={0.5}>
             {filteredLogs.map((log, index) => {
-              const level = log.split(" ")[1].slice(1, -1);
+              const level = getLogLevel(log);
               return (
                 <Text
                   key={index}
