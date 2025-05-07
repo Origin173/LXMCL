@@ -58,7 +58,7 @@ export class LaunchService {
   }
 
   /**
-   * LISTEN to the game log output.
+   * LISTEN to the game log output line by line.
    * @param callback The callback function to be called when the game log is output.
    */
   static onGameProcessOutput(callback: (payload: string) => void) {

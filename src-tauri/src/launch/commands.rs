@@ -3,9 +3,9 @@ use super::{
     command_generator::generate_launch_command,
     file_validator::{extract_native_libraries, validate_library_files},
     jre_selector::select_java_runtime,
-    process_monitor::{kill_process, set_process_priority},
+    process_monitor::{kill_process, monitor_process_output, set_process_priority},
   },
-  models::{LaunchError, LaunchingState},
+  models::LaunchingState,
 };
 use crate::{
   account::{
@@ -161,22 +161,23 @@ pub async fn launch_game(
   app: AppHandle,
   launching_state: State<'_, Mutex<LaunchingState>>,
 ) -> SJMCLResult<()> {
-  let (selected_java, process_priority) = {
+  let (selected_java, process_priority, display_game_log) = {
     let mut launching = launching_state.lock().unwrap();
     launching.current_step = 4;
     (
       launching.selected_java.clone(),
       launching.game_config.performance.process_priority.clone(),
+      launching.game_config.display_game_log,
     )
   };
 
   // generate and execute launch command
   let cmd_args = generate_launch_command(&app)?;
   let mut cmd_base = Command::new(selected_java.exec_path);
-  let child = cmd_base
+  let mut child = cmd_base
     .args(cmd_args)
     .stdout(Stdio::piped())
-    // .stderr(Stdio::piped())
+    .stderr(Stdio::piped())
     .spawn()?;
   let pid = child.id();
   {
@@ -187,14 +188,12 @@ pub async fn launch_game(
   // set process priority
   set_process_priority(pid, &process_priority)?;
 
-  let output = child.wait_with_output()?;
-
-  println!("{}", String::from_utf8_lossy(&output.stdout));
-  // println!("{}", String::from_utf8_lossy(&output.stderr));
+  monitor_process_output(app.clone(), &mut child, display_game_log).await?;
 
   // clear launching state
   *launching_state.lock().unwrap() = LaunchingState::default();
 
+  // FIXME: wait game window before return OK (it will close front modal)
   Ok(())
 }
 
@@ -207,7 +206,7 @@ pub fn cancel_launch_process(launching_state: State<'_, Mutex<LaunchingState>>) 
     kill_process(launching.pid)?;
   }
 
-  // clear state
+  // clear launching state
   *launching = LaunchingState::default();
 
   Ok(())

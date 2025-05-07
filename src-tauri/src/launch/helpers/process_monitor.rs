@@ -1,7 +1,13 @@
 use crate::error::SJMCLResult;
+use crate::launch::constant::GAME_PROCESS_OUTPUT_CHANNEL;
 use crate::launch::models::LaunchError;
 use crate::launcher_config::models::ProcessPriority;
-use std::process::Command;
+use crate::utils::window::create_webview_window;
+use chrono;
+use std::io::{BufRead, BufReader};
+use std::process::{Child, Command};
+use std::thread;
+use tauri::{AppHandle, Emitter};
 
 pub fn set_process_priority(pid: u32, priority: &ProcessPriority) -> SJMCLResult<()> {
   #[cfg(any(target_os = "macos", target_os = "linux"))]
@@ -80,6 +86,52 @@ pub fn kill_process(pid: u32) -> SJMCLResult<()> {
       .output()
       .map_err(|_| LaunchError::KillProcessFailed)?;
   }
+
+  Ok(())
+}
+
+pub async fn monitor_process_output(
+  app: AppHandle,
+  child: &mut Child,
+  display_log_window: bool,
+) -> SJMCLResult<()> {
+  // create unique log window
+  let timestamp = chrono::Local::now().format("%Y%m%d%H%M%S").to_string();
+  let label = format!("game_log_{}", timestamp);
+  if display_log_window {
+    let _ = create_webview_window(&app, &label, "game_log", None).await?;
+  }
+
+  let stdout = child.stdout.take();
+  let stderr = child.stderr.take();
+
+  if display_log_window {
+    if let Some(out) = stdout {
+      let app_clone = app.clone();
+      let label_clone = label.clone();
+      thread::spawn(move || {
+        let reader = BufReader::new(out);
+        for line in reader.lines().map_while(Result::ok) {
+          let _ = app_clone.emit_to(&label_clone, GAME_PROCESS_OUTPUT_CHANNEL, line);
+        }
+      });
+    }
+
+    if let Some(err) = stderr {
+      let app_clone = app.clone();
+      let label_clone = label.clone();
+      thread::spawn(move || {
+        let reader = BufReader::new(err);
+        for line in reader.lines().map_while(Result::ok) {
+          let _ = app_clone.emit_to(&label_clone, GAME_PROCESS_OUTPUT_CHANNEL, line);
+        }
+      });
+    }
+  }
+
+  // TODO: show error window (get stderr or process exit with error code?)
+
+  // TODO: auto destroy log window when process exit normally?
 
   Ok(())
 }

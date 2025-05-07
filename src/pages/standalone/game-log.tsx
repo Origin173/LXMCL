@@ -7,7 +7,6 @@ import {
   Spacer,
   Text,
   Tooltip,
-  VStack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -81,7 +80,7 @@ const GameLogPage: React.FC = () => {
   );
 
   return (
-    <Box p={4} minH="100vh" display="flex" flexDirection="column">
+    <Box p={4} h="100vh" display="flex" flexDirection="column">
       <Flex alignItems="center" mb={4}>
         <Input
           type="text"
@@ -138,25 +137,22 @@ const GameLogPage: React.FC = () => {
         borderRadius="md"
         p={2}
         flex="1"
-        overflowY="auto"
-        bg="white"
+        className={`${styles["log-list-container"]}`}
       >
         {filteredLogs.length > 0 ? (
-          <VStack align="start" spacing={0.5}>
-            {filteredLogs.map((log, index) => {
-              const level = getLogLevel(log);
-              return (
-                <Text
-                  key={index}
-                  className={`${styles["log-text"]}`}
-                  color={logLevelMap[level].color}
-                  fontSize="xs"
-                >
-                  {log}
-                </Text>
-              );
-            })}
-          </VStack>
+          filteredLogs.map((log, index) => {
+            const level = getLogLevel(log);
+            return (
+              <Text
+                key={index}
+                className={`${styles["log-text"]}`}
+                color={logLevelMap[level].color}
+                fontWeight={["FATAL", "ERROR"].includes(level) ? 600 : 400}
+              >
+                {log}
+              </Text>
+            );
+          })
         ) : (
           <Empty colorScheme="gray" withIcon={false} />
         )}
