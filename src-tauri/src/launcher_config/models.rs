@@ -35,18 +35,6 @@ pub enum ProcessPriority {
   Normal,
 }
 
-impl ProcessPriority {
-  pub fn to_nice_value(&self) -> i32 {
-    match self {
-      ProcessPriority::Low => 5,
-      ProcessPriority::BelowNormal => 1,
-      ProcessPriority::Normal => 0,
-      ProcessPriority::AboveNormal => -1,
-      ProcessPriority::High => -5,
-    }
-  }
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub enum FileValidatePolicy {

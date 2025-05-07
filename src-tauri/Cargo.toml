@@ -73,6 +73,7 @@ tauri-plugin-deep-link = "2"
 
 [target."cfg(windows)".dependencies]
 winreg = "0.55.0"
+winapi = { version = "0.3", features = ["processthreadsapi", "winnt"] }
 
 [target."cfg(target_os = \"macos\")".dependencies]
 plist = "1"

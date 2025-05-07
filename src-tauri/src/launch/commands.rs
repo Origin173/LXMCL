@@ -3,8 +3,9 @@ use super::{
     command_generator::generate_launch_command,
     file_validator::{extract_native_libraries, validate_library_files},
     jre_selector::select_java_runtime,
+    process_monitor::{kill_process, set_process_priority},
   },
-  models::LaunchingState,
+  models::{LaunchError, LaunchingState},
 };
 use crate::{
   account::{
@@ -160,22 +161,36 @@ pub async fn launch_game(
   app: AppHandle,
   launching_state: State<'_, Mutex<LaunchingState>>,
 ) -> SJMCLResult<()> {
-  let selected_java = {
+  let (selected_java, process_priority) = {
     let mut launching = launching_state.lock().unwrap();
     launching.current_step = 4;
-    launching.selected_java.clone()
+    (
+      launching.selected_java.clone(),
+      launching.game_config.performance.process_priority.clone(),
+    )
   };
 
+  // generate and execute launch command
   let cmd_args = generate_launch_command(&app)?;
-  println!("{}", cmd_args.join(" "));
-
-  // TODO: make a command executor to handle exec (in different mode), set nice and pipe output
   let mut cmd_base = Command::new(selected_java.exec_path);
-  let child = cmd_base.args(cmd_args).stdout(Stdio::piped()).spawn()?;
+  let child = cmd_base
+    .args(cmd_args)
+    .stdout(Stdio::piped())
+    // .stderr(Stdio::piped())
+    .spawn()?;
+  let pid = child.id();
+  {
+    let mut launching = launching_state.lock().unwrap();
+    launching.pid = pid;
+  }
+
+  // set process priority
+  set_process_priority(pid, &process_priority)?;
+
   let output = child.wait_with_output()?;
 
   println!("{}", String::from_utf8_lossy(&output.stdout));
-  println!("{}", String::from_utf8_lossy(&output.stderr));
+  // println!("{}", String::from_utf8_lossy(&output.stderr));
 
   // clear launching state
   *launching_state.lock().unwrap() = LaunchingState::default();
@@ -185,7 +200,15 @@ pub async fn launch_game(
 
 #[tauri::command]
 pub fn cancel_launch_process(launching_state: State<'_, Mutex<LaunchingState>>) -> SJMCLResult<()> {
-  *launching_state.lock().unwrap() = LaunchingState::default();
-  // TODO: stop game process if step 4 has started.
+  let mut launching = launching_state.lock().unwrap();
+
+  // kill process if step 4 has been reached
+  if launching.pid != 0 {
+    kill_process(launching.pid)?;
+  }
+
+  // clear state
+  *launching = LaunchingState::default();
+
   Ok(())
 }

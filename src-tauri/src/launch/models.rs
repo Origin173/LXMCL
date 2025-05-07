@@ -9,8 +9,8 @@ use strum_macros::Display;
 #[derive(Debug, Display)]
 #[strum(serialize_all = "SCREAMING_SNAKE_CASE")]
 pub enum LaunchError {
-  VersionParseError,
   NoSuitableJava,
+  KillProcessFailed,
 }
 
 impl std::error::Error for LaunchError {}
@@ -27,4 +27,6 @@ pub struct LaunchingState {
   pub client_info: McClientInfo,
   pub selected_player: Option<PlayerInfo>, // use Option to avoid SmartDefault trait error
   pub auth_server_meta: String,
+  #[default = 0] // default means not set yet
+  pub pid: u32,
 }
