@@ -107,7 +107,15 @@ pub async fn monitor_process_output(
 
   // handle game process exit
   let instance_id_clone = instance_id.clone();
-  let mut dummy_child = Command::new("true").spawn()?;
+  let mut dummy_child;
+  #[cfg(target_os = "windows")]
+  {
+    dummy_child = Command::new("cmd").args(&["/C", "exit", "0"]).spawn()?;
+  }
+  #[cfg(any(target_os = "linux", target_os = "macos"))]
+  {
+    dummy_child = Command::new("true").spawn()?;
+  }
   let _ = dummy_child.wait();
   let mut child = std::mem::replace(child, dummy_child);
   let game_ready_flag = game_ready_flag.clone();
