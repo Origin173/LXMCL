@@ -115,7 +115,7 @@ pub async fn monitor_process_output(
     let app_stdout = app.clone();
     let label_stdout = label.clone();
     let tx_clone_stdout = ready_tx.clone();
-    let found_flag = game_ready_flag.clone();
+    let game_ready_flag = game_ready_flag.clone();
     thread::spawn(move || {
       let reader = BufReader::new(out);
       for line in reader.lines().map_while(Result::ok) {
@@ -123,8 +123,8 @@ pub async fn monitor_process_output(
           let _ = app_stdout.emit_to(&label_stdout, GAME_PROCESS_OUTPUT_CHANNEL, &line);
         }
 
-        if !found_flag.load(atomic::Ordering::SeqCst) && line.contains("Render thread") {
-          found_flag.store(true, atomic::Ordering::SeqCst);
+        if !game_ready_flag.load(atomic::Ordering::SeqCst) && line.contains("Render thread") {
+          game_ready_flag.store(true, atomic::Ordering::SeqCst);
           let _ = tx_clone_stdout.send(());
           // send signal to launch command, close frontend modal.
         }
@@ -136,7 +136,7 @@ pub async fn monitor_process_output(
     let app_stderr = app.clone();
     let label_stderr = label.clone();
     let tx_clone_stderr = ready_tx.clone();
-    let found_flag = game_ready_flag.clone();
+    let game_ready_flag = game_ready_flag.clone();
     thread::spawn(move || {
       let reader = BufReader::new(err);
       for line in reader.lines().map_while(Result::ok) {
@@ -144,8 +144,8 @@ pub async fn monitor_process_output(
           let _ = app_stderr.emit_to(&label_stderr, GAME_PROCESS_OUTPUT_CHANNEL, &line);
         }
 
-        if !found_flag.load(atomic::Ordering::SeqCst) && line.contains("Render thread") {
-          found_flag.store(true, atomic::Ordering::SeqCst);
+        if !game_ready_flag.load(atomic::Ordering::SeqCst) && line.contains("Render thread") {
+          game_ready_flag.store(true, atomic::Ordering::SeqCst);
           let _ = tx_clone_stderr.send(());
         }
       }
@@ -155,10 +155,10 @@ pub async fn monitor_process_output(
   let mut dummy_child = Command::new("true").spawn()?;
   let _ = dummy_child.wait();
   let mut child = std::mem::replace(child, dummy_child);
-  let found_flag = game_ready_flag.clone();
+  let game_ready_flag = game_ready_flag.clone();
   thread::spawn(move || {
     if let Ok(status) = child.wait() {
-      if status.success() && !found_flag.load(atomic::Ordering::SeqCst) {
+      if status.success() && !game_ready_flag.load(atomic::Ordering::SeqCst) {
         let _ = ready_tx.send(());
       }
     }

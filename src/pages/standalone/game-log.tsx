@@ -8,9 +8,9 @@ import {
   Text,
   Tooltip,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuFileInput, LuTrash } from "react-icons/lu";
+import { LuChevronsDown, LuFileInput, LuTrash } from "react-icons/lu";
 import Empty from "@/components/common/empty";
 import { useLauncherConfig } from "@/contexts/config";
 import { LaunchService } from "@/services/launch";
@@ -22,7 +22,6 @@ const GameLogPage: React.FC = () => {
   const primaryColor = config.appearance.theme.primaryColor;
 
   const [logs, setLogs] = useState<string[]>([]);
-
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterStates, setFilterStates] = useState<{ [key: string]: boolean }>({
     FATAL: true,
@@ -31,6 +30,8 @@ const GameLogPage: React.FC = () => {
     INFO: true,
     DEBUG: true,
   });
+  const [isUserInteracting, setIsUserInteracting] = useState(false); // Track user interaction (scroll, select)
+  const logContainerRef = useRef<HTMLDivElement>(null);
 
   const clearLogs = () => setLogs([]);
 
@@ -63,21 +64,47 @@ const GameLogPage: React.FC = () => {
   const logLevelMap: {
     [key: string]: { colorScheme: string; color: string };
   } = {
-    FATAL: { colorScheme: "red", color: "red.600" },
-    ERROR: { colorScheme: "orange", color: "orange.600" },
-    WARN: { colorScheme: "yellow", color: "yellow.600" },
+    FATAL: { colorScheme: "red", color: "red.500" },
+    ERROR: { colorScheme: "orange", color: "orange.500" },
+    WARN: { colorScheme: "yellow", color: "yellow.500" },
     INFO: { colorScheme: "gray", color: "gray.600" },
     DEBUG: { colorScheme: "gray", color: "blue.600" },
   };
 
-  const logCounts = filteredLogs.reduce<{ [key: string]: number }>(
-    (acc, log) => {
-      const level = getLogLevel(log);
-      acc[level] = (acc[level] || 0) + 1;
-      return acc;
-    },
-    {}
-  );
+  const logCounts = logs.reduce<{ [key: string]: number }>((acc, log) => {
+    const level = getLogLevel(log);
+    acc[level] = (acc[level] || 0) + 1;
+    return acc;
+  }, {});
+
+  // NOTE: smooth scroll may have delay, not always to bottom.
+  // const scrollToBottom = () => {
+  //   if (logContainerRef.current) {
+  //     logContainerRef.current.scrollTo({
+  //       top: logContainerRef.current.scrollHeight,
+  //       behavior: "smooth",
+  //     });
+  //   }
+  // };
+
+  const scrollToBottom = () => {
+    if (logContainerRef.current) {
+      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+    }
+  };
+
+  const isAtBottom = () => {
+    if (logContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = logContainerRef.current;
+      return scrollHeight - scrollTop === clientHeight;
+    }
+    return false;
+  };
+
+  // Auto scroll to bottom if user not interacted
+  useEffect(() => {
+    if (!isUserInteracting) scrollToBottom();
+  }, [filteredLogs, isUserInteracting]);
 
   return (
     <Box p={4} h="100vh" display="flex" flexDirection="column">
@@ -133,11 +160,14 @@ const GameLogPage: React.FC = () => {
       </Flex>
 
       <Box
+        ref={logContainerRef}
         borderWidth="1px"
         borderRadius="md"
         p={2}
         flex="1"
         className={`${styles["log-list-container"]}`}
+        onScroll={() => setIsUserInteracting(!isAtBottom())}
+        onMouseDown={() => setIsUserInteracting(true)}
       >
         {filteredLogs.length > 0 ? (
           filteredLogs.map((log, index) => {
@@ -147,7 +177,7 @@ const GameLogPage: React.FC = () => {
                 key={index}
                 className={`${styles["log-text"]}`}
                 color={logLevelMap[level].color}
-                fontWeight={["FATAL", "ERROR"].includes(level) ? 600 : 400}
+                fontWeight={!["INFO", "DEBUG"].includes(level) ? 600 : 400}
               >
                 {log}
               </Text>
@@ -155,6 +185,24 @@ const GameLogPage: React.FC = () => {
           })
         ) : (
           <Empty colorScheme="gray" withIcon={false} />
+        )}
+
+        {!isAtBottom() && (
+          <Button
+            position="absolute"
+            bottom={7}
+            right={7}
+            size="sm"
+            variant="subtle"
+            boxShadow="md"
+            onClick={() => {
+              scrollToBottom();
+              setIsUserInteracting(false);
+            }}
+            leftIcon={<LuChevronsDown />}
+          >
+            {t("GameLogPage.scrollToBottom")}
+          </Button>
         )}
       </Box>
     </Box>

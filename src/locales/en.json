@@ -638,7 +638,8 @@
   "GameLogPage": {
     "placeholder": "Filter by Text",
     "exportLogs": "Export Logs",
-    "clearLogs": "Clear All Logs"
+    "clearLogs": "Clear All Logs",
+    "scrollToBottom": "Scroll to Bottom"
   },
   "GameVersionSelector": {
     "old_beta": "Old Beta",
