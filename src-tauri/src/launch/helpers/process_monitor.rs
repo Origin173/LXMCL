@@ -15,87 +15,6 @@ use std::time::{Instant, SystemTime, UNIX_EPOCH};
 use tauri::{AppHandle, Emitter, Manager};
 use tokio;
 
-pub fn set_process_priority(pid: u32, priority: &ProcessPriority) -> SJMCLResult<()> {
-  #[cfg(any(target_os = "macos", target_os = "linux"))]
-  {
-    let nice_value = match *priority {
-      ProcessPriority::Low => 5,
-      ProcessPriority::BelowNormal => 1,
-      ProcessPriority::Normal => 0,
-      // FIXME: above normal need permission
-      ProcessPriority::AboveNormal => -1,
-      ProcessPriority::High => -5,
-    };
-
-    let _ = Command::new("renice")
-      .args([nice_value.to_string(), "-p".to_string(), pid.to_string()])
-      .output();
-  }
-
-  #[cfg(target_os = "windows")]
-  {
-    use std::mem;
-    use winapi::um::processthreadsapi::{CloseHandle, OpenProcess, SetPriorityClass};
-    use winapi::um::winnt::{
-      ABOVE_NORMAL_PRIORITY_CLASS, BELOW_NORMAL_PRIORITY_CLASS, DWORD, FALSE, HANDLE,
-      HIGH_PRIORITY_CLASS, NORMAL_PRIORITY_CLASS, PROCESS_SET_INFORMATION,
-    };
-
-    unsafe {
-      let h_process = OpenProcess(PROCESS_SET_INFORMATION, FALSE, pid as DWORD);
-      if h_process.is_null() {
-        return Err(std::io::Error::new(
-          std::io::ErrorKind::Other,
-          "Failed to open process on Windows",
-        ));
-      }
-
-      let priority_class = match *priority {
-        ProcessPriority::Low => BELOW_NORMAL_PRIORITY_CLASS,
-        ProcessPriority::BelowNormal => BELOW_NORMAL_PRIORITY_CLASS,
-        ProcessPriority::Normal => NORMAL_PRIORITY_CLASS,
-        ProcessPriority::AboveNormal => ABOVE_NORMAL_PRIORITY_CLASS,
-        ProcessPriority::High => HIGH_PRIORITY_CLASS,
-      };
-
-      if SetPriorityClass(h_process, priority_class) == 0 {
-        CloseHandle(h_process);
-        return Err(std::io::Error::new(
-          std::io::ErrorKind::Other,
-          "Failed to set priority class on Windows",
-        ));
-      }
-
-      CloseHandle(h_process);
-    }
-  }
-
-  Ok(())
-}
-
-pub fn kill_process(pid: u32) -> SJMCLResult<()> {
-  #[cfg(any(target_os = "linux", target_os = "macos"))]
-  {
-    Command::new("kill")
-      .args(["-9", &pid.to_string()])
-      .output()
-      .map_err(|_| LaunchError::KillProcessFailed)?;
-  }
-
-  #[cfg(target_os = "windows")]
-  {
-    use std::os::windows::process::CommandExt;
-
-    Command::new("taskkill")
-      .args(["/F", "/T", "/PID", &pid.to_string()])
-      .creation_flags(0x08000000) // CREATE_NO_WINDOW
-      .output()
-      .map_err(|_| LaunchError::KillProcessFailed)?;
-  }
-
-  Ok(())
-}
-
 pub async fn monitor_process_output(
   app: AppHandle,
   child: &mut Child,
@@ -232,6 +151,111 @@ pub async fn monitor_process_output(
   });
 
   // TODO: show error window (get stderr or process exit with error code?)
+
+  Ok(())
+}
+
+pub fn kill_process(pid: u32) -> SJMCLResult<()> {
+  // KNOWN ISSUE: kill process means exit abnormally, which will not close the game-log window automatically.
+  #[cfg(any(target_os = "linux", target_os = "macos"))]
+  {
+    Command::new("kill")
+      .args(["-9", &pid.to_string()])
+      .output()
+      .map_err(|_| LaunchError::KillProcessFailed)?;
+  }
+
+  #[cfg(target_os = "windows")]
+  {
+    use std::os::windows::process::CommandExt;
+
+    Command::new("taskkill")
+      .args(["/F", "/T", "/PID", &pid.to_string()])
+      .creation_flags(0x08000000) // CREATE_NO_WINDOW
+      .output()
+      .map_err(|_| LaunchError::KillProcessFailed)?;
+  }
+
+  Ok(())
+}
+
+pub fn set_process_priority(pid: u32, priority: &ProcessPriority) -> SJMCLResult<()> {
+  #[cfg(any(target_os = "macos", target_os = "linux"))]
+  {
+    let nice_value = match *priority {
+      ProcessPriority::Low => 5,
+      ProcessPriority::BelowNormal => 1,
+      ProcessPriority::Normal => 0,
+      // FIXME: above normal need permission
+      ProcessPriority::AboveNormal => -1,
+      ProcessPriority::High => -5,
+    };
+
+    let _ = Command::new("renice")
+      .args([nice_value.to_string(), "-p".to_string(), pid.to_string()])
+      .output();
+  }
+
+  #[cfg(target_os = "windows")]
+  {
+    use crate::error::SJMCLError;
+    use std::mem;
+    use winapi::um::processthreadsapi::{CloseHandle, OpenProcess, SetPriorityClass};
+    use winapi::um::winnt::{
+      ABOVE_NORMAL_PRIORITY_CLASS, BELOW_NORMAL_PRIORITY_CLASS, DWORD, FALSE, HANDLE,
+      HIGH_PRIORITY_CLASS, NORMAL_PRIORITY_CLASS, PROCESS_SET_INFORMATION,
+    };
+
+    unsafe {
+      let h_process = OpenProcess(PROCESS_SET_INFORMATION, FALSE, pid as DWORD);
+      if h_process.is_null() {
+        return Err(LaunchError::SetProcessPriorityFailed.into());
+      }
+
+      let priority_class = match *priority {
+        ProcessPriority::Low => BELOW_NORMAL_PRIORITY_CLASS,
+        ProcessPriority::BelowNormal => BELOW_NORMAL_PRIORITY_CLASS,
+        ProcessPriority::Normal => NORMAL_PRIORITY_CLASS,
+        ProcessPriority::AboveNormal => ABOVE_NORMAL_PRIORITY_CLASS,
+        ProcessPriority::High => HIGH_PRIORITY_CLASS,
+      };
+
+      if SetPriorityClass(h_process, priority_class) == 0 {
+        CloseHandle(h_process);
+        return Err(LaunchError::SetProcessPriorityFailed.into());
+      }
+
+      CloseHandle(h_process);
+    }
+  }
+
+  Ok(())
+}
+
+pub fn change_process_window_title(pid: u32, new_title: &str) -> SJMCLResult<()> {
+  #[cfg(target_os = "windows")]
+  {
+    use crate::error::SJMCLError;
+    use winapi::um::winuser::{FindWindowW, SetWindowTextW};
+
+    unsafe {
+      let hwnd = FindWindowW(std::ptr::null_mut(), std::ptr::null_mut());
+      if hwnd.is_null() {
+        return Err(LaunchError::ChangeWindowTitleFailed.into());
+      }
+
+      let title = std::ffi::CString::new(new_title).unwrap();
+      if SetWindowTextW(hwnd, title.as_ptr()) == 0 {
+        return Err(LaunchError::ChangeWindowTitleFailed.into());
+      }
+    }
+  }
+
+  #[cfg(any(target_os = "macos", target_os = "linux"))]
+  {
+    // not support yet.
+    let _ = (pid, new_title);
+  }
 
   Ok(())
 }

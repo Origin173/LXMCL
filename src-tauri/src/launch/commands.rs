@@ -3,7 +3,9 @@ use super::{
     command_generator::generate_launch_command,
     file_validator::{extract_native_libraries, validate_library_files},
     jre_selector::select_java_runtime,
-    process_monitor::{kill_process, monitor_process_output, set_process_priority},
+    process_monitor::{
+      change_process_window_title, kill_process, monitor_process_output, set_process_priority,
+    },
   },
   models::LaunchingState,
 };
@@ -161,13 +163,12 @@ pub async fn launch_game(
   app: AppHandle,
   launching_state: State<'_, Mutex<LaunchingState>>,
 ) -> SJMCLResult<()> {
-  let (selected_java, process_priority, display_game_log, instance_id) = {
+  let (selected_java, game_config, instance_id) = {
     let mut launching = launching_state.lock().unwrap();
     launching.current_step = 4;
     (
       launching.selected_java.clone(),
-      launching.game_config.performance.process_priority.clone(),
-      launching.game_config.display_game_log,
+      launching.game_config.clone(),
       launching.selected_instance.id.clone(),
     )
   };
@@ -186,13 +187,22 @@ pub async fn launch_game(
     launching.pid = pid;
   }
 
-  // set process priority
-  set_process_priority(pid, &process_priority)?;
-
   // wait for the game window, create log window if needed
   let (tx, rx) = mpsc::channel();
-  monitor_process_output(app.clone(), &mut child, instance_id, display_game_log, tx).await?;
+  monitor_process_output(
+    app.clone(),
+    &mut child,
+    instance_id,
+    game_config.display_game_log,
+    tx,
+  )
+  .await?;
   let _ = rx.recv();
+
+  // set process priority and window title (if error, keep slient)
+  let _ = set_process_priority(pid, &game_config.performance.process_priority);
+  let _ = !game_config.game_window.custom_title.trim().is_empty()
+    && change_process_window_title(pid, &game_config.game_window.custom_title).is_err();
 
   // TODO: launcher main window should do some operation here due to `launching.game_config.launcher_visiablity` setting.
 
