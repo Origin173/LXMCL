@@ -51,10 +51,11 @@ pub async fn run() {
     .plugin(tauri_plugin_os::init())
     .plugin(tauri_plugin_process::init())
     .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-      let _ = app
-        .get_webview_window("main")
-        .expect("no main window")
-        .set_focus(); // Focus the running instance
+      let main_window = app.get_webview_window("main").expect("no main window");
+
+      let _ = main_window.show(); // may hide by launcher_visibility settings
+                                  // FIXME: this show() seems no use in build mode (test on macOS).
+      let _ = main_window.set_focus();
     }))
     .plugin(tauri_plugin_window_state::Builder::new().build())
     .invoke_handler(tauri::generate_handler![

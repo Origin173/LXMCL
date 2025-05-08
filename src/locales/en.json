@@ -804,8 +804,8 @@
       "settings": {
         "launcherVisibility": {
           "title": "Launcher Visibility",
-          "start-close": "Close Launcher after Game Starts",
-          "running-hidden": "Hide Launcher while Game is Running",
+          "startHidden": "Hide Launcher after Game Starts",
+          "runningHidden": "Hide Launcher while Game is Running",
           "always": "Launcher Always Visible"
         },
         "autoJoinGameServer": {

@@ -4,7 +4,7 @@ use super::{
     file_validator::{extract_native_libraries, validate_library_files},
     jre_selector::select_java_runtime,
     process_monitor::{
-      change_process_window_title, kill_process, monitor_process_output, set_process_priority,
+      change_process_window_title, kill_process, monitor_process, set_process_priority,
     },
   },
   models::LaunchingState,
@@ -22,13 +22,13 @@ use crate::{
     },
     models::misc::{Instance, InstanceError, InstanceSubdirType},
   },
-  launcher_config::models::{FileValidatePolicy, JavaInfo},
+  launcher_config::models::{FileValidatePolicy, JavaInfo, LauncherVisiablity},
   storage::load_json_async,
 };
 use std::collections::HashMap;
 use std::process::{Command, Stdio};
 use std::sync::{mpsc, Mutex};
-use tauri::{AppHandle, State};
+use tauri::{AppHandle, Manager, State};
 
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
@@ -194,11 +194,12 @@ pub async fn launch_game(
 
   // wait for the game window, create log window if needed
   let (tx, rx) = mpsc::channel();
-  monitor_process_output(
+  monitor_process(
     app.clone(),
     &mut child,
     instance_id,
     game_config.display_game_log,
+    game_config.launcher_visibility.clone(),
     tx,
   )
   .await?;
@@ -209,7 +210,12 @@ pub async fn launch_game(
   let _ = !game_config.game_window.custom_title.trim().is_empty()
     && change_process_window_title(pid, &game_config.game_window.custom_title).is_err();
 
-  // TODO: launcher main window should do some operation here due to `launching.game_config.launcher_visiablity` setting.
+  if game_config.launcher_visibility != LauncherVisiablity::Always {
+    let _ = app
+      .get_webview_window("main")
+      .expect("no main window")
+      .hide();
+  }
 
   // clear launching state
   *launching_state.lock().unwrap() = LaunchingState::default();

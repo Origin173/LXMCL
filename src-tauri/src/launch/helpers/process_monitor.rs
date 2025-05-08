@@ -3,7 +3,7 @@ use crate::instance::constants::INSTANCE_CFG_FILE_NAME;
 use crate::instance::models::misc::Instance;
 use crate::launch::constant::*;
 use crate::launch::models::LaunchError;
-use crate::launcher_config::models::ProcessPriority;
+use crate::launcher_config::models::{LauncherVisiablity, ProcessPriority};
 use crate::storage::save_json_async;
 use crate::utils::window::create_webview_window;
 use std::collections::HashMap;
@@ -15,11 +15,12 @@ use std::time::{Instant, SystemTime, UNIX_EPOCH};
 use tauri::{AppHandle, Emitter, Manager};
 use tokio;
 
-pub async fn monitor_process_output(
+pub async fn monitor_process(
   app: AppHandle,
   child: &mut Child,
   instance_id: String,
   display_log_window: bool,
+  launcher_visibility: LauncherVisiablity,
   ready_tx: Sender<()>,
 ) -> SJMCLResult<()> {
   // create unique log window
@@ -125,6 +126,28 @@ pub async fn monitor_process_output(
         let _ = ready_tx.send(());
       }
 
+      // handle launcher main window visiablity
+      match launcher_visibility {
+        LauncherVisiablity::RunningHidden => {
+          let _ = app
+            .get_webview_window("main")
+            .expect("no main window")
+            .show();
+        }
+        LauncherVisiablity::StartHidden => {
+          // If the main window is still hidden (not shown again due to the single instance plugin when the user runs the launcher again), exit the launcher process
+          let main_window = app.get_webview_window("main").expect("no main window");
+          if let Ok(is_visible) = main_window.is_visible() {
+            if !is_visible {
+              std::process::exit(0);
+            }
+          } else {
+            std::process::exit(0);
+          }
+        }
+        _ => {}
+      }
+
       if status.success() {
         println!("Game process exited successfully.");
         if let Some(window) = log_window {
@@ -135,11 +158,11 @@ pub async fn monitor_process_output(
         println!("Game process exited with an error status: {:?}", status);
       }
 
+      // calc and update play time
       let start_time_lock = start_time.lock().unwrap();
       if let Some(start_time) = *start_time_lock {
         let elapsed_time = start_time.elapsed().as_secs() as u128;
 
-        // Lock instances state and update play_time
         let binding = app.state::<Mutex<HashMap<String, Instance>>>();
         let mut state = binding.lock().unwrap();
         if let Some(instance) = state.get_mut(&instance_id_clone) {
@@ -201,7 +224,8 @@ pub fn set_process_priority(pid: u32, priority: &ProcessPriority) -> SJMCLResult
 
     let _ = Command::new("renice")
       .args([nice_value.to_string(), "-p".to_string(), pid.to_string()])
-      .output();
+      .output()
+      .map_err(|_| LaunchError::SetProcessPriorityFailed)?;
   }
 
   #[cfg(target_os = "windows")]
@@ -262,7 +286,7 @@ pub fn change_process_window_title(pid: u32, new_title: &str) -> SJMCLResult<()>
   #[cfg(any(target_os = "macos", target_os = "linux"))]
   {
     // not support yet.
-    let _ = (pid, new_title);
+    let _ = (pid, new_title, LaunchError::ChangeWindowTitleFailed); // avoid unused warning
   }
 
   Ok(())

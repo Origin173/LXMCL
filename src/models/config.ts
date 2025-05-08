@@ -166,7 +166,7 @@ export const defaultGameConfig: GameConfig = {
     processPriority: "normal",
   },
   versionIsolation: true,
-  launcherVisibility: "start-close",
+  launcherVisibility: "startHidden",
   displayGameLog: false,
   advancedOptions: {
     enabled: false,

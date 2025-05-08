@@ -44,6 +44,14 @@ pub enum FileValidatePolicy {
   Full,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[serde(rename_all = "camelCase")]
+pub enum LauncherVisiablity {
+  StartHidden,
+  RunningHidden,
+  Always,
+}
+
 // Partial Derive is used for these structs and we can use it for key value storage.
 // And partially update some fields for better performance and hygiene.
 //
@@ -89,8 +97,8 @@ structstruck::strike! {
     },
     #[default = true]
     pub version_isolation: bool,
-    #[default = "start-close"]
-    pub launcher_visibility: String,
+    #[default(LauncherVisiablity::Always)]
+    pub launcher_visibility: LauncherVisiablity,
     pub display_game_log: bool,
     pub advanced_options: struct {
       pub enabled: bool,
