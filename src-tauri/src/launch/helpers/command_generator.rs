@@ -12,7 +12,7 @@ use crate::launch::{
   helpers::file_validator::get_nonnative_library_paths, helpers::misc::replace_arguments,
   models::LaunchingState,
 };
-use crate::launcher_config::helpers::misc::get_suggested_memory;
+use crate::launcher_config::helpers::memory::get_memory_info;
 use crate::launcher_config::models::*;
 use base64::{engine::general_purpose, Engine};
 use serde::{self, Deserialize, Serialize};
@@ -192,7 +192,8 @@ pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<Vec<String>> {
   cmd.push(format!(
     "-Xmx{}m",
     if game_config.performance.auto_mem_allocation {
-      (get_suggested_memory() / 1024 / 1024) as u32
+      let memory_info = get_memory_info();
+      (memory_info.suggested_max_alloc / 1024 / 1024) as u32
     } else {
       game_config.performance.max_mem_allocation
     }

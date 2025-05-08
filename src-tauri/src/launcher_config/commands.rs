@@ -1,6 +1,6 @@
 use super::{
   helpers::java::refresh_and_update_javas,
-  helpers::misc::get_suggested_memory,
+  helpers::memory::get_memory_info,
   models::{GameDirectory, JavaInfo, LauncherConfig, LauncherConfigError, MemoryInfo},
 };
 use crate::{
@@ -10,7 +10,6 @@ use crate::{storage::Storage, utils::fs::get_subdirectories};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
-use systemstat::{saturating_sub_bytes, Platform};
 use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
@@ -279,13 +278,7 @@ pub async fn check_game_directory(app: AppHandle, dir: String) -> SJMCLResult<St
 // Below are some system info commands (In frontend, see services/utils.ts)
 #[tauri::command]
 pub fn retrieve_memory_info() -> SJMCLResult<MemoryInfo> {
-  let sys = systemstat::System::new();
-  let mem = sys.memory()?;
-  Ok(MemoryInfo {
-    total: mem.total.as_u64(),
-    used: saturating_sub_bytes(mem.total, mem.free).as_u64(),
-    suggested_max_alloc: get_suggested_memory(),
-  })
+  Ok(get_memory_info())
 }
 
 #[tauri::command]
