@@ -12,6 +12,7 @@ use tauri::{AppHandle, Manager};
 
 #[cfg(target_os = "windows")]
 use std::error::Error;
+use systemstat::Platform;
 
 impl LauncherConfig {
   pub fn setup_with_app(&mut self, app: &AppHandle) -> SJMCLResult<()> {
@@ -95,6 +96,24 @@ impl LauncherConfig {
       let _ = self.update(key, &value);
     }
   }
+}
+
+// ref: https://github.com/HMCL-dev/HMCL/blob/4eee79da17140804bdef5995df27a33241bdd328/HMCL/src/main/java/org/jackhuang/hmcl/game/HMCLGameRepository.java#L510
+pub fn get_suggested_memory() -> u64 {
+  let sys = systemstat::System::new();
+  let free = if let Ok(mem) = sys.memory() {
+    mem.free.as_u64()
+  } else {
+    0
+  };
+  let available = free.saturating_sub(512 * 1024 * 1024); // Reserve 512 MB memory
+  const THRESHOLD: u64 = 8 * 1024 * 1024 * 1024; // 8 GB
+  if available <= THRESHOLD {
+    available * 4 / 5
+  } else {
+    THRESHOLD * 4 / 5 + (available - THRESHOLD) * 1 / 5
+  }
+  .min(16 * 1024 * 1024 * 1024) // max 16 GB
 }
 
 fn get_official_minecraft_directory(app: &AppHandle) -> GameDirectory {

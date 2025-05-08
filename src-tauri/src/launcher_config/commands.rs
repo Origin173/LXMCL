@@ -1,5 +1,6 @@
 use super::{
   helpers::java::refresh_and_update_javas,
+  helpers::misc::get_suggested_memory,
   models::{GameDirectory, JavaInfo, LauncherConfig, LauncherConfigError, MemoryInfo},
 };
 use crate::{
@@ -283,6 +284,7 @@ pub fn retrieve_memory_info() -> SJMCLResult<MemoryInfo> {
   Ok(MemoryInfo {
     total: mem.total.as_u64(),
     used: saturating_sub_bytes(mem.total, mem.free).as_u64(),
+    suggested_max_alloc: get_suggested_memory(),
   })
 }
 
