@@ -68,6 +68,7 @@ pub async fn retrieve_instance_list(app: AppHandle) -> SJMCLResult<Vec<InstanceS
       description: instance.description.clone(),
       icon_src: instance.icon_src.clone(),
       starred: instance.starred,
+      play_time: instance.play_time,
       version: instance.version.clone(),
       version_path: instance.version_path.clone(),
       mod_loader: instance.mod_loader.clone(),

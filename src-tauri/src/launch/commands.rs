@@ -161,13 +161,14 @@ pub async fn launch_game(
   app: AppHandle,
   launching_state: State<'_, Mutex<LaunchingState>>,
 ) -> SJMCLResult<()> {
-  let (selected_java, process_priority, display_game_log) = {
+  let (selected_java, process_priority, display_game_log, instance_id) = {
     let mut launching = launching_state.lock().unwrap();
     launching.current_step = 4;
     (
       launching.selected_java.clone(),
       launching.game_config.performance.process_priority.clone(),
       launching.game_config.display_game_log,
+      launching.selected_instance.id.clone(),
     )
   };
 
@@ -190,7 +191,7 @@ pub async fn launch_game(
 
   // wait for the game window, create log window if needed
   let (tx, rx) = mpsc::channel();
-  monitor_process_output(app.clone(), &mut child, display_game_log, tx).await?;
+  monitor_process_output(app.clone(), &mut child, instance_id, display_game_log, tx).await?;
   let _ = rx.recv();
 
   // TODO: launcher main window should do some operation here due to `launching.game_config.launcher_visiablity` setting.
