@@ -30,6 +30,9 @@ use std::process::{Command, Stdio};
 use std::sync::{mpsc, Mutex};
 use tauri::{AppHandle, State};
 
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
+
 // Step 1: select suitable java runtime environment.
 #[tauri::command]
 pub async fn select_suitable_jre(
@@ -176,6 +179,8 @@ pub async fn launch_game(
   // generate and execute launch command
   let cmd_args = generate_launch_command(&app)?;
   let mut cmd_base = Command::new(selected_java.exec_path);
+  #[cfg(target_os = "windows")]
+  cmd_base.creation_flags(0x08000000);
   let mut child = cmd_base
     .args(cmd_args)
     .stdout(Stdio::piped())
