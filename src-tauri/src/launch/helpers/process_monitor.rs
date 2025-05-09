@@ -111,7 +111,11 @@ pub async fn monitor_process(
   let mut dummy_child;
   #[cfg(target_os = "windows")]
   {
-    dummy_child = Command::new("cmd").args(&["/C", "exit", "0"]).spawn()?;
+    use std::os::windows::process::CommandExt;
+    dummy_child = Command::new("cmd")
+      .args(&["/C", "exit", "0"])
+      .creation_flags(0x08000000)
+      .spawn()?;
   }
   #[cfg(any(target_os = "linux", target_os = "macos"))]
   {
@@ -229,13 +233,14 @@ pub fn set_process_priority(pid: u32, priority: &ProcessPriority) -> SJMCLResult
 
   #[cfg(target_os = "windows")]
   {
-    use crate::error::SJMCLError;
-    use std::mem;
-    use winapi::um::processthreadsapi::{CloseHandle, OpenProcess, SetPriorityClass};
-    use winapi::um::winnt::{
-      ABOVE_NORMAL_PRIORITY_CLASS, BELOW_NORMAL_PRIORITY_CLASS, DWORD, FALSE, HANDLE,
-      HIGH_PRIORITY_CLASS, NORMAL_PRIORITY_CLASS, PROCESS_SET_INFORMATION,
+    use winapi::shared::minwindef::{DWORD, FALSE};
+    use winapi::um::handleapi::CloseHandle;
+    use winapi::um::processthreadsapi::{OpenProcess, SetPriorityClass};
+    use winapi::um::winbase::{
+      ABOVE_NORMAL_PRIORITY_CLASS, BELOW_NORMAL_PRIORITY_CLASS, HIGH_PRIORITY_CLASS,
+      IDLE_PRIORITY_CLASS, NORMAL_PRIORITY_CLASS,
     };
+    use winapi::um::winnt::PROCESS_SET_INFORMATION;
 
     unsafe {
       let h_process = OpenProcess(PROCESS_SET_INFORMATION, FALSE, pid as DWORD);
@@ -244,7 +249,7 @@ pub fn set_process_priority(pid: u32, priority: &ProcessPriority) -> SJMCLResult
       }
 
       let priority_class = match *priority {
-        ProcessPriority::Low => BELOW_NORMAL_PRIORITY_CLASS,
+        ProcessPriority::Low => IDLE_PRIORITY_CLASS,
         ProcessPriority::BelowNormal => BELOW_NORMAL_PRIORITY_CLASS,
         ProcessPriority::Normal => NORMAL_PRIORITY_CLASS,
         ProcessPriority::AboveNormal => ABOVE_NORMAL_PRIORITY_CLASS,
