@@ -54,7 +54,7 @@ pub async fn run() {
       let main_window = app.get_webview_window("main").expect("no main window");
 
       let _ = main_window.show(); // may hide by launcher_visibility settings
-                                  // FIXME: this show() seems no use in build mode (test on macOS).
+                                  // FIXME: this show() seems no use in macOS build mode (ref: https://github.com/tauri-apps/tauri/issues/13400#issuecomment-2866462355).
       let _ = main_window.set_focus();
     }))
     .plugin(tauri_plugin_window_state::Builder::new().build())

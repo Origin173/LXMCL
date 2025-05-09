@@ -129,10 +129,9 @@ pub async fn monitor_process(
       // handle launcher main window visiablity
       match launcher_visibility {
         LauncherVisiablity::RunningHidden => {
-          let _ = app
-            .get_webview_window("main")
-            .expect("no main window")
-            .show();
+          let main_window = app.get_webview_window("main").expect("no main window");
+          let _ = main_window.show();
+          let _ = main_window.set_focus();
         }
         LauncherVisiablity::StartHidden => {
           // If the main window is still hidden (not shown again due to the single instance plugin when the user runs the launcher again), exit the launcher process
