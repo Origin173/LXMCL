@@ -2,7 +2,6 @@ use crate::{
   error::SJMCLResult,
   launcher_config::models::{BasicInfo, GameConfig, GameDirectory, LauncherConfig},
   partial::{PartialAccess, PartialUpdate},
-  EXE_DIR,
 };
 use std::fs;
 use std::path::PathBuf;
@@ -50,6 +49,7 @@ impl LauncherConfig {
 
       #[cfg(not(target_os = "macos"))]
       {
+        use crate::EXE_DIR;
         let current_dir = EXE_DIR.join(".minecraft");
         dirs.push(GameDirectory {
           name: "CURRENT_DIR".to_string(),
