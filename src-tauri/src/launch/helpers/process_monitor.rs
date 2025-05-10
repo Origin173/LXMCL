@@ -271,20 +271,41 @@ pub fn set_process_priority(pid: u32, priority: &ProcessPriority) -> SJMCLResult
 pub fn change_process_window_title(pid: u32, new_title: &str) -> SJMCLResult<()> {
   #[cfg(target_os = "windows")]
   {
-    use crate::error::SJMCLError;
-    use winapi::um::winuser::{FindWindowW, SetWindowTextW};
-
-    unsafe {
-      let hwnd = FindWindowW(std::ptr::null_mut(), std::ptr::null_mut());
-      if hwnd.is_null() {
-        return Err(LaunchError::ChangeWindowTitleFailed.into());
+    use std::ffi::OsStr;
+    use std::iter::once;
+    use std::os::windows::ffi::OsStrExt;
+    use winapi::shared::minwindef::{BOOL, DWORD, LPARAM, TRUE};
+    use winapi::shared::windef::HWND;
+    use winapi::um::winnt::LPCWSTR;
+    use winapi::um::winuser::{EnumWindows, GetWindowThreadProcessId, SetWindowTextW};
+    let new_title = new_title.to_string();
+    thread::spawn(move || {
+      // sleep for a while to wait for the game window to be created.
+      // TODO: find a better way.
+      thread::sleep(std::time::Duration::from_secs(5));
+      let closure = |hwnd: HWND| unsafe {
+        let mut window_pid: DWORD = 0;
+        GetWindowThreadProcessId(hwnd, &mut window_pid);
+        if window_pid == pid {
+          let new_title: Vec<u16> = OsStr::new(&new_title)
+            .encode_wide()
+            .chain(once(0))
+            .collect();
+          SetWindowTextW(hwnd, new_title.as_ptr() as LPCWSTR);
+        }
+      };
+      type ForEachCallback<'a> = Box<dyn FnMut(HWND) + 'a>;
+      let wrapper: ForEachCallback = Box::new(closure);
+      unsafe extern "system" fn enum_proc(hwnd: HWND, lparam: LPARAM) -> BOOL {
+        if let Some(boxed) = (lparam as *mut ForEachCallback).as_mut() {
+          (*boxed)(hwnd);
+        }
+        TRUE
       }
-
-      let title = std::ffi::CString::new(new_title).unwrap();
-      if SetWindowTextW(hwnd, title.as_ptr()) == 0 {
-        return Err(LaunchError::ChangeWindowTitleFailed.into());
+      unsafe {
+        EnumWindows(Some(enum_proc), &wrapper as *const _ as LPARAM);
       }
-    }
+    });
   }
 
   #[cfg(any(target_os = "macos", target_os = "linux"))]
