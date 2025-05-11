@@ -502,7 +502,8 @@
       "dirName": {
         "empty": "目录名称不能为空",
         "tooLong": "目录名称不能超过 20 个字符",
-        "exist": "目录名称已存在"
+        "exist": "目录名称已存在",
+        "hasInvalidChar": "目录名称存在非法字符"
       },
       "dirPath": {
         "exist": "目录路径已存在"
@@ -637,7 +638,8 @@
   "GameLogPage": {
     "placeholder": "输入关键词筛选",
     "exportLogs": "导出日志",
-    "clearLogs": "清除所有日志"
+    "clearLogs": "清除所有日志",
+    "scrollToBottom": "滚动到底部"
   },
   "GameVersionSelector": {
     "old_beta": "远古版",
@@ -731,6 +733,7 @@
         "directories": {
           "special": {
             "CURRENT_DIR": "当前文件夹",
+            "APP_DATA_SUBDIR": "SJMCL 数据文件夹",
             "OFFICIAL_DIR": "官方启动器文件夹"
           }
         }
@@ -774,8 +777,8 @@
         "autoMemAllocation": {
           "title": "自动分配内存"
         },
-        "minMemAllocation": {
-          "title": "最小内存分配"
+        "maxMemAllocation": {
+          "title": "最大内存分配"
         },
         "memoryUsage": {
           "title": "内存占用情况",
@@ -801,8 +804,8 @@
       "settings": {
         "launcherVisibility": {
           "title": "启动器可见性",
-          "start-close": "游戏启动后结束启动器",
-          "running-hidden": "游戏运行时隐藏启动器",
+          "startHidden": "游戏启动后隐藏启动器",
+          "runningHidden": "游戏运行时隐藏启动器",
           "always": "启动器始终可见"
         },
         "autoJoinGameServer": {
@@ -877,6 +880,7 @@
   },
   "InstanceDetailsLayout": {
     "secMenu": {
+      "createShortcut": "创建启动快捷方式",
       "exportModPack": "导出为整合包",
       "star": "星标此实例",
       "unstar": "取消星标"
@@ -1069,7 +1073,7 @@
     "info": "{{used}} / {{total}} GB 已使用",
     "label": {
       "now": "正在使用",
-      "minAllocation": "为 Minecraft 分配的最小值"
+      "maxAllocation": "为 Minecraft 分配的最大值"
     }
   },
   "ModLoaderCards": {
@@ -1768,6 +1772,15 @@
           "title": "模组状态切换失败",
           "description": {
             "FILE_NOT_FOUND_ERROR": "模组文件不存在，可能已更名、移动或删除"
+          }
+        }
+      },
+      "createLaunchDesktopShortcut": {
+        "success": "启动快捷方式已添加到桌面",
+        "error": {
+          "title": "启动快捷方式创建失败",
+          "description": {
+            "SHORTCUT_CREATION_FAILED": "命令执行失败"
           }
         }
       }

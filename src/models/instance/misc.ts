@@ -1,11 +1,12 @@
 import { ModLoaderType } from "@/enums/instance";
 
 export interface InstanceSummary {
-  id: number;
+  id: string;
   iconSrc: string;
   name: string;
   description?: string;
   starred: boolean;
+  playTime: number;
   versionPath: string;
   version: string;
   isVersionIsolated: boolean;

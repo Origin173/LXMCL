@@ -68,11 +68,12 @@ structstruck::strike! {
   #[strikethrough[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]]
   #[strikethrough[serde(rename_all = "camelCase", deny_unknown_fields, default)]]
   pub struct Instance {
-    pub id: usize,
+    pub id: String,
     pub name: String,
     pub description: String,
     pub icon_src: String,
     pub starred: bool,
+    pub play_time: u128,
     pub version: String,
     pub version_path: PathBuf,
     pub mod_loader: struct {
@@ -89,11 +90,12 @@ structstruck::strike! {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct InstanceSummary {
-  pub id: usize,
+  pub id: String,
   pub name: String,
   pub description: String,
   pub icon_src: String,
   pub starred: bool,
+  pub play_time: u128,
   pub version: String,
   pub version_path: PathBuf,
   pub mod_loader: ModLoader,
@@ -193,6 +195,7 @@ pub enum InstanceError {
   FileCopyFailed,
   FileMoveFailed,
   FolderCreationFailed,
+  ShortcutCreationFailed,
   ZipFileProcessFailed,
   WorldNotExistError,
   LevelParseError,

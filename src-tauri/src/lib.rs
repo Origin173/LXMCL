@@ -20,10 +20,13 @@ use launcher_config::{
   helpers::java::refresh_and_update_javas,
   models::{JavaInfo, LauncherConfig},
 };
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{LazyLock, Mutex};
 use storage::Storage;
 use tasks::monitor::TaskMonitor;
+use tokio::sync::Notify;
+use utils::portable::{extract_assets, is_portable};
 use utils::web::build_sjmcl_client;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -49,10 +52,11 @@ pub async fn run() {
     .plugin(tauri_plugin_os::init())
     .plugin(tauri_plugin_process::init())
     .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-      let _ = app
-        .get_webview_window("main")
-        .expect("no main window")
-        .set_focus(); // Focus the running instance
+      let main_window = app.get_webview_window("main").expect("no main window");
+
+      let _ = main_window.show(); // may hide by launcher_visibility settings
+                                  // FIXME: this show() seems no use in macOS build mode (ref: https://github.com/tauri-apps/tauri/issues/13400#issuecomment-2866462355).
+      let _ = main_window.set_focus();
     }))
     .plugin(tauri_plugin_window_state::Builder::new().build())
     .invoke_handler(tauri::generate_handler![
@@ -102,6 +106,7 @@ pub async fn run() {
       instance::commands::retrieve_shader_pack_list,
       instance::commands::retrieve_screenshot_list,
       instance::commands::toggle_mod_by_extension,
+      instance::commands::create_launch_desktop_shortcut,
       launch::commands::select_suitable_jre,
       launch::commands::validate_game_files,
       launch::commands::validate_selected_player,
@@ -132,6 +137,7 @@ pub async fn run() {
       let os = tauri_plugin_os::platform().to_string();
 
       // Set the launcher config and other states
+      // Also extract assets in `setup_with_app()` if the application is portable
       let mut launcher_config: LauncherConfig = LauncherConfig::load().unwrap_or_default();
       launcher_config.setup_with_app(app.handle()).unwrap();
       launcher_config.save().unwrap();
@@ -140,7 +146,7 @@ pub async fn run() {
       let account_info = AccountInfo::load().unwrap_or_default();
       app.manage(Mutex::new(account_info));
 
-      let instances: Vec<Instance> = vec![];
+      let instances: HashMap<String, Instance> = HashMap::new();
       app.manage(Mutex::new(instances));
 
       let javas: Vec<JavaInfo> = vec![];
@@ -207,6 +213,7 @@ pub async fn run() {
             .build(),
         )?;
       }
+
       Ok(())
     })
     .run(tauri::generate_context!())

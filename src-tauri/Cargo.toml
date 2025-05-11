@@ -38,10 +38,10 @@ tokio-util = { version = "0.7.13", features = ["compat"] }
 systemstat = "0.2.3"
 partial_derive = { path = "./libs/partial_derive" }
 uuid = { version = "1.11.0", features = [
-	"v4",
-	"v5",
-	"fast-rng",
-	"macro-diagnostics",
+    "v4",
+    "v5",
+    "fast-rng",
+    "macro-diagnostics",
 ] }
 tauri-plugin-process = "2"
 tauri-plugin-opener = "2"
@@ -73,9 +73,14 @@ sanitize-filename = "0.6.0"
 cafebabe = "0.8.1"
 tauri-plugin-deep-link = "2"
 flume = { version = "0.11.1", features = ["async", "select"] }
+tauri-utils = "2.2.0"
 
 [target."cfg(windows)".dependencies]
 winreg = "0.55.0"
+winapi = { version = "0.3", features = ["processthreadsapi", "winnt", "handleapi", "winuser", "windef"] }
+
+[target."cfg(target_os = \"macos\")".dependencies]
+plist = "1"
 
 [target."cfg(any(target_os = \"macos\", windows, target_os = \"linux\"))".dependencies]
 tauri-plugin-single-instance = { version = "2.0.0", features = ["deep-link"] }

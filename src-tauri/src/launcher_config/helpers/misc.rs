@@ -2,7 +2,7 @@ use crate::{
   error::SJMCLResult,
   launcher_config::models::{BasicInfo, GameConfig, GameDirectory, LauncherConfig},
   partial::{PartialAccess, PartialUpdate},
-  EXE_DIR,
+  utils::portable::{extract_assets, is_portable},
 };
 use std::fs;
 use std::path::PathBuf;
@@ -10,13 +10,9 @@ use std::sync::Mutex;
 use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager};
 
-#[cfg(target_os = "windows")]
-use std::error::Error;
-
 impl LauncherConfig {
   pub fn setup_with_app(&mut self, app: &AppHandle) -> SJMCLResult<()> {
     // same as lib.rs
-    // TODO: unify version
     let is_dev = cfg!(debug_assertions);
     let version = if is_dev {
       "dev".to_string()
@@ -36,23 +32,44 @@ impl LauncherConfig {
 
     // Set default local game directories
     if self.local_game_directories.is_empty() {
-      self.local_game_directories = vec![
-        GameDirectory {
-          name: "CURRENT_DIR".to_string(),
-          dir: PathBuf::default(),
-        },
-        get_official_minecraft_directory(app),
-      ];
-    }
+      let mut dirs = Vec::new();
 
-    // Update CURRENT_DIR
-    for game_dir in &mut self.local_game_directories {
-      if game_dir.name == "CURRENT_DIR" {
-        game_dir.dir = EXE_DIR.join(".minecraft");
-        if !game_dir.dir.exists() {
-          fs::create_dir(&game_dir.dir)?;
+      #[cfg(target_os = "macos")]
+      {
+        if let Ok(app_data_dir) = app.path().resolve("minecraft", BaseDirectory::AppData) {
+          dirs.push(GameDirectory {
+            name: "APP_DATA_SUBDIR".to_string(),
+            dir: app_data_dir,
+          });
         }
       }
+
+      #[cfg(not(target_os = "macos"))]
+      {
+        use crate::EXE_DIR;
+        let current_dir = EXE_DIR.join(".minecraft");
+        dirs.push(GameDirectory {
+          name: "CURRENT_DIR".to_string(),
+          dir: current_dir,
+        });
+      }
+
+      dirs.push(get_official_minecraft_directory(app));
+      self.local_game_directories = dirs;
+    }
+
+    for game_dir in &mut self.local_game_directories {
+      if (game_dir.name == "CURRENT_DIR" || game_dir.name == "APP_DATA_SUBDIR")
+        && !game_dir.dir.exists()
+      {
+        let _ = fs::create_dir(&game_dir.dir);
+      }
+    }
+
+    // Extract assets if the application is portable
+    let portable = is_portable().unwrap_or(false);
+    if portable {
+      let _ = extract_assets(app);
     }
 
     self.basic_info = BasicInfo {
@@ -61,6 +78,7 @@ impl LauncherConfig {
       arch: tauri_plugin_os::arch().to_string(),
       os_type: tauri_plugin_os::type_().to_string(),
       platform_version: tauri_plugin_os::version().to_string(),
+      is_portable: portable,
     };
 
     Ok(())
