@@ -41,7 +41,11 @@ import { useInstanceSharedData } from "@/contexts/instance";
 import { LocalModInfo } from "@/models/instance/misc";
 import { ScreenshotInfo } from "@/models/instance/misc";
 import { WorldInfo } from "@/models/instance/world";
-import { UNIXToISOString, formatRelativeTime } from "@/utils/datetime";
+import {
+  UNIXToISOString,
+  formatRelativeTime,
+  formatTimeInterval,
+} from "@/utils/datetime";
 import { base64ImgSrc } from "@/utils/string";
 
 // All these widgets are used in InstanceContext with WarpCard wrapped.
@@ -126,7 +130,7 @@ export const InstanceBasicInfoWidget = () => {
       />
       <OptionItem
         title={t("InstanceWidgets.basicInfo.playTime")}
-        description={"12.1 小时"}
+        description={formatTimeInterval(summary?.playTime || 0)}
         prefixElement={
           <Center
             boxSize={7}

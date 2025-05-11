@@ -38,10 +38,10 @@ tokio-util = { version = "0.7.13", features = ["compat"] }
 systemstat = "0.2.3"
 partial_derive = { path = "./libs/partial_derive" }
 uuid = { version = "1.11.0", features = [
-	"v4",
-	"v5",
-	"fast-rng",
-	"macro-diagnostics",
+    "v4",
+    "v5",
+    "fast-rng",
+    "macro-diagnostics",
 ] }
 tauri-plugin-process = "2"
 tauri-plugin-opener = "2"
@@ -74,6 +74,7 @@ tauri-utils = "2.2.0"
 
 [target."cfg(windows)".dependencies]
 winreg = "0.55.0"
+winapi = { version = "0.3", features = ["processthreadsapi", "winnt", "handleapi", "winuser", "windef"] }
 
 [target."cfg(target_os = \"macos\")".dependencies]
 plist = "1"

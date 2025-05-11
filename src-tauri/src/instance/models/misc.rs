@@ -73,6 +73,7 @@ structstruck::strike! {
     pub description: String,
     pub icon_src: String,
     pub starred: bool,
+    pub play_time: u128,
     pub version: String,
     pub version_path: PathBuf,
     pub mod_loader: struct {
@@ -94,6 +95,7 @@ pub struct InstanceSummary {
   pub description: String,
   pub icon_src: String,
   pub starred: bool,
+  pub play_time: u128,
   pub version: String,
   pub version_path: PathBuf,
   pub mod_loader: ModLoader,

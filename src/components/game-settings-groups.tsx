@@ -78,11 +78,7 @@ const GameSettingsGroups: React.FC<GameSettingsGroupsProps> = ({
     setJavaInfos(getJavaInfos() || []);
   }, [getJavaInfos]);
 
-  const launcherVisibilityStrategy = [
-    "start-close",
-    "running-hidden",
-    "always",
-  ];
+  const launcherVisibilityStrategy = ["startHidden", "runningHidden", "always"];
   const processPriority = [
     "low",
     "belowNormal",

@@ -53,6 +53,7 @@ dependencies = [
  "toml",
  "url",
  "uuid",
+ "winapi",
  "winreg 0.55.0",
  "zip",
 ]
