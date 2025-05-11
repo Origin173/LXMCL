@@ -24,8 +24,8 @@ pub fn extract_assets(app: &AppHandle) -> Result<(), io::Error> {
   let mut footer = [0u8; 8];
   file.read_exact(&mut footer)?;
 
-  let offset = i32::from_le_bytes([footer[0], footer[1], footer[2], footer[3]]) as u64;
-  let zip_size = i32::from_le_bytes([footer[4], footer[5], footer[6], footer[7]]) as usize;
+  let offset = u32::from_le_bytes([footer[0], footer[1], footer[2], footer[3]]) as u64;
+  let zip_size = u32::from_le_bytes([footer[4], footer[5], footer[6], footer[7]]) as usize;
 
   file.seek(SeekFrom::Start(offset))?;
   let mut zip_data = vec![0u8; zip_size];
@@ -37,7 +37,7 @@ pub fn extract_assets(app: &AppHandle) -> Result<(), io::Error> {
     let mut file_in_zip = zip.by_index(i)?;
     let out_path = app
       .path()
-      .resolve(file_in_zip.mangled_name(), BaseDirectory::Resource)
+      .resolve(file_in_zip.mangled_name(), BaseDirectory::AppData)
       .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
 
     if file_in_zip.is_dir() {

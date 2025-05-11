@@ -2,6 +2,7 @@ use crate::{
   error::SJMCLResult,
   launcher_config::models::{BasicInfo, GameConfig, GameDirectory, LauncherConfig},
   partial::{PartialAccess, PartialUpdate},
+  utils::portable::{extract_assets, is_portable},
   EXE_DIR,
 };
 use std::fs;
@@ -10,13 +11,9 @@ use std::sync::Mutex;
 use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager};
 
-#[cfg(target_os = "windows")]
-use std::error::Error;
-
 impl LauncherConfig {
   pub fn setup_with_app(&mut self, app: &AppHandle) -> SJMCLResult<()> {
     // same as lib.rs
-    // TODO: unify version
     let is_dev = cfg!(debug_assertions);
     let version = if is_dev {
       "dev".to_string()
@@ -69,12 +66,19 @@ impl LauncherConfig {
       }
     }
 
+    // Extract assets if the application is portable
+    let portable = is_portable().unwrap_or(false);
+    if portable {
+      let _ = extract_assets(app);
+    }
+
     self.basic_info = BasicInfo {
       launcher_version: version,
       platform: tauri_plugin_os::platform().to_string(),
       arch: tauri_plugin_os::arch().to_string(),
       os_type: tauri_plugin_os::type_().to_string(),
       platform_version: tauri_plugin_os::version().to_string(),
+      is_portable: portable,
     };
 
     Ok(())

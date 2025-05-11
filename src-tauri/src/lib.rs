@@ -132,6 +132,7 @@ pub async fn run() {
       let os = tauri_plugin_os::platform().to_string();
 
       // Set the launcher config and other states
+      // Also extract assets in `setup_with_app()` if the application is portable
       let mut launcher_config: LauncherConfig = LauncherConfig::load().unwrap_or_default();
       launcher_config.setup_with_app(app.handle()).unwrap();
       launcher_config.save().unwrap();
@@ -207,11 +208,6 @@ pub async fn run() {
             .level(log::LevelFilter::Info)
             .build(),
         )?;
-      }
-
-      // Extract assets if the application is portable
-      if is_portable().unwrap_or(false) {
-        let _ = extract_assets(app.handle());
       }
 
       Ok(())

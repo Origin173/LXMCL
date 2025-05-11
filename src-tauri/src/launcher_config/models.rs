@@ -163,6 +163,7 @@ structstruck::strike! {
       pub arch: String,
       pub os_type: String,
       pub platform_version: String,
+      pub is_portable: bool,
     },
     // mocked: false when invoked from the backend, true when the frontend placeholder data is used during loading.
     pub mocked: bool,
