@@ -26,6 +26,7 @@ use std::sync::{Arc, LazyLock, Mutex};
 use storage::Storage;
 use tasks::monitor::TaskMonitor;
 use tokio::sync::Notify;
+use utils::portable::{extract_assets, is_portable};
 use utils::web::build_sjmcl_client;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -132,6 +133,7 @@ pub async fn run() {
       let os = tauri_plugin_os::platform().to_string();
 
       // Set the launcher config and other states
+      // Also extract assets in `setup_with_app()` if the application is portable
       let mut launcher_config: LauncherConfig = LauncherConfig::load().unwrap_or_default();
       launcher_config.setup_with_app(app.handle()).unwrap();
       launcher_config.save().unwrap();
@@ -208,6 +210,7 @@ pub async fn run() {
             .build(),
         )?;
       }
+
       Ok(())
     })
     .run(tauri::generate_context!())

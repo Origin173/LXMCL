@@ -62,6 +62,7 @@ export interface LauncherConfig {
     arch: string;
     osType: string;
     platformVersion: string;
+    isPortable: boolean;
   };
   mocked: boolean;
   runCount: number;
@@ -201,6 +202,7 @@ export const defaultConfig: LauncherConfig = {
     arch: "",
     osType: "",
     platformVersion: "",
+    isPortable: false,
   },
   mocked: true,
   runCount: -1,
