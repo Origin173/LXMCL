@@ -58,6 +58,8 @@ java-properties = "2.0.0"
 sha1 = "0.10.1"
 hex = "0.4.3"
 url = "2.5.4"
+shlex = "1.3.0"
+glob = "0.3.2"
 pin-project = "1.1.8"
 futures = "0.3.31"
 governor = { version = "0.8.1", features = ["std"] }
@@ -70,6 +72,7 @@ chrono = "0.4.40"
 sanitize-filename = "0.6.0"
 cafebabe = "0.8.1"
 tauri-plugin-deep-link = "2"
+flume = { version = "0.11.1", features = ["async", "select"] }
 tauri-utils = "2.2.0"
 
 [target."cfg(windows)".dependencies]

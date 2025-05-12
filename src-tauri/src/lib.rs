@@ -22,7 +22,7 @@ use launcher_config::{
 };
 use std::collections::HashMap;
 use std::path::PathBuf;
-use std::sync::{Arc, LazyLock, Mutex};
+use std::sync::{LazyLock, Mutex};
 use storage::Storage;
 use tasks::monitor::TaskMonitor;
 use tokio::sync::Notify;
@@ -114,11 +114,15 @@ pub async fn run() {
       resource::commands::fetch_game_version_list,
       resource::commands::fetch_mod_loader_version_list,
       discover::commands::fetch_post_sources_info,
-      tasks::commands::schedule_task_group,
-      tasks::commands::cancel_task,
-      tasks::commands::resume_task,
-      tasks::commands::stop_task,
-      tasks::commands::retrieve_task_list,
+      tasks::commands::schedule_progressive_task_group,
+      tasks::commands::cancel_progressive_task,
+      tasks::commands::resume_progressive_task,
+      tasks::commands::stop_progressive_task,
+      tasks::commands::retrieve_progressive_task_list,
+      tasks::commands::create_transient_task,
+      tasks::commands::get_transient_task,
+      tasks::commands::set_transient_task_state,
+      tasks::commands::cancel_transient_task,
     ])
     .setup(|app| {
       let is_dev = cfg!(debug_assertions);
@@ -147,8 +151,7 @@ pub async fn run() {
       let javas: Vec<JavaInfo> = vec![];
       app.manage(Mutex::new(javas));
 
-      let notify = Arc::new(Notify::new());
-      app.manage(Box::pin(TaskMonitor::new(app.handle().clone(), notify)));
+      app.manage(Box::pin(TaskMonitor::new(app.handle().clone())));
 
       let client = build_sjmcl_client(app.handle(), true, false);
       app.manage(client);
