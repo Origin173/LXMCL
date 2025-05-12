@@ -42,8 +42,8 @@ pub async fn compare_game_versions(app: &AppHandle, version_a: &str, version_b: 
     list_file_path
       .and_then(|p| fs::read_to_string(p).ok())
       .map(|content| content.lines().map(|l| l.trim().to_string()).collect())
-      .unwrap_or_else(std::vec::Vec::new)
-  };
+      .unwrap_or_default()
+  }
 
   // Try to search version ids in built-in version list.
   let mut versions = load_versions(app, "assets/game/versions.txt", false);

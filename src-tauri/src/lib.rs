@@ -26,7 +26,6 @@ use std::sync::{Arc, LazyLock, Mutex};
 use storage::Storage;
 use tasks::monitor::TaskMonitor;
 use tokio::sync::Notify;
-use utils::portable::{extract_assets, is_portable};
 use utils::web::build_sjmcl_client;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

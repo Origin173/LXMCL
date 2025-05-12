@@ -1,4 +1,7 @@
-use crate::{launcher_config::models::GameConfig, utils::image::ImageWrapper};
+use crate::{
+  instance::constants::INSTANCE_CFG_FILE_NAME, launcher_config::models::GameConfig,
+  storage::save_json_async, utils::image::ImageWrapper,
+};
 use serde::{Deserialize, Serialize};
 use std::{
   cmp::{Ord, Ordering, PartialOrd},
@@ -84,6 +87,13 @@ structstruck::strike! {
     pub use_spec_game_config: bool,
     // if use_spec_game_config is false, this field is ignored
     pub spec_game_config: Option<GameConfig>,
+  }
+}
+
+impl Instance {
+  pub async fn save_json_cfg(&self) -> Result<(), std::io::Error> {
+    let file_path = self.version_path.join(INSTANCE_CFG_FILE_NAME);
+    save_json_async(self, &file_path).await
   }
 }
 
