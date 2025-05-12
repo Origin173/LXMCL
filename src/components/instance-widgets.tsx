@@ -69,7 +69,6 @@ const InstanceWidgetBase: React.FC<InstanceWidgetBaseProps> = ({
     <VStack align="stretch" spacing={2} {...props}>
       {title && (
         <Text
-          className="no-select"
           fontSize="md"
           fontWeight="bold"
           lineHeight="16px" // the same as fontSize 'md'
@@ -311,12 +310,7 @@ export const InstanceLastPlayedWidget = () => {
             />
             <Box flex="1" minW={0}>
               <VStack spacing={0} alignItems="start" w="full">
-                <Text
-                  fontSize="xs-sm"
-                  className="no-select"
-                  w="full"
-                  isTruncated
-                >
+                <Text fontSize="xs-sm" w="full" isTruncated>
                   {lastPlayedWorld.name}
                 </Text>
                 <Text className="secondary-text" fontSize="xs">
