@@ -1321,11 +1321,11 @@
         "A-Z": "A-Z"
       },
       "Modrinth": {
-        "Relevance": "Relevance",
-        "Downloads": "Downloads",
-        "Followers": "Followers",
-        "Date published": "Date published",
-        "Date updated": "Date updated"
+        "relevance": "Relevance",
+        "downloads": "Downloads",
+        "follows": "Followers",
+        "newest": "Date published",
+        "updated": "Date updated"
       }
     },
     "versionList": {

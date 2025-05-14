@@ -1,10 +1,14 @@
 use super::{
   helpers::{
+    curseforge::fetch_resource_list_by_name_curseforge,
     fabric_meta::get_fabric_meta_by_game_version, forge_meta::get_forge_meta_by_game_version,
-    misc::get_source_priority_list, neoforge_meta::get_neoforge_meta_by_game_version,
-    version_manifest::get_game_version_manifest,
+    misc::get_source_priority_list, modrinth::fetch_resource_list_by_name_modrinth,
+    neoforge_meta::get_neoforge_meta_by_game_version, version_manifest::get_game_version_manifest,
   },
-  models::{GameResourceInfo, ModLoaderResourceInfo, ResourceError},
+  models::{
+    GameResourceInfo, ModLoaderResourceInfo, OtherResourceInfo, OtherResourceSearchRes,
+    ResourceError,
+  },
 };
 use crate::{
   error::SJMCLResult, instance::models::misc::ModLoaderType,
@@ -47,6 +51,49 @@ pub async fn fetch_mod_loader_version_list(
       Ok(get_neoforge_meta_by_game_version(&app, &priority_list, &game_version).await?)
     }
     // TODO here
+    _ => Err(ResourceError::NoDownloadApi.into()),
+  }
+}
+
+#[tauri::command]
+pub async fn fetch_resource_list_by_name(
+  app: AppHandle,
+  resource_type: String,
+  search_query: String,
+  game_version: String,
+  selected_tag: String,
+  sort_by: String,
+  download_source: String,
+  page: u32,
+  page_size: u32,
+) -> SJMCLResult<OtherResourceSearchRes> {
+  match download_source.as_str() {
+    "CurseForge" => Ok(
+      fetch_resource_list_by_name_curseforge(
+        &app,
+        &resource_type,
+        &search_query,
+        &game_version,
+        &selected_tag,
+        &sort_by,
+        page,
+        page_size,
+      )
+      .await?,
+    ),
+    "Modrinth" => Ok(
+      fetch_resource_list_by_name_modrinth(
+        &app,
+        &resource_type,
+        &search_query,
+        &game_version,
+        &selected_tag,
+        &sort_by,
+        page,
+        page_size,
+      )
+      .await?,
+    ),
     _ => Err(ResourceError::NoDownloadApi.into()),
   }
 }

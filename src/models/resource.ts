@@ -19,6 +19,13 @@ export interface OtherResourceInfo {
   source?: string; // CurseForge, Modrinth, etc.
 }
 
+export interface OtherResourceSearchRes {
+  list: OtherResourceInfo[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export interface ModLoaderResourceInfo {
   loaderType: ModLoaderType;
   version: string;

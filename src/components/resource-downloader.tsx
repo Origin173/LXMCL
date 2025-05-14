@@ -18,7 +18,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuChevronDown, LuDownload, LuGlobe, LuUpload } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
@@ -37,7 +37,6 @@ import {
   worldTagList,
 } from "@/enums/resource";
 import { InstanceSummary } from "@/models/instance/misc";
-import { mockDownloadResourceList } from "@/models/mock/resource";
 import { GameResourceInfo, OtherResourceInfo } from "@/models/resource";
 import { ResourceService } from "@/services/resource";
 import { ISOToDate } from "@/utils/datetime";
@@ -128,13 +127,12 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
   }, [getInstanceList, router.query]);
 
   const buildOptionItems = (item: OtherResourceInfo): OptionItemProps => ({
-    key: item.name,
     title: item.translatedName
       ? `${item.translatedName}｜${item.name}`
       : item.name,
     titleExtra: (
       <Wrap spacing={1}>
-        {item.tags.map((tag, index) => (
+        {item.tags.slice(0, 3).map((tag, index) => (
           <WrapItem key={index}>
             <Tag colorScheme={primaryColor} className="tag-xs">
               {tag}
@@ -236,14 +234,18 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   const [isLoadingResourceList, setIsLoadingResourceList] =
     useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true); // use for infinite scroll
+  const [page, setPage] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<number>(10); // default page size
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [gameVersion, setGameVersion] = useState<string>("All");
   const [selectedTag, setSelectedTag] = useState<string>("All");
-  const [sortBy, setSortBy] = useState<string>("Relevancy");
+  const [sortBy, setSortBy] = useState<string>("relevance");
   const [downloadSource, setDownloadSource] = useState<
     "CurseForge" | "Modrinth"
-  >("CurseForge");
+  >("Modrinth");
+
+  const searchQueryRef = useRef(searchQuery);
 
   const downloadSourceList = [
     "CurseForge",
@@ -267,7 +269,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   const onDownloadSourceChange = (e: string) => {
     setDownloadSource(e === "CurseForge" ? "CurseForge" : "Modrinth");
     setSelectedTag("All");
-    setSortBy(e === "CurseForge" ? "Relevancy" : "Relevance");
+    setSortBy(e === "CurseForge" ? "Relevancy" : "relevance");
   };
 
   const handleFetchGameVersionList = useCallback(async () => {
@@ -288,23 +290,71 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
     }
   }, [toast]);
 
-  const fetchResourceList = useCallback(async () => {
-    // TBD
-    setIsLoadingResourceList(true);
-    setTimeout(() => {
-      setHasMore(true);
-      setResourceList(mockDownloadResourceList);
-      setIsLoadingResourceList(false);
-    }, 500);
-  }, []);
+  const handleFetchResourceListByName = useCallback(
+    async (
+      resourceType: string,
+      searchQuery: string,
+      gameVersion: string,
+      selectedTag: string,
+      sortBy: string,
+      downloadSource: string,
+      page: number,
+      pageSize: number
+    ) => {
+      console.log("he");
+      if (page === 0) setIsLoadingResourceList(true);
 
-  const loadMore = async () => {
-    // TBD
+      // according to the download source, adjust some parameters
+      let _resourceType = resourceType;
+      if (resourceType === "shaderpack" && downloadSource === "Modrinth") {
+        _resourceType = "shader";
+      }
+
+      ResourceService.fetchResourceListByName(
+        _resourceType,
+        searchQuery,
+        gameVersion,
+        selectedTag,
+        sortBy,
+        downloadSource,
+        page,
+        pageSize
+      )
+        .then((response) => {
+          if (response.status === "success") {
+            const resourceData = response.data.list;
+            if (page === 0) {
+              setResourceList(resourceData);
+            } else {
+              setResourceList((prevList) => [...prevList, ...resourceData]);
+            }
+            setHasMore(response.data.total > (page + 1) * pageSize);
+          } else {
+            setResourceList([]);
+            toast({
+              title: response.message,
+              description: response.details,
+              status: "error",
+            });
+          }
+        })
+        .catch((error) => {
+          toast({
+            title: t("ResourceDownloader.toast.error"),
+            description: error.message,
+            status: "error",
+          });
+        })
+        .finally(() => {
+          setIsLoadingResourceList(false);
+        });
+    },
+    [t, toast]
+  );
+
+  const loadMore = () => {
     if (!hasMore) return;
-    setTimeout(() => {
-      setResourceList((prev) => [...prev, ...mockDownloadResourceList]);
-      if (resourceList.length >= 24) setHasMore(false);
-    }, 500);
+    setPage((prevPage) => prevPage + 1);
   };
 
   useEffect(() => {
@@ -312,8 +362,38 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   }, [handleFetchGameVersionList]);
 
   useEffect(() => {
-    fetchResourceList();
-  }, [gameVersion, selectedTag, sortBy, downloadSource, fetchResourceList]);
+    searchQueryRef.current = searchQuery;
+  }, [searchQuery]);
+
+  useEffect(() => {
+    handleFetchResourceListByName(
+      resourceType,
+      searchQueryRef.current, // useRef to avoid unnecessary re-fetch
+      gameVersion,
+      selectedTag,
+      sortBy,
+      downloadSource,
+      page,
+      pageSize
+    );
+  }, [
+    handleFetchResourceListByName,
+    resourceType,
+    gameVersion,
+    selectedTag,
+    sortBy,
+    downloadSource,
+    page,
+    pageSize,
+  ]);
+
+  useEffect(() => {
+    if (resourceType === "world" && downloadSource === "Modrinth") {
+      setDownloadSource("CurseForge");
+      setSortBy("Relevancy");
+      setSelectedTag("All");
+    }
+  }, [resourceType, downloadSource]);
 
   return (
     <VStack fontSize="xs" h="100%">
@@ -365,7 +445,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           label={t("ResourceDownloader.label.source")}
           displayText={downloadSource}
           onChange={onDownloadSourceChange}
-          defaultValue={"CurseForge"}
+          defaultValue={"Modrinth"}
           options={downloadSourceList.map((item, key) => (
             <MenuItemOption key={key} value={item} fontSize="xs">
               {item}
@@ -381,7 +461,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           )}
           onChange={setSortBy}
           defaultValue={
-            downloadSource === "CurseForge" ? "Relevancy" : "Relevance"
+            downloadSource === "CurseForge" ? "Relevancy" : "relevance"
           }
           options={finalSortByList.map((item, key) => (
             <MenuItemOption key={key} value={item} fontSize="xs">
@@ -405,14 +485,25 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
         <Button
           colorScheme={primaryColor}
           size="xs"
-          onClick={fetchResourceList}
+          onClick={() => {
+            handleFetchResourceListByName(
+              resourceType,
+              searchQuery,
+              gameVersion,
+              selectedTag,
+              sortBy,
+              downloadSource,
+              page,
+              pageSize
+            );
+          }}
           px={5}
         >
           {t("ResourceDownloader.button.search")}
         </Button>
       </HStack>
 
-      <Box flexGrow={1} w="100%">
+      <Box flexGrow={1} w="100%" overflowX="hidden">
         {isLoadingResourceList ? (
           <Center>
             <BeatLoader size={16} color="gray" />

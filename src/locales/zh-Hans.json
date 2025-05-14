@@ -1321,11 +1321,11 @@
         "A-Z": "名称"
       },
       "Modrinth": {
-        "Relevance": "相关度",
-        "Downloads": "下载量",
-        "Followers": "关注量",
-        "Date published": "发布日期",
-        "Date updated": "更新日期"
+        "relevance": "相关度",
+        "downloads": "下载量",
+        "follows": "关注量",
+        "newest": "发布日期",
+        "updated": "更新日期"
       }
     },
     "versionList": {

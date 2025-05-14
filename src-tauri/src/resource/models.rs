@@ -34,6 +34,27 @@ pub enum SourceType {
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct OtherResourceInfo {
+  pub _type: String,
+  pub name: String,
+  pub description: String,
+  pub icon_src: String,
+  pub tags: Vec<String>,
+  pub last_updated: String,
+  pub downloads: u32,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct OtherResourceSearchRes {
+  pub list: Vec<OtherResourceInfo>,
+  pub total: u32,
+  pub page: u32,
+  pub page_size: u32,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct GameResourceInfo {
   pub id: String,
   pub game_type: String,

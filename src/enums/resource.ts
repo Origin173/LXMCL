@@ -179,11 +179,5 @@ export const sortByList = {
     "Creation date",
     "Total downloads",
   ],
-  Modrinth: [
-    "Relevance",
-    "Downloads",
-    "Followers",
-    "Date updated",
-    "Date published",
-  ],
+  Modrinth: ["relevance", "downloads", "follows", "updated", "newest"],
 };
