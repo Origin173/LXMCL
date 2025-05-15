@@ -1,4 +1,5 @@
 pub mod curseforge;
+pub mod curseforge_categories;
 pub mod fabric_meta;
 pub mod forge_meta;
 pub mod misc;

@@ -5,10 +5,7 @@ use super::{
     misc::get_source_priority_list, modrinth::fetch_resource_list_by_name_modrinth,
     neoforge_meta::get_neoforge_meta_by_game_version, version_manifest::get_game_version_manifest,
   },
-  models::{
-    GameResourceInfo, ModLoaderResourceInfo, OtherResourceInfo, OtherResourceSearchRes,
-    ResourceError,
-  },
+  models::{GameResourceInfo, ModLoaderResourceInfo, OtherResourceSearchRes, ResourceError},
 };
 use crate::{
   error::SJMCLResult, instance::models::misc::ModLoaderType,

@@ -301,7 +301,6 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
       page: number,
       pageSize: number
     ) => {
-      console.log("he");
       if (page === 0) setIsLoadingResourceList(true);
 
       // according to the download source, adjust some parameters
