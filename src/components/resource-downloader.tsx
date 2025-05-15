@@ -234,18 +234,18 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   const [isLoadingResourceList, setIsLoadingResourceList] =
     useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true); // use for infinite scroll
-  const [page, setPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10); // default page size
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [gameVersion, setGameVersion] = useState<string>("All");
   const [selectedTag, setSelectedTag] = useState<string>("All");
-  const [sortBy, setSortBy] = useState<string>("relevance");
+  const [sortBy, setSortBy] = useState<string>("Relevancy");
   const [downloadSource, setDownloadSource] = useState<
     "CurseForge" | "Modrinth"
-  >("Modrinth");
+  >("CurseForge");
 
   const searchQueryRef = useRef(searchQuery);
+  const pageRef = useRef(0);
 
   const downloadSourceList = [
     "CurseForge",
@@ -299,7 +299,8 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
       sortBy: string,
       downloadSource: string,
       page: number,
-      pageSize: number
+      pageSize: number,
+      isLoadMore: boolean = false
     ) => {
       if (page === 0) setIsLoadingResourceList(true);
 
@@ -322,7 +323,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
         .then((response) => {
           if (response.status === "success") {
             const resourceData = response.data.list;
-            if (page === 0) {
+            if (!isLoadMore) {
               setResourceList(resourceData);
             } else {
               setResourceList((prevList) => [...prevList, ...resourceData]);
@@ -353,8 +354,43 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
 
   const loadMore = () => {
     if (!hasMore) return;
-    setPage((prevPage) => prevPage + 1);
+    const currentPage = pageRef.current;
+    handleFetchResourceListByName(
+      resourceType,
+      searchQueryRef.current,
+      gameVersion,
+      selectedTag,
+      sortBy,
+      downloadSource,
+      currentPage + 1,
+      pageSize,
+      true
+    );
+    pageRef.current += 1;
   };
+
+  const reFetchResourceList = useCallback(() => {
+    pageRef.current = 0;
+
+    handleFetchResourceListByName(
+      resourceType,
+      searchQueryRef.current, // useRef to avoid unnecessary re-fetch
+      gameVersion,
+      selectedTag,
+      sortBy,
+      downloadSource,
+      0,
+      pageSize
+    );
+  }, [
+    handleFetchResourceListByName,
+    resourceType,
+    gameVersion,
+    selectedTag,
+    sortBy,
+    downloadSource,
+    pageSize,
+  ]);
 
   useEffect(() => {
     handleFetchGameVersionList();
@@ -365,34 +401,8 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   }, [searchQuery]);
 
   useEffect(() => {
-    handleFetchResourceListByName(
-      resourceType,
-      searchQueryRef.current, // useRef to avoid unnecessary re-fetch
-      gameVersion,
-      selectedTag,
-      sortBy,
-      downloadSource,
-      page,
-      pageSize
-    );
-  }, [
-    handleFetchResourceListByName,
-    resourceType,
-    gameVersion,
-    selectedTag,
-    sortBy,
-    downloadSource,
-    page,
-    pageSize,
-  ]);
-
-  useEffect(() => {
-    if (resourceType === "world" && downloadSource === "Modrinth") {
-      setDownloadSource("CurseForge");
-      setSortBy("Relevancy");
-      setSelectedTag("All");
-    }
-  }, [resourceType, downloadSource]);
+    reFetchResourceList();
+  }, [reFetchResourceList]);
 
   return (
     <VStack fontSize="xs" h="100%">
@@ -444,7 +454,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           label={t("ResourceDownloader.label.source")}
           displayText={downloadSource}
           onChange={onDownloadSourceChange}
-          defaultValue={"Modrinth"}
+          defaultValue={"CurseForge"}
           options={downloadSourceList.map((item, key) => (
             <MenuItemOption key={key} value={item} fontSize="xs">
               {item}
@@ -484,18 +494,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
         <Button
           colorScheme={primaryColor}
           size="xs"
-          onClick={() => {
-            handleFetchResourceListByName(
-              resourceType,
-              searchQuery,
-              gameVersion,
-              selectedTag,
-              sortBy,
-              downloadSource,
-              page,
-              pageSize
-            );
-          }}
+          onClick={reFetchResourceList}
           px={5}
         >
           {t("ResourceDownloader.button.search")}
