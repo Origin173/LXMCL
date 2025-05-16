@@ -115,6 +115,33 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
   );
   const [curInstance, setCurInstance] = useState<InstanceSummary | undefined>();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { t } = useTranslation();
+
+  const translateTag = (
+    tag: string,
+    resourceType: string,
+    downloadSource?: string
+  ) => {
+    if (downloadSource === "CurseForge" || downloadSource === "Modrinth") {
+      const tagList =
+        resourceType === "mod"
+          ? modTagList
+          : resourceType === "world"
+            ? worldTagList
+            : resourceType === "resourcepack"
+              ? resourcePackTagList
+              : resourceType === "shader"
+                ? shaderPackTagList
+                : modpackTagList;
+
+      const finalTagList = tagList[downloadSource];
+      if (!finalTagList.includes(tag)) return tag;
+      return t(
+        `ResourceDownloader.${resourceType}TagList.${downloadSource}.${tag}`
+      );
+    }
+    return tag;
+  };
 
   useEffect(() => {
     const instanceList = getInstanceList() || [];
@@ -135,7 +162,7 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
         {item.tags.slice(0, 3).map((tag, index) => (
           <WrapItem key={index}>
             <Tag colorScheme={primaryColor} className="tag-xs">
-              {tag}
+              {translateTag(tag, item.type, item.source)}
             </Tag>
           </WrapItem>
         ))}
@@ -207,7 +234,7 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
           resource={selectedItem}
           curInstanceVersion={curInstance?.version}
           curInstanceModLoader={
-            selectedItem.type === "mods" &&
+            selectedItem.type === "mod" &&
             curInstance?.modLoader.loaderType !== "Unknown"
               ? curInstance?.modLoader.loaderType
               : undefined
@@ -259,7 +286,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
         ? worldTagList
         : resourceType === "resourcepack"
           ? resourcePackTagList
-          : resourceType === "shaderpack"
+          : resourceType === "shader"
             ? shaderPackTagList
             : modpackTagList;
 
@@ -304,14 +331,8 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
     ) => {
       if (page === 0) setIsLoadingResourceList(true);
 
-      // according to the download source, adjust some parameters
-      let _resourceType = resourceType;
-      if (resourceType === "shaderpack" && downloadSource === "Modrinth") {
-        _resourceType = "shader";
-      }
-
       ResourceService.fetchResourceListByName(
-        _resourceType,
+        resourceType,
         searchQuery,
         gameVersion,
         selectedTag,

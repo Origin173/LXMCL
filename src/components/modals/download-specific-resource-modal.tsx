@@ -243,7 +243,7 @@ const DownloadSpecificResourceModal: React.FC<
                   : t("DownloadSpecificResourceModal.label.all"),
             }))}
           />
-          {resource.type === "mods" && (
+          {resource.type === "mod" && (
             <NavMenu
               className="no-scrollbar"
               selectedKeys={[selectedModLoader]}

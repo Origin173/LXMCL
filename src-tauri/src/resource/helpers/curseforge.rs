@@ -48,11 +48,12 @@ pub struct CurseForgeSearchRes {
 
 pub fn cvt_class_id_to_type(class_id: u32) -> String {
   match class_id {
-    6 => "mods".to_string(),
-    12 => "resourcepacks".to_string(),
-    17 => "worlds".to_string(),
-    6552 => "shaderpacks".to_string(),
-    6945 => "data packs".to_string(),
+    6 => "mod".to_string(),
+    12 => "resourcepack".to_string(),
+    17 => "world".to_string(),
+    4471 => "modpack".to_string(),
+    6552 => "shader".to_string(),
+    6945 => "datapack".to_string(),
     _ => "unknown".to_string(),
   }
 }
@@ -62,7 +63,8 @@ pub fn cvt_type_to_class_id(_type: &str) -> u32 {
     "mod" => 6,
     "resourcepack" => 12,
     "world" => 17,
-    "shaderpack" => 6552,
+    "modpack" => 4471,
+    "shader" => 6552,
     "datapack" => 6945,
     _ => 0,
   }
@@ -70,11 +72,11 @@ pub fn cvt_type_to_class_id(_type: &str) -> u32 {
 
 pub fn cvt_sort_by_to_id(sort_by: &str) -> u32 {
   match sort_by {
-    "Relevancy" => 1,
+    "Relevancy" => 8,
     "Popularity" => 2,
     "A-Z" => 4,
     "Latest update" => 3,
-    "Creation date" => 11,
+    "Creation date" => 1,
     "Total downloads" => 6,
     _ => 1,
   }
@@ -92,6 +94,7 @@ pub fn map_curseforge_to_resource_info(res: CurseForgeSearchRes) -> OtherResourc
       tags: p.categories.iter().map(|c| c.name.clone()).collect(),
       last_updated: p.date_modified,
       downloads: p.download_count,
+      source: "CurseForge".to_string(),
     })
     .collect();
 
@@ -135,6 +138,9 @@ pub async fn fetch_resource_list_by_name_curseforge(
   params.insert("pageSize", page_size.to_string());
 
   let client = app.state::<reqwest::Client>();
+
+  let request = client.get(url).query(&params).build()?;
+  println!("{}", request.url());
 
   let response = client
     .get(url)

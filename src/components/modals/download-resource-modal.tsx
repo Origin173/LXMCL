@@ -35,7 +35,7 @@ const DownloadResourceModal: React.FC<DownloadResourceModalProps> = ({
     { key: "mod", icon: LuSquareLibrary },
     { key: "world", icon: LuEarth },
     { key: "resourcepack", icon: LuPackage },
-    { key: "shaderpack", icon: LuHaze },
+    { key: "shader", icon: LuHaze },
   ];
 
   return (

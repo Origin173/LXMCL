@@ -11,7 +11,7 @@ pub struct ModrinthProject {
   pub project_type: String,
   pub title: String,
   pub description: String,
-  pub categories: Vec<String>,
+  pub display_categories: Vec<String>,
   pub downloads: u32,
   pub icon_url: String,
   pub date_modified: String,
@@ -34,9 +34,10 @@ pub fn map_modrinth_to_resource_info(res: ModrinthSearchRes) -> OtherResourceSea
       name: p.title,
       description: p.description,
       icon_src: p.icon_url,
-      tags: p.categories,
+      tags: p.display_categories,
       last_updated: p.date_modified,
       downloads: p.downloads,
+      source: "Modrinth".to_string(),
     })
     .collect();
 
@@ -75,6 +76,9 @@ pub async fn fetch_resource_list_by_name_modrinth(
   params.insert("index", sort_by.to_string());
 
   let client = app.state::<reqwest::Client>();
+
+  let request = client.get(url).query(&params).build()?;
+  println!("Request: {}", request.url());
 
   if let Ok(response) = client.get(url).query(&params).send().await {
     if response.status().is_success() {

@@ -8,7 +8,7 @@ export interface GameResourceInfo {
 }
 
 export interface OtherResourceInfo {
-  type: "mods" | "worlds" | "resourcepacks" | "shaderpacks";
+  type: "mod" | "world" | "resourcepack" | "shader" | "modpack" | "datapack";
   name: string;
   translatedName?: string;
   description: string;

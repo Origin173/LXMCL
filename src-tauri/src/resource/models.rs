@@ -42,6 +42,7 @@ pub struct OtherResourceInfo {
   pub tags: Vec<String>,
   pub last_updated: String,
   pub downloads: u32,
+  pub source: String,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
