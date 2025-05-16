@@ -72,13 +72,12 @@ pub fn cvt_type_to_class_id(_type: &str) -> u32 {
 
 pub fn cvt_sort_by_to_id(sort_by: &str) -> u32 {
   match sort_by {
-    "Relevancy" => 8,
     "Popularity" => 2,
     "A-Z" => 4,
     "Latest update" => 3,
     "Creation date" => 1,
     "Total downloads" => 6,
-    _ => 1,
+    _ => 2,
   }
 }
 

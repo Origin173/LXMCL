@@ -52,6 +52,7 @@ interface ResourceDownloaderMenuProps {
   onChange: (value: string) => void;
   defaultValue: string;
   options: React.ReactNode;
+  value: string;
   width?: number;
 }
 
@@ -67,6 +68,7 @@ const ResourceDownloaderMenu: React.FC<ResourceDownloaderMenuProps> = ({
   onChange,
   defaultValue,
   options,
+  value,
   width = 28,
 }) => {
   return (
@@ -87,6 +89,7 @@ const ResourceDownloaderMenu: React.FC<ResourceDownloaderMenuProps> = ({
         <MenuList maxH="40vh" minW={width} overflow="auto">
           <MenuOptionGroup
             defaultValue={defaultValue}
+            value={value}
             type="radio"
             onChange={(value) => {
               onChange(value as string);
@@ -266,7 +269,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [gameVersion, setGameVersion] = useState<string>("All");
   const [selectedTag, setSelectedTag] = useState<string>("All");
-  const [sortBy, setSortBy] = useState<string>("Relevancy");
+  const [sortBy, setSortBy] = useState<string>("Popularity");
   const [downloadSource, setDownloadSource] = useState<
     "CurseForge" | "Modrinth"
   >("CurseForge");
@@ -296,7 +299,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   const onDownloadSourceChange = (e: string) => {
     setDownloadSource(e === "CurseForge" ? "CurseForge" : "Modrinth");
     setSelectedTag("All");
-    setSortBy(e === "CurseForge" ? "Relevancy" : "relevance");
+    setSortBy(e === "CurseForge" ? "Popularity" : "relevance");
   };
 
   const handleFetchGameVersionList = useCallback(async () => {
@@ -434,6 +437,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
             `ResourceDownloader.${resourceType}TagList.${downloadSource}.${selectedTag}`
           )}
           onChange={setSelectedTag}
+          value={selectedTag}
           defaultValue={"All"}
           options={finalTagList.map((item, key) => (
             <MenuItemOption key={key} value={item} fontSize="xs">
@@ -452,6 +456,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
               : gameVersion
           }
           onChange={setGameVersion}
+          value={gameVersion}
           defaultValue={"All"}
           options={
             gameVersionList ? (
@@ -475,6 +480,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           label={t("ResourceDownloader.label.source")}
           displayText={downloadSource}
           onChange={onDownloadSourceChange}
+          value={downloadSource}
           defaultValue={"CurseForge"}
           options={downloadSourceList.map((item, key) => (
             <MenuItemOption key={key} value={item} fontSize="xs">
@@ -490,8 +496,9 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
             `ResourceDownloader.sortByList.${downloadSource}.${sortBy}`
           )}
           onChange={setSortBy}
+          value={sortBy}
           defaultValue={
-            downloadSource === "CurseForge" ? "Relevancy" : "relevance"
+            downloadSource === "CurseForge" ? "Popularity" : "relevance"
           }
           options={finalSortByList.map((item, key) => (
             <MenuItemOption key={key} value={item} fontSize="xs">
