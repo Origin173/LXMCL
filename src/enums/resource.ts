@@ -134,6 +134,42 @@ export const shaderPackTagList = {
   ],
 };
 
+export const datapackTagList = {
+  CurseForge: [
+    "All",
+    "Magic",
+    "Miscellaneous",
+    "Fantasy",
+    "Mod Support",
+    "Tech",
+    "Library",
+    "Utility",
+    "Adventure",
+  ],
+  Modrinth: [
+    "All",
+    "adventure",
+    "cursed",
+    "decoration",
+    "economy",
+    "equipment",
+    "food",
+    "game-mechanics",
+    "library",
+    "magic",
+    "management",
+    "minigame",
+    "mobs",
+    "optimization",
+    "social",
+    "storage",
+    "technology",
+    "transportation",
+    "utility",
+    "worldgen",
+  ], // the same as mod tag list
+};
+
 export const modpackTagList = {
   CurseForge: [
     "All",

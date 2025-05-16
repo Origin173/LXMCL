@@ -81,6 +81,25 @@ lazy_static! {
     map.insert(("Modded World".to_string(), 17), 4464);
     map.insert(("Puzzle".to_string(), 17), 252);
 
+    // mod packs
+    map.insert(("Adventure and RPG".to_string(), 4471), 4475);
+    map.insert(("FTB Official Pack".to_string(), 4471), 4487);
+    map.insert(("Small / Light".to_string(), 4471), 4481);
+    map.insert(("Quests".to_string(), 4471), 4478);
+    map.insert(("Combat / PvP".to_string(), 4471), 4483);
+    map.insert(("Tech".to_string(), 4471), 4472);
+    map.insert(("Sci-Fi".to_string(), 4471), 4474);
+    map.insert(("Multiplayer".to_string(), 4471), 4484);
+    map.insert(("Hardcore".to_string(), 4471), 4479);
+    map.insert(("Mini Game".to_string(), 4471), 4477);
+    map.insert(("Extra Large".to_string(), 4471), 4482);
+    map.insert(("Magic".to_string(), 4471), 4473);
+    map.insert(("Skyblock".to_string(), 4471), 4736);
+    map.insert(("Map Based".to_string(), 4471), 4480);
+    map.insert(("Exploration".to_string(), 4471), 4476);
+    map.insert(("Vanilla+".to_string(), 4471), 5128);
+    map.insert(("Horror".to_string(), 4471), 7418);
+
     // shader packs
     map.insert(("Vanilla".to_string(), 6552), 6555);
     map.insert(("Fantasy".to_string(), 6552), 6554);
