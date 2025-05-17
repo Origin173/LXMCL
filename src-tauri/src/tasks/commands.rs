@@ -1,4 +1,3 @@
-use governor::DefaultDirectRateLimiter;
 use serde::{Deserialize, Serialize};
 use std::{pin::Pin, time::Duration};
 use tauri::{AppHandle, Manager};
@@ -25,16 +24,6 @@ pub async fn schedule_progressive_task_group(
   params: Vec<ProgressiveTaskParam>,
 ) -> SJMCLResult<ScheduleResult> {
   let monitor = app.state::<Pin<Box<TaskMonitor>>>();
-  // SAFETY: THIS IS A SHITTY WORKAROUND CAUSED BY TAURI.
-  // Notably, Task monitor is a STATIC state managed by Tauri Globally.
-  // AppHandle implementation lost track of lifetime of the state reference.
-  // We have to transmute the reference to a static lifetime so that
-  // it can be used in the async block. Plus even though the
-  // ratelimited future is self-referencing the monitor, the
-  // monitor is pinned anyway so it's safe to use it in the async block.
-  let ratelimiter: &'static Option<DefaultDirectRateLimiter> =
-    unsafe { std::mem::transmute(&monitor.download_rate_limiter) };
-
   let mut task_ids = Vec::new();
   for param in params {
     let task_id = monitor.get_new_id();
@@ -47,19 +36,10 @@ pub async fn schedule_progressive_task_group(
           param,
           Duration::from_secs(1),
         );
-        if ratelimiter.is_none() {
-          let (futute, state) = task.future().await?;
-          monitor
-            .enqueue_task(task_id, Some(task_group.clone()), futute, Some(state))
-            .await;
-        } else {
-          let (futute, state) = task
-            .future_with_ratelimiter(ratelimiter.as_ref().unwrap())
-            .await?;
-          monitor
-            .enqueue_task(task_id, Some(task_group.clone()), futute, Some(state))
-            .await;
-        }
+        let (futute, state) = task.future(monitor.download_rate_limiter.clone()).await?;
+        monitor
+          .enqueue_task(task_id, Some(task_group.clone()), futute, Some(state))
+          .await;
       }
     };
     task_ids.push(task_id);

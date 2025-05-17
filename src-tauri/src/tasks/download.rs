@@ -2,7 +2,6 @@ use crate::error::{SJMCLError, SJMCLResult};
 use crate::launcher_config::commands::retrieve_launcher_config;
 use crate::tasks::*;
 use futures::stream::TryStreamExt;
-use governor::{prelude::StreamRateLimitExt, DefaultDirectRateLimiter};
 use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
 use std::future::Future;
@@ -13,6 +12,7 @@ use tauri_plugin_http::reqwest;
 use tauri_plugin_http::reqwest::header::RANGE;
 use tokio::io::AsyncSeekExt;
 use tokio_util::{bytes, compat::FuturesAsyncReadCompatExt};
+use async_speed_limit::Limiter;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DownloadParam {
@@ -83,7 +83,7 @@ impl DownloadTask {
     app_handle: &AppHandle,
     desc: &mut ProgressiveTaskDescriptor,
     param: &DownloadParam,
-  ) -> SJMCLResult<impl Stream<Item = Result<bytes::Bytes, std::io::Error>>> {
+  ) -> SJMCLResult<impl Stream<Item = Result<bytes::Bytes, std::io::Error>> + Send> {
     let client = app_handle.state::<reqwest::Client>().clone();
     Ok(
       if desc.total == 0 && desc.current == 0 {
@@ -132,6 +132,7 @@ impl DownloadTask {
   async fn future_impl(
     self,
     resp: impl Stream<Item = Result<bytes::Bytes, std::io::Error>> + Send + Unpin,
+    limiter: Option<Limiter>,
   ) -> SJMCLResult<(
     impl Future<Output = SJMCLResult<()>> + Send,
     Arc<Mutex<ProgressiveTaskDescriptor>>,
@@ -165,7 +166,11 @@ impl DownloadTask {
           start_desc.task_group.as_deref(),
           start_desc.total,
         );
-        tokio::io::copy(&mut stream.into_async_read().compat(), &mut file).await?;
+        if let Some(lim) = limiter {
+          tokio::io::copy(&mut lim.limit(stream.into_async_read()).compat(), &mut file).await?;
+        } else {
+          tokio::io::copy(&mut stream.into_async_read().compat(), &mut file).await?;
+        }
         drop(file);
         if stream_desc.lock().unwrap().is_cancelled() {
           tokio::fs::remove_file(&self.dest_path).await?;
@@ -178,26 +183,14 @@ impl DownloadTask {
     ))
   }
 
-  pub async fn future_with_ratelimiter(
-    mut self,
-    lim: &'_ DefaultDirectRateLimiter,
-  ) -> SJMCLResult<(
-    impl Future<Output = SJMCLResult<()>> + Send + '_,
-    Arc<Mutex<ProgressiveTaskDescriptor>>,
-  )> {
-    let resp = Self::create_resp(&self.app_handle, &mut self.desc, &self.param)
-      .await?
-      .ratelimit_stream(lim);
-    Self::future_impl(self, resp).await
-  }
-
   pub async fn future(
     mut self,
+    limiter: Option<Limiter>,
   ) -> SJMCLResult<(
-    impl Future<Output = SJMCLResult<()>> + Sync,
+    impl Future<Output = SJMCLResult<()>> + Send,
     Arc<Mutex<ProgressiveTaskDescriptor>>,
   )> {
     let resp = Self::create_resp(&self.app_handle, &mut self.desc, &self.param).await?;
-    Self::future_impl(self, resp).await
+    Self::future_impl(self, resp, limiter).await
   }
 }

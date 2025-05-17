@@ -1,14 +1,13 @@
 use crate::error::SJMCLResult;
 use crate::launcher_config::commands::retrieve_launcher_config;
 use crate::tasks::*;
+use async_speed_limit::Limiter;
 use download::DownloadTask;
 use flume::{Receiver as FlumeReceiver, Sender as FlumeSender};
 use glob::glob;
-use governor::{DefaultDirectRateLimiter, Quota, RateLimiter};
 use log::info;
 use std::collections::HashMap;
 use std::future::Future;
-use std::num::NonZero;
 use std::pin::Pin;
 use std::sync::atomic::AtomicU32;
 use std::vec::Vec;
@@ -33,7 +32,7 @@ pub struct TaskMonitor {
   concurrency: Arc<Semaphore>,
   tx: FlumeSender<SJMCLBoxedFuture>,
   rx: FlumeReceiver<SJMCLBoxedFuture>,
-  pub download_rate_limiter: Option<DefaultDirectRateLimiter>,
+  pub download_rate_limiter: Option<Limiter>,
 }
 
 impl TaskMonitor {
@@ -56,9 +55,9 @@ impl TaskMonitor {
       tx,
       rx,
       download_rate_limiter: if config.download.transmission.enable_speed_limit {
-        Some(RateLimiter::direct(Quota::per_second(
-          NonZero::new(config.download.transmission.speed_limit_value as u32).unwrap(),
-        )))
+        Some(Limiter::new(
+          (config.download.transmission.speed_limit_value as i64 * 1024) as f64,
+        ))
       } else {
         None
       },
@@ -91,15 +90,11 @@ impl TaskMonitor {
                   &desc,
                   Duration::from_secs(1),
                 );
-                if let Some(ratelimiter) = &self.download_rate_limiter {
-                  let r: &'static DefaultDirectRateLimiter =
-                    unsafe { std::mem::transmute(ratelimiter) };
-                  let (f, state) = task.future_with_ratelimiter(r).await.unwrap();
-                  self.enqueue_task(task_id, task_group, f, Some(state)).await;
-                } else {
-                  let (f, state) = task.future().await.unwrap();
-                  self.enqueue_task(task_id, task_group, f, Some(state)).await;
-                };
+                let (f, state) = task
+                  .future(self.download_rate_limiter.clone())
+                  .await
+                  .unwrap();
+                self.enqueue_task(task_id, task_group, f, Some(state)).await;
               }
             }
           }
