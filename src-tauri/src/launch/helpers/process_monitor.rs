@@ -153,12 +153,14 @@ pub async fn monitor_process(
 
       if status.success() {
         println!("Game process exited successfully.");
-        if let Some(window) = log_window {
+        if let Some(ref window) = log_window {
           // auto close the game-log window if the game exits successfully
           let _ = window.destroy();
         }
       } else {
         println!("Game process exited with an error status: {:?}", status);
+        let _ =
+          create_webview_window(&app, &label.replace("log", "error"), "game_error", None).await;
       }
 
       // calc and update play time
@@ -183,8 +185,6 @@ pub async fn monitor_process(
       }
     }
   });
-
-  // TODO: show error window (get stderr or process exit with error code?)
 
   Ok(())
 }
@@ -316,3 +316,27 @@ pub fn change_process_window_title(pid: u32, new_title: &str) -> SJMCLResult<()>
 
   Ok(())
 }
+
+// fn is_process_exists(pid: u32) -> bool {
+//   #[cfg(target_os = "windows")]
+//   {
+//     use std::os::windows::process::CommandExt;
+
+//     let output = Command::new("tasklist")
+//       .arg("/FI")
+//       .arg(format!("PID eq {}", pid))
+//       .output()
+//       .unwrap();
+//     output.stdout.contains(&pid.to_string().into_bytes())
+//   }
+
+//   #[cfg(any(target_os = "linux", target_os = "macos"))]
+//   {
+//     let output = Command::new("ps")
+//       .arg("-p")
+//       .arg(pid.to_string())
+//       .output()
+//       .unwrap();
+//     output.status.success()
+//   }
+// }
