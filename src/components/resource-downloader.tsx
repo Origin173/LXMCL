@@ -13,8 +13,6 @@ import {
   Tag,
   Text,
   VStack,
-  Wrap,
-  WrapItem,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
@@ -100,7 +98,9 @@ const ResourceDownloaderMenu: React.FC<ResourceDownloaderMenuProps> = ({
           textAlign="left"
           rightIcon={<LuChevronDown />}
         >
-          {displayText}
+          <Text className="ellipsis-text" maxW={width}>
+            {displayText}
+          </Text>
         </MenuButton>
         <MenuList maxH="40vh" minW={width} overflow="auto">
           <MenuOptionGroup
@@ -164,20 +164,28 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
   }, [getInstanceList, router.query]);
 
   const buildOptionItems = (item: OtherResourceInfo): OptionItemProps => ({
-    title: item.translatedName
-      ? `${item.translatedName}｜${item.name}`
-      : item.name,
-    titleExtra: (
-      <Wrap spacing={1}>
-        {item.tags.slice(0, 3).map((tag, index) => (
-          <WrapItem key={index}>
-            <Tag colorScheme={primaryColor} className="tag-xs">
-              {translateTag(tag, item.type, item.source)}
-            </Tag>
-          </WrapItem>
-        ))}
-      </Wrap>
+    title: (
+      <Text fontSize="xs-sm" className="ellipsis-text">
+        {item.translatedName
+          ? `${item.translatedName}｜${item.name}`
+          : item.name}
+      </Text>
     ),
+    titleExtra: (
+      <HStack spacing={1}>
+        {item.tags.slice(0, 3).map((tag) => (
+          <Tag key={tag} colorScheme={primaryColor} className="tag-xs">
+            {translateTag(tag, item.type, item.source)}
+          </Tag>
+        ))}
+        {item.tags.length > 3 && (
+          <Tag colorScheme={primaryColor} className="tag-xs" variant="outline">
+            {`+${item.tags.length - 3}`}
+          </Tag>
+        )}
+      </HStack>
+    ),
+    titleLineWrap: false,
     description: (
       <VStack
         fontSize="xs"
@@ -521,6 +529,9 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           focusBorderColor={`${primaryColor}.500`}
           size="xs"
           w={72}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") reFetchResourceList();
+          }}
         />
         <Button
           colorScheme={primaryColor}

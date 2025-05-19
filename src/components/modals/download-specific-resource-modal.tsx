@@ -12,8 +12,6 @@ import {
   ModalProps,
   Tag,
   Text,
-  Wrap,
-  WrapItem,
 } from "@chakra-ui/react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { useCallback, useEffect, useState } from "react";
@@ -147,23 +145,23 @@ const DownloadSpecificResourceModal: React.FC<
                   ? `${resource.translatedName}｜${resource.name}`
                   : resource.name
               }
-              titleExtra={
-                <Wrap spacing={1}>
-                  {resource.tags.map((tag, index) => (
-                    <WrapItem key={index}>
-                      <Tag colorScheme={primaryColor} className="tag-xs">
-                        {tag}
-                      </Tag>
-                    </WrapItem>
-                  ))}
-                </Wrap>
-              }
+              titleExtra={resource.tags.map((tag) => (
+                <Tag
+                  key={tag}
+                  colorScheme={primaryColor}
+                  className="tag-xs"
+                  mr={-1}
+                >
+                  {tag}
+                </Tag>
+              ))}
               description={
                 <Text
                   fontSize="xs"
                   className="secondary-text"
                   wordBreak="break-all"
                   whiteSpace="pre-wrap"
+                  mt={1}
                 >
                   {resource.description}
                 </Text>
