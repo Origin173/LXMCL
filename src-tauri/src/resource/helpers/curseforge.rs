@@ -22,6 +22,12 @@ pub struct CurseForgeLogo {
   pub url: String,
 }
 
+fn default_logo() -> CurseForgeLogo {
+  CurseForgeLogo {
+    url: "/images/icons/GrassBlock.png".to_string(),
+  }
+}
+
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeProject {
@@ -30,7 +36,7 @@ pub struct CurseForgeProject {
   pub summary: String,
   pub categories: Vec<CurseForgeCategory>,
   pub download_count: u32,
-  pub logo: CurseForgeLogo,
+  pub logo: Option<CurseForgeLogo>, // In some old projects, logo is null
   pub date_modified: String,
 }
 
@@ -77,7 +83,7 @@ pub fn cvt_sort_by_to_id(sort_by: &str) -> u32 {
     "Popularity" => 2,
     "A-Z" => 4,
     "Latest update" => 3,
-    "Creation date" => 1,
+    "Creation date" => 11,
     "Total downloads" => 6,
     _ => 2,
   }
@@ -91,7 +97,7 @@ pub fn map_curseforge_to_resource_info(res: CurseForgeSearchRes) -> ExtraResourc
       _type: cvt_class_id_to_type(p.class_id),
       name: p.name,
       description: p.summary,
-      icon_src: p.logo.url,
+      icon_src: p.logo.unwrap_or_else(default_logo).url,
       tags: p.categories.iter().map(|c| c.name.clone()).collect(),
       last_updated: p.date_modified,
       downloads: p.download_count,
@@ -124,6 +130,11 @@ pub async fn fetch_resource_list_by_name_curseforge(
   } = query;
 
   let class_id = cvt_type_to_class_id(resource_type);
+  let sort_field = cvt_sort_by_to_id(sort_by);
+  let sort_order = match sort_field {
+    4 => "asc",
+    _ => "desc",
+  };
 
   let mut params = HashMap::new();
   params.insert("gameId", "432".to_string());
@@ -138,7 +149,8 @@ pub async fn fetch_resource_list_by_name_curseforge(
       cvt_category_to_id(selected_tag, class_id).to_string(),
     );
   }
-  params.insert("sortField", cvt_sort_by_to_id(sort_by).to_string());
+  params.insert("sortField", sort_field.to_string());
+  params.insert("sortOrder", sort_order.to_string());
   params.insert("index", (page * page_size).to_string());
   params.insert("pageSize", page_size.to_string());
 
