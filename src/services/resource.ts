@@ -54,14 +54,16 @@ export class ResourceService {
     pageSize: number
   ): Promise<InvokeResponse<OtherResourceSearchRes>> {
     return await invoke("fetch_resource_list_by_name", {
-      resourceType,
-      searchQuery,
-      gameVersion,
-      selectedTag,
-      sortBy,
       downloadSource,
-      page,
-      pageSize,
+      query: {
+        resourceType,
+        searchQuery,
+        gameVersion,
+        selectedTag,
+        sortBy,
+        page,
+        pageSize,
+      },
     });
   }
 }

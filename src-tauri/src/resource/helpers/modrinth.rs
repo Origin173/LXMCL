@@ -1,8 +1,9 @@
-use std::collections::HashMap;
-
 use crate::error::SJMCLResult;
-use crate::resource::models::{OtherResourceInfo, OtherResourceSearchRes, ResourceError};
+use crate::resource::models::{
+  ExtraResourceInfo, ExtraResourceSearchQuery, ExtraResourceSearchRes, ResourceError,
+};
 use serde::Deserialize;
+use std::collections::HashMap;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
@@ -25,11 +26,11 @@ pub struct ModrinthSearchRes {
   pub limit: u32,
 }
 
-pub fn map_modrinth_to_resource_info(res: ModrinthSearchRes) -> OtherResourceSearchRes {
+pub fn map_modrinth_to_resource_info(res: ModrinthSearchRes) -> ExtraResourceSearchRes {
   let list = res
     .hits
     .into_iter()
-    .map(|p| OtherResourceInfo {
+    .map(|p| ExtraResourceInfo {
       _type: p.project_type,
       name: p.title,
       description: p.description,
@@ -41,7 +42,7 @@ pub fn map_modrinth_to_resource_info(res: ModrinthSearchRes) -> OtherResourceSea
     })
     .collect();
 
-  OtherResourceSearchRes {
+  ExtraResourceSearchRes {
     list,
     total: res.total_hits,
     page: res.offset / res.limit,
@@ -51,15 +52,20 @@ pub fn map_modrinth_to_resource_info(res: ModrinthSearchRes) -> OtherResourceSea
 
 pub async fn fetch_resource_list_by_name_modrinth(
   app: &AppHandle,
-  resource_type: &str,
-  search_query: &str,
-  game_version: &str,
-  selected_tag: &str,
-  sort_by: &str,
-  page: u32,
-  page_size: u32,
-) -> SJMCLResult<OtherResourceSearchRes> {
+  query: &ExtraResourceSearchQuery,
+) -> SJMCLResult<ExtraResourceSearchRes> {
   let url = "https://api.modrinth.com/v2/search";
+
+  let ExtraResourceSearchQuery {
+    resource_type,
+    search_query,
+    game_version,
+    selected_tag,
+    sort_by,
+    page,
+    page_size,
+  } = query;
+
   let mut facets = vec![vec![format!("project_type:{}", resource_type)]];
   if !game_version.is_empty() && game_version != "All" {
     facets.push(vec![format!("versions:{}", game_version)]);
@@ -77,19 +83,18 @@ pub async fn fetch_resource_list_by_name_modrinth(
 
   let client = app.state::<reqwest::Client>();
 
-  let request = client.get(url).query(&params).build()?;
-  println!("Request: {}", request.url());
+  let _ = client.get(url).query(&params).build()?;
 
   if let Ok(response) = client.get(url).query(&params).send().await {
     if response.status().is_success() {
       match response.json::<ModrinthSearchRes>().await {
-        Ok(results) => return Ok(map_modrinth_to_resource_info(results)),
-        Err(_) => return Err(ResourceError::ParseError.into()),
+        Ok(results) => Ok(map_modrinth_to_resource_info(results)),
+        Err(_) => Err(ResourceError::ParseError.into()),
       }
     } else {
-      return Err(ResourceError::NetworkError.into());
+      Err(ResourceError::NetworkError.into())
     }
   } else {
-    return Err(ResourceError::NetworkError.into());
+    Err(ResourceError::NetworkError.into())
   }
 }

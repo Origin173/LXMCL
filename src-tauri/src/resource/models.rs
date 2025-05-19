@@ -32,9 +32,10 @@ pub enum SourceType {
   BMCLAPIMirror,
 }
 
+// mod, save, resourcepack and shader
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct OtherResourceInfo {
+pub struct ExtraResourceInfo {
   pub _type: String,
   pub name: String,
   pub description: String,
@@ -47,16 +48,29 @@ pub struct OtherResourceInfo {
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct OtherResourceSearchRes {
-  pub list: Vec<OtherResourceInfo>,
-  pub total: u32,
+pub struct ExtraResourceSearchQuery {
+  pub resource_type: String,
+  pub search_query: String,
+  pub game_version: String,
+  pub selected_tag: String,
+  pub sort_by: String,
   pub page: u32,
   pub page_size: u32,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct GameResourceInfo {
+pub struct ExtraResourceSearchRes {
+  pub list: Vec<ExtraResourceInfo>,
+  pub total: u32,
+  pub page: u32,
+  pub page_size: u32,
+}
+
+// game client itself
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct GameClientResourceInfo {
   pub id: String,
   pub game_type: String,
   pub release_time: String,

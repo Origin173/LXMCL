@@ -172,7 +172,7 @@ const DownloadSpecificResourceModal: React.FC<
                 <Avatar
                   src={resource.iconSrc}
                   name={resource.name}
-                  boxSize="40px"
+                  boxSize="38px"
                   borderRadius="4px"
                 />
               }

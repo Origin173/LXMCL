@@ -3,7 +3,9 @@ use std::env;
 
 use crate::error::SJMCLResult;
 use crate::resource::helpers::curseforge_categories::cvt_category_to_id;
-use crate::resource::models::{OtherResourceInfo, OtherResourceSearchRes, ResourceError};
+use crate::resource::models::{
+  ExtraResourceInfo, ExtraResourceSearchQuery, ExtraResourceSearchRes, ResourceError,
+};
 use serde::Deserialize;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
@@ -81,11 +83,11 @@ pub fn cvt_sort_by_to_id(sort_by: &str) -> u32 {
   }
 }
 
-pub fn map_curseforge_to_resource_info(res: CurseForgeSearchRes) -> OtherResourceSearchRes {
+pub fn map_curseforge_to_resource_info(res: CurseForgeSearchRes) -> ExtraResourceSearchRes {
   let list = res
     .data
     .into_iter()
-    .map(|p| OtherResourceInfo {
+    .map(|p| ExtraResourceInfo {
       _type: cvt_class_id_to_type(p.class_id),
       name: p.name,
       description: p.summary,
@@ -97,7 +99,7 @@ pub fn map_curseforge_to_resource_info(res: CurseForgeSearchRes) -> OtherResourc
     })
     .collect();
 
-  OtherResourceSearchRes {
+  ExtraResourceSearchRes {
     list,
     total: res.pagination.total_count,
     page: res.pagination.index / res.pagination.page_size,
@@ -107,15 +109,19 @@ pub fn map_curseforge_to_resource_info(res: CurseForgeSearchRes) -> OtherResourc
 
 pub async fn fetch_resource_list_by_name_curseforge(
   app: &AppHandle,
-  resource_type: &str,
-  search_query: &str,
-  game_version: &str,
-  selected_tag: &str,
-  sort_by: &str,
-  page: u32,
-  page_size: u32,
-) -> SJMCLResult<OtherResourceSearchRes> {
+  query: &ExtraResourceSearchQuery,
+) -> SJMCLResult<ExtraResourceSearchRes> {
   let url = "https://api.curseforge.com/v1/mods/search";
+
+  let ExtraResourceSearchQuery {
+    resource_type,
+    search_query,
+    game_version,
+    selected_tag,
+    sort_by,
+    page,
+    page_size,
+  } = query;
 
   let class_id = cvt_type_to_class_id(resource_type);
 
@@ -137,9 +143,7 @@ pub async fn fetch_resource_list_by_name_curseforge(
   params.insert("pageSize", page_size.to_string());
 
   let client = app.state::<reqwest::Client>();
-
-  let request = client.get(url).query(&params).build()?;
-  println!("{}", request.url());
+  let _ = client.get(url).query(&params).build()?;
 
   let response = client
     .get(url)

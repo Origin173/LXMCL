@@ -238,7 +238,7 @@ export const modpackTagList = {
   ],
 };
 
-export const sortByList = {
+export const sortByLists = {
   CurseForge: [
     "Popularity",
     "A-Z",

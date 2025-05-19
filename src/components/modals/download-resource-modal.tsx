@@ -79,7 +79,7 @@ const DownloadResourceModal: React.FC<DownloadResourceModalProps> = ({
         <Flex flexGrow="1" flexDir="column">
           <ModalBody>
             <ResourceDownloader
-              key={selectedResourceType}
+              // key={selectedResourceType}
               resourceType={selectedResourceType}
             />
           </ModalBody>

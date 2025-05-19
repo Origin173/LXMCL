@@ -25,6 +25,7 @@ import { BeatLoader } from "react-spinners";
 import Empty from "@/components/common/empty";
 import { OptionItemProps } from "@/components/common/option-item";
 import { VirtualOptionItemGroup } from "@/components/common/option-item-virtual";
+import DownloadSpecificResourceModal from "@/components/modals/download-specific-resource-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
 import { useToast } from "@/contexts/toast";
@@ -33,14 +34,14 @@ import {
   modpackTagList,
   resourcePackTagList,
   shaderPackTagList,
-  sortByList,
+  sortByLists,
   worldTagList,
 } from "@/enums/resource";
 import { InstanceSummary } from "@/models/instance/misc";
 import { GameResourceInfo, OtherResourceInfo } from "@/models/resource";
 import { ResourceService } from "@/services/resource";
 import { ISOToDate } from "@/utils/datetime";
-import DownloadSpecificResourceModal from "./modals/download-specific-resource-modal";
+import { formatDisplayCount } from "@/utils/string";
 
 interface ResourceDownloaderProps {
   resourceType: string;
@@ -61,6 +62,21 @@ interface ResourceDownloaderListProps {
   hasMore: boolean;
   loadMore: () => void;
 }
+
+const tagLists: Record<string, any> = {
+  mod: modTagList,
+  world: worldTagList,
+  resourcepack: resourcePackTagList,
+  shader: shaderPackTagList,
+};
+
+const downloadSourceLists: Record<string, string[]> = {
+  mod: ["CurseForge", "Modrinth"],
+  world: ["CurseForge"],
+  resourcepack: ["CurseForge", "Modrinth"],
+  shader: ["CurseForge", "Modrinth"],
+  modpack: ["CurseForge", "Modrinth"],
+};
 
 const ResourceDownloaderMenu: React.FC<ResourceDownloaderMenuProps> = ({
   label,
@@ -126,19 +142,10 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
     downloadSource?: string
   ) => {
     if (downloadSource === "CurseForge" || downloadSource === "Modrinth") {
-      const tagList =
-        resourceType === "mod"
-          ? modTagList
-          : resourceType === "world"
-            ? worldTagList
-            : resourceType === "resourcepack"
-              ? resourcePackTagList
-              : resourceType === "shader"
-                ? shaderPackTagList
-                : modpackTagList;
-
-      const finalTagList = tagList[downloadSource];
-      if (!finalTagList.includes(tag)) return tag;
+      const tagList = (tagLists[resourceType] || modpackTagList)[
+        downloadSource
+      ];
+      if (!tagList.includes(tag)) return tag;
       return t(
         `ResourceDownloader.${resourceType}TagList.${downloadSource}.${tag}`
       );
@@ -189,7 +196,7 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
           </HStack>
           <HStack spacing={1}>
             <LuDownload />
-            <Text>{item.downloads}</Text>
+            <Text>{formatDisplayCount(item.downloads)}</Text>
           </HStack>
           {item.source && (
             <HStack spacing={1}>
@@ -204,7 +211,7 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
       <Avatar
         src={item.iconSrc}
         name={item.name}
-        boxSize="48px"
+        boxSize="38px"
         borderRadius="4px"
       />
     ),
@@ -277,24 +284,10 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   const searchQueryRef = useRef(searchQuery);
   const pageRef = useRef(0);
 
-  const downloadSourceList = [
-    "CurseForge",
-    ...(resourceType === "world" ? [] : ["Modrinth"]),
-  ];
-
-  const tagList =
-    resourceType === "mod"
-      ? modTagList
-      : resourceType === "world"
-        ? worldTagList
-        : resourceType === "resourcepack"
-          ? resourcePackTagList
-          : resourceType === "shader"
-            ? shaderPackTagList
-            : modpackTagList;
-
-  const finalTagList = tagList[downloadSource];
-  const finalSortByList = sortByList[downloadSource];
+  const tagList = (tagLists[resourceType] || modpackTagList)[
+    downloadSource
+  ] as string[];
+  const sortByList = sortByLists[downloadSource];
 
   const onDownloadSourceChange = (e: string) => {
     setDownloadSource(e === "CurseForge" ? "CurseForge" : "Modrinth");
@@ -428,6 +421,16 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
     reFetchResourceList();
   }, [reFetchResourceList]);
 
+  useEffect(() => {
+    if (
+      resourceType &&
+      !(downloadSourceLists[resourceType] || []).includes(downloadSource)
+    ) {
+      onDownloadSourceChange("CurseForge");
+    }
+    setSelectedTag("All");
+  }, [resourceType, downloadSource]);
+
   return (
     <VStack fontSize="xs" h="100%">
       <HStack gap={3}>
@@ -439,7 +442,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           onChange={setSelectedTag}
           value={selectedTag}
           defaultValue={"All"}
-          options={finalTagList.map((item, key) => (
+          options={tagList.map((item, key) => (
             <MenuItemOption key={key} value={item} fontSize="xs">
               {t(
                 `ResourceDownloader.${resourceType}TagList.${downloadSource}.${item}`
@@ -482,7 +485,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           onChange={onDownloadSourceChange}
           value={downloadSource}
           defaultValue={"CurseForge"}
-          options={downloadSourceList.map((item, key) => (
+          options={downloadSourceLists[resourceType].map((item, key) => (
             <MenuItemOption key={key} value={item} fontSize="xs">
               {item}
             </MenuItemOption>
@@ -500,7 +503,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           defaultValue={
             downloadSource === "CurseForge" ? "Popularity" : "relevance"
           }
-          options={finalSortByList.map((item, key) => (
+          options={sortByList.map((item, key) => (
             <MenuItemOption key={key} value={item} fontSize="xs">
               {t(`ResourceDownloader.sortByList.${downloadSource}.${item}`)}
             </MenuItemOption>

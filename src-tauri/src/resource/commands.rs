@@ -5,7 +5,10 @@ use super::{
     misc::get_source_priority_list, modrinth::fetch_resource_list_by_name_modrinth,
     neoforge_meta::get_neoforge_meta_by_game_version, version_manifest::get_game_version_manifest,
   },
-  models::{GameResourceInfo, ModLoaderResourceInfo, OtherResourceSearchRes, ResourceError},
+  models::{
+    ExtraResourceSearchQuery, ExtraResourceSearchRes, GameClientResourceInfo,
+    ModLoaderResourceInfo, ResourceError,
+  },
 };
 use crate::{
   error::SJMCLResult, instance::models::misc::ModLoaderType,
@@ -18,7 +21,7 @@ use tauri::{AppHandle, State};
 pub async fn fetch_game_version_list(
   app: AppHandle,
   state: State<'_, Mutex<LauncherConfig>>,
-) -> SJMCLResult<Vec<GameResourceInfo>> {
+) -> SJMCLResult<Vec<GameClientResourceInfo>> {
   let priority_list = {
     let state = state.lock()?;
     get_source_priority_list(&state)
@@ -55,42 +58,12 @@ pub async fn fetch_mod_loader_version_list(
 #[tauri::command]
 pub async fn fetch_resource_list_by_name(
   app: AppHandle,
-  resource_type: String,
-  search_query: String,
-  game_version: String,
-  selected_tag: String,
-  sort_by: String,
   download_source: String,
-  page: u32,
-  page_size: u32,
-) -> SJMCLResult<OtherResourceSearchRes> {
+  query: ExtraResourceSearchQuery,
+) -> SJMCLResult<ExtraResourceSearchRes> {
   match download_source.as_str() {
-    "CurseForge" => Ok(
-      fetch_resource_list_by_name_curseforge(
-        &app,
-        &resource_type,
-        &search_query,
-        &game_version,
-        &selected_tag,
-        &sort_by,
-        page,
-        page_size,
-      )
-      .await?,
-    ),
-    "Modrinth" => Ok(
-      fetch_resource_list_by_name_modrinth(
-        &app,
-        &resource_type,
-        &search_query,
-        &game_version,
-        &selected_tag,
-        &sort_by,
-        page,
-        page_size,
-      )
-      .await?,
-    ),
+    "CurseForge" => Ok(fetch_resource_list_by_name_curseforge(&app, &query).await?),
+    "Modrinth" => Ok(fetch_resource_list_by_name_modrinth(&app, &query).await?),
     _ => Err(ResourceError::NoDownloadApi.into()),
   }
 }
