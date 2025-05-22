@@ -25,17 +25,20 @@ https
     res.on("end", () => {
       try {
         const json = JSON.parse(data);
-        const versions = json.versions.sort((a, b) => {
-          const releaseTimeA = new Date(a.releaseTime);
-          const releaseTimeB = new Date(b.releaseTime);
-          if (releaseTimeA.getTime() === releaseTimeB.getTime()) {
-            // If release times are the same, sort by "id" in ascending order
-            return a.id.localeCompare(b.id);
-          } else {
-            // Otherwise, sort by release time in ascending order
-            return releaseTimeA - releaseTimeB;
-          }
-        });
+        const versions = json.versions
+          .map((v) => ({
+            id: v.id,
+            timestamp: new Date(v.releaseTime).getTime(),
+          }))
+          .sort((a, b) => {
+            if (a.timestamp === b.timestamp) {
+              // If release times are the same, sort by "id" in ascending order
+              return a.id.localeCompare(b.id);
+            } else {
+              // Otherwise, sort by release time in ascending order
+              return a.timestamp - b.timestamp;
+            }
+          });
         const versionIds = versions.map((v) => v.id);
         const text = versionIds.join("\n") + '\n';
 
