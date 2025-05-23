@@ -24,7 +24,7 @@ pub struct CurseForgeLogo {
 
 fn default_logo() -> CurseForgeLogo {
   CurseForgeLogo {
-    url: "/images/icons/GrassBlock.png".to_string(),
+    url: "".to_string(),
   }
 }
 
