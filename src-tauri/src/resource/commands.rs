@@ -1,13 +1,16 @@
 use super::{
   helpers::{
-    curseforge::fetch_resource_list_by_name_curseforge,
-    fabric_meta::get_fabric_meta_by_game_version, forge_meta::get_forge_meta_by_game_version,
-    misc::get_source_priority_list, modrinth::fetch_resource_list_by_name_modrinth,
-    neoforge_meta::get_neoforge_meta_by_game_version, version_manifest::get_game_version_manifest,
+    curseforge::{fetch_resource_list_by_name_curseforge, fetch_resource_version_packs_curseforge},
+    fabric_meta::get_fabric_meta_by_game_version,
+    forge_meta::get_forge_meta_by_game_version,
+    misc::get_source_priority_list,
+    modrinth::{fetch_resource_list_by_name_modrinth, fetch_resource_version_packs_modrinth},
+    neoforge_meta::get_neoforge_meta_by_game_version,
+    version_manifest::get_game_version_manifest,
   },
   models::{
     ExtraResourceSearchQuery, ExtraResourceSearchRes, GameClientResourceInfo,
-    ModLoaderResourceInfo, ResourceError,
+    ModLoaderResourceInfo, ResourceError, ResourceVersionPackQuery, ResourceVersionPackSearchRes,
   },
 };
 use crate::{
@@ -64,6 +67,19 @@ pub async fn fetch_resource_list_by_name(
   match download_source.as_str() {
     "CurseForge" => Ok(fetch_resource_list_by_name_curseforge(&app, &query).await?),
     "Modrinth" => Ok(fetch_resource_list_by_name_modrinth(&app, &query).await?),
+    _ => Err(ResourceError::NoDownloadApi.into()),
+  }
+}
+
+#[tauri::command]
+pub async fn fetch_resource_version_packs(
+  app: AppHandle,
+  download_source: String,
+  query: ResourceVersionPackQuery,
+) -> SJMCLResult<ResourceVersionPackSearchRes> {
+  match download_source.as_str() {
+    "CurseForge" => Ok(fetch_resource_version_packs_curseforge(&app, &query).await?),
+    "Modrinth" => Ok(fetch_resource_version_packs_modrinth(&app, &query).await?),
     _ => Err(ResourceError::NoDownloadApi.into()),
   }
 }

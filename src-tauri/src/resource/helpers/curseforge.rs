@@ -2,21 +2,33 @@ use std::collections::HashMap;
 use std::env;
 
 use crate::error::SJMCLResult;
-use crate::resource::helpers::curseforge_categories::cvt_category_to_id;
+use crate::resource::helpers::curseforge_convert::cvt_category_to_id;
 use crate::resource::models::{
   ExtraResourceInfo, ExtraResourceSearchQuery, ExtraResourceSearchRes, ResourceError,
+  ResourceFileInfo, ResourceVersionPack, ResourceVersionPackQuery, ResourceVersionPackSearchRes,
 };
 use serde::Deserialize;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
-#[derive(Deserialize)]
+use super::curseforge_convert::{
+  cvt_class_id_to_type, cvt_id_to_release_type, cvt_mod_loader_to_id, cvt_sort_by_to_id,
+  cvt_type_to_class_id, cvt_version_to_type_id,
+};
+
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeCategory {
   pub name: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CurseForgeLink {
+  pub website_url: String,
+}
+
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeLogo {
   pub url: String,
@@ -28,10 +40,12 @@ fn default_logo() -> CurseForgeLogo {
   }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeProject {
+  pub id: u32,
   pub class_id: u32,
+  pub links: CurseForgeLink,
   pub name: String,
   pub summary: String,
   pub categories: Vec<CurseForgeCategory>,
@@ -40,7 +54,7 @@ pub struct CurseForgeProject {
   pub date_modified: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgePagination {
   pub index: u32,
@@ -48,45 +62,29 @@ pub struct CurseForgePagination {
   pub total_count: u32,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct CurseForgeSearchRes {
   pub data: Vec<CurseForgeProject>,
   pub pagination: CurseForgePagination,
 }
 
-pub fn cvt_class_id_to_type(class_id: u32) -> String {
-  match class_id {
-    6 => "mod".to_string(),
-    12 => "resourcepack".to_string(),
-    17 => "world".to_string(),
-    4471 => "modpack".to_string(),
-    6552 => "shader".to_string(),
-    6945 => "datapack".to_string(),
-    _ => "unknown".to_string(),
-  }
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CurseForgeFileInfo {
+  pub display_name: String,
+  pub file_name: String,
+  pub release_type: u32,
+  pub file_date: String,
+  pub file_size_on_disk: u64,
+  pub download_url: String,
+  pub download_count: u32,
+  pub game_versions: Vec<String>,
 }
 
-pub fn cvt_type_to_class_id(_type: &str) -> u32 {
-  match _type {
-    "mod" => 6,
-    "resourcepack" => 12,
-    "world" => 17,
-    "modpack" => 4471,
-    "shader" => 6552,
-    "datapack" => 6945,
-    _ => 0,
-  }
-}
-
-pub fn cvt_sort_by_to_id(sort_by: &str) -> u32 {
-  match sort_by {
-    "Popularity" => 2,
-    "A-Z" => 4,
-    "Latest update" => 3,
-    "Creation date" => 11,
-    "Total downloads" => 6,
-    _ => 2,
-  }
+#[derive(Deserialize, Debug)]
+pub struct CurseForgeVersionPackSearchRes {
+  pub data: Vec<CurseForgeFileInfo>,
+  pub pagination: CurseForgePagination,
 }
 
 pub fn map_curseforge_to_resource_info(res: CurseForgeSearchRes) -> ExtraResourceSearchRes {
@@ -94,10 +92,12 @@ pub fn map_curseforge_to_resource_info(res: CurseForgeSearchRes) -> ExtraResourc
     .data
     .into_iter()
     .map(|p| ExtraResourceInfo {
+      id: p.id.to_string(),
       _type: cvt_class_id_to_type(p.class_id),
       name: p.name,
       description: p.summary,
       icon_src: p.logo.unwrap_or_else(default_logo).url,
+      website_url: p.links.website_url,
       tags: p.categories.iter().map(|c| c.name.clone()).collect(),
       last_updated: p.date_modified,
       downloads: p.download_count,
@@ -109,6 +109,89 @@ pub fn map_curseforge_to_resource_info(res: CurseForgeSearchRes) -> ExtraResourc
     list,
     total: res.pagination.total_count,
     page: res.pagination.index / res.pagination.page_size,
+    page_size: res.pagination.page_size,
+  }
+}
+
+fn extract_versions_and_loaders(game_versions: &[String]) -> (Vec<String>, Vec<String>) {
+  let mut versions = Vec::new();
+  let mut loaders = Vec::new();
+
+  const ALLOWED_LOADERS: &[&str] = &[
+    "Forge", "Fabric", "NeoForge", "Vanilla", "Iris", "Canvas", "OptiFine",
+  ];
+
+  for v in game_versions {
+    if v.starts_with(|c: char| c.is_ascii_digit()) {
+      versions.push(v.clone());
+    } else if ALLOWED_LOADERS.contains(&v.as_str()) {
+      loaders.push(v.clone());
+    }
+  }
+
+  (versions, loaders)
+}
+
+pub fn map_curseforge_file_to_version_pack(
+  res: CurseForgeVersionPackSearchRes,
+) -> ResourceVersionPackSearchRes {
+  let file_infos: Vec<(ResourceFileInfo, Vec<String>)> = res
+    .data
+    .into_iter()
+    .map(|cf_file| {
+      let file_info = ResourceFileInfo {
+        name: cf_file.display_name,
+        release_type: cvt_id_to_release_type(cf_file.release_type),
+        downloads: cf_file.download_count,
+        file_date: cf_file.file_date,
+        download_url: cf_file.download_url,
+        file_name: cf_file.file_name,
+        file_size: cf_file.file_size_on_disk,
+      };
+      (file_info, cf_file.game_versions)
+    })
+    .collect();
+
+  let mut version_packs = std::collections::HashMap::new();
+
+  for (file_info, game_versions) in file_infos {
+    let (versions, loaders) = extract_versions_and_loaders(&game_versions);
+
+    let versions = if versions.is_empty() {
+      vec!["Unknown".to_string()]
+    } else {
+      versions
+    };
+
+    let loaders = if loaders.is_empty() {
+      vec!["Unknown".to_string()]
+    } else {
+      loaders
+    };
+
+    for version in &versions {
+      for loader in &loaders {
+        let version_name = format!("{} {}", loader, version);
+
+        version_packs
+          .entry(version_name.clone())
+          .or_insert_with(|| ResourceVersionPack {
+            name: version_name,
+            items: Vec::new(),
+          })
+          .items
+          .push(file_info.clone());
+      }
+    }
+  }
+
+  let mut list: Vec<ResourceVersionPack> = version_packs.into_values().collect();
+  list.sort_by(|a, b| b.name.cmp(&a.name));
+
+  ResourceVersionPackSearchRes {
+    list,
+    total: res.pagination.total_count,
+    page: res.pagination.index,
     page_size: res.pagination.page_size,
   }
 }
@@ -155,7 +238,6 @@ pub async fn fetch_resource_list_by_name_curseforge(
   params.insert("pageSize", page_size.to_string());
 
   let client = app.state::<reqwest::Client>();
-  let _ = client.get(url).query(&params).build()?;
 
   let response = client
     .get(url)
@@ -176,4 +258,62 @@ pub async fn fetch_resource_list_by_name_curseforge(
     .map_err(|_| ResourceError::ParseError)?;
 
   Ok(map_curseforge_to_resource_info(results))
+}
+
+pub async fn fetch_resource_version_packs_curseforge(
+  app: &AppHandle,
+  query: &ResourceVersionPackQuery,
+) -> SJMCLResult<ResourceVersionPackSearchRes> {
+  let ResourceVersionPackQuery {
+    resource_id,
+    mod_loader,
+    game_versions,
+    page,
+    page_size,
+  } = query;
+
+  let url = format!("https://api.curseforge.com/v1/mods/{}/files", resource_id);
+
+  let mut params = HashMap::new();
+  if mod_loader != "All" {
+    params.insert(
+      "modLoaderType",
+      cvt_mod_loader_to_id(mod_loader).to_string(),
+    );
+  }
+  if game_versions.first() != Some(&"All".to_string()) {
+    params.insert(
+      "gameVersionTypeId",
+      cvt_version_to_type_id(game_versions.first().unwrap()).to_string(),
+    );
+  }
+  params.insert("index", (page * page_size).to_string());
+  params.insert("pageSize", page_size.to_string());
+
+  let client = app.state::<reqwest::Client>();
+
+  let request = client.get(&url).query(&params).build()?;
+  println!("{:}", request.url());
+
+  let response = client
+    .get(url)
+    .query(&params)
+    .header("x-api-key", env!("SJMCL_CURSEFORGE_API_KEY"))
+    .header("accept", "application/json")
+    .send()
+    .await
+    .map_err(|_| ResourceError::NetworkError)?;
+
+  if !response.status().is_success() {
+    return Err(ResourceError::NetworkError.into());
+  }
+
+  let results = response
+    .json::<CurseForgeVersionPackSearchRes>()
+    .await
+    .map_err(|_| ResourceError::ParseError)?;
+
+  println!("{:?}", results);
+
+  Ok(map_curseforge_file_to_version_pack(results))
 }

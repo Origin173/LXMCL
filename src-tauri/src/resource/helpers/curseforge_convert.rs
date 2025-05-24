@@ -130,3 +130,83 @@ pub fn cvt_category_to_id(category: &str, class_id: u32) -> u32 {
     }
   }
 }
+
+pub fn cvt_class_id_to_type(class_id: u32) -> String {
+  match class_id {
+    6 => "mod".to_string(),
+    12 => "resourcepack".to_string(),
+    17 => "world".to_string(),
+    4471 => "modpack".to_string(),
+    6552 => "shader".to_string(),
+    6945 => "datapack".to_string(),
+    _ => "unknown".to_string(),
+  }
+}
+
+pub fn cvt_type_to_class_id(_type: &str) -> u32 {
+  match _type {
+    "mod" => 6,
+    "resourcepack" => 12,
+    "world" => 17,
+    "modpack" => 4471,
+    "shader" => 6552,
+    "datapack" => 6945,
+    _ => 0,
+  }
+}
+
+pub fn cvt_sort_by_to_id(sort_by: &str) -> u32 {
+  match sort_by {
+    "Popularity" => 2,
+    "A-Z" => 4,
+    "Latest update" => 3,
+    "Creation date" => 11,
+    "Total downloads" => 6,
+    _ => 2,
+  }
+}
+
+pub fn cvt_mod_loader_to_id(mod_loader: &str) -> u32 {
+  match mod_loader {
+    "Forge" => 1,
+    "Fabric" => 4,
+    "NeoForge" => 6,
+    _ => 0,
+  }
+}
+
+pub fn cvt_version_to_type_id(version: &str) -> u32 {
+  match version {
+    "1.21" => 77784,
+    "1.20" => 75125,
+    "1.19" => 73407,
+    "1.18" => 73250,
+    "1.17" => 73242,
+    "1.16" => 70886,
+    "1.15" => 68722,
+    "1.14" => 64806,
+    "1.13" => 55023,
+    "1.12" => 628,
+    "1.11" => 599,
+    "1.10" => 572,
+    "1.9" => 552,
+    "1.8" => 4,
+    "1.7" => 5,
+    "1.6" => 6,
+    "1.5" => 11,
+    "1.4" => 12,
+    "1.3" => 13,
+    "1.2" => 14,
+    "1.1" => 15,
+    "1.0" => 16,
+    _ => 0,
+  }
+}
+
+pub fn cvt_id_to_release_type(release_type: u32) -> String {
+  match release_type {
+    1 => "release".to_string(),
+    2 => "beta".to_string(),
+    _ => "alpha".to_string(),
+  }
+}

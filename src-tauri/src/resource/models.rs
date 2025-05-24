@@ -36,6 +36,7 @@ pub enum SourceType {
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ExtraResourceInfo {
+  pub id: String,
   pub _type: String,
   pub name: String,
   pub description: String,
@@ -44,6 +45,16 @@ pub struct ExtraResourceInfo {
   pub last_updated: String,
   pub downloads: u32,
   pub source: String,
+  pub website_url: String,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ExtraResourceSearchRes {
+  pub list: Vec<ExtraResourceInfo>,
+  pub total: u32,
+  pub page: u32,
+  pub page_size: u32,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
@@ -60,8 +71,37 @@ pub struct ExtraResourceSearchQuery {
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct ExtraResourceSearchRes {
-  pub list: Vec<ExtraResourceInfo>,
+pub struct ResourceVersionPackQuery {
+  pub resource_id: String,
+  pub mod_loader: String,
+  pub game_versions: Vec<String>,
+  pub page: u32,
+  pub page_size: u32,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ResourceFileInfo {
+  pub name: String,
+  pub release_type: String,
+  pub downloads: u32,
+  pub file_date: String,
+  pub download_url: String,
+  pub file_name: String,
+  pub file_size: u64,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ResourceVersionPack {
+  pub name: String,
+  pub items: Vec<ResourceFileInfo>,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ResourceVersionPackSearchRes {
+  pub list: Vec<ResourceVersionPack>,
   pub total: u32,
   pub page: u32,
   pub page_size: u32,
