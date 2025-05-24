@@ -15,6 +15,7 @@ use super::curseforge_convert::{
   cvt_class_id_to_type, cvt_id_to_release_type, cvt_mod_loader_to_id, cvt_sort_by_to_id,
   cvt_type_to_class_id, cvt_version_to_type_id,
 };
+use super::sort::version_pack_sort;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -75,8 +76,7 @@ pub struct CurseForgeFileInfo {
   pub file_name: String,
   pub release_type: u32,
   pub file_date: String,
-  pub file_size_on_disk: u64,
-  pub download_url: String,
+  pub download_url: Option<String>,
   pub download_count: u32,
   pub game_versions: Vec<String>,
 }
@@ -144,9 +144,8 @@ pub fn map_curseforge_file_to_version_pack(
         release_type: cvt_id_to_release_type(cf_file.release_type),
         downloads: cf_file.download_count,
         file_date: cf_file.file_date,
-        download_url: cf_file.download_url,
+        download_url: cf_file.download_url.unwrap_or_else(|| "".to_string()),
         file_name: cf_file.file_name,
-        file_size: cf_file.file_size_on_disk,
       };
       (file_info, cf_file.game_versions)
     })
@@ -158,13 +157,13 @@ pub fn map_curseforge_file_to_version_pack(
     let (versions, loaders) = extract_versions_and_loaders(&game_versions);
 
     let versions = if versions.is_empty() {
-      vec!["Unknown".to_string()]
+      vec!["".to_string()]
     } else {
       versions
     };
 
     let loaders = if loaders.is_empty() {
-      vec!["Unknown".to_string()]
+      vec!["".to_string()]
     } else {
       loaders
     };
@@ -186,7 +185,7 @@ pub fn map_curseforge_file_to_version_pack(
   }
 
   let mut list: Vec<ResourceVersionPack> = version_packs.into_values().collect();
-  list.sort_by(|a, b| b.name.cmp(&a.name));
+  list.sort_by(version_pack_sort);
 
   ResourceVersionPackSearchRes {
     list,
@@ -292,9 +291,6 @@ pub async fn fetch_resource_version_packs_curseforge(
 
   let client = app.state::<reqwest::Client>();
 
-  let request = client.get(&url).query(&params).build()?;
-  println!("{:}", request.url());
-
   let response = client
     .get(url)
     .query(&params)
@@ -312,8 +308,6 @@ pub async fn fetch_resource_version_packs_curseforge(
     .json::<CurseForgeVersionPackSearchRes>()
     .await
     .map_err(|_| ResourceError::ParseError)?;
-
-  println!("{:?}", results);
 
   Ok(map_curseforge_file_to_version_pack(results))
 }

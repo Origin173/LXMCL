@@ -88,7 +88,6 @@ pub struct ResourceFileInfo {
   pub file_date: String,
   pub download_url: String,
   pub file_name: String,
-  pub file_size: u64,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]

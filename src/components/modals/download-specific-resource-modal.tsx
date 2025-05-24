@@ -28,7 +28,6 @@ import {
   LuChevronDown,
   LuDownload,
   LuExternalLink,
-  LuFileCheck,
   LuPackage,
   LuUpload,
 } from "react-icons/lu";
@@ -420,11 +419,13 @@ const DownloadSpecificResourceModal: React.FC<
               </HStack>
               {versionPacks.length > 0 ? (
                 versionPacks
-                  .filter((v) =>
-                    matchVersion(
-                      selectedVersionLabel,
-                      v.name.split(" ").pop() || ""
-                    )
+                  .filter(
+                    (v) =>
+                      selectedVersionLabel === "All" ||
+                      matchVersion(
+                        selectedVersionLabel,
+                        v.name.split(" ").pop() || ""
+                      )
                   )
                   .map((pack, index) => (
                     <Section
@@ -466,10 +467,6 @@ const DownloadSpecificResourceModal: React.FC<
                                         `DownloadSpecificResourceModal.releaseType.${item.releaseType}`
                                       )}
                                     </Text>
-                                  </HStack>
-                                  <HStack spacing={1}>
-                                    <LuFileCheck />
-                                    <Text>{`${formatDisplayCount(item.fileSize)}B`}</Text>
                                   </HStack>
                                 </HStack>
                               }

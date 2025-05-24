@@ -35,7 +35,6 @@ export interface ResourceFileInfo {
   fileDate: string;
   downloadUrl: string;
   fileName: string;
-  fileSize: number;
 }
 
 export interface ResourceVersionPack {

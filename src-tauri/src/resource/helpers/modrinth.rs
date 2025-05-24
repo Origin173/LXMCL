@@ -8,6 +8,8 @@ use std::collections::HashMap;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
+use super::sort::version_pack_sort;
+
 #[derive(Deserialize, Debug)]
 pub struct ModrinthProject {
   pub project_id: String,
@@ -33,7 +35,6 @@ pub struct ModrinthSearchRes {
 pub struct ModrinthFile {
   pub url: String,
   pub filename: String,
-  pub size: u64,
 }
 
 #[derive(Deserialize, Debug)]
@@ -80,24 +81,17 @@ pub fn map_modrinth_file_to_version_pack(
 
   for version in res {
     let game_versions = if version.game_versions.is_empty() {
-      vec!["Unknown".to_string()]
+      vec!["".to_string()]
     } else {
       version.game_versions
     };
 
     const ALLOWED_LOADERS: &[&str] = &[
-      "forge",
-      "fabric",
-      "neoforge",
-      "vanilla",
-      "iris",
-      "canvas",
-      "optifine",
-      "minecraft",
+      "forge", "fabric", "neoforge", "vanilla", "iris", "canvas", "optifine",
     ];
 
     let loaders = if version.loaders.is_empty() {
-      vec!["Unknown".to_string()]
+      vec!["".to_string()]
     } else {
       version
         .loaders
@@ -105,6 +99,12 @@ pub fn map_modrinth_file_to_version_pack(
         .filter(|loader| ALLOWED_LOADERS.contains(&loader.as_str()))
         .cloned()
         .collect::<Vec<_>>()
+    };
+
+    let loaders = if loaders.is_empty() {
+      vec!["".to_string()]
+    } else {
+      loaders
     };
 
     for game_version in &game_versions {
@@ -121,7 +121,6 @@ pub fn map_modrinth_file_to_version_pack(
             file_date: version.date_published.clone(),
             download_url: file.url.clone(),
             file_name: file.filename.clone(),
-            file_size: file.size,
           })
           .collect::<Vec<_>>();
 
@@ -138,7 +137,7 @@ pub fn map_modrinth_file_to_version_pack(
   }
 
   let mut list: Vec<ResourceVersionPack> = version_packs.into_values().collect();
-  list.sort_by(|a, b| b.name.cmp(&a.name));
+  list.sort_by(version_pack_sort);
 
   ResourceVersionPackSearchRes {
     list: list.clone(),
@@ -231,9 +230,6 @@ pub async fn fetch_resource_version_packs_modrinth(
 
   let client = app.state::<reqwest::Client>();
 
-  let request = client.get(&url).query(&params).build()?;
-  println!("{:}", request.url());
-
   let response = client
     .get(url)
     .query(&params)
@@ -249,8 +245,6 @@ pub async fn fetch_resource_version_packs_modrinth(
     .json::<Vec<ModrinthVersionPack>>()
     .await
     .map_err(|_| ResourceError::ParseError)?;
-
-  println!("{:?}", results);
 
   Ok(map_modrinth_file_to_version_pack(results))
 }
