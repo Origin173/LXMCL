@@ -219,7 +219,7 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
       <Avatar
         src={item.iconSrc}
         name={item.name}
-        boxSize="38px"
+        boxSize="42px"
         borderRadius="4px"
       />
     ),
@@ -363,18 +363,11 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
             });
           }
         })
-        .catch((error) => {
-          toast({
-            title: t("ResourceDownloader.toast.error"),
-            description: error.message,
-            status: "error",
-          });
-        })
         .finally(() => {
           setIsLoadingResourceList(false);
         });
     },
-    [t, toast]
+    [toast]
   );
 
   const loadMore = () => {

@@ -435,15 +435,15 @@
   },
   "DownloadSpecificResourceModal": {
     "title": "资源下载 - {{name}}",
-    "goTo": {
-      "curseforge": "CurseForge",
-      "modrinth": "Modrinth",
-      "mcmod": "MC 百科"
-    },
     "label": {
       "all": "全部",
       "currentVersion": "当前版本",
       "currentModLoader": "当前加载器"
+    },
+    "releaseType": {
+      "alpha": "内测版",
+      "beta": "公测版",
+      "release": "正式版"
     }
   },
   "DownloadTasksPage": {
@@ -1650,6 +1650,24 @@
       "fetchModLoaderVersionList": {
         "error": {
           "title": "获取模组加载器列表失败",
+          "description": {
+            "PARSE_ERROR": "服务器返回数据格式错误",
+            "NO_DOWNLOAD_API": "无可用的下载策略，请检查网络连接"
+          }
+        }
+      },
+      "fetchResourceListByName": {
+        "error": {
+          "title": "获取资源列表失败",
+          "description": {
+            "PARSE_ERROR": "服务器返回数据格式错误",
+            "NO_DOWNLOAD_API": "无可用的下载策略，请检查网络连接"
+          }
+        }
+      },
+      "fetchResourceVersionPacks": {
+        "error": {
+          "title": "获取资源版本列表失败",
           "description": {
             "PARSE_ERROR": "服务器返回数据格式错误",
             "NO_DOWNLOAD_API": "无可用的下载策略，请检查网络连接"

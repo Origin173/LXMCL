@@ -435,15 +435,15 @@
   },
   "DownloadSpecificResourceModal": {
     "title": "Download Resource - {{name}}",
-    "goTo": {
-      "curseforge": "CurseForge",
-      "modrinth": "Modrinth",
-      "mcmod": "MCMod"
-    },
     "label": {
       "all": "All",
-      "currentVersion": "Current Version",
+      "currentVersion": "Current Ver.",
       "currentModLoader": "Current Loader"
+    },
+    "releaseType": {
+      "alpha": "Alpha",
+      "beta": "Beta",
+      "release": "Release"
     }
   },
   "DownloadTasksPage": {
@@ -1650,6 +1650,24 @@
       "fetchModLoaderVersionList": {
         "error": {
           "title": "Failed to fetch mod loader version list",
+          "description": {
+            "PARSE_ERROR": "The server returned data in an incorrect format",
+            "NO_DOWNLOAD_API": "No download strategy available, please check internet connection"
+          }
+        }
+      },
+      "fetchResourceListByName": {
+        "error": {
+          "title": "Failed to fetch resource list",
+          "description": {
+            "PARSE_ERROR": "The server returned data in an incorrect format",
+            "NO_DOWNLOAD_API": "No download strategy available, please check internet connection"
+          }
+        }
+      },
+      "fetchResourceVersionPacks": {
+        "error": {
+          "title": "Failed to fetch resource version list",
           "description": {
             "PARSE_ERROR": "The server returned data in an incorrect format",
             "NO_DOWNLOAD_API": "No download strategy available, please check internet connection"

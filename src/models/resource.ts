@@ -8,6 +8,8 @@ export interface GameResourceInfo {
 }
 
 export interface OtherResourceInfo {
+  id?: string; // got from API
+  websiteUrl?: string;
   type: "mod" | "world" | "resourcepack" | "shader" | "modpack" | "datapack";
   name: string;
   translatedName?: string;
@@ -26,18 +28,33 @@ export interface OtherResourceSearchRes {
   pageSize: number;
 }
 
+export interface ResourceFileInfo {
+  name: string;
+  releaseType: string;
+  downloads: number;
+  fileDate: string;
+  downloadUrl: string;
+  fileName: string;
+  fileSize: number;
+}
+
+export interface ResourceVersionPack {
+  name: string;
+  items: ResourceFileInfo[];
+}
+
+export interface ResourceVersionPackSearchRes {
+  list: ResourceVersionPack[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export interface ModLoaderResourceInfo {
   loaderType: ModLoaderType;
   version: string;
   description?: string;
   stable: boolean;
-}
-
-export interface ResourceVersionPack {
-  name: string;
-  items: OtherResourceInfo[];
-  versionLabel: string;
-  modLoader?: ModLoaderType;
 }
 
 export const defaultModLoaderResourceInfo: ModLoaderResourceInfo = {
