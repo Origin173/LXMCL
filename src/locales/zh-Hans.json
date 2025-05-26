@@ -437,7 +437,7 @@
     "title": "资源下载 - {{name}}",
     "label": {
       "all": "全部",
-      "currentVersion": "当前版本",
+      "recommendedVersion": "推荐版本",
       "currentModLoader": "当前加载器"
     },
     "releaseType": {

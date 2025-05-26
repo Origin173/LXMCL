@@ -437,7 +437,7 @@
     "title": "Download Resource - {{name}}",
     "label": {
       "all": "All",
-      "currentVersion": "Current Ver.",
+      "recommendedVersion": "Recommended Ver.",
       "currentModLoader": "Current Loader"
     },
     "releaseType": {

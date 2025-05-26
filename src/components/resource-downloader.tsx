@@ -2,7 +2,6 @@ import {
   Avatar,
   Box,
   Button,
-  Center,
   HStack,
   Input,
   Menu,
@@ -538,9 +537,9 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
 
       <Box flexGrow={1} w="100%" overflowX="hidden">
         {isLoadingResourceList ? (
-          <Center>
+          <VStack mt={8}>
             <BeatLoader size={16} color="gray" />
-          </Center>
+          </VStack>
         ) : (
           <ResourceDownloaderList
             list={resourceList}

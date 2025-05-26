@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   HStack,
+  Image,
   Link,
   Menu,
   MenuButton,
@@ -248,6 +249,33 @@ const DownloadSpecificResourceModal: React.FC<
     pageRef.current += 1;
   };
 
+  const buildVersionLabelItem = (version: string) => {
+    return version !== "All"
+      ? version === curInstanceMajorVersion
+        ? `${version} (${t("DownloadSpecificResourceModal.label.recommendedVersion")})`
+        : version
+      : t("DownloadSpecificResourceModal.label.all");
+  };
+
+  const buildModLoaderItem = (modLoader: string) => {
+    return modLoader !== "All" ? (
+      <HStack spacing={1}>
+        <Image
+          src={`/images/icons/${modLoader}.png`}
+          alt={modLoader}
+          boxSize="12px"
+        ></Image>
+        <Text>
+          {modLoader === curInstanceModLoader
+            ? `${modLoader} (${t("DownloadSpecificResourceModal.label.currentModLoader")})`
+            : modLoader}
+        </Text>
+      </HStack>
+    ) : (
+      t("DownloadSpecificResourceModal.label.all")
+    );
+  };
+
   useEffect(() => {
     setSelectedModLoader(curInstanceModLoader || "All");
     setSelectedVersionLabel(curInstanceMajorVersion || "All");
@@ -357,11 +385,7 @@ const DownloadSpecificResourceModal: React.FC<
                     rightIcon={<LuChevronDown />}
                   >
                     <Text className="ellipsis-text" maxW={36}>
-                      {selectedVersionLabel !== "All"
-                        ? selectedVersionLabel === curInstanceMajorVersion
-                          ? `${selectedVersionLabel} (${t("DownloadSpecificResourceModal.label.currentVersion")})`
-                          : selectedVersionLabel
-                        : t("DownloadSpecificResourceModal.label.all")}
+                      {buildVersionLabelItem(selectedVersionLabel)}
                     </Text>
                   </MenuButton>
                   <MenuList maxH="40vh" minW={36} overflow="auto">
@@ -374,11 +398,7 @@ const DownloadSpecificResourceModal: React.FC<
                     >
                       {versionLabels.map((item, key) => (
                         <MenuItemOption key={key} value={item} fontSize="xs">
-                          {item !== "All"
-                            ? item === curInstanceMajorVersion
-                              ? `${item} (${t("DownloadSpecificResourceModal.label.currentVersion")})`
-                              : item
-                            : t("DownloadSpecificResourceModal.label.all")}
+                          {buildVersionLabelItem(item)}
                         </MenuItemOption>
                       ))}
                     </MenuOptionGroup>
@@ -397,12 +417,7 @@ const DownloadSpecificResourceModal: React.FC<
                       display="flex"
                       items={modLoaderLabels.map((item) => ({
                         value: item,
-                        label:
-                          item !== "All"
-                            ? item === curInstanceModLoader
-                              ? `${item} (${t("DownloadSpecificResourceModal.label.currentModLoader")})`
-                              : item
-                            : t("DownloadSpecificResourceModal.label.all"),
+                        label: buildModLoaderItem(item),
                       }))}
                     />
                   )}
