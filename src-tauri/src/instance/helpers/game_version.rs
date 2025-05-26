@@ -78,9 +78,8 @@ pub async fn compare_game_versions(app: &AppHandle, version_a: &str, version_b: 
 
 /// Find the major game version ("1.x") corresponding to the provided game version.
 /// If the version starts with 1.x (e.g., 1.7, 1.18-pre1, 1.21.4),
-/// it will return the major version (e.g., 1.7, 1.18, 1.21).
-/// Otherwise, it will return the corresponding 1.x version found from the list.
-/// If no 1.x version is found, returns "0.0".
+/// it will return the parsed major version (e.g., 1.7, 1.18, 1.21).
+/// Otherwise, it will return the corresponding major version found from the list.
 ///
 /// # Examples
 /// ```
@@ -89,9 +88,9 @@ pub async fn compare_game_versions(app: &AppHandle, version_a: &str, version_b: 
 /// ```
 ///
 /// # Expected result
-/// - Returns the major version (e.g., "1.21") if the input version starts with "1.x"
+/// - Returns the major version if the input version starts with "1.x"
 /// - Returns the closest major version from the list otherwise
-/// - Returns "0.0" as fallback.
+/// - Returns empty string as fallback.
 pub async fn get_major_game_version(app: &AppHandle, version: &str) -> String {
   fn is_1x_version(version: &str) -> bool {
     version.starts_with("1.")
@@ -112,7 +111,11 @@ pub async fn get_major_game_version(app: &AppHandle, version: &str) -> String {
         return extract_major_version(&versions[i]);
       }
     }
-    "0.0".to_string() // no major version found before the input version
+    String::new() // no major version found before the input version
+  }
+
+  if version.trim().is_empty() {
+    return String::new();
   }
 
   // If the input version starts with "1.x", return the major version directly (e.g., 1.21 from 1.21.4)
@@ -142,10 +145,5 @@ pub async fn get_major_game_version(app: &AppHandle, version: &str) -> String {
     }
   }
 
-  // If we still can't find the version, return the last 1.x version from the list
-  if let Some(last_1x_version) = versions.iter().rev().find(|v| is_1x_version(v)) {
-    return extract_major_version(last_1x_version);
-  }
-
-  "0.0".to_string()
+  String::new()
 }
