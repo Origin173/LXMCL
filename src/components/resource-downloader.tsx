@@ -251,6 +251,7 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
       )}
       {selectedItem && (
         <DownloadSpecificResourceModal
+          key={selectedItem.id}
           isOpen={isOpen}
           onClose={onClose}
           resource={selectedItem}

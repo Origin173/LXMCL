@@ -346,143 +346,139 @@ const DownloadSpecificResourceModal: React.FC<
               </HStack>
             </HStack>
           </Card>
+          <HStack align="center" justify="space-between" mb={3}>
+            <Menu>
+              <MenuButton
+                as={Button}
+                size="xs"
+                w={36}
+                variant="outline"
+                fontSize="xs"
+                textAlign="center"
+                rightIcon={<LuChevronDown />}
+              >
+                <Text className="ellipsis-text" maxW={36}>
+                  {buildVersionLabelItem(selectedVersionLabel)}
+                </Text>
+              </MenuButton>
+              <MenuList maxH="40vh" minW={36} overflow="auto">
+                <MenuOptionGroup
+                  value={selectedVersionLabel}
+                  type="radio"
+                  onChange={(value) => {
+                    setSelectedVersionLabel(value as string);
+                  }}
+                >
+                  {versionLabels.map((item, key) => (
+                    <MenuItemOption key={key} value={item} fontSize="xs">
+                      {buildVersionLabelItem(item)}
+                    </MenuItemOption>
+                  ))}
+                </MenuOptionGroup>
+              </MenuList>
+            </Menu>
+            <Box>
+              {resource.type === "mod" && (
+                <NavMenu
+                  className="no-scrollbar"
+                  selectedKeys={[selectedModLoader]}
+                  onClick={setSelectedModLoader}
+                  direction="row"
+                  size="xs"
+                  spacing={2}
+                  flex={1}
+                  display="flex"
+                  items={modLoaderLabels.map((item) => ({
+                    value: item,
+                    label: buildModLoaderItem(item),
+                  }))}
+                />
+              )}
+            </Box>
+          </HStack>
           {isLoadingGameVersionList || isLoadingVersionPacks ? (
             <VStack mt={8}>
               <BeatLoader size={16} color="gray" />
             </VStack>
-          ) : (
-            <>
-              <HStack align="center" justify="space-between" mb={3}>
-                <Menu>
-                  <MenuButton
-                    as={Button}
-                    size="xs"
-                    w={36}
-                    variant="outline"
-                    fontSize="xs"
-                    textAlign="center"
-                    rightIcon={<LuChevronDown />}
-                  >
-                    <Text className="ellipsis-text" maxW={36}>
-                      {buildVersionLabelItem(selectedVersionLabel)}
-                    </Text>
-                  </MenuButton>
-                  <MenuList maxH="40vh" minW={36} overflow="auto">
-                    <MenuOptionGroup
-                      value={selectedVersionLabel}
-                      type="radio"
-                      onChange={(value) => {
-                        setSelectedVersionLabel(value as string);
-                      }}
-                    >
-                      {versionLabels.map((item, key) => (
-                        <MenuItemOption key={key} value={item} fontSize="xs">
-                          {buildVersionLabelItem(item)}
-                        </MenuItemOption>
-                      ))}
-                    </MenuOptionGroup>
-                  </MenuList>
-                </Menu>
-                <Box>
-                  {resource.type === "mod" && (
-                    <NavMenu
-                      className="no-scrollbar"
-                      selectedKeys={[selectedModLoader]}
-                      onClick={setSelectedModLoader}
-                      direction="row"
-                      size="xs"
-                      spacing={2}
-                      flex={1}
-                      display="flex"
-                      items={modLoaderLabels.map((item) => ({
-                        value: item,
-                        label: buildModLoaderItem(item),
-                      }))}
-                    />
-                  )}
-                </Box>
-              </HStack>
-              {versionPacks.length > 0 ? (
-                versionPacks
-                  .filter(
-                    (v) =>
-                      selectedVersionLabel === "All" ||
-                      matchVersion(
-                        selectedVersionLabel,
-                        v.name.split(" ").pop() || ""
-                      )
+          ) : versionPacks.length > 0 ? (
+            versionPacks
+              .filter(
+                (v) =>
+                  selectedVersionLabel === "All" ||
+                  matchVersion(
+                    selectedVersionLabel,
+                    v.name.split(" ").pop() || ""
                   )
-                  .map((pack, index) => (
-                    <Section
-                      key={index}
-                      isAccordion
-                      title={pack.name}
-                      initialIsOpen={false}
-                      titleExtra={<CountTag count={pack.items.length} />}
-                      mb={2}
-                    >
-                      {pack.items.length > 0 ? (
-                        <OptionItemGroup
-                          items={pack.items.map((item, index) => (
-                            <OptionItem
-                              key={index}
-                              title={item.name}
-                              description={
-                                <HStack
-                                  fontSize="xs"
-                                  className="secondary-text"
-                                  spacing={6}
-                                  align="flex-start"
-                                  w="100%"
-                                >
-                                  <HStack spacing={1}>
-                                    <LuDownload />
-                                    <Text>
-                                      {formatDisplayCount(item.downloads)}
-                                    </Text>
-                                  </HStack>
-                                  <HStack spacing={1}>
-                                    <LuUpload />
-                                    <Text>{ISOToDate(item.fileDate)}</Text>
-                                  </HStack>
-                                  <HStack spacing={1}>
-                                    <LuPackage />
-                                    <Text>
-                                      {t(
-                                        `DownloadSpecificResourceModal.releaseType.${item.releaseType}`
-                                      )}
-                                    </Text>
-                                  </HStack>
-                                </HStack>
-                              }
-                              prefixElement={
-                                <Avatar
-                                  src={""}
-                                  name={item.releaseType}
-                                  boxSize="32px"
-                                  borderRadius="4px"
-                                  backgroundColor={iconBackgroundColor(
-                                    item.releaseType
+              )
+              .map((pack, index) => (
+                <Section
+                  key={index}
+                  isAccordion
+                  title={pack.name}
+                  initialIsOpen={false}
+                  titleExtra={<CountTag count={pack.items.length} />}
+                  mb={2}
+                >
+                  {pack.items.length > 0 ? (
+                    <OptionItemGroup
+                      items={pack.items.map((item, index) => (
+                        <OptionItem
+                          key={index}
+                          title={item.name}
+                          description={
+                            <HStack
+                              fontSize="xs"
+                              className="secondary-text"
+                              spacing={6}
+                              align="flex-start"
+                              w="100%"
+                            >
+                              <HStack spacing={1}>
+                                <LuDownload />
+                                <Text>
+                                  {formatDisplayCount(item.downloads)}
+                                </Text>
+                              </HStack>
+                              <HStack spacing={1}>
+                                <LuUpload />
+                                <Text>{ISOToDate(item.fileDate)}</Text>
+                              </HStack>
+                              <HStack spacing={1}>
+                                <LuPackage />
+                                <Text>
+                                  {t(
+                                    `DownloadSpecificResourceModal.releaseType.${item.releaseType}`
                                   )}
-                                />
-                              }
-                              isFullClickZone
-                              onClick={() => {
-                                console.log("Downloading", item.fileName);
-                                console.log(item.downloadUrl); // TBD
-                              }}
+                                </Text>
+                              </HStack>
+                            </HStack>
+                          }
+                          prefixElement={
+                            <Avatar
+                              src={""}
+                              name={item.releaseType}
+                              boxSize="32px"
+                              borderRadius="4px"
+                              backgroundColor={iconBackgroundColor(
+                                item.releaseType
+                              )}
                             />
-                          ))}
+                          }
+                          isFullClickZone
+                          onClick={() => {
+                            console.log("Downloading", item.fileName);
+                            console.log(item.downloadUrl); // TBD
+                          }}
                         />
-                      ) : (
-                        <Empty withIcon={false} size="sm" />
-                      )}
-                    </Section>
-                  ))
-              ) : (
-                <Empty withIcon size="sm" />
-              )}
-            </>
+                      ))}
+                    />
+                  ) : (
+                    <Empty withIcon={false} size="sm" />
+                  )}
+                </Section>
+              ))
+          ) : (
+            <Empty withIcon size="sm" />
           )}
         </ModalBody>
       </ModalContent>
