@@ -250,7 +250,7 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
           isOpen={isOpen}
           onClose={onClose}
           resource={selectedItem}
-          curInstanceVersion={curInstance?.version}
+          curInstanceMajorVersion={curInstance?.majorVersion}
           curInstanceModLoader={
             selectedItem.type === "mod" &&
             curInstance?.modLoader.loaderType !== "Unknown"

@@ -60,13 +60,18 @@ import { formatDisplayCount } from "@/utils/string";
 interface DownloadSpecificResourceModalProps
   extends Omit<ModalProps, "children"> {
   resource: OtherResourceInfo;
-  curInstanceVersion: string | undefined;
+  curInstanceMajorVersion: string | undefined;
   curInstanceModLoader: ModLoaderType | undefined;
 }
 
 const DownloadSpecificResourceModal: React.FC<
   DownloadSpecificResourceModalProps
-> = ({ resource, curInstanceVersion, curInstanceModLoader, ...modalProps }) => {
+> = ({
+  resource,
+  curInstanceMajorVersion,
+  curInstanceModLoader,
+  ...modalProps
+}) => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const toast = useToast();
@@ -245,19 +250,8 @@ const DownloadSpecificResourceModal: React.FC<
 
   useEffect(() => {
     setSelectedModLoader(curInstanceModLoader || "All");
-
-    if (curInstanceVersion) {
-      const releaseVersionPattern = /^(\d+)\.(\d+)(?:\.\d+)?$/;
-      const match = curInstanceVersion.match(releaseVersionPattern);
-      if (match) {
-        setSelectedVersionLabel(`${match[1]}.${match[2]}`);
-      } else {
-        setSelectedVersionLabel("All");
-      }
-    } else {
-      setSelectedVersionLabel("All");
-    }
-  }, [curInstanceModLoader, curInstanceVersion]);
+    setSelectedVersionLabel(curInstanceMajorVersion || "All");
+  }, [curInstanceModLoader, curInstanceMajorVersion]);
 
   useEffect(() => {
     fetchVersionLabels();
@@ -364,10 +358,7 @@ const DownloadSpecificResourceModal: React.FC<
                   >
                     <Text className="ellipsis-text" maxW={36}>
                       {selectedVersionLabel !== "All"
-                        ? matchVersion(
-                            selectedVersionLabel,
-                            curInstanceVersion || ""
-                          )
+                        ? selectedVersionLabel === curInstanceMajorVersion
                           ? `${selectedVersionLabel} (${t("DownloadSpecificResourceModal.label.currentVersion")})`
                           : selectedVersionLabel
                         : t("DownloadSpecificResourceModal.label.all")}
@@ -384,7 +375,7 @@ const DownloadSpecificResourceModal: React.FC<
                       {versionLabels.map((item, key) => (
                         <MenuItemOption key={key} value={item} fontSize="xs">
                           {item !== "All"
-                            ? matchVersion(item, curInstanceVersion || "")
+                            ? item === curInstanceMajorVersion
                               ? `${item} (${t("DownloadSpecificResourceModal.label.currentVersion")})`
                               : item
                             : t("DownloadSpecificResourceModal.label.all")}
