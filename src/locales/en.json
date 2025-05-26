@@ -1149,6 +1149,7 @@
         "Applied Energistics 2": "Applied Energistics 2",
         "Armor, Tools, and Weapons": "Armor Tools Weapons",
         "Automation": "Automation",
+        "Auxiliary": "Auxiliary",        
         "Biomes": "Biomes",
         "Blood Magic": "Blood Magic",
         "Buildcraft": "Buildcraft",
@@ -1171,7 +1172,7 @@
         "Magic": "Magic",
         "Map and Information": "Map Information",
         "MCreator": "MCreator",
-        "Miscellaneous": "Miscellaneous",
+        "Miscellaneous": "Misc.",
         "Mobs": "Mobs",
         "Ores and Resources": "Ores Resources",
         "Performance": "Performance",
@@ -1189,7 +1190,8 @@
         "Twilight Forest": "Twilight Forest",
         "Twitch Integration": "Twitch",
         "Utility & QoL": "Utility QoL",
-        "World Gen": "World Gen"
+        "World Gen": "World Gen",
+        "World": "World"
       },
       "Modrinth": {
         "All": "All",
@@ -1223,7 +1225,8 @@
         "Modded World": "Modded World",
         "Parkour": "Parkour",
         "Puzzle": "Puzzle",
-        "Survival": "Survival"
+        "Survival": "Survival",
+        "Types": "Types"
       }
     },
     "resourcepackTagList": {
@@ -1235,14 +1238,17 @@
         "128x": "128x",
         "256x": "256x",
         "512x and Higher": "512x and Higher",
+        "Styles": "Styles",
         "Animated": "Animated",
+        "Special": "Special",
         "Data Packs": "Data Packs",
         "Font Packs": "Font Packs",
         "Medieval": "Medieval",
-        "Miscellaneous": "Miscellaneous",
+        "Miscellaneous": "Misc.",
         "Mod Support": "Mod Support",
         "Modern": "Modern",
         "Photo Realistic": "Photo Realistic",
+        "Resolution": "Resolution",        
         "Steampunk": "Steampunk",
         "Traditional": "Traditional"
       },
@@ -1255,6 +1261,7 @@
         "128x": "128x",
         "256x": "256x",
         "512x+": "512x or Higher",
+        "Styles": "Styles",
         "audio": "Audio",
         "blocks": "Blocks",
         "core-shaders": "Core Shaders",
@@ -1271,6 +1278,7 @@
         "decoration": "Decoration",
         "modded": "Modded",
         "realistic": "Realistic",
+        "Resolution": "Resolution",        
         "simplistic": "Simplistic",
         "themed": "Themed",
         "tweaks": "Tweaks",
@@ -1281,12 +1289,14 @@
     "shaderTagList": {
       "CurseForge": {
         "All": "All",
+        "Styles": "Styles",
         "Fantasy": "Fantasy",
         "Realistic": "Realistic",
         "Vanilla": "Vanilla"
       },
       "Modrinth": {
         "All": "All",
+        "Styles": "Styles",
         "cartoon": "Cartoon",
         "cursed": "Cursed",
         "fantasy": "Fantasy",
@@ -1302,6 +1312,7 @@
         "reflections": "Reflections",
         "shadows": "Shadows",
         "potato": "Potato",
+        "performance": "Performance",
         "low": "Low",
         "medium": "Medium",
         "high": "High",
@@ -1311,6 +1322,7 @@
     "modpackTagList": {
       "CurseForge": {
         "All": "All",
+        "Styles": "Styles",
         "Adventure and RPG": "Adventure RPG",
         "Combat / PvP": "Combat PvP",
         "Exploration": "Exploration",
@@ -1331,6 +1343,7 @@
       },
       "Modrinth": {
         "All": "All",
+        "styles": "Styles",
         "adventure": "Adventure",
         "challenging": "Challenging",
         "combat": "Combat",
