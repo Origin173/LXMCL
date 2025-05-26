@@ -4,7 +4,7 @@ import {
   GameResourceInfo,
   ModLoaderResourceInfo,
   OtherResourceSearchRes,
-  ResourceVersionPackSearchRes,
+  ResourceVersionPack,
 } from "@/models/resource";
 import { InvokeResponse } from "@/models/response";
 import { responseHandler } from "@/utils/response";
@@ -68,23 +68,23 @@ export class ResourceService {
     });
   }
 
+  /**
+   * FETCH the version packs for a specific resource.
+   * @returns {Promise<InvokeResponse<ResourceVersionPack[]>>}
+   */
   @responseHandler("resource")
   static async fetchResourceVersionPacks(
     resourceId: string,
     modLoader: ModLoaderType | "All",
     gameVersions: string[],
-    downloadSource: string,
-    page: number,
-    pageSize: number
-  ): Promise<InvokeResponse<ResourceVersionPackSearchRes>> {
+    downloadSource: string
+  ): Promise<InvokeResponse<ResourceVersionPack[]>> {
     return await invoke("fetch_resource_version_packs", {
       downloadSource,
       query: {
         resourceId,
         modLoader,
         gameVersions,
-        page,
-        pageSize,
       },
     });
   }

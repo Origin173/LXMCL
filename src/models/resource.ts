@@ -42,13 +42,6 @@ export interface ResourceVersionPack {
   items: ResourceFileInfo[];
 }
 
-export interface ResourceVersionPackSearchRes {
-  list: ResourceVersionPack[];
-  total: number;
-  page: number;
-  pageSize: number;
-}
-
 export interface ModLoaderResourceInfo {
   loaderType: ModLoaderType;
   version: string;

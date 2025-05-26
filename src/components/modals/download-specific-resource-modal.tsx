@@ -23,7 +23,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuChevronDown,
@@ -94,11 +94,9 @@ const DownloadSpecificResourceModal: React.FC<
   const [selectedModLoader, setSelectedModLoader] = useState<
     ModLoaderType | "All"
   >("All");
+  const [isLoadingVersionPacks, setIsLoadingVersionPacks] =
+    useState<boolean>(true);
   const [versionPacks, setVersionPacks] = useState<ResourceVersionPack[]>([]);
-  const [hasMore, setHasMore] = useState<boolean>(true);
-  const [pageSize, setPageSize] = useState<number>(50);
-
-  const pageRef = useRef(0);
 
   const tagLists: Record<string, any> = {
     mod: modTagList,
@@ -116,7 +114,11 @@ const DownloadSpecificResourceModal: React.FC<
       const tagList = (tagLists[resourceType] || modpackTagList)[
         downloadSource
       ];
-      if (!tagList.includes(tag)) return tag;
+      let allTags: string[] = [];
+      if (typeof tagList === "object" && tagList !== null) {
+        allTags = Object.values(tagList).flat() as string[];
+      }
+      if (!allTags.includes(tag)) return tag;
       return t(
         `ResourceDownloader.${resourceType}TagList.${downloadSource}.${tag}`
       );
@@ -179,75 +181,52 @@ const DownloadSpecificResourceModal: React.FC<
       resourceId: string,
       modLoader: ModLoaderType | "All",
       gameVersions: string[],
-      downloadSource: string,
-      page: number,
-      pageSize: number,
-      isLoadMore: boolean = false
+      downloadSource: string
     ) => {
+      setIsLoadingVersionPacks(true);
       ResourceService.fetchResourceVersionPacks(
         resourceId,
         modLoader,
         gameVersions,
-        downloadSource,
-        page,
-        pageSize
-      ).then((response) => {
-        if (response.status === "success") {
-          const versionPacks = response.data.list;
-          if (isLoadMore) {
-            setVersionPacks((prev) => [...prev, ...versionPacks]);
-          } else {
+        downloadSource
+      )
+        .then((response) => {
+          if (response.status === "success") {
+            const versionPacks = response.data;
             setVersionPacks(versionPacks);
+          } else {
+            setVersionPacks([]);
+            toast({
+              title: response.message,
+              description: response.details,
+              status: "error",
+            });
           }
-          setHasMore(response.data.total > (page + 1) * pageSize);
-        } else {
-          setVersionPacks([]);
-          toast({
-            title: response.message,
-            description: response.details,
-            status: "error",
-          });
-        }
-      });
+        })
+        .finally(() => {
+          setIsLoadingVersionPacks(false);
+        });
     },
     [toast]
   );
 
   const reFetchVersionPacks = useCallback(() => {
     if (!resource.id || !resource.source) return;
-    pageRef.current = 0;
 
     handleFetchResourceVersionPacks(
       resource.id,
       selectedModLoader,
       versionLabelToParam(selectedVersionLabel),
-      resource.source,
-      0,
-      pageSize
+      resource.source
     );
   }, [
-    resource,
+    resource.id,
+    resource.source,
     selectedModLoader,
     selectedVersionLabel,
-    pageSize,
     handleFetchResourceVersionPacks,
     versionLabelToParam,
   ]);
-
-  const loadMore = () => {
-    if (!resource.id || !resource.source || !hasMore) return;
-    const currentPage = pageRef.current;
-    handleFetchResourceVersionPacks(
-      resource.id,
-      selectedModLoader,
-      versionLabelToParam(selectedVersionLabel),
-      resource.source,
-      currentPage + 1,
-      pageSize,
-      true
-    );
-    pageRef.current += 1;
-  };
 
   const buildVersionLabelItem = (version: string) => {
     return version !== "All"
@@ -367,7 +346,7 @@ const DownloadSpecificResourceModal: React.FC<
               </HStack>
             </HStack>
           </Card>
-          {isLoadingGameVersionList ? (
+          {isLoadingGameVersionList || isLoadingVersionPacks ? (
             <VStack mt={8}>
               <BeatLoader size={16} color="gray" />
             </VStack>

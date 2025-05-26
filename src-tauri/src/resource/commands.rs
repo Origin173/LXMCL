@@ -10,7 +10,7 @@ use super::{
   },
   models::{
     ExtraResourceSearchQuery, ExtraResourceSearchRes, GameClientResourceInfo,
-    ModLoaderResourceInfo, ResourceError, ResourceVersionPackQuery, ResourceVersionPackSearchRes,
+    ModLoaderResourceInfo, ResourceError, ResourceVersionPack, ResourceVersionPackQuery,
   },
 };
 use crate::{
@@ -76,7 +76,7 @@ pub async fn fetch_resource_version_packs(
   app: AppHandle,
   download_source: String,
   query: ResourceVersionPackQuery,
-) -> SJMCLResult<ResourceVersionPackSearchRes> {
+) -> SJMCLResult<Vec<ResourceVersionPack>> {
   match download_source.as_str() {
     "CurseForge" => Ok(fetch_resource_version_packs_curseforge(&app, &query).await?),
     "Modrinth" => Ok(fetch_resource_version_packs_modrinth(&app, &query).await?),

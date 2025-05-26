@@ -75,8 +75,6 @@ pub struct ResourceVersionPackQuery {
   pub resource_id: String,
   pub mod_loader: String,
   pub game_versions: Vec<String>,
-  pub page: u32,
-  pub page_size: u32,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
@@ -95,15 +93,6 @@ pub struct ResourceFileInfo {
 pub struct ResourceVersionPack {
   pub name: String,
   pub items: Vec<ResourceFileInfo>,
-}
-
-#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct ResourceVersionPackSearchRes {
-  pub list: Vec<ResourceVersionPack>,
-  pub total: u32,
-  pub page: u32,
-  pub page_size: u32,
 }
 
 // game client itself

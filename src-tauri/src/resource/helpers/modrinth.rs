@@ -1,7 +1,7 @@
 use crate::error::SJMCLResult;
 use crate::resource::models::{
   ExtraResourceInfo, ExtraResourceSearchQuery, ExtraResourceSearchRes, ResourceError,
-  ResourceFileInfo, ResourceVersionPack, ResourceVersionPackQuery, ResourceVersionPackSearchRes,
+  ResourceFileInfo, ResourceVersionPack, ResourceVersionPackQuery,
 };
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -76,7 +76,7 @@ pub fn map_modrinth_to_resource_info(res: ModrinthSearchRes) -> ExtraResourceSea
 
 pub fn map_modrinth_file_to_version_pack(
   res: Vec<ModrinthVersionPack>,
-) -> ResourceVersionPackSearchRes {
+) -> Vec<ResourceVersionPack> {
   let mut version_packs = std::collections::HashMap::new();
 
   for version in res {
@@ -139,12 +139,7 @@ pub fn map_modrinth_file_to_version_pack(
   let mut list: Vec<ResourceVersionPack> = version_packs.into_values().collect();
   list.sort_by(version_pack_sort);
 
-  ResourceVersionPackSearchRes {
-    list: list.clone(),
-    total: list.len() as u32,
-    page: 0,
-    page_size: list.len() as u32,
-  }
+  list
 }
 
 pub async fn fetch_resource_list_by_name_modrinth(
@@ -197,13 +192,11 @@ pub async fn fetch_resource_list_by_name_modrinth(
 pub async fn fetch_resource_version_packs_modrinth(
   app: &AppHandle,
   query: &ResourceVersionPackQuery,
-) -> SJMCLResult<ResourceVersionPackSearchRes> {
+) -> SJMCLResult<Vec<ResourceVersionPack>> {
   let ResourceVersionPackQuery {
     resource_id,
     mod_loader,
     game_versions,
-    page,
-    page_size,
   } = query;
 
   let url = format!(

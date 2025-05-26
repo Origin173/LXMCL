@@ -5,7 +5,7 @@ use crate::error::SJMCLResult;
 use crate::resource::helpers::curseforge_convert::cvt_category_to_id;
 use crate::resource::models::{
   ExtraResourceInfo, ExtraResourceSearchQuery, ExtraResourceSearchRes, ResourceError,
-  ResourceFileInfo, ResourceVersionPack, ResourceVersionPackQuery, ResourceVersionPackSearchRes,
+  ResourceFileInfo, ResourceVersionPack, ResourceVersionPackQuery,
 };
 use serde::Deserialize;
 use tauri::{AppHandle, Manager};
@@ -133,10 +133,9 @@ fn extract_versions_and_loaders(game_versions: &[String]) -> (Vec<String>, Vec<S
 }
 
 pub fn map_curseforge_file_to_version_pack(
-  res: CurseForgeVersionPackSearchRes,
-) -> ResourceVersionPackSearchRes {
+  res: Vec<CurseForgeFileInfo>,
+) -> Vec<ResourceVersionPack> {
   let file_infos: Vec<(ResourceFileInfo, Vec<String>)> = res
-    .data
     .into_iter()
     .map(|cf_file| {
       let file_info = ResourceFileInfo {
@@ -187,12 +186,7 @@ pub fn map_curseforge_file_to_version_pack(
   let mut list: Vec<ResourceVersionPack> = version_packs.into_values().collect();
   list.sort_by(version_pack_sort);
 
-  ResourceVersionPackSearchRes {
-    list,
-    total: res.pagination.total_count,
-    page: res.pagination.index,
-    page_size: res.pagination.page_size,
-  }
+  list
 }
 
 pub async fn fetch_resource_list_by_name_curseforge(
@@ -262,52 +256,65 @@ pub async fn fetch_resource_list_by_name_curseforge(
 pub async fn fetch_resource_version_packs_curseforge(
   app: &AppHandle,
   query: &ResourceVersionPackQuery,
-) -> SJMCLResult<ResourceVersionPackSearchRes> {
+) -> SJMCLResult<Vec<ResourceVersionPack>> {
+  let mut aggregated_files: Vec<CurseForgeFileInfo> = Vec::new();
+  let mut page = 0;
+  let page_size = 50;
+
   let ResourceVersionPackQuery {
     resource_id,
     mod_loader,
     game_versions,
-    page,
-    page_size,
   } = query;
 
-  let url = format!("https://api.curseforge.com/v1/mods/{}/files", resource_id);
+  loop {
+    let url = format!("https://api.curseforge.com/v1/mods/{}/files", resource_id);
 
-  let mut params = HashMap::new();
-  if mod_loader != "All" {
-    params.insert(
-      "modLoaderType",
-      cvt_mod_loader_to_id(mod_loader).to_string(),
-    );
+    let mut params = HashMap::new();
+    if mod_loader != "All" {
+      params.insert(
+        "modLoaderType",
+        cvt_mod_loader_to_id(mod_loader).to_string(),
+      );
+    }
+    if game_versions.first() != Some(&"All".to_string()) {
+      params.insert(
+        "gameVersionTypeId",
+        cvt_version_to_type_id(game_versions.first().unwrap()).to_string(),
+      );
+    }
+    params.insert("index", (page * page_size).to_string());
+    params.insert("pageSize", page_size.to_string());
+
+    let client = app.state::<reqwest::Client>();
+
+    let response = client
+      .get(&url)
+      .query(&params)
+      .header("x-api-key", env!("SJMCL_CURSEFORGE_API_KEY"))
+      .header("accept", "application/json")
+      .send()
+      .await
+      .map_err(|_| ResourceError::NetworkError)?;
+
+    if !response.status().is_success() {
+      return Err(ResourceError::NetworkError.into());
+    }
+
+    let results = response
+      .json::<CurseForgeVersionPackSearchRes>()
+      .await
+      .map_err(|_| ResourceError::ParseError)?;
+
+    let has_more = results.pagination.total_count > (page + 1) * page_size;
+
+    aggregated_files.extend(results.data);
+
+    if !has_more {
+      break;
+    }
+    page += 1;
   }
-  if game_versions.first() != Some(&"All".to_string()) {
-    params.insert(
-      "gameVersionTypeId",
-      cvt_version_to_type_id(game_versions.first().unwrap()).to_string(),
-    );
-  }
-  params.insert("index", (page * page_size).to_string());
-  params.insert("pageSize", page_size.to_string());
 
-  let client = app.state::<reqwest::Client>();
-
-  let response = client
-    .get(url)
-    .query(&params)
-    .header("x-api-key", env!("SJMCL_CURSEFORGE_API_KEY"))
-    .header("accept", "application/json")
-    .send()
-    .await
-    .map_err(|_| ResourceError::NetworkError)?;
-
-  if !response.status().is_success() {
-    return Err(ResourceError::NetworkError.into());
-  }
-
-  let results = response
-    .json::<CurseForgeVersionPackSearchRes>()
-    .await
-    .map_err(|_| ResourceError::ParseError)?;
-
-  Ok(map_curseforge_file_to_version_pack(results))
+  Ok(map_curseforge_file_to_version_pack(aggregated_files))
 }
