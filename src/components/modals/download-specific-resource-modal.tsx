@@ -39,6 +39,7 @@ import NavMenu from "@/components/common/nav-menu";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
+import { useGlobalData } from "@/contexts/global-data";
 import { useToast } from "@/contexts/toast";
 import { ModLoaderEnums, ModLoaderType } from "@/enums/instance";
 import {
@@ -98,6 +99,8 @@ const DownloadSpecificResourceModal: React.FC<
     useState<boolean>(true);
   const [versionPacks, setVersionPacks] = useState<ResourceVersionPack[]>([]);
 
+  const { getGameVersionList } = useGlobalData();
+
   const tagLists: Record<string, any> = {
     mod: modTagList,
     world: worldTagList,
@@ -152,12 +155,11 @@ const DownloadSpecificResourceModal: React.FC<
     return versionPattern.test(version);
   };
 
-  const fetchVersionLabels = useCallback(async () => {
+  const fetchVersionLabels = useCallback(() => {
     setIsLoadingGameVersionList(true);
-    const response = await ResourceService.fetchGameVersionList();
-    if (response.status === "success") {
-      const versionData = response.data;
-      const versionList = versionData
+    const list = getGameVersionList();
+    if (list) {
+      const versionList = list
         .filter((version: GameResourceInfo) => version.gameType === "release")
         .map((version: GameResourceInfo) => version.id);
       setGameVersionList(versionList);
@@ -167,14 +169,9 @@ const DownloadSpecificResourceModal: React.FC<
       setVersionLabels(["All", ...majorVersions]);
     } else {
       setVersionLabels([]);
-      toast({
-        title: response.message,
-        description: response.details,
-        status: "error",
-      });
     }
     setIsLoadingGameVersionList(false);
-  }, [toast]);
+  }, [getGameVersionList]);
 
   const handleFetchResourceVersionPacks = useCallback(
     async (

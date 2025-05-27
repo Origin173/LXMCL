@@ -29,9 +29,9 @@ import {
 } from "@/components/common/option-item-virtual";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
+import { useGlobalData } from "@/contexts/global-data";
 import { useToast } from "@/contexts/toast";
 import { GameResourceInfo } from "@/models/resource";
-import { ResourceService } from "@/services/resource";
 import { ISOToDatetime } from "@/utils/datetime";
 
 const gameTypesToIcon: Record<string, string> = {
@@ -56,40 +56,39 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   const toast = useToast();
   const primaryColor = config.appearance.theme.primaryColor;
 
+  const { getGameVersionList } = useGlobalData();
   const [versions, setVersions] = useState<GameResourceInfo[]>([]);
   const [filteredVersions, setFilteredVersions] = useState<GameResourceInfo[]>(
     []
   );
   const [counts, setCounts] = useState<Map<string, number>>();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(
     new Set(config.states.gameVersionSelector.gameTypes)
   );
-
   const [searchText, setSearchText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleFetchGameVersionList = useCallback(async () => {
+  const handleFetchGameVersionList = useCallback(() => {
     setIsLoading(true);
-    const response = await ResourceService.fetchGameVersionList();
-    if (response.status === "success") {
-      const versionData = response.data;
-      setVersions(versionData);
+    const list = getGameVersionList(true);
+    if (list) {
+      setVersions(list);
       const newCounts = new Map<string, number>();
-      versionData.forEach((version: GameResourceInfo) => {
+      list.forEach((version: GameResourceInfo) => {
         let oldCount = newCounts.get(version.gameType) || 0;
         newCounts.set(version.gameType, oldCount + 1);
       });
       setCounts(newCounts);
     } else {
       setVersions([]);
-      toast({
-        title: response.message,
-        description: response.details,
-        status: "error",
-      });
+      setCounts(undefined);
     }
     setIsLoading(false);
-  }, [toast]);
+  }, [getGameVersionList]);
+
+  useEffect(() => {
+    handleFetchGameVersionList();
+  }, [handleFetchGameVersionList]);
 
   useEffect(() => {
     setFilteredVersions(
@@ -100,10 +99,6 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
         )
     );
   }, [versions, selectedTypes, searchText]);
-
-  useEffect(() => {
-    handleFetchGameVersionList();
-  }, [handleFetchGameVersionList]);
 
   const handleTypeToggle = useCallback(
     (gameType: string) => {
