@@ -397,15 +397,16 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   ]);
 
   useEffect(() => {
-    const list = getGameVersionList();
-    if (list) {
-      const versionList = list
-        .filter((version: GameResourceInfo) => version.gameType === "release")
-        .map((version: GameResourceInfo) => version.id);
-      setGameVersionList(["All", ...versionList]);
-    } else {
-      setGameVersionList([]);
-    }
+    getGameVersionList().then((list) => {
+      if (list) {
+        const versionList = list
+          .filter((version: GameResourceInfo) => version.gameType === "release")
+          .map((version: GameResourceInfo) => version.id);
+        setGameVersionList(["All", ...versionList]);
+      } else {
+        setGameVersionList([]);
+      }
+    });
   }, [getGameVersionList]);
 
   useEffect(() => {

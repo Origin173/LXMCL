@@ -157,20 +157,26 @@ const DownloadSpecificResourceModal: React.FC<
 
   const fetchVersionLabels = useCallback(() => {
     setIsLoadingGameVersionList(true);
-    const list = getGameVersionList();
-    if (list) {
-      const versionList = list
-        .filter((version: GameResourceInfo) => version.gameType === "release")
-        .map((version: GameResourceInfo) => version.id);
-      setGameVersionList(versionList);
-      const majorVersions = [
-        ...new Set(versionList.map((v) => v.split(".").slice(0, 2).join("."))),
-      ];
-      setVersionLabels(["All", ...majorVersions]);
-    } else {
-      setVersionLabels([]);
-    }
-    setIsLoadingGameVersionList(false);
+    getGameVersionList()
+      .then((list) => {
+        if (list) {
+          const versionList = list
+            .filter(
+              (version: GameResourceInfo) => version.gameType === "release"
+            )
+            .map((version: GameResourceInfo) => version.id);
+          setGameVersionList(versionList);
+          const majorVersions = [
+            ...new Set(
+              versionList.map((v) => v.split(".").slice(0, 2).join("."))
+            ),
+          ];
+          setVersionLabels(["All", ...majorVersions]);
+        } else {
+          setVersionLabels([]);
+        }
+      })
+      .finally(() => setIsLoadingGameVersionList(false));
   }, [getGameVersionList]);
 
   const handleFetchResourceVersionPacks = useCallback(

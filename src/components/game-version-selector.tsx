@@ -30,7 +30,6 @@ import {
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
-import { useToast } from "@/contexts/toast";
 import { GameResourceInfo } from "@/models/resource";
 import { ISOToDatetime } from "@/utils/datetime";
 
@@ -53,7 +52,6 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
 }) => {
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
-  const toast = useToast();
   const primaryColor = config.appearance.theme.primaryColor;
 
   const { getGameVersionList } = useGlobalData();
@@ -67,28 +65,31 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
   );
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  const handleFetchGameVersionList = useCallback(() => {
+  const getGameVersionListWrapper = useCallback(() => {
     setIsLoading(true);
-    const list = getGameVersionList(true);
-    if (list) {
-      setVersions(list);
-      const newCounts = new Map<string, number>();
-      list.forEach((version: GameResourceInfo) => {
-        let oldCount = newCounts.get(version.gameType) || 0;
-        newCounts.set(version.gameType, oldCount + 1);
-      });
-      setCounts(newCounts);
-    } else {
-      setVersions([]);
-      setCounts(undefined);
-    }
-    setIsLoading(false);
+    getGameVersionList(true)
+      .then((data) => setVersions(data || []))
+      .catch((e) => setVersions([] as GameResourceInfo[]))
+      .finally(() => setIsLoading(false));
   }, [getGameVersionList]);
 
   useEffect(() => {
-    handleFetchGameVersionList();
-  }, [handleFetchGameVersionList]);
+    if (!mounted) {
+      getGameVersionListWrapper();
+      setMounted(true);
+    }
+  }, [mounted, getGameVersionListWrapper]);
+
+  useEffect(() => {
+    const newCounts = new Map<string, number>();
+    versions.forEach((version: GameResourceInfo) => {
+      let oldCount = newCounts.get(version.gameType) || 0;
+      newCounts.set(version.gameType, oldCount + 1);
+    });
+    setCounts(newCounts);
+  }, [versions]);
 
   useEffect(() => {
     setFilteredVersions(
@@ -214,7 +215,7 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
         <IconButton
           aria-label="refresh"
           icon={<Icon as={LuRefreshCcw} boxSize={3.5} />}
-          onClick={handleFetchGameVersionList}
+          onClick={getGameVersionListWrapper}
           size="xs"
           variant="ghost"
           colorScheme="gray"
@@ -222,7 +223,7 @@ export const GameVersionSelector: React.FC<GameVersionSelectorProps> = ({
       </HStack>
       <Section overflow="auto" flexGrow={1} h="100%">
         {isLoading ? (
-          <Center>
+          <Center mt={8}>
             <BeatLoader size={16} color="gray" />
           </Center>
         ) : selectedTypes.size === 0 || filteredVersions.length === 0 ? (
