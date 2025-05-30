@@ -275,6 +275,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const toast = useToast();
+  const { getGameVersionList } = useGlobalData();
 
   const [gameVersionList, setGameVersionList] = useState<string[] | undefined>(
     undefined
@@ -305,24 +306,6 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
     setSelectedTag("All");
     setSortBy(e === "CurseForge" ? "Popularity" : "relevance");
   };
-
-  const handleFetchGameVersionList = useCallback(async () => {
-    const response = await ResourceService.fetchGameVersionList();
-    if (response.status === "success") {
-      const versionData = response.data;
-      const versionList = versionData
-        .filter((version: GameResourceInfo) => version.gameType === "release")
-        .map((version: GameResourceInfo) => version.id);
-      setGameVersionList(["All", ...versionList]);
-    } else {
-      setGameVersionList([]);
-      toast({
-        title: response.message,
-        description: response.details,
-        status: "error",
-      });
-    }
-  }, [toast]);
 
   const handleFetchResourceListByName = useCallback(
     async (
@@ -414,8 +397,17 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   ]);
 
   useEffect(() => {
-    handleFetchGameVersionList();
-  }, [handleFetchGameVersionList]);
+    getGameVersionList().then((list) => {
+      if (list) {
+        const versionList = list
+          .filter((version: GameResourceInfo) => version.gameType === "release")
+          .map((version: GameResourceInfo) => version.id);
+        setGameVersionList(["All", ...versionList]);
+      } else {
+        setGameVersionList([]);
+      }
+    });
+  }, [getGameVersionList]);
 
   useEffect(() => {
     searchQueryRef.current = searchQuery;
