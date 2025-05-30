@@ -224,14 +224,15 @@ export const InstanceContextProvider: React.FC<{
       if (response.status === "success") {
         setLocalMods(response.data);
         return response.data;
-      } else
+      } else {
         toast({
           title: response.message,
           description: response.details,
           status: "error",
         });
-      setLocalMods([]);
-      return [];
+        setLocalMods([]);
+        return [];
+      }
     }
   }, [instanceSummary?.id, setLocalMods, toast]);
 
