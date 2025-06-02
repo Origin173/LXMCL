@@ -7,7 +7,6 @@ import {
   Tooltip,
   VStack,
 } from "@chakra-ui/react";
-import { invoke } from "@tauri-apps/api/core";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -23,7 +22,8 @@ import { CommonIconButton } from "@/components/common/common-icon-button";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
-import { MonitorState, TaskState } from "@/models/task";
+import { useTaskContext } from "@/contexts/task";
+import { TaskDesc, TaskDescStateEnums } from "@/models/task";
 import { formatTimeInterval } from "@/utils/datetime";
 import { formatByteSize } from "@/utils/string";
 
@@ -33,31 +33,26 @@ export const DownloadTasksPage = () => {
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
 
-  const [tasks, setTasks] = useState<[TaskState, boolean][]>([]); // boolean is used to record accordion state.
+  const { getTasks, handleScheduleProgressiveTaskGroup } = useTaskContext();
+  const [tasks, setTasks] = useState<[TaskDesc, boolean][]>([]); // boolean is used to record accordion state.
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      const result: TaskState[] = await invoke(
-        "retrieve_progressive_task_list"
-      );
-      const enhanced = result.map(
-        (task) =>
-          [
-            {
-              ...task,
-              progress: task.total > 0 ? (task.current / task.total) * 100 : 0,
-              isDownloading: task.state === MonitorState.InProgress,
-              isWaiting: task.state === MonitorState.Stopped,
-              isError: task.state === MonitorState.Cancelled,
-            },
-            true,
-          ] as [TaskState, boolean]
-      );
-      setTasks(enhanced);
-    };
-
-    fetchTasks();
-  }, []);
+    const list = getTasks(true) || [];
+    const enhanced = list.map((task) => {
+      return [
+        {
+          ...task,
+          progress: task.total > 0 ? (task.current / task.total) * 100 : 0,
+          isDownloading: task.state === TaskDescStateEnums.InProgress,
+          isWaiting: task.state === TaskDescStateEnums.Stopped,
+          isError: task.state === TaskDescStateEnums.Failed,
+          isCancelled: task.state === TaskDescStateEnums.Cancelled,
+        },
+        true,
+      ] as [TaskDesc, boolean];
+    });
+    setTasks(enhanced);
+  }, [getTasks]);
 
   const toggleTaskExpansion = (id: number) => {
     setTasks((prevTasks) =>
@@ -93,7 +88,7 @@ export const DownloadTasksPage = () => {
               <VStack align="stretch" key={task.taskId}>
                 <Flex justify="space-between" alignItems="center">
                   <Text fontSize="xs-sm" fontWeight="bold">
-                    {task.taskGroup ?? `任务-${task.taskId}`}
+                    {task.taskGroup}
                   </Text>
 
                   <HStack alignItems="center">
@@ -103,7 +98,7 @@ export const DownloadTasksPage = () => {
                       </Text>
                     )}
 
-                    {!task.isDownloading && !task.isError && (
+                    {task.isWaiting && (
                       <Text fontSize="xs" className="secondary-text">
                         {t("DownloadTasksPage.label.paused")}
                       </Text>
@@ -111,7 +106,7 @@ export const DownloadTasksPage = () => {
 
                     {task.isError && (
                       <Text fontSize="xs" color="red.600">
-                        {t("DownloadTasksPage.label.error")}
+                        {task.reason || t("DownloadTasksPage.label.error")}
                       </Text>
                     )}
 
@@ -146,7 +141,12 @@ export const DownloadTasksPage = () => {
                           h={21}
                           ml={1}
                           variant="ghost"
-                          onClick={() => {}}
+                          onClick={() =>
+                            handleScheduleProgressiveTaskGroup(
+                              task.taskGroup || "",
+                              [task.payload]
+                            )
+                          }
                         />
                       </Tooltip>
                     )}
@@ -186,10 +186,14 @@ export const DownloadTasksPage = () => {
                 ? [
                     <OptionItem
                       key={`${task.taskId}-detail`}
-                      title={`${task.storePath} → ${task.taskParam.dest}  → ${task.taskParam.src}`}
+                      title={`${task.payload.dest}`}
                       titleExtra={
                         task.isDownloading && (
-                          <Text fontSize="xs" className="secondary-text">
+                          <Text
+                            fontSize="xs"
+                            className="secondary-text"
+                            mt={0.5}
+                          >
                             {`${formatByteSize(task.current)} / ${formatByteSize(
                               task.total
                             )}`}

@@ -1,4 +1,5 @@
 use super::streams::reporter::Sink;
+use super::PTaskDesc;
 use super::THandle;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter};
@@ -7,8 +8,9 @@ use tokio::time::Duration;
 const TASK_PROGRESS_LISTENER: &str = "SJMCL://task-progress";
 
 #[derive(Serialize, Deserialize, Clone)]
+#[serde(tag = "state")]
 pub enum PEventPayload {
-  Created,
+  Created(PTaskDesc),
   Started {
     total: i64,
   },
@@ -48,7 +50,7 @@ impl<'a> PEvent<'a> {
   }
 
   pub fn emit_started(app: &AppHandle, id: u32, task_group: Option<&'a str>, total: i64) {
-    PEvent {
+    Self {
       id,
       task_group,
       event: PEventPayload::Started { total },
@@ -57,7 +59,7 @@ impl<'a> PEvent<'a> {
   }
 
   pub fn emit_failed(app: &AppHandle, id: u32, task_group: Option<&'a str>, reason: String) {
-    PEvent {
+    Self {
       id,
       task_group,
       event: PEventPayload::Failed { reason },
@@ -66,7 +68,7 @@ impl<'a> PEvent<'a> {
   }
 
   pub fn emit_cancelled(app: &AppHandle, id: u32, task_group: Option<&'a str>) {
-    PEvent {
+    Self {
       id,
       task_group,
       event: PEventPayload::Cancelled,
@@ -74,18 +76,18 @@ impl<'a> PEvent<'a> {
     .emit(app);
   }
   pub fn emit_completed(app: &AppHandle, id: u32, task_group: Option<&'a str>) {
-    PEvent {
+    Self {
       id,
       task_group,
       event: PEventPayload::Completed,
     }
     .emit(app);
   }
-  pub fn emit_created(app: &AppHandle, id: u32, task_group: Option<&'a str>) {
-    PEvent {
+  pub fn emit_created(app: &AppHandle, id: u32, task_group: Option<&'a str>, desc: PTaskDesc) {
+    Self {
       id,
       task_group,
-      event: PEventPayload::Created,
+      event: PEventPayload::Created(desc),
     }
     .emit(app);
   }
@@ -98,7 +100,7 @@ impl<'a> PEvent<'a> {
     current: i64,
     estimated_time: Option<Duration>,
   ) {
-    PEvent {
+    Self {
       id,
       task_group,
       event: PEventPayload::InProgress {

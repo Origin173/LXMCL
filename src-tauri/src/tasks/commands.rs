@@ -11,7 +11,7 @@ use super::{PTaskDesc, THandle};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct ScheduleResult {
-  pub task_ids: Vec<u32>,
+  pub task_descs: Vec<PTaskDesc>,
   pub task_group: String,
 }
 
@@ -22,10 +22,10 @@ pub async fn schedule_progressive_task_group(
   params: Vec<PTaskParam>,
 ) -> SJMCLResult<ScheduleResult> {
   let monitor = app.state::<Pin<Box<TaskMonitor>>>();
-  let mut task_ids = Vec::new();
+  let mut task_descs = Vec::new();
   for param in params {
     let task_id = monitor.get_new_id();
-    match param {
+    task_descs.push(match param {
       PTaskParam::Download(param) => {
         let task = DownloadTask::new(
           app.clone(),
@@ -37,16 +37,16 @@ pub async fn schedule_progressive_task_group(
         let (futute, handle) = task
           .future(app.clone(), monitor.download_rate_limiter.clone())
           .await?;
+        let task_desc = handle.read().unwrap().desc.clone();
         monitor
           .enqueue_task(task_id, Some(task_group.clone()), futute, handle)
           .await;
+        task_desc
       }
-    };
-    task_ids.push(task_id);
+    });
   }
-
   Ok(ScheduleResult {
-    task_ids,
+    task_descs,
     task_group,
   })
 }

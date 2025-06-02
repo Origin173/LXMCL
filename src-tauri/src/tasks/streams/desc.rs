@@ -11,7 +11,6 @@ where
   pub task_group: Option<String>,
   pub total: i64,
   pub current: i64,
-  #[serde(flatten)]
   pub payload: T,
   pub state: PState,
 }

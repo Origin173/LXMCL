@@ -10,13 +10,14 @@ import {
   ModalOverlay,
   ModalProps,
 } from "@chakra-ui/react";
-import { invoke } from "@tauri-apps/api/core";
 import { save } from "@tauri-apps/plugin-dialog";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { GameVersionSelector } from "@/components/game-version-selector";
 import { useLauncherConfig } from "@/contexts/config";
+import { useTaskContext } from "@/contexts/task";
 import { GameResourceInfo } from "@/models/resource";
+import { TaskTypeEnums } from "@/models/task";
 
 export const DownloadGameServerModal: React.FC<
   Omit<ModalProps, "children">
@@ -24,6 +25,7 @@ export const DownloadGameServerModal: React.FC<
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const { handleScheduleProgressiveTaskGroup } = useTaskContext();
 
   const [selectedGameVersion, setSelectedGameVersion] =
     useState<GameResourceInfo>();
@@ -57,22 +59,18 @@ export const DownloadGameServerModal: React.FC<
               onClick={async () => {
                 if (!selectedGameVersion) return;
                 const savepath = await save({
-                  title: t("ChooseSaveLocation"),
                   defaultPath: `${selectedGameVersion.id}-server.jar`,
                 });
                 if (!savepath || !selectedGameVersion?.url) return;
-
-                await invoke("schedule_progressive_task_group", {
-                  taskGroup: "game-server-download",
-                  params: [
-                    {
-                      task_type: "Download",
-                      src: selectedGameVersion.url,
-                      dest: savepath,
-                      sha1: "d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2", // 非空字符串！
-                    },
-                  ],
-                });
+                handleScheduleProgressiveTaskGroup("game-server-download", [
+                  {
+                    src: "https://piston-data.mojang.com/v1/objects/15c777e2cfe0556eef19aab534b186c0c6f277e1/server.jar",
+                    dest: "1.jar",
+                    sha1: "15c777e2cfe0556eef19aab534b186c0c6f277e1",
+                    task_type: TaskTypeEnums.Download,
+                  },
+                ]);
+                setSelectedGameVersion(undefined);
                 modalProps.onClose?.();
               }}
             >

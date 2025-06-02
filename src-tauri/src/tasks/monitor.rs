@@ -80,8 +80,8 @@ impl TaskMonitor {
           Ok(desc) => {
             let task_id = desc.task_id;
             let task_group = desc.task_group.clone();
-            match desc.payload.task_type {
-              PTaskType::Download => {
+            match desc.payload {
+              PTaskParam::Download(_) => {
                 let task = DownloadTask::from_descriptor(
                   self.app_handle.clone(),
                   desc,
@@ -188,15 +188,14 @@ impl TaskMonitor {
     if let Some(handle) = handle {
       let desc = handle.read().unwrap().desc.clone();
       let task_group = desc.task_group.clone();
-      let task_type = desc.payload.task_type.clone();
       let task_state = desc.state.clone();
       let j_handle = self.tasks.lock().unwrap().remove(&id).unwrap();
       if !task_state.is_completed() {
         handle.write().unwrap().mark_cancelled();
         j_handle.abort();
       }
-      match task_type {
-        PTaskType::Download => {
+      match desc.payload {
+        PTaskParam::Download(_) => {
           let task = DownloadTask::from_descriptor(
             self.app_handle.clone(),
             desc,

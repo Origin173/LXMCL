@@ -15,22 +15,9 @@ use std::pin::Pin;
 use streams::{PDesc, PHandle};
 use tokio::time::Duration;
 
-#[derive(Serialize, Deserialize, Clone, Hash, PartialEq, Eq)]
-pub enum PTaskType {
-  Download,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct PTaskPayload {
-  pub task_type: PTaskType,
-  pub task_param: PTaskParam,
-}
-
 pub type SJMCLBoxedFuture = Pin<Box<dyn Future<Output = SJMCLResult<u32>> + Send>>;
-pub type MonitorBoxedFuture = Pin<Box<dyn Future<Output = ()> + Send>>;
-
-type PTaskHandle = PHandle<TauriEventSink, PTaskPayload>;
-type PTaskDesc = PDesc<PTaskPayload>;
+type PTaskHandle = PHandle<TauriEventSink, PTaskParam>;
+type PTaskDesc = PDesc<PTaskParam>;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct THandle {

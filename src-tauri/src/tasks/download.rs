@@ -49,14 +49,11 @@ impl DownloadTask {
       .directory;
     DownloadTask {
       p_handle: PTaskHandle::new(
-        PDesc::<PTaskPayload>::new(
+        PDesc::<PTaskParam>::new(
           task_id,
           task_group.clone(),
           0,
-          PTaskPayload {
-            task_type: PTaskType::Download,
-            task_param: PTaskParam::Download(param.clone()),
-          },
+          PTaskParam::Download(param.clone()),
           PState::InProgress,
         ),
         Duration::from_secs(1),
@@ -79,7 +76,7 @@ impl DownloadTask {
     report_interval: Duration,
     reset: bool,
   ) -> Self {
-    let param = match &desc.payload.task_param {
+    let param = match &desc.payload {
       PTaskParam::Download(param) => param.clone(),
     };
 
