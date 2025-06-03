@@ -50,7 +50,8 @@
           "description": "版权所有 © 2024-2025 SJMCL 开发团队."
         },
         "userAgreement": {
-          "title": "用户协议"
+          "title": "用户协议",
+          "url": "https://mc.sjtu.cn/sjmcl/zh/docs/tos"
         },
         "openSourceLicense": {
           "title": "开源协议",
@@ -873,7 +874,8 @@
     "top": {
       "settings": {
         "LauncherDocs": {
-          "title": "SJMC Launcher 文档"
+          "title": "SJMC Launcher 文档",
+          "url": "https://mc.sjtu.cn/sjmcl/zh/docs"
         }
       }
     }

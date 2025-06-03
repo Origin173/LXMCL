@@ -152,7 +152,7 @@ const AboutSettingsPage = () => {
           title: t("AboutSettingsPage.legalInfo.settings.userAgreement.title"),
           children: (
             <LinkIconButton
-              url="https://mc.sjtu.cn/sjmcl-tos/"
+              url={t("AboutSettingsPage.legalInfo.settings.userAgreement.url")}
               aria-label="userAgreement"
               isExternal
               withTooltip
