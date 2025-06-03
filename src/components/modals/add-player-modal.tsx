@@ -490,7 +490,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                 color={`${primaryColor}.500`}
                 onClick={() => {
                   openUrl(
-                    "https://www.microsoft.com/store/productId/9NXP44L49SHJ"
+                    "https://www.xbox.com/games/store/productId/9NXP44L49SHJ"
                   );
                 }}
               >
