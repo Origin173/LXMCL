@@ -139,6 +139,8 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     setPassword("");
     setShowAdvancedOptions(false);
     setUuid("");
+
+    AccountService.cancelOAuth();
   }, [modalProps.isOpen]);
 
   useEffect(() => {

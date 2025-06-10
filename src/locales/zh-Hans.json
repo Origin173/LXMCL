@@ -1504,7 +1504,6 @@
             "PARSE_ERROR": "服务器返回数据格式错误",
             "NOT_FOUND": "认证服务器不存在",
             "CANCELLED": "已取消",
-            "CREATE_WEBVIEW_ERROR": "创建 WebView 失败",
             "INVALID": "无效的认证服务器地址"
           }
         }

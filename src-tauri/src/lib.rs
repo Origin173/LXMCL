@@ -25,7 +25,6 @@ use std::path::PathBuf;
 use std::sync::{LazyLock, Mutex};
 use storage::Storage;
 use tasks::monitor::TaskMonitor;
-use tokio::sync::Notify;
 use utils::web::build_sjmcl_client;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -77,6 +76,7 @@ pub async fn run() {
       account::commands::fetch_oauth_code,
       account::commands::add_player_oauth,
       account::commands::relogin_player_oauth,
+      account::commands::cancel_oauth,
       account::commands::add_player_3rdparty_password,
       account::commands::relogin_player_3rdparty_password,
       account::commands::add_player_from_selection,
@@ -161,6 +161,9 @@ pub async fn run() {
 
       let launching = LaunchingState::default();
       app.manage(Mutex::new(launching));
+
+      let is_oauth_cancelled = false;
+      app.manage(Mutex::new(is_oauth_cancelled));
 
       // Refresh all auth servers
       let app_handle = app.handle().clone();

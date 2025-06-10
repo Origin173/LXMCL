@@ -240,7 +240,6 @@ pub enum AccountError {
   NetworkError,
   ParseError,
   Cancelled,
-  CreateWebviewError,
   NoDownloadApi,
   SaveError,
 }
