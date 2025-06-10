@@ -162,9 +162,6 @@ pub async fn run() {
       let launching = LaunchingState::default();
       app.manage(Mutex::new(launching));
 
-      let is_oauth_cancelled = false;
-      app.manage(Mutex::new(is_oauth_cancelled));
-
       // Refresh all auth servers
       let app_handle = app.handle().clone();
       tauri::async_runtime::spawn(async move {

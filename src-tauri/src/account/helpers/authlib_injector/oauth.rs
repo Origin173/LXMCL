@@ -1,6 +1,6 @@
 use super::common::parse_profile;
 use super::constants::SCOPE;
-use crate::account::models::{AccountError, OAuthCodeResponse, PlayerInfo};
+use crate::account::models::{AccountError, AccountInfo, OAuthCodeResponse, PlayerInfo};
 use crate::error::SJMCLResult;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use serde_json::Value;
@@ -149,11 +149,11 @@ pub async fn login(
   auth_info: OAuthCodeResponse,
 ) -> SJMCLResult<PlayerInfo> {
   let client = app.state::<reqwest::Client>();
+  let account_binding = app.state::<Mutex<AccountInfo>>();
 
   {
-    let is_oauth_cancelled_state = app.state::<Mutex<bool>>();
-    let mut is_oauth_cancelled = is_oauth_cancelled_state.lock()?;
-    *is_oauth_cancelled = false;
+    let mut account_state = account_binding.lock()?;
+    account_state.is_oauth_processing = true;
   }
 
   let openid_configuration = fetch_openid_configuration(app, openid_configuration_url).await?;
@@ -173,9 +173,8 @@ pub async fn login(
   let refresh_token: String;
   loop {
     {
-      let is_oauth_cancelled_state = app.state::<Mutex<bool>>();
-      let is_oauth_cancelled = is_oauth_cancelled_state.lock()?;
-      if *is_oauth_cancelled {
+      let account_state = account_binding.lock()?;
+      if !account_state.is_oauth_processing {
         return Err(AccountError::Cancelled)?;
       }
     }

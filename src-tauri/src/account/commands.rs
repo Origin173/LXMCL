@@ -188,9 +188,9 @@ pub async fn relogin_player_oauth(
 
 #[tauri::command]
 pub fn cancel_oauth(app: AppHandle) -> SJMCLResult<()> {
-  let is_oauth_cancelled_state = app.state::<Mutex<bool>>();
-  let mut is_oauth_cancelled = is_oauth_cancelled_state.lock()?;
-  *is_oauth_cancelled = true;
+  let account_binding = app.state::<Mutex<AccountInfo>>();
+  let mut account_state = account_binding.lock()?;
+  account_state.is_oauth_processing = false;
 
   Ok(())
 }

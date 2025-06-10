@@ -198,6 +198,7 @@ impl From<AuthServerInfo> for AuthServer {
 pub struct AccountInfo {
   pub players: Vec<PlayerInfo>,
   pub auth_servers: Vec<AuthServerInfo>,
+  pub is_oauth_processing: bool,
 }
 
 impl Default for AccountInfo {
@@ -213,6 +214,7 @@ impl Default for AccountInfo {
           timestamp: 0,
         })
         .collect(),
+      is_oauth_processing: false,
     }
   }
 }
