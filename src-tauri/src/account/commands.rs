@@ -187,6 +187,15 @@ pub async fn relogin_player_oauth(
 }
 
 #[tauri::command]
+pub fn cancel_oauth(app: AppHandle) -> SJMCLResult<()> {
+  let account_binding = app.state::<Mutex<AccountInfo>>();
+  let mut account_state = account_binding.lock()?;
+  account_state.is_oauth_processing = false;
+
+  Ok(())
+}
+
+#[tauri::command]
 pub async fn add_player_3rdparty_password(
   app: AppHandle,
   auth_server_url: String,

@@ -1507,7 +1507,6 @@
             "PARSE_ERROR": "The server returned data in an incorrect format",
             "NOT_FOUND": "The authentication server does not exist",
             "CANCELLED": "OAuth login cancelled",
-            "CREATE_WEBVIEW_ERROR": "Failed to create webview",
             "INVALID": "The server type is invalid"
           }
         }

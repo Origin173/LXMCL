@@ -1,8 +1,11 @@
 use super::constants::{CLIENT_ID, SCOPE, TOKEN_ENDPOINT};
-use crate::account::models::{AccountError, OAuthCodeResponse, PlayerInfo, PlayerType, Texture};
+use crate::account::models::{
+  AccountError, AccountInfo, OAuthCodeResponse, PlayerInfo, PlayerType, Texture,
+};
 use crate::error::SJMCLResult;
 use crate::utils::image::decode_image;
 use serde_json::{json, Value};
+use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_http::reqwest;
@@ -229,12 +232,25 @@ async fn parse_profile(
 
 pub async fn login(app: &AppHandle, auth_info: OAuthCodeResponse) -> SJMCLResult<PlayerInfo> {
   let client = app.state::<reqwest::Client>();
+  let account_binding = app.state::<Mutex<AccountInfo>>();
+
+  {
+    let mut account_state = account_binding.lock()?;
+    account_state.is_oauth_processing = true;
+  }
 
   let mut interval = auth_info.interval;
   let microsoft_token: String;
   let microsoft_refresh_token: String;
 
   loop {
+    {
+      let account_state = account_binding.lock()?;
+      if !account_state.is_oauth_processing {
+        return Err(AccountError::Cancelled)?;
+      }
+    }
+
     let token_response = client
       .post(TOKEN_ENDPOINT)
       .form(&[
