@@ -138,6 +138,8 @@ const AppearanceSettingsPage = () => {
           let newSelectedBgKey;
           if (customBgList.length === 1) {
             newSelectedBgKey = "%built-in:Jokull";
+            if (appearanceConfigs.background.randomCustom)
+              update("appearance.background.randomCustom", false);
           } else {
             newSelectedBgKey =
               deletedIndex < customBgList.length - 1
@@ -449,6 +451,32 @@ const AppearanceSettingsPage = () => {
         {
           title: t("AppearanceSettingsPage.background.settings.custom.title"),
           children: <CustomBackgroundList />,
+        },
+        {
+          title: t(
+            "AppearanceSettingsPage.background.settings.randomCustom.title"
+          ),
+          children: (
+            <Switch
+              colorScheme={primaryColor}
+              isChecked={appearanceConfigs.background.randomCustom}
+              disabled={customBgList.length === 0}
+              onChange={(e) => {
+                update("appearance.background.randomCustom", e.target.checked);
+                if (
+                  e.target.checked &&
+                  appearanceConfigs.background.choice.startsWith("%built-in:")
+                ) {
+                  update(
+                    "appearance.background.choice",
+                    customBgList[
+                      Math.floor(Math.random() * customBgList.length)
+                    ]?.fileName
+                  );
+                }
+              }}
+            />
+          ),
         },
       ],
     },

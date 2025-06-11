@@ -77,6 +77,7 @@ export interface LauncherConfig {
     };
     background: {
       choice: string;
+      randomCustom: boolean;
     };
     accessibility: {
       invertColors: boolean;
@@ -217,6 +218,7 @@ export const defaultConfig: LauncherConfig = {
     },
     background: {
       choice: "%built-in:Jokull",
+      randomCustom: false,
     },
     accessibility: {
       invertColors: false,

@@ -247,6 +247,9 @@
         "custom": {
           "title": "自定义图像",
           "add": "添加"
+        },
+        "randomCustom": {
+          "title": "随机自定义"
         }
       },
       "presetBgList": {

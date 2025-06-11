@@ -247,6 +247,9 @@
         "custom": {
           "title": "Custom Images",
           "add": "Add"
+        },
+        "randomCustom": {
+          "title": "Random Custom Image"
         }
       },
       "presetBgList": {

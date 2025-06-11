@@ -1,9 +1,14 @@
 use crate::{
   error::SJMCLResult,
-  launcher_config::models::{BasicInfo, GameConfig, GameDirectory, LauncherConfig},
+  launcher_config::{
+    commands::retrieve_custom_background_list,
+    models::{BasicInfo, GameConfig, GameDirectory, LauncherConfig},
+  },
   partial::{PartialAccess, PartialUpdate},
+  storage::Storage,
   utils::portable::{extract_assets, is_portable},
 };
+use rand::Rng;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::Mutex;
@@ -28,6 +33,21 @@ impl LauncherConfig {
     }
     if !self.download.cache.directory.exists() {
       fs::create_dir_all(&self.download.cache.directory)?;
+    }
+
+    // Random pick custom background image if enabled
+    if self.appearance.background.random_custom {
+      let app_handle = app.clone();
+      match retrieve_custom_background_list(app_handle) {
+        Ok(backgrounds) if !backgrounds.is_empty() => {
+          let mut rng = rand::rng();
+          let random_index = rng.random_range(0..backgrounds.len());
+          self.appearance.background.choice = backgrounds[random_index].clone();
+        }
+        _ => {
+          self.appearance.background.random_custom = false;
+        }
+      }
     }
 
     // Set default local game directories

@@ -180,6 +180,7 @@ structstruck::strike! {
       pub background: struct {
         #[default = "%built-in:Jokull"]
         pub choice: String,
+        pub random_custom: bool,
       },
       pub accessibility: struct {
         pub invert_colors: bool,
