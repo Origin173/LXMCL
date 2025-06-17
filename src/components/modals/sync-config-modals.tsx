@@ -123,8 +123,13 @@ export const SyncConfigImportModal: React.FC<SyncConfigModalProps> = ({
   const primaryColor = config.appearance.theme.primaryColor;
   const [token, setToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
   const fields = new Array(6).fill(null);
+
+  const handleCloseModal = useCallback(() => {
+    setToken("");
+    setIsLoading(false);
+    modalProps.onClose();
+  }, [modalProps]);
 
   const handleImportLauncherConfig = useCallback(async () => {
     setIsLoading(true);
@@ -135,20 +140,23 @@ export const SyncConfigImportModal: React.FC<SyncConfigModalProps> = ({
         title: response.message,
         status: "success",
       });
-      setToken("");
-      modalProps.onClose();
+      handleCloseModal();
     } else {
       toast({
         title: response.message,
         description: response.details,
         status: "error",
       });
+      setIsLoading(false);
     }
-    setIsLoading(false);
-  }, [modalProps, setConfig, toast, token]);
+  }, [handleCloseModal, setConfig, toast, token]);
 
   return (
-    <Modal size={{ base: "md", lg: "lg", xl: "xl" }} {...modalProps}>
+    <Modal
+      size={{ base: "md", lg: "lg", xl: "xl" }}
+      {...modalProps}
+      onClose={handleCloseModal}
+    >
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{t("SyncConfigImportModal.header.title")}</ModalHeader>
@@ -172,7 +180,7 @@ export const SyncConfigImportModal: React.FC<SyncConfigModalProps> = ({
           </FormControl>
         </ModalBody>
         <ModalFooter>
-          <Button variant="ghost" onClick={modalProps.onClose}>
+          <Button variant="ghost" onClick={handleCloseModal}>
             {t("General.cancel")}
           </Button>
           <Button
