@@ -23,6 +23,7 @@ import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
 import { ConfigService } from "@/services/config";
+import { copyText } from "@/utils/copy";
 
 interface SyncConfigModalProps extends Omit<ModalProps, "children"> {}
 
@@ -87,7 +88,12 @@ export const SyncConfigExportModal: React.FC<SyncConfigModalProps> = ({
             <FormLabel>{t("SyncConfigExportModal.label.token")}</FormLabel>
             <HStack spacing={4} alignItems="center">
               <Fade in={fadeFlag}>
-                <Heading size="lg" color={`${primaryColor}.500`}>
+                <Heading
+                  size="lg"
+                  color={`${primaryColor}.500`}
+                  cursor="pointer"
+                  onClick={() => copyText(token || "", { toast })}
+                >
                   {token}
                 </Heading>
               </Fade>
