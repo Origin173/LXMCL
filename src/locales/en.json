@@ -235,6 +235,10 @@
     "font": {
       "title": "Font",
       "settings": {
+        "fontFamily": {
+          "title": "Font Family",
+          "default": "Default"
+        },
         "fontSize": {
           "title": "Font Size",
           "small": "T",

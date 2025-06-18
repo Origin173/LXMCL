@@ -235,6 +235,10 @@
     "font": {
       "title": "字体",
       "settings": {
+        "fontFamily": {
+          "title": "界面字体",
+          "default": "默认"
+        },
         "fontSize": {
           "title": "字体大小",
           "small": "小",

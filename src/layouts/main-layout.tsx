@@ -113,6 +113,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const getGlobalExtraStyle = (config: any) => {
     const isInvertColors = config.appearance.accessibility.invertColors;
     const enhanceContrast = config.appearance.accessibility.enhanceContrast;
+    const fontFamily = config.appearance.font.fontFamily;
 
     const filters = [];
     if (isInvertColors) filters.push("invert(1)");
@@ -120,6 +121,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
     return {
       filter: filters.length > 0 ? filters.join(" ") : "none",
+      fontFamily: fontFamily == "%built-in" ? "inherit" : fontFamily,
     };
   };
 
