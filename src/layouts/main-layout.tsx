@@ -121,7 +121,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
     return {
       filter: filters.length > 0 ? filters.join(" ") : "none",
-      fontFamily: fontFamily == "%built-in" ? "inherit" : fontFamily,
+      fontFamily: fontFamily === "%built-in" ? "inherit" : fontFamily,
     };
   };
 
