@@ -86,6 +86,20 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     constructBgImgSrc();
   }, [config.appearance.background.choice]);
 
+  // update font family to body CSS by config.
+  useEffect(() => {
+    const body = document.body;
+    const fontFamily = config.appearance.font.fontFamily;
+
+    if (fontFamily !== "%built-in") {
+      body.setAttribute("use-custom-font", "true");
+      body.style.setProperty("--custom-global-font-family", fontFamily);
+    } else {
+      body.removeAttribute("use-custom-font");
+      body.style.removeProperty("--custom-global-font-family");
+    }
+  }, [config.appearance.font.fontFamily]);
+
   // update font size to body CSS by config.
   useEffect(() => {
     const root = document.documentElement;
@@ -113,7 +127,6 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const getGlobalExtraStyle = (config: any) => {
     const isInvertColors = config.appearance.accessibility.invertColors;
     const enhanceContrast = config.appearance.accessibility.enhanceContrast;
-    const fontFamily = config.appearance.font.fontFamily;
 
     const filters = [];
     if (isInvertColors) filters.push("invert(1)");
@@ -121,7 +134,6 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
     return {
       filter: filters.length > 0 ? filters.join(" ") : "none",
-      fontFamily: fontFamily === "%built-in" ? "inherit" : fontFamily,
     };
   };
 
