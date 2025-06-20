@@ -1107,6 +1107,11 @@
   "NotFoundPage": {
     "text": "Page not found, redirecting to launch page in {{seconds}} seconds..."
   },
+  "OptionItemGroup": {
+    "button": {
+      "showAll": "Show All (+{{left}})"
+    }
+  },
   "PlayerMenu": {
     "label": {
       "manageSkin": "Manage Skin",
@@ -1896,7 +1901,11 @@
     "input": {
       "placeholder": "Global Search"
     },
-    "tip": "Search local and online game resources in one place"
+    "tip": "Search local and online game resources in one place",
+    "result": {
+      "instance": "Instance",
+      "player": "Player"
+    }
   },
   "StarUsModal": {
     "header": {
