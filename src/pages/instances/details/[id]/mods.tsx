@@ -350,7 +350,7 @@ const InstanceModsPage = () => {
                   >
                     <Highlight
                       query={query.trim().toLowerCase().split(/\s+/)}
-                      styles={{ bg: "yello.200" }}
+                      styles={{ bg: "yellow.200" }}
                     >
                       {mod.fileName}
                     </Highlight>
