@@ -12,7 +12,10 @@ use super::{
     AccountError, AccountInfo, AuthServer, OAuthCodeResponse, Player, PlayerInfo, PlayerType,
   },
 };
-use crate::{error::SJMCLResult, launcher_config::models::LauncherConfig, storage::Storage};
+use crate::{
+  account::helpers::misc, error::SJMCLResult, launcher_config::models::LauncherConfig,
+  storage::Storage,
+};
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
 use url::Url;
@@ -132,7 +135,7 @@ pub async fn add_player_oauth(
     account_state.save()?;
   }
 
-  offline::check_availability(&app).await
+  misc::check_full_login_availability(&app).await
 }
 
 #[tauri::command]
@@ -188,7 +191,7 @@ pub async fn relogin_player_oauth(
     }
   }
 
-  offline::check_availability(&app).await
+  misc::check_full_login_availability(&app).await
 }
 
 #[tauri::command]
@@ -299,7 +302,7 @@ pub async fn relogin_player_3rdparty_password(
     }
   }
 
-  offline::check_availability(&app).await
+  misc::check_full_login_availability(&app).await
 }
 
 #[tauri::command]
@@ -329,7 +332,7 @@ pub async fn add_player_from_selection(app: AppHandle, player: Player) -> SJMCLR
     config_state.save()?;
   }
 
-  offline::check_availability(&app).await
+  misc::check_full_login_availability(&app).await
 }
 
 #[tauri::command]
@@ -385,7 +388,7 @@ pub async fn delete_player(app: AppHandle, player_id: String) -> SJMCLResult<()>
     account_state.save()?;
   }
 
-  offline::check_availability(&app).await
+  misc::check_full_login_availability(&app).await
 }
 
 #[tauri::command]

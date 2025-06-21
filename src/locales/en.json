@@ -130,6 +130,12 @@
     }
   },
   "AddPlayerModal": {
+    "alert": {
+      "noFullLogin": {
+        "title": "Adding this type of player is not supported",
+        "description": "Please log in with your Microsoft account before accessing this feature."
+      }
+    },
     "modal": {
       "header": "Add Player"
     },

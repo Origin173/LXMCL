@@ -130,6 +130,12 @@
     }
   },
   "AddPlayerModal": {
+    "alert": {
+      "noFullLogin": {
+        "title": "暂不支持添加该类型角色",
+        "description": "请先登录微软账户后使用此功能。"
+      }
+    },
     "modal": {
       "header": "添加角色"
     },

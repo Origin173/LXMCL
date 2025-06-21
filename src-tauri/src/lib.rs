@@ -166,7 +166,7 @@ pub async fn run() {
       // Check if offline login is available
       let app_handle = app.handle().clone();
       tauri::async_runtime::spawn(async move {
-        account::helpers::offline::check_availability(&app_handle)
+        account::helpers::misc::check_full_login_availability(&app_handle)
           .await
           .unwrap_or_default();
       });

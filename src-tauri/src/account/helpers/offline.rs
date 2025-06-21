@@ -1,18 +1,13 @@
-use std::sync::Mutex;
-
 use crate::{
   account::{
     constants::TEXTURE_ROLES,
-    models::{AccountError, AccountInfo, PlayerInfo, PlayerType, Texture},
+    models::{AccountError, PlayerInfo, PlayerType, Texture},
   },
   error::SJMCLResult,
-  launcher_config::models::LauncherConfig,
-  storage::Storage,
   utils::{fs::get_app_resource_filepath, image::load_image_from_dir},
 };
 use rand::seq::IndexedRandom;
-use tauri::{AppHandle, Manager};
-use tauri_plugin_http::reqwest;
+use tauri::AppHandle;
 use uuid::Uuid;
 
 pub fn load_preset_skin(app: &AppHandle, preset_role: String) -> SJMCLResult<Vec<Texture>> {
@@ -56,80 +51,4 @@ pub async fn login(app: &AppHandle, username: String, raw_uuid: String) -> SJMCL
     }
     .with_generated_id(),
   )
-}
-
-async fn is_china_mainland_ip(app: &AppHandle) -> SJMCLResult<bool> {
-  let client = app.state::<reqwest::Client>();
-
-  // retrieve the real IP
-  let ip_resp = client
-    .get("https://api-ipv4.ip.sb/ip")
-    .send()
-    .await
-    .map_err(|_| AccountError::NetworkError)?;
-
-  let ip = ip_resp
-    .text()
-    .await
-    .map_err(|_| AccountError::ParseError)?
-    .trim()
-    .to_string();
-
-  // get IP's country code
-  let geo_resp = client
-    .get(format!("https://ipapi.co/{}/country/", ip))
-    .send()
-    .await
-    .map_err(|_| AccountError::NetworkError)?;
-
-  let country = geo_resp
-    .text()
-    .await
-    .map_err(|_| AccountError::ParseError)?
-    .trim()
-    .to_string();
-
-  Ok(country == "CN")
-}
-
-pub async fn check_availability(app: &AppHandle) -> SJMCLResult<()> {
-  match is_china_mainland_ip(app).await {
-    Ok(is_china) => {
-      if is_china {
-        // in China, offline login is always available
-        let config_binding = app.state::<Mutex<LauncherConfig>>();
-        let mut config_state = config_binding.lock()?;
-        config_state.general.functionality.offline_login = true;
-        config_state.save()?;
-      } else {
-        // not in China, check if any Microsoft account has been added
-        let account_binding = app.state::<Mutex<AccountInfo>>();
-        let account_state = account_binding.lock().unwrap();
-
-        let config_binding = app.state::<Mutex<LauncherConfig>>();
-        let mut config_state = config_binding.lock()?;
-
-        config_state.general.functionality.offline_login = !account_state
-          .players
-          .iter()
-          .filter(|player| player.player_type == PlayerType::Microsoft)
-          .collect::<Vec<&PlayerInfo>>()
-          .is_empty();
-
-        config_state.save()?;
-      }
-    }
-    Err(_) => {
-      // if we cannot determine the IP, check if any account has been added
-      let account_binding = app.state::<Mutex<AccountInfo>>();
-      let account_state = account_binding.lock()?;
-
-      let config_binding = app.state::<Mutex<LauncherConfig>>();
-      let mut config_state = config_binding.lock()?;
-
-      config_state.general.functionality.offline_login = !account_state.players.is_empty();
-      config_state.save()?;
-    }
-  };
-  Ok(())
 }
