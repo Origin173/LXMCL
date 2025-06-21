@@ -307,6 +307,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
               <VStack w="100%" spacing={1}>
                 <FormControl
                   isRequired
+                  isDisabled={!config.general.functionality.offlineLogin}
                   isInvalid={
                     !!playername.length && !isOfflinePlayernameValid(playername)
                   }
@@ -328,15 +329,19 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                     {t("AddPlayerModal.offline.playerName.errorMessage")}
                   </FormErrorMessage>
                 </FormControl>
-                <Section
-                  isAccordion
-                  initialIsOpen={false}
-                  title={t("AddPlayerModal.offline.advancedOptions.title")}
-                  onAccordionToggle={(isOpen) => setShowAdvancedOptions(isOpen)}
-                  w="100%"
-                  mt={2}
-                  mb={-2}
-                />
+                {config.general.functionality.offlineLogin && (
+                  <Section
+                    isAccordion
+                    initialIsOpen={false}
+                    title={t("AddPlayerModal.offline.advancedOptions.title")}
+                    onAccordionToggle={(isOpen) =>
+                      setShowAdvancedOptions(isOpen)
+                    }
+                    w="100%"
+                    mt={2}
+                    mb={-2}
+                  />
+                )}
                 {showAdvancedOptions && (
                   <FormControl isInvalid={!!uuid.length && !isUuidValid(uuid)}>
                     <FormLabel>
@@ -542,6 +547,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                 isDisabled={
                   !playername ||
                   (playerType === PlayerType.Offline &&
+                    config.general.functionality.offlineLogin &&
                     !isOfflinePlayernameValid(playername)) ||
                   (uuid && !isUuidValid(uuid)) ||
                   (playerType === PlayerType.ThirdParty &&

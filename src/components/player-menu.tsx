@@ -55,8 +55,10 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
   } = useDisclosure();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDeletePlayer = () => {
+    setIsDeleting(true);
     AccountService.deletePlayer(player.id).then((response) => {
       if (response.status === "success") {
         Promise.all([getPlayerList(true), refreshConfig()]);
@@ -71,6 +73,7 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
           status: "error",
         });
       }
+      setIsDeleting(false);
       onDeleteClose();
     });
   };
@@ -191,6 +194,7 @@ export const PlayerMenu: React.FC<PlayerMenuProps> = ({
         btnOK={t("General.delete")}
         btnCancel={t("General.cancel")}
         onOKCallback={handleDeletePlayer}
+        isLoading={isDeleting}
         isAlert
       />
       {player.playerType === PlayerType.Offline ? (

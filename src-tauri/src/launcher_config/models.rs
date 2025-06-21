@@ -227,6 +227,8 @@ structstruck::strike! {
         pub instances_nav_type: String,
         #[default = true]
         pub launch_page_quick_switch: bool,
+        #[default = false]
+        pub offline_login: bool,
       }
     },
     pub global_game_config: GameConfig,
