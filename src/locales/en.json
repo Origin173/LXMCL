@@ -132,7 +132,7 @@
   "AddPlayerModal": {
     "alert": {
       "noFullLogin": {
-        "title": "Adding this type of player is not supported",
+        "title": "Player type is not available currently",
         "description": "Please log in with your Microsoft account before accessing this feature."
       }
     },
@@ -679,7 +679,7 @@
     "add": "Add",
     "cancel": "Cancel",
     "close": "Close",
-    "confirm": "Confirm",
+    "confirm": "OK",
     "copy": {
       "text": "Copy",
       "toast": {
