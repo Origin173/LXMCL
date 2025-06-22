@@ -20,6 +20,7 @@ interface GenericConfirmDialogProps {
   btnCancel: string;
   onOKCallback?: () => void;
   isAlert?: boolean;
+  isLoading?: boolean;
 }
 
 const GenericConfirmDialog: React.FC<GenericConfirmDialogProps> = ({
@@ -31,6 +32,7 @@ const GenericConfirmDialog: React.FC<GenericConfirmDialogProps> = ({
   btnCancel,
   onOKCallback,
   isAlert = false,
+  isLoading = false,
 }) => {
   const cancelRef = useRef<HTMLButtonElement>(null);
   const { config } = useLauncherConfig();
@@ -58,6 +60,7 @@ const GenericConfirmDialog: React.FC<GenericConfirmDialogProps> = ({
             <Button
               colorScheme={isAlert ? "red" : primaryColor}
               onClick={onOKCallback}
+              isLoading={isLoading}
             >
               {btnOK}
             </Button>
