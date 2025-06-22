@@ -3,10 +3,10 @@ use crate::{
   error::SJMCLResult,
   launcher_config::models::LauncherConfig,
   storage::Storage,
+  utils::web::is_china_mainland_ip,
 };
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
-use tauri_plugin_http::reqwest;
 
 pub fn get_selected_player_info(app: &AppHandle) -> SJMCLResult<PlayerInfo> {
   let account_binding = app.state::<Mutex<AccountInfo>>();
@@ -29,46 +29,24 @@ pub fn get_selected_player_info(app: &AppHandle) -> SJMCLResult<PlayerInfo> {
   Ok(player_info.clone())
 }
 
-async fn is_china_mainland_ip(app: &AppHandle) -> SJMCLResult<bool> {
-  let client = app.state::<reqwest::Client>();
-
-  // retrieve the real IP
-  let resp = client
-    .get("https://cloudflare.com/cdn-cgi/trace")
-    .send()
-    .await
-    .map_err(|_| AccountError::NetworkError)?;
-
-  let text = resp.text().await.map_err(|_| AccountError::NetworkError)?;
-
-  let locale = text
-    .split('\n')
-    .find(|line| line.starts_with("loc="))
-    .ok_or(AccountError::NetworkError)?;
-
-  let country = locale.split('=').nth(1).ok_or(AccountError::NetworkError)?;
-
-  Ok(country == "CN")
-}
-
 pub async fn check_full_login_availability(app: &AppHandle) -> SJMCLResult<()> {
   match is_china_mainland_ip(app).await {
-    Ok(is_china) => {
-      if is_china {
-        // in China, offline login is always available
+    Some(is_china_mainland) => {
+      if is_china_mainland {
+        // in China (mainland), offline login is always available
         let config_binding = app.state::<Mutex<LauncherConfig>>();
         let mut config_state = config_binding.lock()?;
-        config_state.general.functionality.full_login = true;
+        config_state.basic_info.allow_full_login_feature = true;
         config_state.save()?;
       } else {
-        // not in China, check if any Microsoft account has been added
+        // not in China (mainland), check if any Microsoft account has been added
         let account_binding = app.state::<Mutex<AccountInfo>>();
         let account_state = account_binding.lock().unwrap();
 
         let config_binding = app.state::<Mutex<LauncherConfig>>();
         let mut config_state = config_binding.lock()?;
 
-        config_state.general.functionality.full_login = !account_state
+        config_state.basic_info.allow_full_login_feature = !account_state
           .players
           .iter()
           .filter(|player| player.player_type == PlayerType::Microsoft)
@@ -78,7 +56,7 @@ pub async fn check_full_login_availability(app: &AppHandle) -> SJMCLResult<()> {
         config_state.save()?;
       }
     }
-    Err(_) => {
+    None => {
       // if we cannot determine the IP, check if any account has been added
       let account_binding = app.state::<Mutex<AccountInfo>>();
       let account_state = account_binding.lock()?;
@@ -86,7 +64,7 @@ pub async fn check_full_login_availability(app: &AppHandle) -> SJMCLResult<()> {
       let config_binding = app.state::<Mutex<LauncherConfig>>();
       let mut config_state = config_binding.lock()?;
 
-      config_state.general.functionality.full_login = !account_state.players.is_empty();
+      config_state.basic_info.allow_full_login_feature = !account_state.players.is_empty();
       config_state.save()?;
     }
   };

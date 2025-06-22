@@ -160,6 +160,8 @@ structstruck::strike! {
       pub os_type: String,
       pub platform_version: String,
       pub is_portable: bool,
+      #[default = false]
+      pub allow_full_login_feature: bool,
     },
     // mocked: false when invoked from the backend, true when the frontend placeholder data is used during loading.
     pub mocked: bool,
@@ -227,8 +229,6 @@ structstruck::strike! {
         pub instances_nav_type: String,
         #[default = true]
         pub launch_page_quick_switch: bool,
-        #[default = false]
-        pub full_login: bool,
       }
     },
     pub global_game_config: GameConfig,

@@ -163,7 +163,7 @@ pub async fn run() {
       let launching = LaunchingState::default();
       app.manage(Mutex::new(launching));
 
-      // Check if offline login is available
+      // check if full account feature (offline and 3rd-party login) is available
       let app_handle = app.handle().clone();
       tauri::async_runtime::spawn(async move {
         account::helpers::misc::check_full_login_availability(&app_handle)

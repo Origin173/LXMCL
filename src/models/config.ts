@@ -63,6 +63,7 @@ export interface LauncherConfig {
     osType: string;
     platformVersion: string;
     isPortable: boolean;
+    allowFullLoginFeature: boolean;
   };
   mocked: boolean;
   runCount: number;
@@ -114,7 +115,6 @@ export interface LauncherConfig {
       discoverPage: boolean;
       instancesNavType: string;
       launchPageQuickSwitch: boolean;
-      fullLogin: boolean;
     };
   };
   localGameDirectories: GameDirectory[];
@@ -207,6 +207,7 @@ export const defaultConfig: LauncherConfig = {
     osType: "",
     platformVersion: "",
     isPortable: false,
+    allowFullLoginFeature: false,
   },
   mocked: true,
   runCount: -1,
@@ -258,7 +259,6 @@ export const defaultConfig: LauncherConfig = {
       discoverPage: false,
       instancesNavType: "instance",
       launchPageQuickSwitch: false,
-      fullLogin: false,
     },
   },
   localGameDirectories: [{ name: "Current", dir: ".minecraft/" }],
