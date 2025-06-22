@@ -960,7 +960,7 @@
     "restore": "Restore",
     "errorMessage": {
       "error-1": "Instance name cannot be empty",
-      "error-2": "Instance name cannot contain special characters"
+      "error-2": "Instance name has invalid characters"
     }
   },
   "InstanceShaderPacksPage": {
