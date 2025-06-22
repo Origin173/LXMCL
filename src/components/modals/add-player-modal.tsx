@@ -313,10 +313,10 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                   <AlertIcon />
                   <VStack spacing={0} align="start">
                     <AlertTitle>
-                      {t("AddPlayerModal.alert.noFullLogin.title")}
+                      {t("General.alert.noFullLogin.title")}
                     </AlertTitle>
                     <AlertDescription>
-                      {t("AddPlayerModal.alert.noFullLogin.description")}
+                      {t("General.alert.noFullLogin.description")}
                     </AlertDescription>
                   </VStack>
                 </Alert>

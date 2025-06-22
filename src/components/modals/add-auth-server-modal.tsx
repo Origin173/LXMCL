@@ -1,4 +1,8 @@
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
   Button,
   FormControl,
   FormErrorMessage,
@@ -130,11 +134,22 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
           {!isNextStep ? (
             <FormControl
               isDisabled={!config.basicInfo.allowFullLoginFeature}
-              isInvalid={
-                isServerUrlInvalid || !config.basicInfo.allowFullLoginFeature
-              }
+              isInvalid={isServerUrlInvalid}
               isRequired
             >
+              {!config.basicInfo.allowFullLoginFeature && (
+                <Alert status="error" borderRadius="md" mb="3">
+                  <AlertIcon />
+                  <VStack spacing={0} align="start">
+                    <AlertTitle>
+                      {t("General.alert.noFullLogin.title")}
+                    </AlertTitle>
+                    <AlertDescription>
+                      {t("General.alert.noFullLogin.description")}
+                    </AlertDescription>
+                  </VStack>
+                </Alert>
+              )}
               <FormLabel htmlFor="serverUrl">
                 {t("AddAuthServerModal.page1.serverUrl")}
               </FormLabel>
@@ -148,11 +163,6 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
                 ref={initialRef}
                 focusBorderColor={`${primaryColor}.500`}
               />
-              {!config.basicInfo.allowFullLoginFeature && (
-                <FormErrorMessage>
-                  {t("AddAuthServerModal.page1.featureDisabled")}
-                </FormErrorMessage>
-              )}
               {isServerUrlInvalid && (
                 <FormErrorMessage>
                   {t("AddAuthServerModal.page1.serverUrlRequired")}

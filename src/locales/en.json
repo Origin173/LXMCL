@@ -110,7 +110,6 @@
       "inputServerUrl": "Server URL"
     },
     "page1": {
-      "featureDisabled": "Please log in with your Microsoft account before accessing this feature",
       "serverUrl": "Server URL",
       "serverUrlRequired": "Server URL is required"
     },
@@ -131,12 +130,6 @@
     }
   },
   "AddPlayerModal": {
-    "alert": {
-      "noFullLogin": {
-        "title": "Player type is not available currently",
-        "description": "Please log in with your Microsoft account before accessing this feature."
-      }
-    },
     "modal": {
       "header": "Add Player"
     },
@@ -678,6 +671,12 @@
   },
   "General": {
     "add": "Add",
+    "alert": {
+      "noFullLogin": {
+        "title": "Player type is not available currently",
+        "description": "Please log in with your Microsoft account before accessing this feature."
+      }
+    },
     "cancel": "Cancel",
     "close": "Close",
     "confirm": "OK",

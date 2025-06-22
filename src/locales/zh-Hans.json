@@ -110,7 +110,6 @@
       "inputServerUrl": "请输入服务器地址"
     },
     "page1": {
-      "featureDisabled": "请先登录微软账户后使用此功能",
       "serverUrl": "服务器地址",
       "serverUrlRequired": "必填字段"
     },
@@ -131,12 +130,6 @@
     }
   },
   "AddPlayerModal": {
-    "alert": {
-      "noFullLogin": {
-        "title": "暂不支持添加该类型角色",
-        "description": "请先登录微软账户后使用此功能。"
-      }
-    },
     "modal": {
       "header": "添加角色"
     },
@@ -678,6 +671,12 @@
   },
   "General": {
     "add": "添加",
+    "alert": {
+      "noFullLogin": {
+        "title": "暂不支持添加该类型角色",
+        "description": "请先登录微软账户后使用此功能。"
+      }
+    },
     "cancel": "取消",
     "close": "关闭",
     "confirm": "确定",
