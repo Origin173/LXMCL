@@ -110,6 +110,7 @@
       "inputServerUrl": "Server URL"
     },
     "page1": {
+      "featureDisabled": "Please log in with your Microsoft account before accessing this feature",
       "serverUrl": "Server URL",
       "serverUrlRequired": "Server URL is required"
     },

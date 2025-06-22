@@ -110,6 +110,7 @@
       "inputServerUrl": "请输入服务器地址"
     },
     "page1": {
+      "featureDisabled": "请先登录微软账户后使用此功能",
       "serverUrl": "服务器地址",
       "serverUrlRequired": "必填字段"
     },

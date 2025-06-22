@@ -128,7 +128,13 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
         <ModalCloseButton />
         <ModalBody>
           {!isNextStep ? (
-            <FormControl isInvalid={isServerUrlInvalid} isRequired>
+            <FormControl
+              isDisabled={!config.basicInfo.allowFullLoginFeature}
+              isInvalid={
+                isServerUrlInvalid || !config.basicInfo.allowFullLoginFeature
+              }
+              isRequired
+            >
               <FormLabel htmlFor="serverUrl">
                 {t("AddAuthServerModal.page1.serverUrl")}
               </FormLabel>
@@ -142,6 +148,11 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
                 ref={initialRef}
                 focusBorderColor={`${primaryColor}.500`}
               />
+              {!config.basicInfo.allowFullLoginFeature && (
+                <FormErrorMessage>
+                  {t("AddAuthServerModal.page1.featureDisabled")}
+                </FormErrorMessage>
+              )}
               {isServerUrlInvalid && (
                 <FormErrorMessage>
                   {t("AddAuthServerModal.page1.serverUrlRequired")}
@@ -176,6 +187,7 @@ const AddAuthServerModal: React.FC<AddAuthServerModalProps> = ({
                 {t("General.previous")}
               </Button>
               <Button
+                disabled={!config.basicInfo.allowFullLoginFeature}
                 colorScheme={primaryColor}
                 onClick={handleFinish}
                 isLoading={isLoading}
