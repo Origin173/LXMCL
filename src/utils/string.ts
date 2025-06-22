@@ -41,3 +41,10 @@ export const formatDisplayCount = (count: number): string => {
 
   return `${formattedCount.toFixed(2)} ${units[unitIndex - 1]}`;
 };
+
+export const isSanitized = (str: string): boolean => {
+  const forbiddenChars = /[\\/:*?"<>|]/;
+  const reservedNames = /^(con|prn|aux|nul|com\d|lpt\d)$/i;
+
+  return !forbiddenChars.test(str) && !reservedNames.test(str);
+};

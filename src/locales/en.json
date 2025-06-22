@@ -959,7 +959,8 @@
     "restoreSettingsDesc": "Restore the following specific settings to their default values",
     "restore": "Restore",
     "errorMessage": {
-      "error-1": "Instance name cannot be empty"
+      "error-1": "Instance name cannot be empty",
+      "error-2": "Instance name cannot contain special characters"
     }
   },
   "InstanceShaderPacksPage": {

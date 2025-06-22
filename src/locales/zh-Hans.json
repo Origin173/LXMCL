@@ -959,7 +959,8 @@
     "restoreSettingsDesc": "将以下特定设置重置为全局游戏设置",
     "restore": "重置",
     "errorMessage": {
-      "error-1": "实例名称不能为空"
+      "error-1": "实例名称不能为空",
+      "error-2": "实例名称不能含有非法字符"
     }
   },
   "InstanceShaderPacksPage": {

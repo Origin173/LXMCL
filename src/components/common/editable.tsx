@@ -68,6 +68,7 @@ const Editable: React.FC<EditableProps> = ({
             variant="ghost"
             h={18}
             aria-label="submit"
+            isDisabled={isInvalid}
             onClick={() => {
               if (isInvalid) return;
               if (tempValue !== value) onEditSubmit(tempValue);
@@ -115,6 +116,15 @@ const Editable: React.FC<EditableProps> = ({
     }
   }, [isEditing]);
 
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (isInvalid) return;
+      if (tempValue !== value) onEditSubmit(tempValue);
+      setIsEditing(false);
+    }
+  };
+
   return (
     <Box {...boxProps}>
       {isEditing ? (
@@ -133,6 +143,7 @@ const Editable: React.FC<EditableProps> = ({
                 setIsInvalid(false);
                 onFocus();
               }}
+              onKeyDown={onKeyDown}
               focusBorderColor={`${primaryColor}.500`}
               {...(inputProps as TextareaProps)}
             />
@@ -164,6 +175,7 @@ const Editable: React.FC<EditableProps> = ({
                   setIsInvalid(false);
                   onFocus();
                 }}
+                onKeyDown={onKeyDown}
                 focusBorderColor={`${primaryColor}.500`}
                 {...(inputProps as InputProps)}
               />
