@@ -4,12 +4,10 @@ use tauri::{AppHandle, Manager};
 
 use crate::{
   error::SJMCLResult,
-  tasks::{
-    download::DownloadTask, monitor::TaskMonitor, ProgressiveTaskDescriptor, ProgressiveTaskParam,
-  },
+  tasks::{download::DownloadTask, monitor::TaskMonitor, PTaskParam},
 };
 
-use super::TransientTaskDescriptor;
+use super::{PTaskDesc, THandle};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct ScheduleResult {
@@ -21,14 +19,14 @@ pub struct ScheduleResult {
 pub async fn schedule_progressive_task_group(
   app: AppHandle,
   task_group: String,
-  params: Vec<ProgressiveTaskParam>,
+  params: Vec<PTaskParam>,
 ) -> SJMCLResult<ScheduleResult> {
   let monitor = app.state::<Pin<Box<TaskMonitor>>>();
   let mut task_ids = Vec::new();
   for param in params {
     let task_id = monitor.get_new_id();
     match param {
-      ProgressiveTaskParam::Download(param) => {
+      PTaskParam::Download(param) => {
         let task = DownloadTask::new(
           app.clone(),
           task_id,
@@ -36,9 +34,11 @@ pub async fn schedule_progressive_task_group(
           param,
           Duration::from_secs(1),
         );
-        let (futute, state) = task.future(monitor.download_rate_limiter.clone()).await?;
+        let (futute, handle) = task
+          .future(app.clone(), monitor.download_rate_limiter.clone())
+          .await?;
         monitor
-          .enqueue_task(task_id, Some(task_group.clone()), futute, Some(state))
+          .enqueue_task(task_id, Some(task_group.clone()), futute, handle)
           .await;
       }
     };
@@ -52,7 +52,7 @@ pub async fn schedule_progressive_task_group(
 }
 
 #[tauri::command]
-pub fn create_transient_task(app: AppHandle, desc: TransientTaskDescriptor) -> SJMCLResult<()> {
+pub fn create_transient_task(app: AppHandle, desc: THandle) -> SJMCLResult<()> {
   let monitor = app.state::<Pin<Box<TaskMonitor>>>();
   monitor.create_transient_task(app.clone(), desc);
   Ok(())
@@ -73,10 +73,7 @@ pub fn cancel_transient_task(app: AppHandle, task_id: u32) -> SJMCLResult<()> {
 }
 
 #[tauri::command]
-pub fn get_transient_task(
-  app: AppHandle,
-  task_id: u32,
-) -> SJMCLResult<Option<TransientTaskDescriptor>> {
+pub fn get_transient_task(app: AppHandle, task_id: u32) -> SJMCLResult<Option<THandle>> {
   let monitor = app.state::<Pin<Box<TaskMonitor>>>();
   Ok(monitor.get_transient_task(task_id))
 }
@@ -103,7 +100,7 @@ pub fn stop_progressive_task(app: AppHandle, task_id: u32) -> SJMCLResult<()> {
 }
 
 #[tauri::command]
-pub fn retrieve_progressive_task_list(app: AppHandle) -> Vec<ProgressiveTaskDescriptor> {
+pub fn retrieve_progressive_task_list(app: AppHandle) -> Vec<PTaskDesc> {
   let monitor = app.state::<Pin<Box<TaskMonitor>>>();
   monitor.state_list()
 }
