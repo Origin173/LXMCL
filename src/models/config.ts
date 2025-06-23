@@ -121,6 +121,7 @@ export interface LauncherConfig {
   globalGameConfig: GameConfig;
   discoverSourceEndpoints: string[];
   extraJavaPaths: string[];
+  suppressedDialogs: string[];
   states: {
     shared: {
       selectedPlayerId: string;
@@ -265,6 +266,7 @@ export const defaultConfig: LauncherConfig = {
   globalGameConfig: defaultGameConfig,
   discoverSourceEndpoints: ["https://mc.sjtu.cn/api-sjmcl/article"],
   extraJavaPaths: [],
+  suppressedDialogs: [],
   states: {
     shared: {
       selectedPlayerId: "",

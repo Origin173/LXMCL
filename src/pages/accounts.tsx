@@ -31,7 +31,6 @@ import { Section } from "@/components/common/section";
 import SegmentedControl from "@/components/common/segmented";
 import SelectableButton from "@/components/common/selectable-button";
 import AddPlayerModal from "@/components/modals/add-player-modal";
-import GenericConfirmDialog from "@/components/modals/generic-confirm-dialog";
 import PlayersView from "@/components/players-view";
 import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
@@ -47,7 +46,8 @@ const AccountsPage = () => {
   const toast = useToast();
   const primaryColor = config.appearance.theme.primaryColor;
   const selectedViewType = config.states.accountsPage.viewType;
-  const { openSharedModal } = useSharedModals();
+  const { openSharedModal, closeSharedModal, openGenericConfirmDialog } =
+    useSharedModals();
 
   const { getPlayerList, getAuthServerList, selectedPlayer } = useGlobalData();
 
@@ -62,12 +62,6 @@ const AccountsPage = () => {
   useEffect(() => {
     setAuthServerList(getAuthServerList() || []);
   }, [getAuthServerList]);
-
-  const {
-    isOpen: isDeleteAuthServerDialogOpen,
-    onOpen: onDeleteAuthServerDialogOpen,
-    onClose: onDeleteAuthServerDialogClose,
-  } = useDisclosure();
 
   const {
     isOpen: isAddPlayerModalOpen,
@@ -155,7 +149,7 @@ const AccountsPage = () => {
         }
       });
     }
-    onDeleteAuthServerDialogClose();
+    closeSharedModal("generic-confirm");
   };
 
   return (
@@ -244,7 +238,25 @@ const AccountsPage = () => {
                       colorScheme="red"
                       variant="ghost"
                       icon={<LuServerOff />}
-                      onClick={onDeleteAuthServerDialogOpen}
+                      onClick={() => {
+                        openGenericConfirmDialog({
+                          title: t("DeleteAuthServerAlertDialog.dialog.title"),
+                          body: t(
+                            "DeleteAuthServerAlertDialog.dialog.content",
+                            {
+                              name: authServerList.find(
+                                (server) =>
+                                  server.authUrl === selectedPlayerType
+                              )?.name,
+                            }
+                          ),
+                          btnOK: t("General.delete"),
+                          isAlert: true,
+                          onOKCallback: handleDeleteAuthServer,
+                          showSuppressBtn: true,
+                          suppressKey: "deleteAuthServerAlert",
+                        });
+                      }}
                     />
                   </Tooltip>
                 )}
@@ -283,20 +295,6 @@ const AccountsPage = () => {
           </Section>
         </GridItem>
       </Grid>
-      <GenericConfirmDialog
-        isAlert
-        isOpen={isDeleteAuthServerDialogOpen}
-        onClose={onDeleteAuthServerDialogClose}
-        title={t("DeleteAuthServerAlertDialog.dialog.title")}
-        body={t("DeleteAuthServerAlertDialog.dialog.content", {
-          name: authServerList.find(
-            (server) => server.authUrl === selectedPlayerType
-          )?.name,
-        })}
-        btnOK={t("General.delete")}
-        btnCancel={t("General.cancel")}
-        onOKCallback={handleDeleteAuthServer}
-      />
       <AddPlayerModal
         isOpen={isAddPlayerModalOpen}
         onClose={onAddPlayerModalClose}

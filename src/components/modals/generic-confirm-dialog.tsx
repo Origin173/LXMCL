@@ -7,8 +7,11 @@ import {
   AlertDialogHeader,
   AlertDialogOverlay,
   Button,
+  Checkbox,
+  HStack,
 } from "@chakra-ui/react";
-import { useRef } from "react";
+import { t } from "i18next";
+import { useRef, useState } from "react";
 import { useLauncherConfig } from "@/contexts/config";
 
 interface GenericConfirmDialogProps {
@@ -16,11 +19,13 @@ interface GenericConfirmDialogProps {
   onClose: () => void;
   title: string;
   body: string | React.ReactElement;
-  btnOK: string;
-  btnCancel: string;
+  btnOK?: string;
+  btnCancel?: string;
   onOKCallback?: () => void;
   isAlert?: boolean;
   isLoading?: boolean;
+  showSuppressBtn?: boolean;
+  suppressKey?: string;
 }
 
 const GenericConfirmDialog: React.FC<GenericConfirmDialogProps> = ({
@@ -28,21 +33,34 @@ const GenericConfirmDialog: React.FC<GenericConfirmDialogProps> = ({
   onClose,
   title,
   body,
-  btnOK,
-  btnCancel,
+  btnOK = t("General.confirm"),
+  btnCancel = t("General.cancel"),
   onOKCallback,
   isAlert = false,
   isLoading = false,
+  showSuppressBtn = false,
+  suppressKey,
 }) => {
   const cancelRef = useRef<HTMLButtonElement>(null);
-  const { config } = useLauncherConfig();
+  const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const [dontAskAgain, setDontAskAgain] = useState(false);
+
+  const handleClose = () => {
+    if (dontAskAgain && suppressKey) {
+      const current = config.suppressedDialogs ?? [];
+      if (!current.includes(suppressKey)) {
+        update("suppressedDialogs", [...current, suppressKey]);
+      }
+    }
+    onClose();
+  };
 
   return (
     <AlertDialog
       isOpen={isOpen}
       leastDestructiveRef={cancelRef}
-      onClose={onClose}
+      onClose={handleClose}
       autoFocus={false}
       isCentered
     >
@@ -52,18 +70,32 @@ const GenericConfirmDialog: React.FC<GenericConfirmDialogProps> = ({
           <AlertDialogCloseButton />
           <AlertDialogBody>{body}</AlertDialogBody>
           <AlertDialogFooter>
-            {btnCancel && (
-              <Button ref={cancelRef} onClick={onClose} variant="ghost">
-                {btnCancel}
-              </Button>
+            {showSuppressBtn && suppressKey && (
+              <Checkbox
+                isChecked={dontAskAgain}
+                onChange={(e) => setDontAskAgain(e.target.checked)}
+              >
+                {t("General.dontAskAgain")}
+              </Checkbox>
             )}
-            <Button
-              colorScheme={isAlert ? "red" : primaryColor}
-              onClick={onOKCallback}
-              isLoading={isLoading}
-            >
-              {btnOK}
-            </Button>
+
+            <HStack spacing={3} ml="auto">
+              {btnCancel && (
+                <Button ref={cancelRef} onClick={handleClose} variant="ghost">
+                  {btnCancel}
+                </Button>
+              )}
+              <Button
+                colorScheme={isAlert ? "red" : primaryColor}
+                onClick={() => {
+                  onOKCallback?.();
+                  handleClose();
+                }}
+                isLoading={isLoading}
+              >
+                {btnOK}
+              </Button>
+            </HStack>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialogOverlay>
