@@ -21,6 +21,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useToast } from "@/contexts/toast";
 import { InstanceService } from "@/services/instance";
+import { isSanitized } from "@/utils/string";
 
 const InstanceSettingsPage = () => {
   const router = useRouter();
@@ -65,7 +66,7 @@ const InstanceSettingsPage = () => {
         {
           title: t("InstanceSettingsPage.name"),
           children: (
-            <Editable // TBD
+            <Editable
               isTextArea={false}
               value={summary?.name || ""}
               onEditSubmit={(value) => {
@@ -74,7 +75,9 @@ const InstanceSettingsPage = () => {
               textProps={{ className: "secondary-text", fontSize: "xs-sm" }}
               inputProps={{ fontSize: "xs-sm" }}
               formErrMsgProps={{ fontSize: "xs-sm" }}
-              checkError={(value) => (value.trim() === "" ? 1 : 0)}
+              checkError={(value) =>
+                value.trim() === "" ? 1 : isSanitized(value) ? 0 : 2
+              }
               localeKey="InstanceSettingsPage.errorMessage"
             />
           ),
@@ -82,7 +85,7 @@ const InstanceSettingsPage = () => {
         {
           title: t("InstanceSettingsPage.description"),
           children: (
-            <Editable // TBD
+            <Editable
               isTextArea={true}
               value={summary?.description || ""}
               onEditSubmit={(value) => {

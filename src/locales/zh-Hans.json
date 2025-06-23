@@ -518,7 +518,7 @@
         "empty": "目录名称不能为空",
         "tooLong": "目录名称不能超过 20 个字符",
         "exist": "目录名称已存在",
-        "hasInvalidChar": "目录名称存在非法字符"
+        "hasInvalidChar": "目录名称包含特殊字符或使用系统保留字"
       },
       "dirPath": {
         "exist": "目录路径已存在"
@@ -966,7 +966,8 @@
     "restoreSettingsDesc": "将以下特定设置重置为全局游戏设置",
     "restore": "重置",
     "errorMessage": {
-      "error-1": "实例名称不能为空"
+      "error-1": "实例名称不能为空",
+      "error-2": "实例名称存在非法字符"
     }
   },
   "InstanceShaderPacksPage": {
