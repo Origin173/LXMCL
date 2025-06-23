@@ -63,8 +63,8 @@ pub async fn is_china_mainland_ip(app: &AppHandle) -> Option<bool> {
     .await
     .ok()?;
   let text = resp.text().await.ok()?;
-  let locale = text.split('\n').find(|line| line.starts_with("loc="))?;
-  let country = locale.split('=').nth(1)?;
+  let loc_pair = text.split('\n').find(|line| line.starts_with("loc="))?;
+  let location = loc_pair.split('=').nth(1)?;
 
-  Some(country == "CN")
+  Some(location == "CN")
 }

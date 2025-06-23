@@ -30,43 +30,26 @@ pub fn get_selected_player_info(app: &AppHandle) -> SJMCLResult<PlayerInfo> {
 }
 
 pub async fn check_full_login_availability(app: &AppHandle) -> SJMCLResult<()> {
-  match is_china_mainland_ip(app).await {
-    Some(is_china_mainland) => {
-      if is_china_mainland {
-        // in China (mainland), offline login is always available
-        let config_binding = app.state::<Mutex<LauncherConfig>>();
-        let mut config_state = config_binding.lock()?;
-        config_state.basic_info.allow_full_login_feature = true;
-        config_state.save()?;
-      } else {
-        // not in China (mainland), check if any Microsoft account has been added
-        let account_binding = app.state::<Mutex<AccountInfo>>();
-        let account_state = account_binding.lock().unwrap();
+  let loc_flag = is_china_mainland_ip(app).await;
 
-        let config_binding = app.state::<Mutex<LauncherConfig>>();
-        let mut config_state = config_binding.lock()?;
+  let account_binding = app.state::<Mutex<AccountInfo>>();
+  let account_state = account_binding.lock()?;
 
-        config_state.basic_info.allow_full_login_feature = !account_state
-          .players
-          .iter()
-          .filter(|player| player.player_type == PlayerType::Microsoft)
-          .collect::<Vec<&PlayerInfo>>()
-          .is_empty();
+  let config_binding = app.state::<Mutex<LauncherConfig>>();
+  let mut config_state = config_binding.lock()?;
 
-        config_state.save()?;
-      }
+  match loc_flag {
+    Some(true) => {
+      // in China (mainland), full account feature (offline and 3rd-party login) is always available
+      config_state.basic_info.allow_full_login_feature = true;
     }
-    None => {
-      // if we cannot determine the IP, check if any account has been added
-      let account_binding = app.state::<Mutex<AccountInfo>>();
-      let account_state = account_binding.lock()?;
-
-      let config_binding = app.state::<Mutex<LauncherConfig>>();
-      let mut config_state = config_binding.lock()?;
-
+    _ => {
+      // not in China (mainland) or cannot determine the IP
+      // check if any player has been added (not only microsoft type player, because user may delete it)
       config_state.basic_info.allow_full_login_feature = !account_state.players.is_empty();
-      config_state.save()?;
     }
-  };
+  }
+
+  config_state.save()?;
   Ok(())
 }

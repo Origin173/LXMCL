@@ -673,7 +673,7 @@
     "add": "Add",
     "alert": {
       "noFullLogin": {
-        "title": "Player type is not available currently",
+        "title": "This Feature is Not Available Currently",
         "description": "Please log in with your Microsoft account before accessing this feature."
       }
     },
