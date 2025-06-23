@@ -3,9 +3,9 @@ import { TaskParam } from "@/models/download";
 import { InvokeResponse } from "@/models/response";
 import { responseHandler } from "@/utils/response";
 
-export class TaskService {
+export class DownloadTaskService {
   @responseHandler("download")
-  static async schedule_task_group(
+  static async schedule_progressive_task_group(
     task_group: string,
     params: TaskParam[]
   ): Promise<
@@ -14,7 +14,7 @@ export class TaskService {
       task_group: String;
     }>
   > {
-    return await invoke("schedule_task_group", {
+    return await invoke("schedule_progressive_task_group", {
       taskGroup: task_group,
       params: params,
     });

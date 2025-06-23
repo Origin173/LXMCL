@@ -7,4 +7,5 @@ export interface DownloadParam extends TaskParam {
   task_type: "Download";
   src: string;
   dest: string;
+  sha1: string;
 }
