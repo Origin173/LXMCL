@@ -25,6 +25,9 @@ use std::path::PathBuf;
 use std::sync::{LazyLock, Mutex};
 use storage::Storage;
 use tasks::monitor::TaskMonitor;
+use tokio::sync::Notify;
+use utils::portable::{extract_assets, is_portable};
+use tauri_plugin_log::{Target, TargetKind};
 use utils::web::build_sjmcl_client;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -221,6 +224,10 @@ pub async fn run() {
         app.handle().plugin(
           tauri_plugin_log::Builder::default()
             .level(log::LevelFilter::Info)
+            .targets([
+              Target::new(TargetKind::Stdout),
+              Target::new(TargetKind::Webview),
+            ])
             .build(),
         )?;
       }
