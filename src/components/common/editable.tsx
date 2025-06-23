@@ -119,7 +119,7 @@ const Editable: React.FC<EditableProps> = ({
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (isInvalid) return;
+      if (checkError(tempValue) !== 0) return;
       if (tempValue !== value) onEditSubmit(tempValue);
       setIsEditing(false);
     }
