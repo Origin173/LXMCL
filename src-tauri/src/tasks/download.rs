@@ -75,8 +75,9 @@ impl DownloadTask {
 
   pub fn from_descriptor(
     app_handle: AppHandle,
-    desc: PDesc<PTaskPayload>,
+    desc: PTaskDesc,
     report_interval: Duration,
+    reset: bool,
   ) -> Self {
     let param = match &desc.payload.task_param {
       PTaskParam::Download(param) => param.clone(),
@@ -91,9 +92,17 @@ impl DownloadTask {
     let path = cache_dir.join(format!("task-{}.json", task_id));
     DownloadTask {
       p_handle: PTaskHandle::new(
-        PDesc::<PTaskPayload> {
-          state: PState::Stopped,
-          ..desc
+        if reset {
+          PTaskDesc {
+            state: PState::Stopped,
+            current: 0,
+            ..desc
+          }
+        } else {
+          PTaskDesc {
+            state: PState::Stopped,
+            ..desc
+          }
         },
         Duration::from_secs(1),
         path,

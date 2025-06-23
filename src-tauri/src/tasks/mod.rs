@@ -5,13 +5,16 @@ pub mod events;
 pub mod monitor;
 pub mod streams;
 
+use crate::error::SJMCLResult;
 use download::DownloadParam;
+use events::TauriEventSink;
 use futures::stream::Stream;
 use serde::{Deserialize, Serialize};
-use streams::{PHandle, PDesc};
-use tauri::Emitter;
+use std::future::Future;
+use std::pin::Pin;
+use streams::{PDesc, PHandle};
+use tauri::{AppHandle, Emitter};
 use tokio::time::Duration;
-use events::TauriEventSink;
 
 #[derive(Serialize, Deserialize, Clone, Hash, PartialEq, Eq)]
 pub enum PTaskType {
@@ -24,6 +27,8 @@ pub struct PTaskPayload {
   pub task_param: PTaskParam,
 }
 
+pub type SJMCLBoxedFuture = Pin<Box<dyn Future<Output = SJMCLResult<u32>> + Send>>;
+pub type MonitorBoxedFuture = Pin<Box<dyn Future<Output = ()> + Send>>;
 type PTaskHandle = PHandle<TauriEventSink, PTaskPayload>;
 type PTaskDesc = PDesc<PTaskPayload>;
 

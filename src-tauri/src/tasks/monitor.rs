@@ -8,25 +8,26 @@ use glob::glob;
 use log::info;
 use std::collections::HashMap;
 use std::future::Future;
-use std::pin::Pin;
 use std::sync::atomic::AtomicU32;
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, Mutex, RwLock};
 use std::vec::Vec;
 use tauri::AppHandle;
 use tokio::sync::Semaphore;
+use tokio::task::JoinHandle;
 
 use super::events::TEvent;
+use super::SJMCLBoxedFuture;
 use super::*;
 
-type SJMCLBoxedFuture = Pin<Box<dyn Future<Output = SJMCLResult<u32>> + Send>>;
 pub struct TaskMonitor {
   app_handle: AppHandle,
   id_counter: AtomicU32,
   phs: RwLock<HashMap<u32, Arc<RwLock<PTaskHandle>>>>,
   ths: RwLock<HashMap<u32, THandle>>,
+  tasks: Arc<Mutex<HashMap<u32, JoinHandle<()>>>>,
   concurrency: Arc<Semaphore>,
-  tx: FlumeSender<SJMCLBoxedFuture>,
-  rx: FlumeReceiver<SJMCLBoxedFuture>,
+  tx: FlumeSender<(u32, SJMCLBoxedFuture)>,
+  rx: FlumeReceiver<(u32, SJMCLBoxedFuture)>,
   pub download_rate_limiter: Option<Limiter>,
 }
 
@@ -39,6 +40,7 @@ impl TaskMonitor {
       id_counter: AtomicU32::new(0),
       phs: RwLock::new(HashMap::new()),
       ths: RwLock::new(HashMap::new()),
+      tasks: Arc::new(Mutex::new(HashMap::new())),
       concurrency: Arc::new(Semaphore::new(
         if config.download.transmission.auto_concurrent {
           let parallelism: usize = std::thread::available_parallelism().unwrap().into();
@@ -84,6 +86,7 @@ impl TaskMonitor {
                   self.app_handle.clone(),
                   desc,
                   Duration::from_secs(1),
+                  false,
                 );
                 let (f, p_handle) = task
                   .future(self.app_handle.clone(), self.download_rate_limiter.clone())
@@ -132,26 +135,31 @@ impl TaskMonitor {
       Ok(id)
     });
 
-    self.tx.send_async(task).await.unwrap();
+    self.tx.send_async((id, task)).await.unwrap();
   }
 
   pub async fn background_process(&self) {
     loop {
-      let task = self.rx.recv_async().await.unwrap();
+      let (id, task) = self.rx.recv_async().await.unwrap();
+      let tasks = self.tasks.clone();
       if self.concurrency.acquire().await.is_ok() {
         let concurrency = self.concurrency.clone();
-        tokio::spawn(async move {
-          let r = task.await;
-          match r {
-            Ok(id) => {
-              info!("Task {:?} completed", id);
+        self.tasks.lock().unwrap().insert(
+          id,
+          tokio::spawn(async move {
+            let r = task.await;
+            match r {
+              Ok(id) => {
+                info!("Task {:?} completed", id);
+              }
+              Err(e) => {
+                info!("Task failed: {:?}", e);
+              }
             }
-            Err(e) => {
-              info!("Task failed: {:?}", e);
-            }
-          }
-          concurrency.add_permits(1);
-        });
+            tasks.lock().unwrap().remove(&id);
+            concurrency.add_permits(1);
+          }),
+        );
       }
     }
   }
@@ -170,7 +178,38 @@ impl TaskMonitor {
 
   pub fn cancel_progress(&self, id: u32) {
     if let Some(handle) = self.phs.read().unwrap().get(&id) {
-      handle.write().unwrap().mark_cancelled()
+      handle.write().unwrap().mark_cancelled();
+      self.tasks.lock().unwrap().remove(&id).unwrap().abort();
+    }
+  }
+
+  pub async fn restart_progress(&self, id: u32) {
+    let handle = self.phs.write().unwrap().remove(&id);
+    if let Some(handle) = handle {
+      let desc = handle.read().unwrap().desc.clone();
+      let task_group = desc.task_group.clone();
+      let task_type = desc.payload.task_type.clone();
+      let task_state = desc.state.clone();
+      let j_handle = self.tasks.lock().unwrap().remove(&id).unwrap();
+      if !task_state.is_completed() {
+        handle.write().unwrap().mark_cancelled();
+        j_handle.abort();
+      }
+      match task_type {
+        PTaskType::Download => {
+          let task = DownloadTask::from_descriptor(
+            self.app_handle.clone(),
+            desc,
+            Duration::from_secs(1),
+            true,
+          );
+          let (f, new_h) = task
+            .future(self.app_handle.clone(), self.download_rate_limiter.clone())
+            .await
+            .unwrap();
+          self.enqueue_task(id, task_group, f, new_h).await;
+        }
+      }
     }
   }
 

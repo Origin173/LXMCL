@@ -153,11 +153,9 @@ impl Sink for TauriEventSink {
       estimated_time.map(|et| Duration::from_secs_f64(et)),
     );
   }
-   fn report_failed(&self, task_id: u32, task_group: Option<&str>, reason: String){
-
+  fn report_failed(&self, task_id: u32, task_group: Option<&str>, reason: String) {
     PEvent::emit_failed(&self.app, task_id, task_group, reason);
   }
-
 }
 
 #[derive(Serialize, Clone)]
