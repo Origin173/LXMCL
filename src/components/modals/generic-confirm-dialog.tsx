@@ -9,6 +9,7 @@ import {
   Button,
   Checkbox,
   HStack,
+  Text,
 } from "@chakra-ui/react";
 import { t } from "i18next";
 import { useRef, useState } from "react";
@@ -73,10 +74,11 @@ const GenericConfirmDialog: React.FC<GenericConfirmDialogProps> = ({
           <AlertDialogFooter>
             {showSuppressBtn && suppressKey && (
               <Checkbox
+                colorScheme={primaryColor}
                 isChecked={dontShowAgain}
                 onChange={(e) => setDontShowAgain(e.target.checked)}
               >
-                {t("General.dontShowAgain")}
+                <Text fontSize="sm">{t("General.dontShowAgain")}</Text>
               </Checkbox>
             )}
 

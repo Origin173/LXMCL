@@ -125,6 +125,7 @@ const GlobalGameSettingsPage = () => {
                 onOKCallback: handleDeleteDir,
                 showSuppressBtn: true,
                 suppressKey: "deleteGameDir",
+                isAlert: true,
               });
             },
           },
