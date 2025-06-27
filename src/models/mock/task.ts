@@ -1,4 +1,4 @@
-import { DownloadTask } from "../task";
+import { DownloadTask } from "@/models/task";
 
 export const mockDownloadTasks: DownloadTask[] = [
   {
