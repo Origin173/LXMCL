@@ -145,7 +145,7 @@ export const GlobalDataContextProvider: React.FC<{
     handleRetrieveAuthServerList
   );
 
-  const getGameVersionList = usePromisedGetState(
+  const [getGameVersionList] = usePromisedGetState(
     gameVersionList,
     handleFetchGameVersionList
   );
