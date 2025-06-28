@@ -1875,6 +1875,11 @@
           }
         }
       }
+    },
+     "task": {
+      "scheduleProgressiveTaskGroup": {
+        "success": "Task created successfully"
+      }
     }
   },
   "SettingsLayout": {
