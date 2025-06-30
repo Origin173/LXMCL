@@ -521,7 +521,8 @@
         "hasInvalidChar": "Directory name has invalid characters"
       },
       "dirPath": {
-        "exist": "Directory already exists"
+        "exist": "Directory already exists",
+        "invalid": "Directory path is invalid"
       }
     }
   },

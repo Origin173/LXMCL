@@ -21,7 +21,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useToast } from "@/contexts/toast";
 import { InstanceService } from "@/services/instance";
-import { isSanitized } from "@/utils/string";
+import { isFileNameSanitized } from "@/utils/string";
 
 const InstanceSettingsPage = () => {
   const router = useRouter();
@@ -44,7 +44,7 @@ const InstanceSettingsPage = () => {
 
   const checkDirNameError = (value: string): number => {
     if (value.trim() === "") return 1;
-    if (!isSanitized(value)) return 2;
+    if (!isFileNameSanitized(value)) return 2;
     if (value.length > 255) return 3;
     return 0;
   };

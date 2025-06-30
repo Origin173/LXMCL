@@ -11,7 +11,7 @@ import { InstanceIconSelectorPopover } from "@/components/instance-icon-selector
 import { useLauncherConfig } from "@/contexts/config";
 import { GameDirectory } from "@/models/config";
 import { getGameDirName } from "@/utils/instance";
-import { isSanitized } from "@/utils/string";
+import { isFileNameSanitized } from "@/utils/string";
 
 interface InstanceBasicSettingsProps {
   name: string;
@@ -44,7 +44,7 @@ export const InstanceBasicSettings: React.FC<InstanceBasicSettingsProps> = ({
 
   const checkDirNameError = (value: string): number => {
     if (value.trim() === "") return 1;
-    if (!isSanitized(value)) return 2;
+    if (!isFileNameSanitized(value)) return 2;
     if (value.length > 255) return 3;
     return 0;
   };
