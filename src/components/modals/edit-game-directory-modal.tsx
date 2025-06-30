@@ -212,7 +212,7 @@ const EditGameDirectoryModal: React.FC<EditGameDirectoryModalProps> = ({
     _dirPath: string,
     skipCheck: boolean = false
   ) => {
-    if (!isPathSanitized(dirPath)) {
+    if (!isPathSanitized(_dirPath)) {
       setIsDirPathInvalid(true);
       return;
     }
