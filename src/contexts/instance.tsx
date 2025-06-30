@@ -11,7 +11,11 @@ import React, {
 import { useGlobalData, useGlobalDataDispatch } from "@/contexts/global-data";
 import { useToast } from "@/contexts/toast";
 import { InstanceSubdirType } from "@/enums/instance";
-import { useGetState, usePromisedGetState } from "@/hooks/get-state";
+import {
+  GetStateFlag,
+  useGetState,
+  usePromisedGetState,
+} from "@/hooks/get-state";
 import { GameConfig } from "@/models/config";
 import {
   InstanceSummary,
@@ -32,7 +36,9 @@ export interface InstanceContextType {
   openInstanceSubdir: (dirType: InstanceSubdirType) => void;
   // retrieve instance resource data with frontend cache
   getWorldList: (sync?: boolean) => WorldInfo[] | undefined;
-  getLocalModList: (sync?: boolean) => Promise<LocalModInfo[] | undefined>;
+  getLocalModList: (
+    sync?: boolean
+  ) => Promise<LocalModInfo[] | GetStateFlag | undefined>;
   isLocalModListLoading: boolean;
   getResourcePackList: (sync?: boolean) => ResourcePackInfo[] | undefined;
   getServerResourcePackList: (sync?: boolean) => ResourcePackInfo[] | undefined;
@@ -237,11 +243,25 @@ export const InstanceContextProvider: React.FC<{
     }
   }, [instanceSummary?.id, setWorlds, toast]);
 
+  const summaryIdRef = React.useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (instanceSummary?.id) {
+      summaryIdRef.current = instanceSummary.id;
+    } else {
+      summaryIdRef.current = undefined;
+    }
+  }, [instanceSummary?.id]);
+
   const handleRetrieveLocalModList = useCallback(async () => {
-    if (instanceSummary?.id !== undefined) {
+    if (summaryIdRef.current !== undefined) {
+      let lastSummaryIdRef = summaryIdRef.current;
       const response = await InstanceService.retrieveLocalModList(
-        instanceSummary.id
+        summaryIdRef.current
       );
+      if (lastSummaryIdRef !== summaryIdRef.current) {
+        return "%CANCELLED%"; // to avoid state update after unmount
+      }
       if (response.status === "success") {
         setLocalMods(response.data);
         return response.data;
@@ -255,7 +275,7 @@ export const InstanceContextProvider: React.FC<{
         return [];
       }
     }
-  }, [instanceSummary?.id, setLocalMods, toast]);
+  }, [setLocalMods, toast]);
 
   const handleRetrieveResourcePackList = useCallback(() => {
     if (instanceSummary?.id !== undefined) {
@@ -416,6 +436,7 @@ export const InstanceContextProvider: React.FC<{
   useEffect(() => {
     if (instanceSummary?.id) {
       getLocalModList(true).then((mods) => {
+        if (mods === GetStateFlag.Cancelled) return; // do not update state if cancelled
         setLocalMods(mods);
       });
     }
