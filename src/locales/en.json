@@ -1485,12 +1485,28 @@
           "title": "Failed to retrieve installed Java list"
         }
       },
+      "validateJava": {
+        "error": {
+          "title": "Failed to validate Java",
+          "description": {
+            "JAVA_EXEC_INVALID": "Java executable is invalid "
+          }
+        }
+      },
       "checkGameDirectory": {
         "error": {
           "title": "Invalid game directory",
           "description": {
             "GAME_DIR_ALREADY_ADDED": "The directory has already been added",
             "GAME_DIR_NOT_EXIST": "The directory does not exist"
+          }
+        }
+      },
+      "checkServiceAvailability": {
+        "error": {
+          "title": "Service Unavailable",
+          "description": {
+            "FETCH_ERROR": "Failed to fetch the meta server"
           }
         }
       }
@@ -1506,7 +1522,8 @@
         "error": {
           "title": "Failed to add offline player",
           "description": {
-            "DUPLICATE": "Player already exists"
+            "DUPLICATE": "Player already exists",
+            "INVALID": "UUID is invalid"
           }
         }
       },
@@ -1535,6 +1552,20 @@
           }
         }
       },
+       "reloginPlayerOAuth": {
+        "success": "Successfully re-logged in",
+        "error": {
+          "title": "Failed to re-login",
+          "description": {
+            "NOT_FOUND": "The player does not exist",
+            "EXPIRED": "The access token has expired, please re-login",
+            "PARSE_ERROR": "The server returned data in an incorrect format",
+            "NETWORK_ERROR": "Failed to connect to the server",
+            "INVALID": "The player type is invalid",
+            "CANCELLED": "OAuth re-login cancelled"
+          }
+        }
+      },
       "addPlayer3rdPartyPassword": {
         "success": "Successfully added player",
         "error": {
@@ -1548,12 +1579,28 @@
           }
         }
       },
+       "reloginPlayer3rdPartyPassword": {
+        "success": "Successfully re-logged in",
+        "error": {
+          "title": "Failed to re-login",
+          "description": {
+            "NOT_FOUND": "The player does not exist",
+            "EXPIRED": "The access token has expired, please re-login",
+            "PARSE_ERROR": "The server returned data in an incorrect format",
+            "NETWORK_ERROR": "Failed to connect to the server",
+            "INVALID": "Wrong account or password"
+          }
+        }
+      },
       "addPlayerFromSelection": {
         "success": "Successfully added player",
         "error": {
           "title": "Failed to add player",
           "description": {
-            "DUPLICATE": "Player already exists"
+            "DUPLICATE": "Player already exists",
+            "NETWORK_ERROR": "Failed to connect to the server",
+            "PARSE_ERROR": "The server returned data in an incorrect format",
+            "EXPIRED": "The access token has expired, please re-login"
           }
         }
       },
@@ -1595,38 +1642,13 @@
           "title": "Failed to retrieve server list"
         }
       },
-      "reloginPlayerOAuth": {
-        "success": "Successfully re-logged in",
-        "error": {
-          "title": "Failed to re-login",
-          "description": {
-            "NOT_FOUND": "The player does not exist",
-            "EXPIRED": "The access token has expired, please re-login",
-            "PARSE_ERROR": "The server returned data in an incorrect format",
-            "NETWORK_ERROR": "Failed to connect to the server",
-            "INVALID": "The player type is invalid"
-          }
-        }
-      },
-      "reloginPlayer3rdPartyPassword": {
-        "success": "Successfully re-logged in",
-        "error": {
-          "title": "Failed to re-login",
-          "description": {
-            "NOT_FOUND": "The player does not exist",
-            "EXPIRED": "The access token has expired, please re-login",
-            "PARSE_ERROR": "The server returned data in an incorrect format",
-            "NETWORK_ERROR": "Failed to connect to the server",
-            "INVALID": "Wrong account or password"
-          }
-        }
-      },
       "fetchAuthServer": {
         "error": {
           "title": "Failed to get authentication server information",
           "description": {
             "DUPLICATE": "The server has already been added",
-            "INVALID": "Invalid server URL"
+            "INVALID": "Invalid server URL",
+            "NOT_FOUND": "The server does not exist"
           }
         }
       },
@@ -1636,7 +1658,8 @@
           "title": "Failed to add authentication server",
           "description": {
             "DUPLICATE": "The server has already been added",
-            "INVALID": "Invalid server URL"
+            "INVALID": "Invalid server URL",
+            "NOT_FOUND": "The server does not exist"
           }
         }
       },
@@ -1697,6 +1720,7 @@
           "title": "Failed to fetch mod loader version list",
           "description": {
             "PARSE_ERROR": "The server returned data in an incorrect format",
+            "NETWORK_ERROR": "Failed to connect to the server",
             "NO_DOWNLOAD_API": "No download strategy available, please check internet connection"
           }
         }
@@ -1706,6 +1730,7 @@
           "title": "Failed to fetch resource list",
           "description": {
             "PARSE_ERROR": "The server returned data in an incorrect format",
+            "NETWORK_ERROR": "Failed to connect to the server",
             "NO_DOWNLOAD_API": "No download strategy available, please check internet connection"
           }
         }
@@ -1715,6 +1740,7 @@
           "title": "Failed to fetch resource version list",
           "description": {
             "PARSE_ERROR": "The server returned data in an incorrect format",
+            "NETWORK_ERROR": "Failed to connect to the server",
             "NO_DOWNLOAD_API": "No download strategy available, please check internet connection"
           }
         }
@@ -1723,7 +1749,13 @@
     "instance": {
       "retrieveInstanceList": {
         "error": {
-          "title": "Failed to retrieve instance list"
+          "title": "Failed to retrieve game instance list",
+          "description": {
+            "INVALID_NAME_ERROR": "Invalid instance name",
+            "INVALID_SOURCE_PATH": "Invalid source path",
+            "CONFLICT_NAME_ERROR": "Instance name already exists",
+            "FILE_MOVE_FAILED": "Failed to move instance files"
+          }
         }
       },
       "updateInstanceConfig": {
@@ -1748,7 +1780,7 @@
         "error": {
           "title": "Failed to reset instance game settings",
           "description": {
-            "INSTANCE_NOT_FOUND": "Instance ID does not exist",
+            "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist",
             "SAVE_ERROR": "Failed to save instance settings"
           }
         }
@@ -1775,7 +1807,10 @@
           "title": "Failed to rename instance",
           "description": {
             "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist",
-            "CONFLICT_NAME_ERROR": "A duplicate instance name exists"
+            "CONFLICT_NAME_ERROR": "A duplicate instance name exists",
+            "INVALID_NAME_ERROR": "Invalid instance name",
+            "INVALID_SOURCE_PATH": "Invalid source path",
+            "FILE_MOVE_FAILED": "Failed to move instance files"
           }
         }
       },
@@ -1817,6 +1852,14 @@
           }
         }
       },
+       "retrieveLocalModList": {
+        "error": {
+          "title": "Failed to retrieve local mod list",
+          "description": {
+            "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist"
+          }
+        }
+      },
       "retrieveResourcePackList": {
         "error": {
           "title": "Failed to retrieve resource pack list"
@@ -1842,11 +1885,11 @@
           "title": "Failed to retrieve screenshot list"
         }
       },
-      "retrieveLocalModList": {
+       "toggleModByExtension": {
         "error": {
-          "title": "Failed to retrieve local mod list",
+          "title": "Mod state toggle failed",
           "description": {
-            "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist"
+            "FILE_NOT_FOUND_ERROR": "The mod file does not exist, it may have been renamed, moved, or deleted"
           }
         }
       },
@@ -1860,20 +1903,13 @@
           }
         }
       },
-      "toggleModByExtension": {
-        "error": {
-          "title": "Mod state toggle failed",
-          "description": {
-            "FILE_NOT_FOUND_ERROR": "The mod file does not exist, it may have been renamed, moved, or deleted"
-          }
-        }
-      },
       "createLaunchDesktopShortcut": {
         "success": "Launch shortcut has been added to the desktop",
         "error": {
           "title": "Failed to create launch shortcut",
           "description": {
-            "SHORTCUT_CREATION_FAILED": "Command execution failed"
+            "SHORTCUT_CREATION_FAILED": "Command execution failed",
+            "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist"
           }
         }
       }
