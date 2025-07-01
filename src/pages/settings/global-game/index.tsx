@@ -95,6 +95,7 @@ const GlobalGameSettingsPage = () => {
       onClick: () => {
         openPath(directory.dir);
       },
+      disabled: !directoryExistence[directory.dir],
     },
     ...(directory.name !== "CURRENT_DIR" && directory.name !== "APP_DATA_SUBDIR"
       ? [
@@ -185,6 +186,7 @@ const GlobalGameSettingsPage = () => {
                       icon={item.icon}
                       colorScheme={item.danger ? "red" : "gray"}
                       onClick={item.onClick}
+                      disabled={item.disabled || false}
                     />
                   ))}
                 </HStack>
