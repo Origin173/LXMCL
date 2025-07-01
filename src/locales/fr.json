@@ -68,7 +68,7 @@
       "deleteServer": "Supprimer ce serveur"
     },
     "playerTypeList": {
-      "all": "Toutes les sources"
+      "all": "Les sources"
     },
     "viewTypeList": {
       "grid": "Vue en grille",
@@ -219,6 +219,10 @@
             "dark": "Sombre"
           }
         },
+        "useLiquidGlassDesign": {
+          "title": "Effet verre liquide",
+          "description": "Une fois activé, certaines interfaces utiliseront l'effet 'Verre liquide', ce qui peut affecter les performances"
+       },
         "headNavStyle": {
           "title": "Style de la barre de navigation supérieure",
           "type": {
@@ -231,6 +235,10 @@
     "font": {
       "title": "Type de caractère",
       "settings": {
+        "fontFamily": {
+          "title": "Polices d'interface",
+          "default": "Par défaut"
+        },
         "fontSize": {
           "title": "Taille de la police",
           "small": "Petit",
@@ -247,6 +255,9 @@
         "custom": {
           "title": "Image personnalisée",
           "add": "Ajouter"
+        },
+        "randomCustom": {
+          "title": "Aléatoire et personnalisé"
         }
       },
       "presetBgList": {
@@ -315,8 +326,8 @@
       "title": "Créer une nouvelle instance"
     },
     "stepper": {
-      "game": "Choisir la version du jeu",
-      "loader": "Choisir le chargeur",
+      "game": "La version du jeu",
+      "loader": "Le chargeur",
       "skipped": "Ne pas installer",
       "info": "Paramètres de base"
     }
@@ -515,7 +526,7 @@
     }
   },
   "Empty": {
-    "noData": "Aucune donnée"
+    "noData": " donnée"
   },
   "Enums": {
     "chakraColors": {
@@ -541,10 +552,10 @@
       "windows": "Win"
     },
     "playerTypes": {
-      "microsoft": "Compte Microsoft",
+      "microsoft": "Microsoft",
       "offline": "Mode hors ligne",
-      "3rdparty": "Authentification tierce",
-      "3rdpartyShort": "Authentification tierce"
+      "3rdparty": "Tierces parties",
+      "3rdpartyShort": "Tierces parties"
     },
     "systemFileManager": {
       "linux": "Gestionnaire de fichiers",
@@ -647,9 +658,9 @@
   },
   "GameVersionSelector": {
     "old_beta": "Ancienne bêta",
-    "release": "Version stable",
-    "snapshot": "Version bêta disponible",
-    "april_fools": "Poisson d’avril édition",
+    "release": "Stable",
+    "snapshot": "Bêta",
+    "april_fools": "Avril édition",
     "searchPlaceholder": "Rechercher une version",
     "wikiKey": {
       "release": "Version Java",
@@ -660,6 +671,12 @@
   },
   "General": {
     "add": "Ajouter",
+    "alert": {
+      "noFullLogin": {
+        "title": "Fonction actuelle n'est pas disponible",
+        "description": "Veuillez utiliser cette fonction avant de vous connecter à votre compte microsoft."
+      }
+    },
     "cancel": "Annuler",
     "close": "Fermer",
     "confirm": "Confirmer",
@@ -682,6 +699,7 @@
       }
     },
     "disable": "Désactiver",
+    "dontShowAgain": "Ne plus afficher",
     "download": "Télécharger",
     "edit": "Éditer",
     "enable": "Activer",
@@ -948,7 +966,8 @@
     "restoreSettingsDesc": "Réinitialiser les paramètres spécifiques ci-dessous aux paramètres globaux du jeu",
     "restore": "Réinitialiser",
     "errorMessage": {
-      "error-1": "Le nom de l'instance ne peut pas être vide"
+      "error-1": "Le nom de l'instance ne peut pas être vide",
+      "error-2": "Le nom de l'instance contient des caractères illégaux"
     }
   },
   "InstanceShaderPacksPage": {
@@ -1095,6 +1114,11 @@
   },
   "NotFoundPage": {
     "text": "Page non trouvée, redirection dans {{seconds}} secondes"
+  },
+  "OptionItemGroup": {
+    "button": {
+      "showAll": "Tout afficher (+{{left}})"
+    }
   },
   "PlayerMenu": {
     "label": {
@@ -1504,7 +1528,6 @@
             "PARSE_ERROR": "Format de données du serveur incorrect",
             "NOT_FOUND": "Serveur d'authentification introuvable",
             "CANCELLED": "Annulé",
-            "CREATE_WEBVIEW_ERROR": "Échec de la création de la fenêtre WebView",
             "INVALID": "Adresse du serveur d'authentification invalide"
           }
         }
@@ -1851,6 +1874,11 @@
           }
         }
       }
+    },
+    "task": {
+      "scheduleProgressiveTaskGroup": {
+        "success": "Tâche créée avec succès"
+      }
     }
   },
   "SettingsLayout": {
@@ -1859,9 +1887,9 @@
       "java": "Java",
       "general": "Général",
       "appearance": "Apparence",
-      "download": "Téléchargement de ressources",
-      "sync-restore": "Synchronisation et restauration",
-      "help": "Aide et documentation",
+      "download": "Téléchargement",
+      "sync-restore": "Sync et Resta",
+      "help": "Aide & Doc",
       "about": "À propos",
       "dev-test": "Développement - Page de test"
     }
@@ -1885,7 +1913,12 @@
     "input": {
       "placeholder": "Recherche globale"
     },
-    "tip": "Recherchez du contenu local et des ressources en ligne au même endroit"
+    "tip": "Recherchez du contenu local et des ressources en ligne au même endroit",
+    "empty": "Aucun résultat de recherche",
+    "result": {
+      "instance": "Les exemples",
+      "player": "Les rôles"
+    }
   },
   "StarUsModal": {
     "header": {
@@ -1966,7 +1999,7 @@
     },
     "button": {
       "exit": "Quitter",
-      "agree": "Accepter et continuer"
+      "agree": "Accepter"
     }
   },
   "WorldLevelDataModal": {
