@@ -56,9 +56,9 @@ pub async fn monitor_process(
           let _ = app_stdout.emit_to(&label_stdout, GAME_PROCESS_OUTPUT_CHANNEL, &line);
         }
 
-        // the first time when log contains 'Render thread', send signal to launch command, close frontend modal.
-        // TODO: find a better way.
-        if !game_ready_flag.load(atomic::Ordering::SeqCst) && line.contains(GAME_WINDOW_READY_FLAG)
+        // the first time when log contains 'render thread', 'lwjgl version', or 'lwjgl openal', send signal to launch command, close frontend modal.
+        if !game_ready_flag.load(atomic::Ordering::SeqCst)
+          && READY_FLAG.iter().any(|p| line.to_lowercase().contains(p))
         {
           game_ready_flag.store(true, atomic::Ordering::SeqCst);
 
@@ -89,7 +89,8 @@ pub async fn monitor_process(
           let _ = app_stderr.emit_to(&label_stderr, GAME_PROCESS_OUTPUT_CHANNEL, &line);
         }
 
-        if !game_ready_flag.load(atomic::Ordering::SeqCst) && line.contains(GAME_WINDOW_READY_FLAG)
+        if !game_ready_flag.load(atomic::Ordering::SeqCst)
+          && READY_FLAG.iter().any(|p| line.to_lowercase().contains(p))
         {
           game_ready_flag.store(true, atomic::Ordering::SeqCst);
 
