@@ -1,5 +1,19 @@
+export const base64ImgSrc = (base64: string): string => {
+  return `data:image/png;base64,${base64}`;
+};
+
 export const capitalizeFirstLetter = (str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+export const cleanHtmlText = (input: string): string => {
+  const unicodeDecoded = input.replace(/\\u([\dA-F]{4})/gi, (_, code) =>
+    String.fromCharCode(parseInt(code, 16))
+  );
+
+  const container = document.createElement("div");
+  container.innerHTML = unicodeDecoded;
+  return container.textContent?.trim() || "";
 };
 
 export const extractFileName = (
@@ -8,10 +22,6 @@ export const extractFileName = (
 ): string => {
   const fileName = str.split("/").pop() || "";
   return withExt ? fileName : fileName.split(".").slice(0, -1).join(".");
-};
-
-export const base64ImgSrc = (base64: string): string => {
-  return `data:image/png;base64,${base64}`;
 };
 
 export const formatByteSize = (bytes: number) => {

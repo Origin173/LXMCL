@@ -19,6 +19,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useThemedCSSStyle } from "@/hooks/themed-css";
 import { PostSourceInfo, PostSummary } from "@/models/post";
 import { formatRelativeTime } from "@/utils/datetime";
+import { cleanHtmlText } from "@/utils/string";
 
 interface PosterCardProps extends CardProps {
   data: PostSummary;
@@ -61,7 +62,7 @@ const PosterCard = ({ data }: PosterCardProps) => {
           )}
           {abstracts && (
             <Text fontSize="xs" className="secondary-text">
-              {abstracts}
+              {cleanHtmlText(abstracts)}
             </Text>
           )}
           <HStack className="secondary-text" fontSize="xs" mt={1} spacing={1}>
