@@ -25,7 +25,7 @@ use super::*;
 pub struct DownloadParam {
   src: Url,
   dest: PathBuf,
-  sha1: String,
+  sha1: Option<String>,
 }
 
 pub struct DownloadTask {
@@ -153,16 +153,21 @@ impl DownloadTask {
       .unwrap();
     let mut hasher = Sha1::new();
     std::io::copy(&mut f, &mut hasher).unwrap();
-    let sha1 = hex::encode(hasher.finalize());
-    if sha1 != param.sha1 {
-      Err(SJMCLError(format!(
-        "SHA1 mismatch for {}: expected {}, got {}",
-        dest_path.display(),
-        param.sha1,
-        sha1
-      )))
-    } else {
-      Ok(())
+    match param.sha1 {
+      Some(truth) => {
+        let sha1 = hex::encode(hasher.finalize());
+        if sha1 != truth {
+          Err(SJMCLError(format!(
+            "SHA1 mismatch for {}: expected {}, got {}",
+            dest_path.display(),
+            truth,
+            sha1
+          )))
+        } else {
+          Ok(())
+        }
+      }
+      None => Ok(()),
     }
   }
 
