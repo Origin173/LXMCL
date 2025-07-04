@@ -26,7 +26,9 @@ use crate::launcher_config::models::{LauncherConfig, ProxyType};
 /// let client = build_sjmcl_client(&app, true, true);
 /// ```
 pub fn build_sjmcl_client(app: &AppHandle, use_version_header: bool, use_proxy: bool) -> Client {
-  let mut builder = ClientBuilder::new().timeout(Duration::from_secs(10));
+  let mut builder = ClientBuilder::new()
+    .timeout(Duration::from_secs(10))
+    .tcp_keepalive(Duration::from_secs(10));
 
   if let Ok(config) = app.state::<Mutex<LauncherConfig>>().lock() {
     if use_version_header {
