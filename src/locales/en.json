@@ -462,7 +462,7 @@
     }
   },
   "DownloadTasksPage": {
-    "title": "Downloading Tasks",
+    "title": "Download Tasks",
     "button": {
       "settings": "Download Settings",
       "pause": "Pause",

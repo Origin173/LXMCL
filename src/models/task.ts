@@ -44,7 +44,7 @@ export interface TaskDesc {
   status: TaskDescStatusEnums;
   progress?: number;
   isDownloading?: boolean;
-  isError?: boolean;
+  isFailed: boolean;
   isWaiting?: boolean;
   isCancelled?: boolean;
   reason?: string;

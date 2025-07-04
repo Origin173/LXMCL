@@ -17,11 +17,12 @@ import { useTaskContext } from "@/contexts/task";
 export const DownloadFloatButton: React.FC = () => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
-  const { generalPercent } = useTaskContext();
+  const { generalPercent, tasks } = useTaskContext();
   const primaryColor = config.appearance.theme.primaryColor;
   const router = useRouter();
 
-  if (generalPercent === undefined) return null;
+  // no tasks, hide the button
+  if (tasks.length === 0) return null;
 
   return (
     <Box position="absolute" top={4} right={4}>

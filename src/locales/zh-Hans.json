@@ -462,7 +462,7 @@
     }
   },
   "DownloadTasksPage": {
-    "title": "下载中任务",
+    "title": "下载任务",
     "button": {
       "settings": "下载设置",
       "pause": "暂停",

@@ -6,9 +6,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { useTranslation } from "react-i18next";
 import { useToast } from "@/contexts/toast";
-import { useGetState } from "@/hooks/get-state";
 import {
   FailedPTaskEventStatus,
   InProgressPTaskEventStatus,
@@ -21,7 +19,8 @@ import {
 import { TaskService } from "@/services/task";
 
 interface TaskContextType {
-  getTasks: (sync?: boolean) => TaskDesc[] | undefined;
+  tasks: TaskDesc[];
+  generalPercent: number | undefined; // General progress percentage for all tasks
   handleScheduleProgressiveTaskGroup: (
     taskGroup: string,
     params: TaskParam[]
@@ -29,7 +28,6 @@ interface TaskContextType {
   handleCancelProgressiveTask: (taskId: number) => void;
   handleResumeProgressiveTask: (taskId: number) => void;
   handleStopProgressiveTask: (taskId: number) => void;
-  generalPercent: number | undefined; // General progress percentage for all tasks
 }
 
 export const TaskContext = createContext<TaskContextType | undefined>(
@@ -40,8 +38,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const toast = useToast();
-  const { t } = useTranslation();
-  const [tasks, setTasks] = useState<TaskDesc[]>();
+  const [tasks, setTasks] = useState<TaskDesc[]>([]);
   const [generalPercent, setGeneralPercent] = useState<number>();
 
   const handleRetrieveProgressTasks = useCallback(() => {
@@ -59,7 +56,9 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   }, [toast]);
 
-  const getTasks = useGetState(tasks, handleRetrieveProgressTasks);
+  useEffect(() => {
+    handleRetrieveProgressTasks();
+  }, [handleRetrieveProgressTasks]);
 
   const handleScheduleProgressiveTaskGroup = useCallback(
     (taskGroup: string, params: TaskParam[]) => {
@@ -136,6 +135,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
     },
     [toast]
   );
+
   useEffect(() => {
     const unlisten = TaskService.onProgressiveTaskUpdate(
       (payload: PTaskEventPayload) => {
@@ -245,12 +245,12 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <TaskContext.Provider
       value={{
-        getTasks,
+        tasks,
+        generalPercent,
         handleScheduleProgressiveTaskGroup,
         handleCancelProgressiveTask,
         handleResumeProgressiveTask,
         handleStopProgressiveTask,
-        generalPercent,
       }}
     >
       {children}

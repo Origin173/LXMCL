@@ -19,13 +19,14 @@ import {
   LuX,
 } from "react-icons/lu";
 import { CommonIconButton } from "@/components/common/common-icon-button";
+import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { useTaskContext } from "@/contexts/task";
 import { TaskDesc, TaskDescStatusEnums } from "@/models/task";
 import { formatTimeInterval } from "@/utils/datetime";
-import { formatByteSize } from "@/utils/string";
+import { extractFileName, formatByteSize } from "@/utils/string";
 
 export const DownloadTasksPage = () => {
   const { t } = useTranslation();
@@ -34,33 +35,32 @@ export const DownloadTasksPage = () => {
   const primaryColor = config.appearance.theme.primaryColor;
 
   const {
-    getTasks,
+    tasks,
     handleScheduleProgressiveTaskGroup,
     handleCancelProgressiveTask,
   } = useTaskContext();
-  const [tasks, setTasks] = useState<[TaskDesc, boolean][]>([]); // boolean is used to record accordion state.
+
+  const [taskList, setTaskList] = useState<[TaskDesc, boolean][]>([]); // boolean is used to record accordion state.
 
   useEffect(() => {
-    const list = getTasks() || [];
-    console.log("DownloadTasksPage tasks:", list);
-    const enhanced = list.map((task) => {
+    const enhanced = tasks.map((task) => {
       return [
         {
           ...task,
           progress: task.total > 0 ? (task.current / task.total) * 100 : 0,
           isDownloading: task.status === TaskDescStatusEnums.InProgress,
           isWaiting: task.status === TaskDescStatusEnums.Stopped,
-          isError: task.status === TaskDescStatusEnums.Failed || !!task.reason,
+          isFailed: task.status === TaskDescStatusEnums.Failed || !!task.reason,
           isCancelled: task.status === TaskDescStatusEnums.Cancelled,
         },
         true,
       ] as [TaskDesc, boolean];
     });
-    setTasks(enhanced);
-  }, [getTasks]);
+    setTaskList(enhanced);
+  }, [tasks]);
 
   const toggleTaskExpansion = (id: number) => {
-    setTasks((prevTasks) =>
+    setTaskList((prevTasks) =>
       prevTasks.map((task) =>
         task[0].taskId === id ? [task[0], !task[1]] : task
       )
@@ -86,7 +86,8 @@ export const DownloadTasksPage = () => {
       }
     >
       <VStack align="stretch" px="10%" spacing={4}>
-        {tasks.map(([task, expanded]) => (
+        {taskList.length === 0 && <Empty withIcon={false} size="sm" />}
+        {taskList.map(([task, expanded]) => (
           <OptionItemGroup
             key={task.taskId}
             items={[
@@ -99,7 +100,7 @@ export const DownloadTasksPage = () => {
                   <HStack alignItems="center">
                     {task.isDownloading &&
                       task.estimatedTime &&
-                      !task.isError &&
+                      !task.isFailed &&
                       !task.isWaiting && (
                         <Text fontSize="xs" className="secondary-text">
                           {`${formatTimeInterval(task.estimatedTime.secs)}`}
@@ -112,7 +113,7 @@ export const DownloadTasksPage = () => {
                       </Text>
                     )}
 
-                    {task.isError && (
+                    {task.isFailed && (
                       <Text fontSize="xs" color="red.600">
                         {task.reason || t("DownloadTasksPage.label.error")}
                       </Text>
@@ -124,7 +125,7 @@ export const DownloadTasksPage = () => {
                       </Text>
                     )}
 
-                    {!task.isError && !task.isCancelled && (
+                    {!task.isFailed && !task.isCancelled && (
                       <Tooltip
                         label={t(
                           `DownloadTasksPage.button.${
@@ -145,7 +146,7 @@ export const DownloadTasksPage = () => {
                       </Tooltip>
                     )}
 
-                    {task.isError && (
+                    {task.isFailed && (
                       <Tooltip label={t("DownloadTasksPage.button.retry")}>
                         <IconButton
                           aria-label="retry"
@@ -204,7 +205,7 @@ export const DownloadTasksPage = () => {
                 ? [
                     <OptionItem
                       key={`${task.taskId}-detail`}
-                      title={`${task.payload.dest}`}
+                      title={extractFileName(task.payload.dest, true)}
                       titleExtra={
                         task.isDownloading && (
                           <Text
