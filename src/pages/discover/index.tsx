@@ -19,7 +19,7 @@ export const DiscoverPage = () => {
 
   const [posts, setPosts] = useState<PostSummary[]>([]);
 
-  const handleFetchPostsSummaries = useCallback(() => {
+  const handleFetchPostSummaries = useCallback(() => {
     DiscoverService.fetchPostSummaries().then((response) => {
       if (response.status === "success") setPosts(response.data);
       console.log(response);
@@ -28,8 +28,8 @@ export const DiscoverPage = () => {
   }, [setPosts]);
 
   useEffect(() => {
-    handleFetchPostsSummaries();
-  }, [handleFetchPostsSummaries]);
+    handleFetchPostSummaries();
+  }, [handleFetchPostSummaries]);
 
   return (
     <Section
@@ -52,7 +52,7 @@ export const DiscoverPage = () => {
             leftIcon={<LuRefreshCcw />}
             size="xs"
             colorScheme={primaryColor}
-            onClick={handleFetchPostsSummaries}
+            onClick={handleFetchPostSummaries}
           >
             {t("General.refresh")}
           </Button>
