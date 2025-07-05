@@ -2,10 +2,12 @@ use crate::error::SJMCLResult;
 use crate::instance::models::misc::Instance;
 use crate::launch::constants::*;
 use crate::launch::models::LaunchError;
+use crate::launcher_config::commands::retrieve_launcher_config;
 use crate::launcher_config::models::{LauncherVisiablity, ProcessPriority};
 use crate::utils::window::create_webview_window;
 use std::collections::HashMap;
-use std::io::{BufRead, BufReader};
+use std::io::prelude::*;
+use std::io::{stderr, BufRead, BufReader, Write};
 use std::process::{Child, Command};
 use std::sync::{atomic, mpsc::Sender, Arc, Mutex};
 use std::thread;
@@ -27,6 +29,20 @@ pub async fn monitor_process(
     .unwrap()
     .as_secs();
   let label = format!("game_log_{}", timestamp);
+  let log_file_dir = retrieve_launcher_config(app.clone())?
+    .download
+    .cache
+    .directory
+    .join(format!("{}.log", label));
+
+  let log_file = Arc::new(std::sync::Mutex::new(
+    std::fs::OpenOptions::new()
+      .create_new(true)
+      .write(true)
+      .read(true)
+      .open(&log_file_dir)?,
+  ));
+
   let log_window = if display_log_window {
     match create_webview_window(&app, &label, "game_log", None).await {
       Ok(window) => Some(window),
@@ -48,6 +64,7 @@ pub async fn monitor_process(
     let tx_clone_stdout = ready_tx.clone();
     let game_ready_flag = game_ready_flag.clone();
     let start_time = start_time.clone();
+    let stdout_log_file = log_file.clone();
 
     thread::spawn(move || {
       let reader = BufReader::new(out);
@@ -55,6 +72,12 @@ pub async fn monitor_process(
         if display_log_window {
           let _ = app_stdout.emit_to(&label_stdout, GAME_PROCESS_OUTPUT_EVENT, &line);
         }
+
+        stdout_log_file
+          .lock()
+          .unwrap()
+          .write_all(line.as_bytes())
+          .unwrap();
 
         // the first time when log contains 'render thread', 'lwjgl version', or 'lwjgl openal', send signal to launch command, close frontend modal.
         if !game_ready_flag.load(atomic::Ordering::SeqCst)
@@ -81,6 +104,7 @@ pub async fn monitor_process(
     let tx_clone_stderr = ready_tx.clone();
     let game_ready_flag = game_ready_flag.clone();
     let start_time = start_time.clone();
+    let stderr_log_file = log_file.clone();
 
     thread::spawn(move || {
       let reader = BufReader::new(err);
@@ -88,6 +112,12 @@ pub async fn monitor_process(
         if display_log_window {
           let _ = app_stderr.emit_to(&label_stderr, GAME_PROCESS_OUTPUT_EVENT, &line);
         }
+
+        stderr_log_file
+          .lock()
+          .unwrap()
+          .write_all(line.as_bytes())
+          .unwrap();
 
         if !game_ready_flag.load(atomic::Ordering::SeqCst)
           && READY_FLAG.iter().any(|p| line.to_lowercase().contains(p))
@@ -105,6 +135,7 @@ pub async fn monitor_process(
     });
   }
 
+  drop(log_file);
   // handle game process exit
   let instance_id_clone = instance_id.clone();
   let mut dummy_child;
@@ -160,6 +191,13 @@ pub async fn monitor_process(
         println!("Game process exited with an error status: {:?}", status);
         let _ =
           create_webview_window(&app, &label.replace("log", "error"), "game_error", None).await;
+        let log_file = std::fs::OpenOptions::new()
+          .read(true)
+          .open(&log_file_dir)
+          .unwrap();
+        for line in BufReader::new(log_file).lines().map_while(Result::ok) {
+          let _ = app.emit_to(&label, GAME_PROCESS_OUTPUT_CHANNEL, &line);
+        }
       }
 
       // calc and update play time
