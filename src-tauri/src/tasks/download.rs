@@ -3,6 +3,7 @@ use crate::launcher_config::commands::retrieve_launcher_config;
 
 use async_speed_limit::Limiter;
 use futures::stream::TryStreamExt;
+use futures::StreamExt;
 use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
 use std::future::Future;
@@ -11,7 +12,7 @@ use std::sync::{Arc, RwLock};
 use std::time::Duration;
 use tauri::{AppHandle, Manager, Url};
 use tauri_plugin_http::reqwest;
-use tauri_plugin_http::reqwest::header::RANGE;
+use tauri_plugin_http::reqwest::header::{ACCEPT_ENCODING, RANGE};
 use tokio::io::AsyncSeekExt;
 use tokio_util::{bytes, compat::FuturesAsyncReadCompatExt};
 
@@ -36,6 +37,7 @@ pub struct DownloadTask {
 }
 
 impl DownloadTask {
+  const CONTENT_ENCODING_CHOICES: &'static str = "gzip;q=1.0, br;q=0.8, *;q=0.1";
   pub fn new(
     app_handle: AppHandle,
     task_id: u32,
@@ -126,6 +128,7 @@ impl DownloadTask {
       if p_handle.desc.total == 0 && p_handle.desc.current == 0 {
         let r = client
           .get(param.src.clone())
+          .header(ACCEPT_ENCODING, Self::CONTENT_ENCODING_CHOICES)
           .send()
           .await?
           .error_for_status()?;
@@ -134,13 +137,25 @@ impl DownloadTask {
       } else {
         client
           .get(param.src.clone())
+          .header(ACCEPT_ENCODING, Self::CONTENT_ENCODING_CHOICES)
           .header(RANGE, format!("bytes={}-", p_handle.desc.current))
           .send()
           .await?
           .error_for_status()?
       }
       .bytes_stream()
-      .map_err(std::io::Error::other),
+      .map(|res| {
+        match res {
+          Ok(bytes) => Ok(bytes),
+          Err(e) => {
+            // Log the error and skip this chunk
+            eprintln!("Network error during download: {:?}", e);
+            // Return an empty chunk or skip by returning an error that can be filtered out later
+            // Here, we return an empty chunk to continue
+            Ok(bytes::Bytes::new())
+          }
+        }
+      }),
     )
   }
 

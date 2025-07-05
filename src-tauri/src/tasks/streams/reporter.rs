@@ -86,7 +86,7 @@ where
       0
     };
 
-    let estimated_time = if self.last_reported > 0 {
+    let estimated_time = if self.last_reported > 0 && current > self.last_reported {
       Some(
         (self.total - current) as f64 / (current - self.last_reported) as f64
           * self.interval.as_secs_f64(),
