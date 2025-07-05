@@ -1,5 +1,5 @@
 use super::helpers::{authlib_injector::constants::PRESET_AUTH_SERVERS, skin::draw_avatar};
-use crate::{storage::Storage, utils::image::ImageWrapper, EXE_DIR};
+use crate::{storage::Storage, utils::image::ImageWrapper, APP_DATA_DIR};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::path::PathBuf;
@@ -228,7 +228,7 @@ impl AccountInfo {
 
 impl Storage for AccountInfo {
   fn file_path() -> PathBuf {
-    EXE_DIR.join("sjmcl.account.json")
+    APP_DATA_DIR.get().unwrap().join("sjmcl.account.json")
   }
 }
 

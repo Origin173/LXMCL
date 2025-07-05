@@ -20,9 +20,9 @@ use launcher_config::{
   helpers::java::refresh_and_update_javas,
   models::{JavaInfo, LauncherConfig},
 };
-use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{LazyLock, Mutex};
+use std::{collections::HashMap, sync::OnceLock};
 use storage::Storage;
 use tasks::monitor::TaskMonitor;
 use tauri_plugin_log::{Target, TargetKind};
@@ -30,7 +30,7 @@ use utils::web::build_sjmcl_client;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use tauri::menu::MenuBuilder;
-use tauri::Manager;
+use tauri::{path::BaseDirectory, Manager};
 
 static EXE_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
   std::env::current_exe()
@@ -39,6 +39,8 @@ static EXE_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
     .unwrap()
     .to_path_buf()
 });
+
+static APP_DATA_DIR: OnceLock<PathBuf> = OnceLock::new();
 
 pub async fn run() {
   tauri::Builder::default()
@@ -143,6 +145,11 @@ pub async fn run() {
         app.package_info().version.to_string()
       };
       let os = tauri_plugin_os::platform().to_string();
+
+      // init APP_DATA_DIR
+      APP_DATA_DIR
+        .set(app.path().resolve("", BaseDirectory::AppData).unwrap())
+        .expect("APP_DATA_DIR initialization failed");
 
       // Set the launcher config and other states
       // Also extract assets in `setup_with_app()` if the application is portable
