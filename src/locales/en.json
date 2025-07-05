@@ -266,6 +266,9 @@
         },
         "SJTU-eastgate": {
           "name": "SJTU Eastgate"
+        },
+        "GNLXC": {
+          "name": "GNWork City"
         }
       }
     },

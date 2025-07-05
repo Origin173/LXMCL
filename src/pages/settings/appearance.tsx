@@ -376,7 +376,7 @@ const AppearanceSettingsPage = () => {
   };
 
   const PresetBackgroundList = () => {
-    const presetBgList = ["Jokull", "SJTU-eastgate"];
+    const presetBgList = ["Jokull", "SJTU-eastgate", "GNLXC"];
 
     return (
       <Wrap spacing={3.5} justify="right">
