@@ -3,6 +3,7 @@ use crate::launcher_config::commands::retrieve_launcher_config;
 
 use async_speed_limit::Limiter;
 use futures::stream::TryStreamExt;
+use futures::StreamExt;
 use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
 use std::future::Future;
@@ -143,7 +144,18 @@ impl DownloadTask {
           .error_for_status()?
       }
       .bytes_stream()
-      .map_err(std::io::Error::other),
+      .map(|res| {
+        match res {
+          Ok(bytes) => Ok(bytes),
+          Err(e) => {
+            // Log the error and skip this chunk
+            eprintln!("Network error during download: {:?}", e);
+            // Return an empty chunk or skip by returning an error that can be filtered out later
+            // Here, we return an empty chunk to continue
+            Ok(bytes::Bytes::new())
+          }
+        }
+      }),
     )
   }
 
