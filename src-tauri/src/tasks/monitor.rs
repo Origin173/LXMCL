@@ -29,7 +29,14 @@ pub struct TaskMonitor {
   concurrency: Arc<Semaphore>,
   tx: FlumeSender<(u32, SJMCLBoxedFuture)>,
   rx: FlumeReceiver<(u32, SJMCLBoxedFuture)>,
+  group_map: RwLock<HashMap<String, Vec<Arc<RwLock<PTaskHandle>>>>>,
   pub download_rate_limiter: Option<Limiter>,
+}
+
+pub enum TaskCommand {
+  Resume,
+  Stop,
+  Cancel,
 }
 
 impl TaskMonitor {
@@ -52,6 +59,7 @@ impl TaskMonitor {
       )),
       tx,
       rx,
+      group_map: RwLock::new(HashMap::new()),
       download_rate_limiter: if config.download.transmission.enable_speed_limit {
         Some(Limiter::new(
           (config.download.transmission.speed_limit_value as i64 * 1024) as f64,
@@ -121,6 +129,15 @@ impl TaskMonitor {
     T: Future<Output = SJMCLResult<()>> + Send + 'static,
   {
     self.phs.write().unwrap().insert(id, p_handle.clone());
+
+    if let Some(ref g) = task_group {
+      let mut group_map = self.group_map.write().unwrap();
+      if let Some(group) = group_map.get_mut(g) {
+        group.push(p_handle.clone());
+      } else {
+        group_map.insert(g.clone(), vec![p_handle.clone()]);
+      }
+    }
 
     PEvent::emit_created(
       &self.app_handle,
@@ -241,6 +258,38 @@ impl TaskMonitor {
 
   pub fn get_transient_task(&self, task_id: u32) -> Option<THandle> {
     self.ths.read().unwrap().get(&task_id).cloned()
+  }
+
+  pub fn cancel_progressive_task_group(&self, task_group: String) {
+    if let Some(group) = self.group_map.write().unwrap().get(&task_group) {
+      for handle in group {
+        handle.write().unwrap().mark_cancelled();
+        if let Some(join_handle) = self
+          .tasks
+          .lock()
+          .unwrap()
+          .remove(&handle.read().unwrap().desc.task_id)
+        {
+          join_handle.abort();
+        }
+      }
+    }
+  }
+
+  pub fn resume_progressive_task_group(&self, task_group: String) {
+    if let Some(group) = self.group_map.write().unwrap().get(&task_group) {
+      for handle in group {
+        handle.write().unwrap().mark_resumed();
+      }
+    }
+  }
+
+  pub fn stop_progressive_task_group(&self, task_group: String) {
+    if let Some(group) = self.group_map.write().unwrap().get(&task_group) {
+      for handle in group {
+        handle.write().unwrap().mark_stopped();
+      }
+    }
   }
 
   pub fn state_list(&self) -> Vec<PTaskDesc> {

@@ -68,6 +68,44 @@ export class TaskService {
   }
 
   /**
+   * Stop a task group.
+   * @ param taskGroup - The name of the task group to be stopped.
+   * @ returns {Promise<InvokeResponse<null>>}
+   *
+   */
+  @responseHandler("task")
+  static async stopProgressiveTaskGroup(
+    taskGroup: string
+  ): Promise<InvokeResponse<null>> {
+    return await invoke("stop_progressive_task_group", { taskGroup });
+  }
+
+  /**
+   * Cancel a task group.
+   * @param taskGroup - The name of the task group to be cancelled.
+   * @returns {Promise<InvokeResponse<null>>}
+   *
+   */
+  @responseHandler("task")
+  static async cancelProgressiveTaskGroup(
+    taskGroup: string
+  ): Promise<InvokeResponse<null>> {
+    return await invoke("stop_progressive_task_group", { taskGroup });
+  }
+
+  /**
+   * Resume a task group.
+   * @param taskGroup - The name of the task group to be resumed.
+   * @returns {Promise<InvokeResponse<null>>}
+   */
+  @responseHandler("task")
+  static async resumeProgressiveTaskGroup(
+    taskGroup: string
+  ): Promise<InvokeResponse<null>> {
+    return await invoke("resume_progressive_task_group", { taskGroup });
+  }
+
+  /**
    * Retrieve the list of progressive tasks.
    * @returns {Promise<InvokeResponse<TaskDesc[]>>}
    */

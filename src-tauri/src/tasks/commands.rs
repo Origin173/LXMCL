@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+
 use std::{pin::Pin, time::Duration};
 use tauri::{AppHandle, Manager};
 
@@ -103,6 +104,27 @@ pub async fn restart_progressive_task(app: AppHandle, task_id: u32) -> SJMCLResu
 pub fn stop_progressive_task(app: AppHandle, task_id: u32) -> SJMCLResult<()> {
   let monitor = app.state::<Pin<Box<TaskMonitor>>>();
   monitor.stop_progress(task_id);
+  Ok(())
+}
+
+#[tauri::command]
+pub fn cancel_progressive_task_group(app: AppHandle, task_group: String) -> SJMCLResult<()> {
+  let monitor = app.state::<Pin<Box<TaskMonitor>>>();
+  monitor.cancel_progressive_task_group(task_group);
+  Ok(())
+}
+
+#[tauri::command]
+pub fn resume_progressive_task_group(app: AppHandle, task_group: String) -> SJMCLResult<()> {
+  let monitor = app.state::<Pin<Box<TaskMonitor>>>();
+  monitor.resume_progressive_task_group(task_group);
+  Ok(())
+}
+
+#[tauri::command]
+pub fn stop_progressive_task_group(app: AppHandle, task_group: String) -> SJMCLResult<()> {
+  let monitor = app.state::<Pin<Box<TaskMonitor>>>();
+  monitor.stop_progressive_task_group(task_group);
   Ok(())
 }
 

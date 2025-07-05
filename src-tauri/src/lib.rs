@@ -129,6 +129,9 @@ pub async fn run() {
       tasks::commands::get_transient_task,
       tasks::commands::set_transient_task_state,
       tasks::commands::cancel_transient_task,
+      tasks::commands::cancel_progressive_task_group,
+      tasks::commands::resume_progressive_task_group,
+      tasks::commands::stop_progressive_task_group,
     ])
     .setup(|app| {
       let is_dev = cfg!(debug_assertions);
