@@ -47,6 +47,7 @@ import { useTaskContext } from "@/contexts/task";
 import { useToast } from "@/contexts/toast";
 import { InstanceSubdirType, ModLoaderType } from "@/enums/instance";
 import {
+  datapackTagList,
   modTagList,
   modpackTagList,
   resourcePackTagList,
@@ -115,6 +116,7 @@ const DownloadSpecificResourceModal: React.FC<
     world: worldTagList,
     resourcepack: resourcePackTagList,
     shader: shaderPackTagList,
+    datapack: datapackTagList,
   };
 
   const translateTag = (
@@ -132,7 +134,7 @@ const DownloadSpecificResourceModal: React.FC<
         const values = Object.values(tagList).flat() as string[];
         allTags = [...keys, ...values];
       }
-      if (!allTags.includes(tag)) return tag;
+      if (!allTags.includes(tag)) return "";
       return t(
         `ResourceDownloader.${resourceType}TagList.${downloadSource}.${tag}`
       );
@@ -280,6 +282,7 @@ const DownloadSpecificResourceModal: React.FC<
       world: InstanceSubdirType.Saves,
       resourcepack: InstanceSubdirType.ResourcePacks,
       shader: InstanceSubdirType.ShaderPacks,
+      datapack: InstanceSubdirType.Saves,
     };
     const dirType =
       resourceTypeToDirType[resource.type] ?? InstanceSubdirType.Root;
@@ -369,15 +372,19 @@ const DownloadSpecificResourceModal: React.FC<
               }
               titleExtra={
                 <HStack spacing={1}>
-                  {resource.tags.map((tag) => (
-                    <Tag
-                      key={tag}
-                      colorScheme={primaryColor}
-                      className="tag-xs"
-                    >
-                      {translateTag(tag, resource.type, resource.source)}
-                    </Tag>
-                  ))}
+                  {resource.tags
+                    .filter((t) =>
+                      translateTag(t, resource.type, resource.source)
+                    )
+                    .map((tag) => (
+                      <Tag
+                        key={tag}
+                        colorScheme={primaryColor}
+                        className="tag-xs"
+                      >
+                        {translateTag(tag, resource.type, resource.source)}
+                      </Tag>
+                    ))}
                 </HStack>
               }
               description={
