@@ -14,7 +14,13 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IconType } from "react-icons";
-import { LuEarth, LuHaze, LuPackage, LuSquareLibrary } from "react-icons/lu";
+import {
+  LuEarth,
+  LuHaze,
+  LuPackage,
+  LuPuzzle,
+  LuSquareLibrary,
+} from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import ResourceDownloader from "@/components/resource-downloader";
 
@@ -36,6 +42,7 @@ const DownloadResourceModal: React.FC<DownloadResourceModalProps> = ({
     { key: "world", icon: LuEarth },
     { key: "resourcepack", icon: LuPackage },
     { key: "shader", icon: LuHaze },
+    { key: "datapack", icon: LuPuzzle },
   ];
 
   return (

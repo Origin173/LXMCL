@@ -47,6 +47,7 @@ import { useTaskContext } from "@/contexts/task";
 import { useToast } from "@/contexts/toast";
 import { InstanceSubdirType, ModLoaderType } from "@/enums/instance";
 import {
+  datapackTagList,
   modTagList,
   modpackTagList,
   resourcePackTagList,
@@ -58,6 +59,7 @@ import { useThemedCSSStyle } from "@/hooks/themed-css";
 import {
   GameResourceInfo,
   OtherResourceInfo,
+  ResourceFileInfo,
   ResourceVersionPack,
 } from "@/models/resource";
 import { TaskTypeEnums } from "@/models/task";
@@ -96,11 +98,12 @@ const DownloadSpecificResourceModal: React.FC<
   ];
   const [gameVersionList, setGameVersionList] = useState<string[]>([]);
   const [versionLabels, setVersionLabels] = useState<string[]>([]);
-  const [selectedVersionLabel, setSelectedVersionLabel] =
-    useState<string>("All");
+  const [selectedVersionLabel, setSelectedVersionLabel] = useState<string>(
+    curInstanceMajorVersion || "All"
+  );
   const [selectedModLoader, setSelectedModLoader] = useState<
     ModLoaderType | "All"
-  >("All");
+  >(curInstanceModLoader || "All");
   const [isVersionPacksLoading, setIsLoadingVersionPacks] =
     useState<boolean>(true);
   const [versionPacks, setVersionPacks] = useState<ResourceVersionPack[]>([]);
@@ -113,6 +116,7 @@ const DownloadSpecificResourceModal: React.FC<
     world: worldTagList,
     resourcepack: resourcePackTagList,
     shader: shaderPackTagList,
+    datapack: datapackTagList,
   };
 
   const translateTag = (
@@ -130,7 +134,7 @@ const DownloadSpecificResourceModal: React.FC<
         const values = Object.values(tagList).flat() as string[];
         allTags = [...keys, ...values];
       }
-      if (!allTags.includes(tag)) return tag;
+      if (!allTags.includes(tag)) return "";
       return t(
         `ResourceDownloader.${resourceType}TagList.${downloadSource}.${tag}`
       );
@@ -159,9 +163,19 @@ const DownloadSpecificResourceModal: React.FC<
     }
   };
 
-  const matchVersion = (majorVersion: string, version: string) => {
-    const versionPattern = new RegExp(`^${majorVersion}(\\.|$)`);
-    return versionPattern.test(version);
+  const versionPackFilter = (pack: ResourceVersionPack): boolean => {
+    const loader = pack.name.split(" ")[0];
+    const version = pack.name.split(" ").slice(1).join(" ");
+
+    const matchesModloader =
+      selectedModLoader === "All" ||
+      loader.toLowerCase() === selectedModLoader.toLowerCase();
+
+    const matchesVersion =
+      selectedVersionLabel === "All" ||
+      new RegExp(`^${selectedVersionLabel}(\\.|$)`).test(version);
+
+    return matchesModloader && matchesVersion;
   };
 
   const fetchVersionLabels = useCallback(() => {
@@ -268,6 +282,7 @@ const DownloadSpecificResourceModal: React.FC<
       world: InstanceSubdirType.Saves,
       resourcepack: InstanceSubdirType.ResourcePacks,
       shader: InstanceSubdirType.ShaderPacks,
+      datapack: InstanceSubdirType.Saves,
     };
     const dirType =
       resourceTypeToDirType[resource.type] ?? InstanceSubdirType.Root;
@@ -296,6 +311,22 @@ const DownloadSpecificResourceModal: React.FC<
     const defaultDownloadPath = await downloadDir();
     return defaultDownloadPath;
   }, [resource.type, router.query.id, toast]);
+
+  const startDownload = async (item: ResourceFileInfo) => {
+    const dir = await getDefaultFilePath();
+    const savepath = await save({
+      defaultPath: dir + "/" + item.fileName,
+    });
+    if (!savepath) return;
+    handleScheduleProgressiveTaskGroup("game-resource-download", [
+      {
+        src: item.downloadUrl,
+        dest: savepath,
+        sha1: item.sha1,
+        taskType: TaskTypeEnums.Download,
+      },
+    ]);
+  };
 
   useEffect(() => {
     setSelectedModLoader(curInstanceModLoader || "All");
@@ -341,15 +372,19 @@ const DownloadSpecificResourceModal: React.FC<
               }
               titleExtra={
                 <HStack spacing={1}>
-                  {resource.tags.map((tag) => (
-                    <Tag
-                      key={tag}
-                      colorScheme={primaryColor}
-                      className="tag-xs"
-                    >
-                      {translateTag(tag, resource.type, resource.source)}
-                    </Tag>
-                  ))}
+                  {resource.tags
+                    .filter((t) =>
+                      translateTag(t, resource.type, resource.source)
+                    )
+                    .map((tag) => (
+                      <Tag
+                        key={tag}
+                        colorScheme={primaryColor}
+                        className="tag-xs"
+                      >
+                        {translateTag(tag, resource.type, resource.source)}
+                      </Tag>
+                    ))}
                 </HStack>
               }
               description={
@@ -443,96 +478,68 @@ const DownloadSpecificResourceModal: React.FC<
               <BeatLoader size={16} color="gray" />
             </VStack>
           ) : versionPacks.length > 0 ? (
-            versionPacks
-              .filter(
-                (v) =>
-                  selectedVersionLabel === "All" ||
-                  matchVersion(
-                    selectedVersionLabel,
-                    v.name.split(" ").pop() || ""
-                  )
-              )
-              .map((pack, index) => (
-                <Section
-                  key={index}
-                  isAccordion
-                  title={pack.name}
-                  initialIsOpen={false}
-                  titleExtra={<CountTag count={pack.items.length} />}
-                  mb={2}
-                >
-                  {pack.items.length > 0 ? (
-                    <OptionItemGroup
-                      items={pack.items.map((item, index) => (
-                        <OptionItem
-                          key={index}
-                          title={item.name}
-                          description={
-                            <HStack
-                              fontSize="xs"
-                              className="secondary-text"
-                              spacing={6}
-                              align="flex-start"
-                              w="100%"
-                            >
-                              <HStack spacing={1}>
-                                <LuDownload />
-                                <Text>
-                                  {formatDisplayCount(item.downloads)}
-                                </Text>
-                              </HStack>
-                              <HStack spacing={1}>
-                                <LuUpload />
-                                <Text>{ISOToDate(item.fileDate)}</Text>
-                              </HStack>
-                              <HStack spacing={1}>
-                                <LuPackage />
-                                <Text>
-                                  {t(
-                                    `DownloadSpecificResourceModal.releaseType.${item.releaseType}`
-                                  )}
-                                </Text>
-                              </HStack>
+            versionPacks.filter(versionPackFilter).map((pack, index) => (
+              <Section
+                key={index}
+                isAccordion
+                title={pack.name}
+                initialIsOpen={false}
+                titleExtra={<CountTag count={pack.items.length} />}
+                mb={2}
+              >
+                {pack.items.length > 0 ? (
+                  <OptionItemGroup
+                    items={pack.items.map((item, index) => (
+                      <OptionItem
+                        key={index}
+                        title={item.name}
+                        description={
+                          <HStack
+                            fontSize="xs"
+                            className="secondary-text"
+                            spacing={6}
+                            align="flex-start"
+                            w="100%"
+                          >
+                            <HStack spacing={1}>
+                              <LuDownload />
+                              <Text>{formatDisplayCount(item.downloads)}</Text>
                             </HStack>
-                          }
-                          prefixElement={
-                            <Avatar
-                              src={""}
-                              name={item.releaseType}
-                              boxSize="32px"
-                              borderRadius="4px"
-                              backgroundColor={iconBackgroundColor(
-                                item.releaseType
-                              )}
-                            />
-                          }
-                          isFullClickZone
-                          onClick={async () => {
-                            const dir = await getDefaultFilePath();
-                            const savepath = await save({
-                              defaultPath: dir + "/" + item.fileName,
-                            });
-                            if (!savepath) return;
-                            handleScheduleProgressiveTaskGroup(
-                              "game-resource-download",
-                              [
-                                {
-                                  src: item.downloadUrl,
-                                  dest: savepath,
-                                  sha1: item.sha1,
-                                  taskType: TaskTypeEnums.Download,
-                                },
-                              ]
-                            );
-                          }}
-                        />
-                      ))}
-                    />
-                  ) : (
-                    <Empty withIcon={false} size="sm" />
-                  )}
-                </Section>
-              ))
+                            <HStack spacing={1}>
+                              <LuUpload />
+                              <Text>{ISOToDate(item.fileDate)}</Text>
+                            </HStack>
+                            <HStack spacing={1}>
+                              <LuPackage />
+                              <Text>
+                                {t(
+                                  `DownloadSpecificResourceModal.releaseType.${item.releaseType}`
+                                )}
+                              </Text>
+                            </HStack>
+                          </HStack>
+                        }
+                        prefixElement={
+                          <Avatar
+                            src={""}
+                            name={item.releaseType}
+                            boxSize="32px"
+                            borderRadius="4px"
+                            backgroundColor={iconBackgroundColor(
+                              item.releaseType
+                            )}
+                          />
+                        }
+                        isFullClickZone
+                        onClick={() => startDownload(item)}
+                      />
+                    ))}
+                  />
+                ) : (
+                  <Empty withIcon={false} size="sm" />
+                )}
+              </Section>
+            ))
           ) : (
             <Empty withIcon size="sm" />
           )}

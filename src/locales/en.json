@@ -391,7 +391,8 @@
       "world": "Worlds",
       "mod": "Mods",
       "resourcepack": "Resourcepacks",
-      "shader": "Shaderpacks"
+      "shader": "Shaderpacks",
+      "datapack": "Datapacks"
     }
   },
   "DownloadSettingPage": {
@@ -1392,6 +1393,43 @@
         "technology": "Technology"
       }
     },
+    "datapackTagList": {
+      "CurseForge": {
+        "All": "All",
+        "Styles": "Styles",
+        "Magic": "Magic",
+        "Miscellaneous": "Misc.",
+        "Fantasy": "Fantasy",
+        "Mod Support": "Mod Support",
+        "Tech": "Tech",
+        "Library": "Library",
+        "Utility": "Utility",
+        "Adventure": "Adventure"
+      },
+      "Modrinth": {
+        "All": "All",
+        "styles": "Styles",
+        "adventure": "Adventure",
+        "cursed": "Cursed",
+        "decoration": "Decoration",
+        "economy": "Economy",
+        "equipment": "Equipment",
+        "food": "Food",
+        "game-mechanics": "Game Mechanics",
+        "library": "Library",
+        "magic": "Magic",
+        "management": "Management",
+        "minigame": "Minigame",
+        "mobs": "Mobs",
+        "optimization": "Optimization",
+        "social": "Social",
+        "storage": "Storage",
+        "technology": "Technology",
+        "transportation": "Transportation",
+        "utility": "Utility",
+        "worldgen": "World Gen"
+      }
+    },
     "sortByList": {
       "CurseForge": {
         "Popularity": "Popularity",
@@ -1555,7 +1593,7 @@
           }
         }
       },
-       "reloginPlayerOAuth": {
+      "reloginPlayerOAuth": {
         "success": "Successfully re-logged in",
         "error": {
           "title": "Failed to re-login",
@@ -1582,7 +1620,7 @@
           }
         }
       },
-       "reloginPlayer3rdPartyPassword": {
+      "reloginPlayer3rdPartyPassword": {
         "success": "Successfully re-logged in",
         "error": {
           "title": "Failed to re-login",
@@ -1855,7 +1893,7 @@
           }
         }
       },
-       "retrieveLocalModList": {
+      "retrieveLocalModList": {
         "error": {
           "title": "Failed to retrieve local mod list",
           "description": {
@@ -1888,7 +1926,7 @@
           "title": "Failed to retrieve screenshot list"
         }
       },
-       "toggleModByExtension": {
+      "toggleModByExtension": {
         "error": {
           "title": "Mod state toggle failed",
           "description": {
@@ -1917,7 +1955,7 @@
         }
       }
     },
-     "task": {
+    "task": {
       "scheduleProgressiveTaskGroup": {
         "success": "Task created successfully"
       }

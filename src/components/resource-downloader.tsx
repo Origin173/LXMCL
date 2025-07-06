@@ -27,6 +27,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
 import { useToast } from "@/contexts/toast";
 import {
+  datapackTagList,
   modTagList,
   modpackTagList,
   resourcePackTagList,
@@ -67,6 +68,7 @@ const tagLists: Record<string, any> = {
   resourcepack: resourcePackTagList,
   shader: shaderPackTagList,
   modpack: modpackTagList,
+  datapack: datapackTagList,
 };
 
 const downloadSourceLists: Record<string, string[]> = {
@@ -75,6 +77,7 @@ const downloadSourceLists: Record<string, string[]> = {
   resourcepack: ["CurseForge", "Modrinth"],
   shader: ["CurseForge", "Modrinth"],
   modpack: ["CurseForge", "Modrinth"],
+  datapack: ["CurseForge", "Modrinth"],
 };
 
 const ResourceDownloaderMenu: React.FC<ResourceDownloaderMenuProps> = ({
@@ -152,7 +155,7 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
         const values = Object.values(tagList).flat() as string[];
         allTags = [...keys, ...values];
       }
-      if (!allTags.includes(tag)) return tag;
+      if (!allTags.includes(tag)) return "";
       return t(
         `ResourceDownloader.${resourceType}TagList.${downloadSource}.${tag}`
       );
@@ -180,16 +183,36 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
     ),
     titleExtra: (
       <HStack spacing={1}>
-        {item.tags.slice(0, 3).map((tag) => (
-          <Tag key={tag} colorScheme={primaryColor} className="tag-xs">
-            {translateTag(tag, item.type, item.source)}
-          </Tag>
-        ))}
-        {item.tags.length > 3 && (
-          <Tag colorScheme={primaryColor} className="tag-xs" variant="outline">
-            {`+${item.tags.length - 3}`}
-          </Tag>
-        )}
+        {(() => {
+          const translatedTags = item.tags
+            .map((t) => ({
+              raw: t,
+              translated: translateTag(t, item.type, item.source),
+            }))
+            .filter((t) => t.translated);
+
+          const visibleTags = translatedTags.slice(0, 3);
+          const extraCount = translatedTags.length - visibleTags.length;
+
+          return (
+            <>
+              {visibleTags.map((t) => (
+                <Tag key={t.raw} colorScheme={primaryColor} className="tag-xs">
+                  {t.translated}
+                </Tag>
+              ))}
+              {extraCount > 0 && (
+                <Tag
+                  colorScheme={primaryColor}
+                  className="tag-xs"
+                  variant="outline"
+                >
+                  +{extraCount}
+                </Tag>
+              )}
+            </>
+          );
+        })()}
       </HStack>
     ),
     titleLineWrap: false,

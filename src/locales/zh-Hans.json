@@ -391,7 +391,8 @@
       "world": "世界",
       "mod": "模组",
       "resourcepack": "资源包",
-      "shader": "光影"
+      "shader": "光影",
+      "datapack": "数据包"
     }
   },
   "DownloadSettingPage": {
@@ -1392,6 +1393,43 @@
         "technology": "科技"
       }
     },
+    "datapackTagList": {
+      "CurseForge": {
+        "All": "全部",
+        "Styles": "风格",
+        "Magic": "魔法",
+        "Miscellaneous": "杂项",
+        "Fantasy": "奇幻",
+        "Mod Support": "模组支持",
+        "Tech": "科技",
+        "Library": "支持库",
+        "Utility": "实用",
+        "Adventure": "冒险"
+      },
+      "Modrinth": {
+        "All": "全部",
+        "styles": "风格",
+        "adventure": "冒险",
+        "cursed": "诅咒",
+        "decoration": "装饰",
+        "economy": "经济",
+        "equipment": "装备",
+        "food": "食物",
+        "game-mechanics": "游戏机制",
+        "library": "支持库",
+        "magic": "魔法",
+        "management": "管理",
+        "minigame": "小游戏",
+        "mobs": "生物",
+        "optimization": "优化",
+        "social": "社交",
+        "storage": "存储",
+        "technology": "科技",
+        "transportation": "交通运输",
+        "utility": "实用",
+        "worldgen": "世界生成"
+      }
+    },
     "sortByList": {
       "CurseForge": {
         "Popularity": "热度",
@@ -1555,7 +1593,7 @@
           }
         }
       },
-       "reloginPlayerOAuth": {
+      "reloginPlayerOAuth": {
         "success": "角色重新登录成功",
         "error": {
           "title": "角色重新登录失败",
@@ -1582,7 +1620,7 @@
           }
         }
       },
-       "reloginPlayer3rdPartyPassword": {
+      "reloginPlayer3rdPartyPassword": {
         "success": "角色重新登录成功",
         "error": {
           "title": "角色重新登录失败",
@@ -1855,7 +1893,7 @@
           }
         }
       },
-       "retrieveLocalModList": {
+      "retrieveLocalModList": {
         "error": {
           "title": "获取模组列表失败",
           "description": {
