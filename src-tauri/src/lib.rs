@@ -139,10 +139,10 @@ pub async fn run() {
       let is_dev = cfg!(debug_assertions);
 
       // Get version and os information
-      let version = if is_dev {
-        "dev".to_string()
-      } else {
-        app.package_info().version.to_string()
+      let version = match (is_dev, app.package_info().version.to_string().as_str()) {
+        (true, _) => "dev".to_string(),
+        (false, "0.0.0") => "nightly".to_string(),
+        (false, v) => v.to_string(),
       };
       let os = tauri_plugin_os::platform().to_string();
 
