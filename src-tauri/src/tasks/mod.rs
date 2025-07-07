@@ -12,12 +12,13 @@ use futures::stream::Stream;
 use serde::{Deserialize, Serialize};
 use std::future::Future;
 use std::pin::Pin;
-use streams::{PDesc, PHandle};
+use streams::{PDesc, PGroupDesc, PHandle};
 use tokio::time::Duration;
 
 pub type SJMCLBoxedFuture = Pin<Box<dyn Future<Output = SJMCLResult<u32>> + Send>>;
 type PTaskHandle = PHandle<TauriEventSink, PTaskParam>;
 type PTaskDesc = PDesc<PTaskParam>;
+type PTaskGroupDesc = PGroupDesc<PTaskParam>;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct THandle {

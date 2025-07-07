@@ -12,22 +12,22 @@ import {
   InProgressPTaskEventStatus,
   PTaskEventPayload,
   PTaskEventStatusEnums,
-  TaskDesc,
   TaskDescStatusEnums,
+  TaskGroupDesc,
   TaskParam,
 } from "@/models/task";
 import { TaskService } from "@/services/task";
 
 interface TaskContextType {
-  tasks: TaskDesc[];
+  tasks: TaskGroupDesc[];
   generalPercent: number | undefined; // General progress percentage for all tasks
   handleScheduleProgressiveTaskGroup: (
     taskGroup: string,
     params: TaskParam[]
   ) => void;
-  handleCancelProgressiveTask: (taskId: number) => void;
-  handleResumeProgressiveTask: (taskId: number) => void;
-  handleStopProgressiveTask: (taskId: number) => void;
+  handleCancelProgressiveTaskGroup: (taskGroup: string) => void;
+  handleResumeProgressiveTaskGroup: (taskGroup: string) => void;
+  handleStopProgressiveTaskGroup: (taskGroup: string) => void;
 }
 
 export const TaskContext = createContext<TaskContextType | undefined>(
@@ -38,14 +38,66 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const toast = useToast();
-  const [tasks, setTasks] = useState<TaskDesc[]>([]);
+  const [tasks, setTasks] = useState<TaskGroupDesc[]>([]);
   const [generalPercent, setGeneralPercent] = useState<number>();
+
+  const updateGroupProgress = (group: TaskGroupDesc) => {
+    group.current = group.taskDescs.reduce((acc, t) => acc + t.current, 0);
+    group.total = group.taskDescs.reduce((acc, t) => acc + t.total, 0);
+    group.progress = group.total > 0 ? (group.current * 100) / group.total : 0;
+    group.estimatedTime = undefined;
+    group.taskDescs.forEach((t) => {
+      if (t.estimatedTime) {
+        if (
+          !group.estimatedTime ||
+          group.estimatedTime.secs < t.estimatedTime.secs
+        ) {
+          group.estimatedTime = t.estimatedTime;
+        }
+      }
+      t.progress = t.total ? (t.current * 100) / t.total : 0;
+    });
+  };
+
+  const updateGroupStatus = (group: TaskGroupDesc) => {
+    if (
+      group.taskDescs.every((t) => t.status === TaskDescStatusEnums.Completed)
+    ) {
+      group.status = TaskDescStatusEnums.Completed;
+    } else if (
+      group.taskDescs.some((t) => t.status === TaskDescStatusEnums.Failed)
+    ) {
+      group.status = TaskDescStatusEnums.Failed;
+    } else if (
+      group.taskDescs.some((t) => t.status === TaskDescStatusEnums.Cancelled)
+    ) {
+      group.status = TaskDescStatusEnums.Cancelled;
+    } else if (
+      group.taskDescs.some((t) => t.status === TaskDescStatusEnums.Stopped)
+    ) {
+      group.status = TaskDescStatusEnums.Stopped;
+    } else if (
+      group.taskDescs.some((t) => t.status === TaskDescStatusEnums.InProgress)
+    ) {
+      group.status = TaskDescStatusEnums.InProgress;
+    }
+  };
 
   const handleRetrieveProgressTasks = useCallback(() => {
     TaskService.retrieveProgressiveTaskList().then((response) => {
       if (response.status === "success") {
         info(JSON.stringify(response.data));
-        setTasks(response.data);
+        setTasks(
+          response.data
+            .map((taskGroup) => {
+              updateGroupProgress(taskGroup);
+              updateGroupStatus(taskGroup);
+              return taskGroup;
+            })
+            .filter(
+              (taskGroup) => taskGroup.status !== TaskDescStatusEnums.Cancelled
+            )
+        );
       } else {
         toast({
           title: response.message,
@@ -82,9 +134,9 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
     [toast]
   );
 
-  const handleCancelProgressiveTask = useCallback(
-    (taskId: number) => {
-      TaskService.cancelProgressiveTask(taskId).then((response) => {
+  const handleCancelProgressiveTaskGroup = useCallback(
+    (taskGroup: string) => {
+      TaskService.cancelProgressiveTaskGroup(taskGroup).then((response) => {
         if (response.status !== "success") {
           toast({
             title: response.message,
@@ -94,7 +146,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
         } else {
           setTasks((prevTasks) =>
             prevTasks?.map((t) => {
-              if (t.taskId === taskId) {
+              if (t.taskGroup === taskGroup) {
                 t.status = TaskDescStatusEnums.Cancelled;
               }
               return t;
@@ -106,9 +158,9 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
     [toast]
   );
 
-  const handleResumeProgressiveTask = useCallback(
-    (taskId: number) => {
-      TaskService.resumeProgressiveTask(taskId).then((response) => {
+  const handleResumeProgressiveTaskGroup = useCallback(
+    (taskGroup: string) => {
+      TaskService.resumeProgressiveTaskGroup(taskGroup).then((response) => {
         if (response.status !== "success") {
           toast({
             title: response.message,
@@ -121,9 +173,9 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
     [toast]
   );
 
-  const handleStopProgressiveTask = useCallback(
-    (taskId: number) => {
-      TaskService.stopProgressiveTask(taskId).then((response) => {
+  const handleStopProgressiveTaskGroup = useCallback(
+    (taskGroup: string) => {
+      TaskService.stopProgressiveTaskGroup(taskGroup).then((response) => {
         if (response.status !== "success") {
           toast({
             title: response.message,
@@ -145,70 +197,140 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
         console.log(payload);
         setTasks((prevTasks) => {
           if (payload.event.status === PTaskEventStatusEnums.Created) {
+            let group = prevTasks?.find(
+              (t) => t.taskGroup === payload.taskGroup
+            );
+
+            if (group) {
+              if (group.taskDescs.some((t) => t.taskId === payload.id)) {
+                info(
+                  `Task ${payload.id} already exists in group ${payload.taskGroup}`
+                );
+                return prevTasks;
+              } else {
+                group.taskDescs.unshift(payload.event.desc);
+                info(`Added task ${payload.id} to group ${payload.taskGroup}`);
+                updateGroupProgress(group);
+                return [...prevTasks];
+              }
+            }
+            info(`Creating new task group ${payload.taskGroup}`);
+            // Create a new task group if it doesn't exist
+            let newGroup: TaskGroupDesc = {
+              taskGroup: payload.taskGroup,
+              taskDescs: [payload.event.desc],
+            };
+            updateGroupProgress(newGroup);
+
+            return [newGroup, ...(prevTasks || [])];
+          } else if (payload.event.status === PTaskEventStatusEnums.Started) {
+            let group = prevTasks?.find(
+              (t) => t.taskGroup === payload.taskGroup
+            );
+            if (!group) return prevTasks;
+
+            group.status = TaskDescStatusEnums.InProgress;
+            return [...prevTasks];
+          } else if (payload.event.status === PTaskEventStatusEnums.Completed) {
+            let group = prevTasks?.find(
+              (t) => t.taskGroup === payload.taskGroup
+            );
+            if (!group) return prevTasks;
+
+            group.taskDescs = group.taskDescs.map((t) => {
+              if (t.taskId === payload.id) {
+                t.status = TaskDescStatusEnums.Completed;
+                t.current = t.total;
+              }
+              return t;
+            });
+            info(`Task ${payload.id} completed in group ${payload.taskGroup}`);
+
+            updateGroupProgress(group);
+
             if (
-              prevTasks?.some(
-                (t) =>
-                  t.taskGroup === payload.taskGroup && t.taskId === payload.id
+              group.taskDescs.every(
+                (t) => t.status === TaskDescStatusEnums.Completed
               )
             ) {
-              return prevTasks;
+              info(`All tasks completed in group ${payload.taskGroup}`);
+              group.status = TaskDescStatusEnums.Completed;
             }
-            return [payload.event.desc, ...(prevTasks || [])];
-          } else if (payload.event.status === PTaskEventStatusEnums.Completed) {
-            return (
-              prevTasks?.map((t) => {
-                if (t.taskId === payload.id) {
-                  t.current = t.total;
-                  t.status = TaskDescStatusEnums.Completed;
-                }
-                return t;
-              }) || []
-            );
+            return [...prevTasks];
           } else if (payload.event.status === PTaskEventStatusEnums.Stopped) {
-            return (
-              prevTasks?.map((t) => {
-                if (t.taskId === payload.id) {
-                  t.status = TaskDescStatusEnums.Stopped;
-                }
-                return t;
-              }) || []
+            let group = prevTasks?.find(
+              (t) => t.taskGroup === payload.taskGroup
             );
+            if (!group) return prevTasks;
+
+            group.taskDescs = group.taskDescs.map((t) => {
+              if (t.taskId === payload.id) {
+                t.status = TaskDescStatusEnums.Stopped;
+              }
+              return t;
+            });
+            group.status = TaskDescStatusEnums.Stopped;
+            info(`Task ${payload.id} stopped in group ${payload.taskGroup}`);
+            return [...prevTasks];
           } else if (payload.event.status === PTaskEventStatusEnums.Cancelled) {
-            return (
-              prevTasks?.map((t) => {
-                if (t.taskId === payload.id) {
-                  t.status = TaskDescStatusEnums.Cancelled;
-                }
-                return t;
-              }) || []
+            let group = prevTasks?.find(
+              (t) => t.taskGroup === payload.taskGroup
             );
+            if (!group) return prevTasks;
+
+            group.taskDescs = group.taskDescs.map((t) => {
+              if (t.taskId === payload.id) {
+                t.status = TaskDescStatusEnums.Cancelled;
+              }
+              return t;
+            });
+            group.status = TaskDescStatusEnums.Cancelled;
+            info(`Task ${payload.id} cancelled in group ${payload.taskGroup}`);
+            return [...prevTasks];
           } else if (
             payload.event.status === PTaskEventStatusEnums.InProgress
           ) {
-            return (
-              prevTasks?.map((t) => {
-                if (t.taskId === payload.id) {
-                  t.current = (
-                    payload.event as InProgressPTaskEventStatus
-                  ).current;
-                  t.status = TaskDescStatusEnums.InProgress;
-                  t.estimatedTime = (
-                    payload.event as InProgressPTaskEventStatus
-                  ).estimatedTime;
-                }
-                return t;
-              }) || []
+            let group = prevTasks?.find(
+              (t) => t.taskGroup === payload.taskGroup
             );
+            if (!group) return prevTasks;
+
+            group.taskDescs = group.taskDescs.map((t) => {
+              if (t.taskId === payload.id) {
+                t.current = (
+                  payload.event as InProgressPTaskEventStatus
+                ).current;
+                t.status = TaskDescStatusEnums.InProgress;
+                t.estimatedTime = (
+                  payload.event as InProgressPTaskEventStatus
+                ).estimatedTime;
+                t.speed = (payload.event as InProgressPTaskEventStatus).speed;
+              }
+              return t;
+            });
+            group.status = TaskDescStatusEnums.InProgress;
+            updateGroupProgress(group);
+
+            info(
+              `Task ${payload.id} in progress in group ${payload.taskGroup}`
+            );
+            return [...prevTasks];
           } else if (payload.event.status === PTaskEventStatusEnums.Failed) {
-            return (
-              prevTasks?.map((t) => {
-                if (t.taskId === payload.id) {
-                  t.reason = (payload.event as FailedPTaskEventStatus).reason;
-                  t.status = TaskDescStatusEnums.Failed;
-                }
-                return t;
-              }) || []
+            let group = prevTasks?.find(
+              (t) => t.taskGroup === payload.taskGroup
             );
+            if (!group) return prevTasks;
+
+            group.taskDescs = group.taskDescs.map((t) => {
+              if (t.taskId === payload.id) {
+                t.reason = (payload.event as FailedPTaskEventStatus).reason;
+                t.status = TaskDescStatusEnums.Failed;
+              }
+              return t;
+            });
+            group.status = TaskDescStatusEnums.Failed;
+            info(`Task ${payload.id} failed in group ${payload.taskGroup}`);
+            return [...prevTasks];
           } else {
             return prevTasks;
           }
@@ -226,12 +348,17 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
     const generalCurrent = tasks.reduce(
       (acc, task) =>
         acc +
-        (task.status === TaskDescStatusEnums.InProgress ? task.current : 0),
+        (task?.status === TaskDescStatusEnums.InProgress
+          ? (task?.current ?? 0)
+          : 0),
       0
     );
     const generalTotal = tasks.reduce(
       (acc, task) =>
-        acc + (task.status === TaskDescStatusEnums.InProgress ? task.total : 0),
+        acc +
+        (task?.status === TaskDescStatusEnums.InProgress
+          ? (task?.total ?? 0)
+          : 0),
       0
     );
 
@@ -248,9 +375,9 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
         tasks,
         generalPercent,
         handleScheduleProgressiveTaskGroup,
-        handleCancelProgressiveTask,
-        handleResumeProgressiveTask,
-        handleStopProgressiveTask,
+        handleCancelProgressiveTaskGroup,
+        handleResumeProgressiveTaskGroup,
+        handleStopProgressiveTaskGroup,
       }}
     >
       {children}

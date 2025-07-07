@@ -375,7 +375,7 @@
       "online": "在线"
     }
   },
-  "DownloadFloatButton": {
+  "DownloadIndicator": {
     "tooltip": "正在下载"
   },
   "DownloadModpackModal": {
