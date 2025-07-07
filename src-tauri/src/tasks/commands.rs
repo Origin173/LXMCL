@@ -13,12 +13,19 @@ pub async fn schedule_progressive_task_group(
   app: AppHandle,
   task_group: String,
   params: Vec<PTaskParam>,
+  with_timestamp: bool,
 ) -> SJMCLResult<PTaskGroupDesc> {
   let monitor = app.state::<Pin<Box<TaskMonitor>>>();
   let mut task_descs = Vec::new();
 
-  let timestamp = chrono::Utc::now().timestamp_millis();
-  let task_group = format!("{}_{}", task_group, timestamp);
+  let task_group = if with_timestamp {
+    // If with_timestamp is true, append a timestamp to the task group name
+    // to ensure uniqueness and avoid conflicts.
+    let timestamp = chrono::Utc::now().timestamp_millis();
+    format!("{}@{}", task_group, timestamp)
+  } else {
+    task_group.clone()
+  };
 
   for param in params {
     let task_id = monitor.get_new_id();

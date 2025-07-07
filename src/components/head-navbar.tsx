@@ -1,4 +1,5 @@
 import {
+  Divider,
   Flex,
   HStack,
   Icon,
@@ -23,6 +24,7 @@ import { DownloadIndicator } from "@/components/download-indicator";
 import { TitleShort } from "@/components/logo-title";
 import { useLauncherConfig } from "@/contexts/config";
 import { useSharedModals } from "@/contexts/shared-modal";
+import { useTaskContext } from "@/contexts/task";
 import { useWidthAnimation } from "@/hooks/animation";
 import { useThemedCSSStyle } from "@/hooks/themed-css";
 
@@ -35,6 +37,7 @@ const HeadNavBar = () => {
   const themedStyles = useThemedCSSStyle();
   const { openSharedModal } = useSharedModals();
   const [cardRef, isAnimating] = useWidthAnimation();
+  const { tasks } = useTaskContext();
 
   const navList = [
     { icon: LuZap, label: "launch", path: "/launch" },
@@ -68,7 +71,7 @@ const HeadNavBar = () => {
     <Flex justify="center" p={4}>
       <AdvancedCard
         level="back"
-        px={8}
+        px={4}
         py={2}
         ref={cardRef}
         className={`animated-card ${isAnimating ? "animate" : ""}`}
@@ -102,7 +105,17 @@ const HeadNavBar = () => {
               ))}
             </TabList>
           </Tabs>
-          <DownloadIndicator />
+          {tasks.length > 0 && (
+            <>
+              <Divider
+                orientation="vertical"
+                size="xl"
+                h="100%"
+                borderColor="var(--chakra-colors-chakra-placeholder-color)"
+              />
+              <DownloadIndicator />
+            </>
+          )}
         </HStack>
       </AdvancedCard>
     </Flex>

@@ -24,9 +24,9 @@ const AdvancedCard = forwardRef<HTMLDivElement, AdvancedCardProps>(
       return (
         <Card
           ref={ref}
-          className={themedStyles.card[`card-${level}`]}
           variant={_variant}
           {...props}
+          className={`${themedStyles.card[`card-${level}`]} ${props.className || ""}`}
         >
           {children}
         </Card>
@@ -36,9 +36,9 @@ const AdvancedCard = forwardRef<HTMLDivElement, AdvancedCardProps>(
     if (_variant == "liquid-glass") {
       return (
         <Box
-          className={themedStyles.liquidGlass["wrapper"]}
           ref={ref}
           {...props}
+          className={`${themedStyles.liquidGlass["wrapper"]} ${props.className || ""}`}
         >
           <div className={themedStyles.liquidGlass["effect"]} />
           <div className={themedStyles.liquidGlass["shine"]} />
@@ -50,7 +50,11 @@ const AdvancedCard = forwardRef<HTMLDivElement, AdvancedCardProps>(
     }
 
     return (
-      <Card className={themedStyles.card[`card-${level}`]} ref={ref} {...props}>
+      <Card
+        ref={ref}
+        {...props}
+        className={`${themedStyles.card[`card-${level}`]} ${props.className || ""}`}
+      >
         {children}
       </Card>
     );
