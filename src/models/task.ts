@@ -13,11 +13,6 @@ export interface DownloadTaskParam {
 
 export type TaskParam = DownloadTaskParam;
 
-export interface TaskResult {
-  taskDescs: TaskDesc[];
-  taskGroup: string;
-}
-
 export interface DownloadTaskPayload {
   taskType: TaskTypeEnums.Download;
   src: string;
@@ -41,12 +36,19 @@ export interface TaskDesc {
   payload: TaskPayload;
   current: number;
   total: number;
-  status: TaskDescStatusEnums;
+  status?: TaskDescStatusEnums;
   progress?: number;
-  isDownloading?: boolean;
-  isFailed: boolean;
-  isWaiting?: boolean;
-  isCancelled?: boolean;
+  reason?: string;
+  estimatedTime?: Duration; // estimated time remaining in seconds
+}
+
+export interface TaskGroupDesc {
+  taskDescs: TaskDesc[];
+  taskGroup: string;
+  status?: TaskDescStatusEnums;
+  current?: number; // current progress in bytes
+  total?: number; // total size in bytes
+  progress?: number;
   reason?: string;
   estimatedTime?: Duration; // estimated time remaining in seconds
 }
@@ -102,7 +104,7 @@ export interface CancelledPTaskEventStatus {
 
 export interface PTaskEventPayload {
   id: number;
-  taskGroup: string | null;
+  taskGroup: string;
   event:
     | InProgressPTaskEventStatus
     | StartedPTaskEventStatus

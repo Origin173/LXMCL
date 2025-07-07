@@ -29,6 +29,7 @@ where
       reporter,
     }
   }
+
   pub fn mark_stopped(&mut self) {
     self.desc.stop();
     self.desc.save(&self.path).unwrap();

@@ -1,27 +1,19 @@
-use serde::{Deserialize, Serialize};
-
 use std::{pin::Pin, time::Duration};
 use tauri::{AppHandle, Manager};
 
 use crate::{
   error::SJMCLResult,
-  tasks::{download::DownloadTask, monitor::TaskMonitor, PTaskParam},
+  tasks::{download::DownloadTask, monitor::TaskMonitor},
 };
 
-use super::{PTaskDesc, THandle};
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct ScheduleResult {
-  pub task_descs: Vec<PTaskDesc>,
-  pub task_group: String,
-}
+use super::{PTaskGroupDesc, PTaskParam, THandle};
 
 #[tauri::command]
 pub async fn schedule_progressive_task_group(
   app: AppHandle,
   task_group: String,
   params: Vec<PTaskParam>,
-) -> SJMCLResult<ScheduleResult> {
+) -> SJMCLResult<PTaskGroupDesc> {
   let monitor = app.state::<Pin<Box<TaskMonitor>>>();
   let mut task_descs = Vec::new();
   for param in params {
@@ -46,9 +38,9 @@ pub async fn schedule_progressive_task_group(
       }
     });
   }
-  Ok(ScheduleResult {
-    task_descs,
+  Ok(PTaskGroupDesc {
     task_group,
+    task_descs,
   })
 }
 
@@ -129,7 +121,7 @@ pub fn stop_progressive_task_group(app: AppHandle, task_group: String) -> SJMCLR
 }
 
 #[tauri::command]
-pub fn retrieve_progressive_task_list(app: AppHandle) -> Vec<PTaskDesc> {
+pub fn retrieve_progressive_task_list(app: AppHandle) -> Vec<PTaskGroupDesc> {
   let monitor = app.state::<Pin<Box<TaskMonitor>>>();
   monitor.state_list()
 }

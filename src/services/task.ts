@@ -3,10 +3,9 @@ import { listen } from "@tauri-apps/api/event";
 import { InvokeResponse } from "@/models/response";
 import {
   PTaskEventPayload,
-  TaskDesc,
+  TaskGroupDesc,
   TaskParam,
   TaskProgressListener,
-  TaskResult,
 } from "@/models/task";
 import { responseHandler } from "@/utils/response";
 
@@ -18,13 +17,13 @@ export class TaskService {
    * Schedule a group of progressive tasks.
    * @param taskGroup - The name of the task group.
    * @param params - The parameters for the tasks to be scheduled.
-   * @returns {Promise<InvokeResponse<TaskResult>>}
+   * @returns {Promise<InvokeResponse<TaskGroupDesc>>}
    */
   @responseHandler("task")
   static async scheduleProgressiveTaskGroup(
     taskGroup: string,
     params: TaskParam[]
-  ): Promise<InvokeResponse<TaskResult>> {
+  ): Promise<InvokeResponse<TaskGroupDesc>> {
     return await invoke("schedule_progressive_task_group", {
       taskGroup,
       params,
@@ -90,7 +89,7 @@ export class TaskService {
   static async cancelProgressiveTaskGroup(
     taskGroup: string
   ): Promise<InvokeResponse<null>> {
-    return await invoke("stop_progressive_task_group", { taskGroup });
+    return await invoke("cancel_progressive_task_group", { taskGroup });
   }
 
   /**
@@ -107,11 +106,11 @@ export class TaskService {
 
   /**
    * Retrieve the list of progressive tasks.
-   * @returns {Promise<InvokeResponse<TaskDesc[]>>}
+   * @returns {Promise<InvokeResponse<TaskGroupDesc[]>>}
    */
   @responseHandler("task")
   static async retrieveProgressiveTaskList(): Promise<
-    InvokeResponse<TaskDesc[]>
+    InvokeResponse<TaskGroupDesc[]>
   > {
     return await invoke("retrieve_progressive_task_list");
   }

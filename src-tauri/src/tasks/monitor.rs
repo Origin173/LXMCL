@@ -292,13 +292,16 @@ impl TaskMonitor {
     }
   }
 
-  pub fn state_list(&self) -> Vec<PTaskDesc> {
+  pub fn state_list(&self) -> Vec<PTaskGroupDesc> {
     self
-      .phs
+      .group_map
       .read()
       .unwrap()
-      .values()
-      .map(|v| v.read().unwrap().desc.clone())
+      .iter()
+      .map(|(k, v)| PTaskGroupDesc {
+        task_group: k.clone(),
+        task_descs: v.iter().map(|h| h.read().unwrap().desc.clone()).collect(),
+      })
       .collect()
   }
 }

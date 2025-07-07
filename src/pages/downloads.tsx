@@ -24,7 +24,7 @@ import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { useTaskContext } from "@/contexts/task";
-import { TaskDesc, TaskDescStatusEnums } from "@/models/task";
+import { TaskDescStatusEnums, TaskGroupDesc } from "@/models/task";
 import { formatTimeInterval } from "@/utils/datetime";
 import { extractFileName, formatByteSize } from "@/utils/string";
 
@@ -37,36 +37,28 @@ export const DownloadTasksPage = () => {
   const {
     tasks,
     handleScheduleProgressiveTaskGroup,
-    handleCancelProgressiveTask,
-    handleStopProgressiveTask,
-    handleResumeProgressiveTask,
+    handleCancelProgressiveTaskGroup,
+    handleStopProgressiveTaskGroup,
+    handleResumeProgressiveTaskGroup,
   } = useTaskContext();
 
-  const [taskList, setTaskList] = useState<[TaskDesc, boolean][]>([]); // boolean is used to record accordion state.
+  const [taskList, setTaskList] = useState<[TaskGroupDesc, boolean][]>([]); // boolean is used to record accordion state.
 
   useEffect(() => {
     setTaskList((prev) => {
       return tasks.map((task) => {
         return [
-          {
-            ...task,
-            progress: task.total > 0 ? (task.current / task.total) * 100 : 0,
-            isDownloading: task.status === TaskDescStatusEnums.InProgress,
-            isWaiting: task.status === TaskDescStatusEnums.Stopped,
-            isFailed:
-              task.status === TaskDescStatusEnums.Failed || !!task.reason,
-            isCancelled: task.status === TaskDescStatusEnums.Cancelled,
-          },
-          prev.find((t) => t[0].taskId === task.taskId)?.[1] ?? true,
-        ] as [TaskDesc, boolean];
+          task,
+          prev.find((t) => t[0].taskGroup === task.taskGroup)?.[1] ?? true,
+        ] as [TaskGroupDesc, boolean];
       });
     });
   }, [tasks, setTaskList]);
 
-  const toggleTaskExpansion = (id: number) => {
+  const toggleTaskExpansion = (taskGroup: string) => {
     setTaskList((prevTasks) =>
       prevTasks.map((task) =>
-        task[0].taskId === id ? [task[0], !task[1]] : task
+        task[0].taskGroup === taskGroup ? [task[0], !task[1]] : task
       )
     );
   };
@@ -93,68 +85,78 @@ export const DownloadTasksPage = () => {
         {taskList.length === 0 && <Empty withIcon={false} size="sm" />}
         {taskList.map(([task, expanded]) => (
           <OptionItemGroup
-            key={task.taskId}
+            key={task.taskGroup}
             items={[
-              <VStack align="stretch" key={task.taskId}>
+              <VStack align="stretch" key={task.taskGroup}>
                 <Flex justify="space-between" alignItems="center">
                   <Text fontSize="xs-sm" fontWeight="bold">
                     {task.taskGroup}
                   </Text>
 
                   <HStack alignItems="center">
-                    {task.isDownloading &&
-                      task.estimatedTime &&
-                      !task.isFailed &&
-                      !task.isWaiting && (
-                        <Text fontSize="xs" className="secondary-text">
-                          {`${formatTimeInterval(task.estimatedTime.secs)}`}
-                        </Text>
-                      )}
+                    {task.estimatedTime && (
+                      <Text fontSize="xs" className="secondary-text">
+                        {`${formatTimeInterval(task.estimatedTime.secs)}`}
+                      </Text>
+                    )}
 
-                    {task.isWaiting && (
+                    {task.status === TaskDescStatusEnums.Stopped && (
                       <Text fontSize="xs" className="secondary-text">
                         {t("DownloadTasksPage.label.paused")}
                       </Text>
                     )}
 
-                    {task.isFailed && (
+                    {(task.status === TaskDescStatusEnums.Failed ||
+                      task.reason) && (
                       <Text fontSize="xs" color="red.600">
                         {task.reason || t("DownloadTasksPage.label.error")}
                       </Text>
                     )}
 
-                    {task.isCancelled && (
+                    {task.status === TaskDescStatusEnums.Cancelled && (
                       <Text fontSize="xs" color="red.600">
                         {t("DownloadTasksPage.label.cancelled")}
                       </Text>
                     )}
 
-                    {!task.isFailed && !task.isCancelled && (
+                    {(task.status === TaskDescStatusEnums.Stopped ||
+                      task.status === TaskDescStatusEnums.InProgress) && (
                       <Tooltip
                         label={t(
                           `DownloadTasksPage.button.${
-                            task.isDownloading ? "pause" : "begin"
+                            task.status === TaskDescStatusEnums.InProgress
+                              ? "pause"
+                              : "begin"
                           }`
                         )}
                       >
                         <IconButton
                           aria-label="pause / download"
-                          icon={task.isDownloading ? <LuPause /> : <LuPlay />}
+                          icon={
+                            task.status === TaskDescStatusEnums.InProgress ? (
+                              <LuPause />
+                            ) : (
+                              <LuPlay />
+                            )
+                          }
                           size="xs"
                           fontSize="sm"
                           h={21}
                           ml={1}
                           variant="ghost"
                           onClick={() => {
-                            task.isDownloading
-                              ? handleStopProgressiveTask(task.taskId)
-                              : handleResumeProgressiveTask(task.taskId);
+                            task.status === TaskDescStatusEnums.InProgress
+                              ? handleStopProgressiveTaskGroup(task.taskGroup)
+                              : handleResumeProgressiveTaskGroup(
+                                  task.taskGroup
+                                );
                           }}
                         />
                       </Tooltip>
                     )}
 
-                    {task.isFailed && (
+                    {(task.status === TaskDescStatusEnums.Failed ||
+                      task.reason) && (
                       <Tooltip label={t("DownloadTasksPage.button.retry")}>
                         <IconButton
                           aria-label="retry"
@@ -167,14 +169,14 @@ export const DownloadTasksPage = () => {
                           onClick={() =>
                             handleScheduleProgressiveTaskGroup(
                               task.taskGroup || "",
-                              [task.payload]
+                              task.taskDescs.map((t) => t.payload)
                             )
                           }
                         />
                       </Tooltip>
                     )}
 
-                    {!task.isCancelled && (
+                    {task.status !== TaskDescStatusEnums.Cancelled && (
                       <Tooltip label={t("General.cancel")}>
                         <IconButton
                           aria-label="cancel"
@@ -184,7 +186,7 @@ export const DownloadTasksPage = () => {
                           h={21}
                           variant="ghost"
                           onClick={() =>
-                            handleCancelProgressiveTask(task.taskId)
+                            handleCancelProgressiveTaskGroup(task.taskGroup)
                           }
                         />
                       </Tooltip>
@@ -197,7 +199,7 @@ export const DownloadTasksPage = () => {
                       fontSize="sm"
                       h={21}
                       variant="ghost"
-                      onClick={() => toggleTaskExpansion(task.taskId)}
+                      onClick={() => toggleTaskExpansion(task.taskGroup)}
                     />
                   </HStack>
                 </Flex>
@@ -210,12 +212,12 @@ export const DownloadTasksPage = () => {
               </VStack>,
 
               ...(expanded
-                ? [
+                ? task.taskDescs.map((task) => (
                     <OptionItem
                       key={`${task.taskId}-detail`}
                       title={extractFileName(task.payload.dest, true)}
                       titleExtra={
-                        task.isDownloading && (
+                        task.status === TaskDescStatusEnums.InProgress && (
                           <Text
                             fontSize="xs"
                             className="secondary-text"
@@ -235,8 +237,8 @@ export const DownloadTasksPage = () => {
                         colorScheme={primaryColor}
                         borderRadius="sm"
                       />
-                    </OptionItem>,
-                  ]
+                    </OptionItem>
+                  ))
                 : []),
             ]}
             maxFirstVisibleItems={4}

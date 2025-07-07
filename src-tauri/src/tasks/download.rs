@@ -149,7 +149,7 @@ impl DownloadTask {
           Ok(bytes) => Ok(bytes),
           Err(e) => {
             // Log the error and skip this chunk
-            eprintln!("Network error during download: {:?}", e);
+            // eprintln!("Network error during download: {:?}", e);
             // Return an empty chunk or skip by returning an error that can be filtered out later
             // Here, we return an empty chunk to continue
             Ok(bytes::Bytes::new())

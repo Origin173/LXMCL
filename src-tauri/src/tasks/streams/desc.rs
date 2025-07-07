@@ -114,3 +114,13 @@ where
     self.status = PStatus::Failed;
   }
 }
+
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PGroupDesc<T>
+where
+  T: Clone + Serialize,
+{
+  pub task_group: String,
+  pub task_descs: Vec<PDesc<T>>,
+}
