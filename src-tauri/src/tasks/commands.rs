@@ -16,6 +16,10 @@ pub async fn schedule_progressive_task_group(
 ) -> SJMCLResult<PTaskGroupDesc> {
   let monitor = app.state::<Pin<Box<TaskMonitor>>>();
   let mut task_descs = Vec::new();
+
+  let timestamp = chrono::Utc::now().timestamp_millis();
+  let task_group = format!("{}_{}", task_group, timestamp);
+
   for param in params {
     let task_id = monitor.get_new_id();
     task_descs.push(match param {
