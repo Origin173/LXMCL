@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuBox,
@@ -25,7 +26,6 @@ import { TitleShort } from "@/components/logo-title";
 import { useLauncherConfig } from "@/contexts/config";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { useTaskContext } from "@/contexts/task";
-import { useWidthAnimation } from "@/hooks/animation";
 import { useThemedCSSStyle } from "@/hooks/themed-css";
 
 const HeadNavBar = () => {
@@ -36,8 +36,31 @@ const HeadNavBar = () => {
   const isSimplified = config.appearance.theme.headNavStyle === "simplified";
   const themedStyles = useThemedCSSStyle();
   const { openSharedModal } = useSharedModals();
-  const [cardRef, isAnimating] = useWidthAnimation();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
   const { tasks } = useTaskContext();
+
+  useEffect(() => {
+    if (!cardRef.current) return;
+
+    let lastWidth = cardRef.current.offsetWidth;
+
+    const observer = new ResizeObserver((entries) => {
+      const currentWidth = entries[0].contentRect.width;
+
+      if (Math.abs(currentWidth - lastWidth) > 1) {
+        // prevent excessive animations
+        setIsAnimating(true);
+        setTimeout(() => setIsAnimating(false), 700);
+        lastWidth = currentWidth;
+      }
+    });
+
+    observer.observe(cardRef.current);
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config.appearance.theme.useLiquidGlassDesign]);
+  // When using liquid glass design, the card ref is not the before one.
 
   const navList = [
     { icon: LuZap, label: "launch", path: "/launch" },
