@@ -90,6 +90,33 @@ pub fn split_filename(filename: &OsStr) -> (String, String) {
   }
 }
 
+/// Extracts the file name or file stem from a given path string.
+///
+/// # Arguments
+///
+/// * `path_str` - A string slice representing the file path.
+/// * `with_ext` - If true, returns the file name with extension; otherwise, returns only the file stem.
+///
+/// # Return
+///
+/// A `String` containing either the full file name or just the stem (without extension).
+pub fn extract_filename(path_str: &str, with_ext: bool) -> String {
+  let path = Path::new(path_str);
+  if with_ext {
+    path
+      .file_name()
+      .and_then(|name| name.to_str())
+      .unwrap_or("")
+      .to_string()
+  } else {
+    path
+      .file_stem()
+      .and_then(|stem| stem.to_str())
+      .unwrap_or("")
+      .to_string()
+  }
+}
+
 /// Retrieves a list of subdirectories within a given path.
 ///
 /// # Examples

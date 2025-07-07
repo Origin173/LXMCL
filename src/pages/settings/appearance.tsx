@@ -43,7 +43,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
 import { ConfigService } from "@/services/config";
 import { retrieveFontList } from "@/services/utils";
-import { extractFileName } from "@/utils/string";
+import { removeFileExt } from "@/utils/string";
 
 const AppearanceSettingsPage = () => {
   const { t } = useTranslation();
@@ -411,7 +411,7 @@ const AppearanceSettingsPage = () => {
               onSelect={() =>
                 update("appearance.background.choice", bg.fileName)
               }
-              label={extractFileName(bg.fileName)}
+              label={removeFileExt(bg.fileName)}
               extraOnHover={
                 <Tooltip label={t("General.delete")} placement="top">
                   <IconButton

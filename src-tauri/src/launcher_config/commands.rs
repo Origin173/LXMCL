@@ -8,7 +8,10 @@ use super::{
 use crate::{
   error::SJMCLResult, instance::helpers::misc::refresh_instances, partial::PartialUpdate,
 };
-use crate::{storage::Storage, utils::fs::get_subdirectories};
+use crate::{
+  storage::Storage,
+  utils::fs::{extract_filename as extract_filename_helper, get_subdirectories},
+};
 use font_loader::system_fonts;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -294,6 +297,11 @@ pub async fn check_game_directory(app: AppHandle, dir: String) -> SJMCLResult<St
 #[tauri::command]
 pub fn retrieve_memory_info() -> SJMCLResult<MemoryInfo> {
   Ok(get_memory_info())
+}
+
+#[tauri::command]
+pub fn extract_filename(path_str: String, with_ext: bool) -> SJMCLResult<String> {
+  Ok(extract_filename_helper(&path_str, with_ext))
 }
 
 #[tauri::command]

@@ -16,12 +16,8 @@ export const cleanHtmlText = (input: string): string => {
   return container.textContent?.trim() || "";
 };
 
-export const extractFileName = (
-  str: string,
-  withExt: boolean = false
-): string => {
-  const fileName = str.split("/").pop() || "";
-  return withExt ? fileName : fileName.split(".").slice(0, -1).join(".");
+export const removeFileExt = (filename: string): string => {
+  return filename.split(".").slice(0, -1).join(".");
 };
 
 export const formatByteSize = (bytes: number) => {

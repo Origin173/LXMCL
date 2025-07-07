@@ -26,7 +26,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useTaskContext } from "@/contexts/task";
 import { TaskDesc, TaskDescStatusEnums } from "@/models/task";
 import { formatTimeInterval } from "@/utils/datetime";
-import { extractFileName, formatByteSize } from "@/utils/string";
+import { formatByteSize } from "@/utils/string";
 
 export const DownloadTasksPage = () => {
   const { t } = useTranslation();
@@ -213,7 +213,7 @@ export const DownloadTasksPage = () => {
                 ? [
                     <OptionItem
                       key={`${task.taskId}-detail`}
-                      title={extractFileName(task.payload.dest, true)}
+                      title={task.payload.dest}
                       titleExtra={
                         task.isDownloading && (
                           <Text
