@@ -300,6 +300,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
                 t.estimatedTime = (
                   payload.event as InProgressPTaskEventStatus
                 ).estimatedTime;
+                t.speed = (payload.event as InProgressPTaskEventStatus).speed;
               }
               return t;
             });

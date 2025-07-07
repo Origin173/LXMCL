@@ -23,6 +23,7 @@ pub enum PEventStatus {
     percent: f64,
     current: i64,
     estimated_time: Option<Duration>,
+    speed: f64,
   },
   Completed,
   Stopped,
@@ -107,6 +108,7 @@ impl<'a> PEvent<'a> {
     percent: f64,
     current: i64,
     estimated_time: Option<Duration>,
+    speed: f64,
   ) {
     Self {
       id,
@@ -115,6 +117,7 @@ impl<'a> PEvent<'a> {
         percent,
         current,
         estimated_time,
+        speed,
       },
     }
     .emit(app);
@@ -164,6 +167,7 @@ impl Sink for TauriEventSink {
       percentage as f64 / 100.0,
       current,
       estimated_time.map(Duration::from_secs_f64),
+      speed,
     );
   }
   fn report_failed(&self, task_id: u32, task_group: Option<&str>, reason: String) {

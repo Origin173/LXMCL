@@ -24,7 +24,7 @@ import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { useTaskContext } from "@/contexts/task";
-import { TaskDescStatusEnums, TaskGroupDesc } from "@/models/task";
+import { TaskDesc, TaskDescStatusEnums, TaskGroupDesc } from "@/models/task";
 import { formatTimeInterval } from "@/utils/datetime";
 import { extractFileName, formatByteSize } from "@/utils/string";
 
@@ -63,6 +63,14 @@ export const DownloadTasksPage = () => {
     );
   };
 
+  const showTaskProgressInfo = (task: TaskDesc) => {
+    let text = [
+      `${formatByteSize(task.current)} / ${formatByteSize(task.total)}`,
+    ];
+    if (task.speed) text.push(`${formatByteSize(task.speed)}/s`);
+    return text.join(", ");
+  };
+
   return (
     <Section
       className="content-full-y"
@@ -83,48 +91,49 @@ export const DownloadTasksPage = () => {
     >
       <VStack align="stretch" px="10%" spacing={4}>
         {taskList.length === 0 && <Empty withIcon={false} size="sm" />}
-        {taskList.map(([task, expanded]) => (
+        {taskList.map(([group, expanded]) => (
           <OptionItemGroup
-            key={task.taskGroup}
+            key={group.taskGroup}
             items={[
-              <VStack align="stretch" key={task.taskGroup}>
+              <VStack align="stretch" key={group.taskGroup}>
                 <Flex justify="space-between" alignItems="center">
                   <Text fontSize="xs-sm" fontWeight="bold">
-                    {task.taskGroup}
+                    {group.taskGroup}
                   </Text>
 
                   <HStack alignItems="center">
-                    {task.estimatedTime && (
-                      <Text fontSize="xs" className="secondary-text">
-                        {`${formatTimeInterval(task.estimatedTime.secs)}`}
-                      </Text>
-                    )}
+                    {group.status === TaskDescStatusEnums.InProgress &&
+                      group.estimatedTime && (
+                        <Text fontSize="xs" className="secondary-text">
+                          {formatTimeInterval(group.estimatedTime.secs)}
+                        </Text>
+                      )}
 
-                    {task.status === TaskDescStatusEnums.Stopped && (
+                    {group.status === TaskDescStatusEnums.Stopped && (
                       <Text fontSize="xs" className="secondary-text">
                         {t("DownloadTasksPage.label.paused")}
                       </Text>
                     )}
 
-                    {(task.status === TaskDescStatusEnums.Failed ||
-                      task.reason) && (
+                    {(group.status === TaskDescStatusEnums.Failed ||
+                      group.reason) && (
                       <Text fontSize="xs" color="red.600">
-                        {task.reason || t("DownloadTasksPage.label.error")}
+                        {group.reason || t("DownloadTasksPage.label.error")}
                       </Text>
                     )}
 
-                    {task.status === TaskDescStatusEnums.Cancelled && (
+                    {group.status === TaskDescStatusEnums.Cancelled && (
                       <Text fontSize="xs" color="red.600">
                         {t("DownloadTasksPage.label.cancelled")}
                       </Text>
                     )}
 
-                    {(task.status === TaskDescStatusEnums.Stopped ||
-                      task.status === TaskDescStatusEnums.InProgress) && (
+                    {(group.status === TaskDescStatusEnums.Stopped ||
+                      group.status === TaskDescStatusEnums.InProgress) && (
                       <Tooltip
                         label={t(
                           `DownloadTasksPage.button.${
-                            task.status === TaskDescStatusEnums.InProgress
+                            group.status === TaskDescStatusEnums.InProgress
                               ? "pause"
                               : "begin"
                           }`
@@ -133,7 +142,7 @@ export const DownloadTasksPage = () => {
                         <IconButton
                           aria-label="pause / download"
                           icon={
-                            task.status === TaskDescStatusEnums.InProgress ? (
+                            group.status === TaskDescStatusEnums.InProgress ? (
                               <LuPause />
                             ) : (
                               <LuPlay />
@@ -145,18 +154,18 @@ export const DownloadTasksPage = () => {
                           ml={1}
                           variant="ghost"
                           onClick={() => {
-                            task.status === TaskDescStatusEnums.InProgress
-                              ? handleStopProgressiveTaskGroup(task.taskGroup)
+                            group.status === TaskDescStatusEnums.InProgress
+                              ? handleStopProgressiveTaskGroup(group.taskGroup)
                               : handleResumeProgressiveTaskGroup(
-                                  task.taskGroup
+                                  group.taskGroup
                                 );
                           }}
                         />
                       </Tooltip>
                     )}
 
-                    {(task.status === TaskDescStatusEnums.Failed ||
-                      task.reason) && (
+                    {(group.status === TaskDescStatusEnums.Failed ||
+                      group.reason) && (
                       <Tooltip label={t("DownloadTasksPage.button.retry")}>
                         <IconButton
                           aria-label="retry"
@@ -168,15 +177,15 @@ export const DownloadTasksPage = () => {
                           variant="ghost"
                           onClick={() =>
                             handleScheduleProgressiveTaskGroup(
-                              task.taskGroup || "",
-                              task.taskDescs.map((t) => t.payload)
+                              group.taskGroup || "",
+                              group.taskDescs.map((t) => t.payload)
                             )
                           }
                         />
                       </Tooltip>
                     )}
 
-                    {task.status !== TaskDescStatusEnums.Cancelled && (
+                    {group.status !== TaskDescStatusEnums.Cancelled && (
                       <Tooltip label={t("General.cancel")}>
                         <IconButton
                           aria-label="cancel"
@@ -186,7 +195,7 @@ export const DownloadTasksPage = () => {
                           h={21}
                           variant="ghost"
                           onClick={() =>
-                            handleCancelProgressiveTaskGroup(task.taskGroup)
+                            handleCancelProgressiveTaskGroup(group.taskGroup)
                           }
                         />
                       </Tooltip>
@@ -199,20 +208,20 @@ export const DownloadTasksPage = () => {
                       fontSize="sm"
                       h={21}
                       variant="ghost"
-                      onClick={() => toggleTaskExpansion(task.taskGroup)}
+                      onClick={() => toggleTaskExpansion(group.taskGroup)}
                     />
                   </HStack>
                 </Flex>
 
                 <Progress
-                  value={task.progress}
+                  value={group.progress}
                   colorScheme={primaryColor}
                   borderRadius="sm"
                 />
               </VStack>,
 
               ...(expanded
-                ? task.taskDescs.map((task) => (
+                ? group.taskDescs.map((task) => (
                     <OptionItem
                       key={`${task.taskId}-detail`}
                       title={extractFileName(task.payload.dest, true)}
@@ -223,9 +232,7 @@ export const DownloadTasksPage = () => {
                             className="secondary-text"
                             mt={0.5}
                           >
-                            {`${formatByteSize(task.current)} / ${formatByteSize(
-                              task.total
-                            )}`}
+                            {showTaskProgressInfo(task)}
                           </Text>
                         )
                       }

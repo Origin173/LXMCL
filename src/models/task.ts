@@ -40,6 +40,7 @@ export interface TaskDesc {
   progress?: number;
   reason?: string;
   estimatedTime?: Duration; // estimated time remaining in seconds
+  speed?: number; // speed in bytes per second
 }
 
 export interface TaskGroupDesc {
@@ -73,6 +74,7 @@ export interface InProgressPTaskEventStatus {
   percent: number;
   current: number;
   estimatedTime: Duration; // estimated time remaining
+  speed: number; // speed in bytes per second
 }
 
 export interface StartedPTaskEventStatus {
