@@ -88,11 +88,15 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
       if (response.status === "success") {
         info(JSON.stringify(response.data));
         setTasks(
-          response.data.map((taskGroup) => {
-            updateGroupProgress(taskGroup);
-            updateGroupStatus(taskGroup);
-            return taskGroup;
-          })
+          response.data
+            .map((taskGroup) => {
+              updateGroupProgress(taskGroup);
+              updateGroupStatus(taskGroup);
+              return taskGroup;
+            })
+            .filter(
+              (taskGroup) => taskGroup.status !== TaskDescStatusEnums.Cancelled
+            )
         );
       } else {
         toast({

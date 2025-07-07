@@ -19,9 +19,11 @@ import {
   LuZap,
 } from "react-icons/lu";
 import AdvancedCard from "@/components/common/advanced-card";
+import { DownloadIndicator } from "@/components/download-indicator";
 import { TitleShort } from "@/components/logo-title";
 import { useLauncherConfig } from "@/contexts/config";
 import { useSharedModals } from "@/contexts/shared-modal";
+import { useWidthAnimation } from "@/hooks/animation";
 import { useThemedCSSStyle } from "@/hooks/themed-css";
 
 const HeadNavBar = () => {
@@ -32,6 +34,7 @@ const HeadNavBar = () => {
   const isSimplified = config.appearance.theme.headNavStyle === "simplified";
   const themedStyles = useThemedCSSStyle();
   const { openSharedModal } = useSharedModals();
+  const [cardRef, isAnimating] = useWidthAnimation();
 
   const navList = [
     { icon: LuZap, label: "launch", path: "/launch" },
@@ -63,7 +66,13 @@ const HeadNavBar = () => {
 
   return (
     <Flex justify="center" p={4}>
-      <AdvancedCard level="back" px={8} py={2}>
+      <AdvancedCard
+        level="back"
+        px={8}
+        py={2}
+        ref={cardRef}
+        className={`animated-card ${isAnimating ? "animate" : ""}`}
+      >
         <HStack spacing={4}>
           <TitleShort />
           <Tabs
@@ -93,6 +102,7 @@ const HeadNavBar = () => {
               ))}
             </TabList>
           </Tabs>
+          <DownloadIndicator />
         </HStack>
       </AdvancedCard>
     </Flex>
