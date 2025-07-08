@@ -50,7 +50,7 @@ const DevTestPage = () => {
         Download Resource Modal
       </Button>
       <DownloadResourceModal
-        initialResourceType="shaderpack"
+        initialResourceType="shader"
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />

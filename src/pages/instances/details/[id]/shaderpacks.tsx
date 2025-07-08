@@ -53,7 +53,7 @@ const InstanceShaderPacksPage = () => {
       icon: "download",
       onClick: () => {
         openSharedModal("download-resource", {
-          initialResourceType: "shaderpack",
+          initialResourceType: "shader",
         });
       },
     },
