@@ -24,9 +24,10 @@ use super::*;
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct DownloadParam {
-  src: Url,
-  dest: PathBuf,
-  sha1: Option<String>,
+  pub src: Url,
+  pub dest: PathBuf,
+  pub filename: Option<String>,
+  pub sha1: Option<String>,
 }
 
 pub struct DownloadTask {
