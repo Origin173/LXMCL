@@ -1,4 +1,5 @@
 import {
+  Divider,
   Flex,
   HStack,
   Icon,
@@ -9,6 +10,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuBox,
@@ -19,9 +21,11 @@ import {
   LuZap,
 } from "react-icons/lu";
 import AdvancedCard from "@/components/common/advanced-card";
+import { DownloadIndicator } from "@/components/download-indicator";
 import { TitleShort } from "@/components/logo-title";
 import { useLauncherConfig } from "@/contexts/config";
 import { useSharedModals } from "@/contexts/shared-modal";
+import { useTaskContext } from "@/contexts/task";
 import { useThemedCSSStyle } from "@/hooks/themed-css";
 
 const HeadNavBar = () => {
@@ -32,6 +36,31 @@ const HeadNavBar = () => {
   const isSimplified = config.appearance.theme.headNavStyle === "simplified";
   const themedStyles = useThemedCSSStyle();
   const { openSharedModal } = useSharedModals();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const { tasks } = useTaskContext();
+
+  useEffect(() => {
+    if (!cardRef.current) return;
+
+    let lastWidth = cardRef.current.offsetWidth;
+
+    const observer = new ResizeObserver((entries) => {
+      const currentWidth = entries[0].contentRect.width;
+
+      if (Math.abs(currentWidth - lastWidth) > 1) {
+        // prevent excessive animations
+        setIsAnimating(true);
+        setTimeout(() => setIsAnimating(false), 700);
+        lastWidth = currentWidth;
+      }
+    });
+
+    observer.observe(cardRef.current);
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config.appearance.theme.useLiquidGlassDesign]);
+  // When using liquid glass design, the card ref is not the before one.
 
   const navList = [
     { icon: LuZap, label: "launch", path: "/launch" },
@@ -63,7 +92,13 @@ const HeadNavBar = () => {
 
   return (
     <Flex justify="center" p={4}>
-      <AdvancedCard level="back" px={8} py={2}>
+      <AdvancedCard
+        level="back"
+        px={4}
+        py={2}
+        ref={cardRef}
+        className={`animated-card ${isAnimating ? "animate" : ""}`}
+      >
         <HStack spacing={4}>
           <TitleShort />
           <Tabs
@@ -93,6 +128,17 @@ const HeadNavBar = () => {
               ))}
             </TabList>
           </Tabs>
+          {tasks.length > 0 && (
+            <>
+              <Divider
+                orientation="vertical"
+                size="xl"
+                h="100%"
+                borderColor="var(--chakra-colors-chakra-placeholder-color)"
+              />
+              <DownloadIndicator />
+            </>
+          )}
         </HStack>
       </AdvancedCard>
     </Flex>
