@@ -375,9 +375,6 @@
       "online": "Online"
     }
   },
-  "DownloadIndicator": {
-    "tooltip": "Downloading"
-  },
   "DownloadModpackModal": {
     "header": {
       "title": "Download Modpack"
@@ -475,6 +472,7 @@
     },
     "label": {
       "paused": "Paused",
+      "completed": "Completed",
       "error": "Error",
       "cancelled": "Cancelled"
     },
@@ -1792,6 +1790,7 @@
         }
       },
       "downloadGameServer": {
+        "success": "Download Task created successfully",
         "error": {
           "title": "Failed to download game server",
           "description": {

@@ -375,9 +375,6 @@
       "online": "在线"
     }
   },
-  "DownloadIndicator": {
-    "tooltip": "正在下载"
-  },
   "DownloadModpackModal": {
     "header": {
       "title": "下载整合包"
@@ -475,6 +472,7 @@
     },
     "label": {
       "paused": "已暂停",
+      "completed": "已完成",
       "error": "错误",
       "cancelled": "已取消"
     },
@@ -1792,6 +1790,7 @@
         }
       },
       "downloadGameServer": {
+        "success": "下载任务创建成功",
         "error": {
           "title": "下载游戏服务器失败",
           "description": {

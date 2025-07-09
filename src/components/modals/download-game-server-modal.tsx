@@ -47,7 +47,12 @@ export const DownloadGameServerModal: React.FC<
       savepath
     );
     setIsLoading(false);
-    if (response.status !== "success") {
+    if (response.status === "success") {
+      toast({
+        title: response.message,
+        status: "success",
+      });
+    } else {
       toast({
         title: response.message,
         description: response.details,
