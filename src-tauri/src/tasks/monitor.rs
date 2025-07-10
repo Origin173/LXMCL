@@ -33,12 +33,6 @@ pub struct TaskMonitor {
   pub download_rate_limiter: Option<Limiter>,
 }
 
-pub enum TaskCommand {
-  Resume,
-  Stop,
-  Cancel,
-}
-
 impl TaskMonitor {
   pub fn new(app_handle: AppHandle) -> Self {
     let config = retrieve_launcher_config(app_handle.clone()).unwrap();
@@ -148,7 +142,7 @@ impl TaskMonitor {
 
     let task = Box::pin(async move {
       if p_handle.read().unwrap().desc.status.is_cancelled() {
-        return Ok(id);
+        return Ok(());
       }
 
       let result = task.await;
@@ -157,18 +151,66 @@ impl TaskMonitor {
       if let Err(e) = result {
         p_handle.mark_failed(e.0);
       }
-      Ok(id)
+
+      Ok(())
     });
 
     self
       .tx
       .send_async(SJMCLFuture {
         task_id: id,
-        task_group,
+        task_group: task_group.clone(),
         f: task,
       })
       .await
       .unwrap();
+  }
+
+  pub async fn enqueue_task_group(&self, task_group: String, futures: Vec<SJMCLFutureDesc>) {
+    let mut hvec: Vec<Arc<RwLock<PTaskHandle>>> = Vec::new();
+    for future in futures.iter() {
+      self
+        .phs
+        .write()
+        .unwrap()
+        .insert(future.task_id, future.h.clone());
+      PEvent::emit_created(
+        &self.app_handle,
+        future.task_id,
+        Some(task_group.as_ref()),
+        future.h.read().unwrap().desc.clone(),
+      );
+      hvec.push(future.h.clone());
+    }
+
+    self
+      .group_map
+      .write()
+      .unwrap()
+      .insert(task_group.clone(), hvec);
+
+    for future in futures {
+      let task = Box::pin(async move {
+        if future.h.read().unwrap().desc.status.is_cancelled() {
+          return Ok(());
+        }
+        let result = future.f.await;
+        let mut p_handle = future.h.write().unwrap();
+        if let Err(e) = result {
+          p_handle.mark_failed(e.0);
+        }
+        Ok(())
+      });
+      self
+        .tx
+        .send_async(SJMCLFuture {
+          task_id: future.task_id,
+          task_group: Some(task_group.clone()),
+          f: task,
+        })
+        .await
+        .unwrap();
+    }
   }
 
   pub async fn background_process(&self) {
@@ -194,13 +236,14 @@ impl TaskMonitor {
 
       if self.concurrency.acquire().await.is_ok() {
         let concurrency = self.concurrency.clone();
+        let task_id = future.task_id;
         self.tasks.lock().unwrap().insert(
           future.task_id,
           tokio::spawn(async move {
             let r = future.f.await;
             match r {
-              Ok(id) => {
-                info!("Task {id} completed");
+              Ok(_) => {
+                info!("Task {task_id} completed");
               }
               Err(e) => {
                 info!("Task failed: {e:?}");
