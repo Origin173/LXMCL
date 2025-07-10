@@ -96,13 +96,13 @@ impl DownloadTask {
       p_handle: PTaskHandle::new(
         if reset {
           PTaskDesc {
-            status: PStatus::Stopped,
+            status: PStatus::Waiting,
             current: 0,
             ..desc
           }
         } else {
           PTaskDesc {
-            status: PStatus::Stopped,
+            status: PStatus::Waiting,
             ..desc
           }
         },
