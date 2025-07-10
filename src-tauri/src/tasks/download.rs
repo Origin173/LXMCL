@@ -16,6 +16,7 @@ use tauri_plugin_http::reqwest::header::{ACCEPT_ENCODING, RANGE};
 use tokio::io::AsyncSeekExt;
 use tokio_util::{bytes, compat::FuturesAsyncReadCompatExt};
 
+use super::super::utils::web::with_retry;
 use super::streams::desc::{PDesc, PStatus};
 use super::streams::reporter::Reporter;
 use super::streams::ProgressStream;
@@ -61,7 +62,7 @@ impl DownloadTask {
           PStatus::InProgress,
         ),
         Duration::from_secs(1),
-        cache_dir.clone().join(format!("task-{}.json", task_id)),
+        cache_dir.clone().join(format!("task-{task_id}.json")),
         Reporter::new(
           0,
           Duration::from_secs(1),
@@ -90,7 +91,7 @@ impl DownloadTask {
       .cache
       .directory;
     let task_id = desc.task_id;
-    let path = cache_dir.join(format!("task-{}.json", task_id));
+    let path = cache_dir.join(format!("task-{task_id}.json"));
     DownloadTask {
       p_handle: PTaskHandle::new(
         if reset {
@@ -119,77 +120,48 @@ impl DownloadTask {
     }
   }
 
-  async fn create_request(
+  async fn send_request(
     app_handle: &AppHandle,
-    p_handle: &mut PTaskHandle,
+    current: i64,
     param: &DownloadParam,
   ) -> SJMCLResult<reqwest::Response> {
-    let client = app_handle.state::<reqwest::Client>().clone();
-    if p_handle.desc.total == 0 && p_handle.desc.current == 0 {
-      let request = client
-        .get(param.src.clone())
-        .header(ACCEPT_ENCODING, Self::CONTENT_ENCODING_CHOICES);
-
-      let response = request.send().await?;
-      let response = response.error_for_status()?;
-      p_handle.set_total(response.content_length().unwrap_or_default() as i64);
-      Ok(response)
-    } else {
-      let request = client
+    let client = with_retry(app_handle.state::<reqwest::Client>().inner().clone());
+    let request = if current == 0 {
+      client
         .get(param.src.clone())
         .header(ACCEPT_ENCODING, Self::CONTENT_ENCODING_CHOICES)
-        .header(RANGE, format!("bytes={}-", p_handle.desc.current));
-
-      let response = request.send().await?;
-      let response = response.error_for_status()?;
-      Ok(response)
-    }
+    } else {
+      client
+        .get(param.src.clone())
+        .header(ACCEPT_ENCODING, Self::CONTENT_ENCODING_CHOICES)
+        .header(RANGE, format!("bytes={current}-"))
+    };
+    let response = request.send().await?;
+    let response = response.error_for_status()?;
+    Ok(response)
   }
 
-  async fn create_resp(
+  async fn create_resp_stream(
     app_handle: &AppHandle,
-    p_handle: &mut PTaskHandle,
+    current: i64,
     param: &DownloadParam,
-  ) -> SJMCLResult<impl Stream<Item = Result<bytes::Bytes, std::io::Error>> + Send> {
-    let max_retries = 5;
-    let mut retry_count = 0;
-    let mut wait_seconds = 1;
-
-    loop {
-      match Self::create_request(app_handle, p_handle, param).await {
-        Ok(response) => {
-          return Ok(response.bytes_stream().map(|res| {
-            match res {
-              Ok(bytes) => Ok(bytes),
-              Err(e) => {
-                // handle network disconnection during stream
-                Ok(bytes::Bytes::new())
-              }
-            }
-          }));
-        }
-        Err(e) if retry_count < max_retries => {
-          retry_count += 1;
-          log::warn!(
-            "Download request failed (attempt {}/{}), retrying in {}s: {:?}",
-            retry_count,
-            max_retries,
-            wait_seconds,
-            e
-          );
-
-          // increase waiting time
-          tokio::time::sleep(Duration::from_secs(wait_seconds)).await;
-          wait_seconds *= 2;
-        }
-        Err(e) => {
-          return Err(SJMCLError(format!(
-            "Download failed after {} attempts: {:?}",
-            max_retries, e
-          )));
-        }
-      }
-    }
+  ) -> SJMCLResult<(
+    impl Stream<Item = Result<bytes::Bytes, std::io::Error>> + Send,
+    i64,
+  )> {
+    let resp = Self::send_request(app_handle, current, param).await?;
+    let total_progress = if current == 0 {
+      resp.content_length().unwrap() as i64
+    } else {
+      -1
+    };
+    Ok((
+      resp.bytes_stream().map(|res| match res {
+        Ok(bytes) => Ok(bytes),
+        Err(_) => Ok(bytes::Bytes::new()),
+      }),
+      total_progress,
+    ))
   }
 
   fn validate_sha1(dest_path: PathBuf, param: DownloadParam) -> SJMCLResult<()> {
@@ -221,37 +193,39 @@ impl DownloadTask {
 
   async fn future_impl(
     self,
-    resp: impl Stream<Item = Result<bytes::Bytes, std::io::Error>> + Send + Unpin,
+    app_handle: AppHandle,
     limiter: Option<Limiter>,
   ) -> SJMCLResult<(
     impl Future<Output = SJMCLResult<()>> + Send,
     Arc<RwLock<PTaskHandle>>,
   )> {
-    let desc = self.p_handle.desc.clone();
+    let current = self.p_handle.desc.current;
     let handle = Arc::new(RwLock::new(self.p_handle));
     let task_handle = handle.clone();
-    let stream = ProgressStream::new(resp, handle.clone());
     let param = self.param.clone();
     let dest_path = self.dest_path.clone();
     Ok((
       async move {
+        let (resp, total_progress) = Self::create_resp_stream(&app_handle, current, &param).await?;
+        let stream = ProgressStream::new(resp, task_handle.clone());
         tokio::fs::create_dir_all(&self.dest_path.parent().unwrap()).await?;
-        let mut file = if desc.current == 0 {
+        let mut file = if current == 0 {
           tokio::fs::File::create(&self.dest_path).await?
         } else {
           let mut f = tokio::fs::OpenOptions::new().open(&self.dest_path).await?;
-          f.seek(std::io::SeekFrom::Start(desc.current as u64))
-            .await?;
+          f.seek(std::io::SeekFrom::Start(current as u64)).await?;
           f
         };
-
-        task_handle.write().unwrap().mark_started();
+        {
+          let mut task_handle = task_handle.write().unwrap();
+          task_handle.set_total(total_progress);
+          task_handle.mark_started();
+        }
         if let Some(lim) = limiter {
           tokio::io::copy(&mut lim.limit(stream.into_async_read()).compat(), &mut file).await?;
         } else {
           tokio::io::copy(&mut stream.into_async_read().compat(), &mut file).await?;
         }
-
         drop(file);
         if task_handle.read().unwrap().status().is_cancelled() {
           tokio::fs::remove_file(&self.dest_path).await?;
@@ -265,14 +239,13 @@ impl DownloadTask {
   }
 
   pub async fn future(
-    mut self,
+    self,
     app_handle: AppHandle,
     limiter: Option<Limiter>,
   ) -> SJMCLResult<(
     impl Future<Output = SJMCLResult<()>> + Send,
     Arc<RwLock<PTaskHandle>>,
   )> {
-    let resp = Self::create_resp(&app_handle, &mut self.p_handle, &self.param).await?;
-    Self::future_impl(self, resp, limiter).await
+    Self::future_impl(self, app_handle, limiter).await
   }
 }

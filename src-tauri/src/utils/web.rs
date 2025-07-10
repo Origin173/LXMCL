@@ -1,9 +1,12 @@
-use std::sync::Mutex;
-use std::time::Duration;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest::{header::HeaderMap, Client, ClientBuilder, Proxy};
 
 use crate::launcher_config::models::{LauncherConfig, ProxyType};
+use reqwest_middleware::ClientBuilder as ClientWithMiddlewareBuilder;
+use reqwest_middleware::ClientWithMiddleware;
+use reqwest_retry::{policies::ExponentialBackoff, RetryTransientMiddleware};
+use std::sync::Mutex;
+use std::time::Duration;
 
 /// Builds a reqwest client with SJMCL version header and proxy support.
 /// Defaults to 10s timeout.
@@ -53,6 +56,14 @@ pub fn build_sjmcl_client(app: &AppHandle, use_version_header: bool, use_proxy: 
   }
 
   builder.build().unwrap_or_else(|_| Client::new())
+}
+
+pub fn with_retry(client: Client) -> ClientWithMiddleware {
+  ClientWithMiddlewareBuilder::new(client)
+    .with(RetryTransientMiddleware::new_with_policy(
+      ExponentialBackoff::builder().build_with_max_retries(3),
+    ))
+    .build()
 }
 
 pub async fn is_china_mainland_ip(app: &AppHandle) -> Option<bool> {
