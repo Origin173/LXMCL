@@ -26,7 +26,6 @@ import { TitleShort } from "@/components/logo-title";
 import { useLauncherConfig } from "@/contexts/config";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { useTaskContext } from "@/contexts/task";
-import { useThemedCSSStyle } from "@/hooks/themed-css";
 
 const HeadNavBar = () => {
   const router = useRouter();
@@ -34,7 +33,7 @@ const HeadNavBar = () => {
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const isSimplified = config.appearance.theme.headNavStyle === "simplified";
-  const themedStyles = useThemedCSSStyle();
+
   const { openSharedModal } = useSharedModals();
   const [isAnimating, setIsAnimating] = useState(false);
   const { tasks } = useTaskContext();
