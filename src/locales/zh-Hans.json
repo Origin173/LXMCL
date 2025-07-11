@@ -360,6 +360,9 @@
       "content": "确定要删除认证服务器 “{{name}}” 吗？它将不再出现在你的服务器列表中。"
     }
   },
+  "DevToolbar": {
+    "tooltip": "开发工具栏"
+  },
   "DiscoverPage": {
     "title": "发现",
     "button": {
@@ -468,7 +471,8 @@
       "settings": "下载设置",
       "pause": "暂停",
       "begin": "开始",
-      "retry": "重试"
+      "retry": "重试",
+      "deleteRecord": "删除此记录"
     },
     "label": {
       "paused": "已暂停",
