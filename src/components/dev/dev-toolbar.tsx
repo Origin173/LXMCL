@@ -4,9 +4,11 @@ import {
   HStack,
   IconButton,
   Input,
+  Tag,
   Text,
   Tooltip,
 } from "@chakra-ui/react";
+import { invoke } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -18,13 +20,19 @@ import { isProd } from "@/utils/env";
 const DevToolbarContent: React.FC = () => {
   const router = useRouter();
   const { openSharedModal } = useSharedModals();
-  const [path, setPath] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const [inputType, setInputType] = useState<string>("route");
   const [loadTime, setLoadTime] = useState<string | null>(null);
   const [startTime, setStartTime] = useState<number | null>(null);
 
   useEffect(() => {
-    setPath(router.asPath);
-  }, [router.asPath]);
+    if (inputType === "route") setInputValue(router.asPath);
+  }, [router.asPath, inputType]);
+
+  useEffect(() => {
+    // switch to modal from route, clear input
+    if (inputType === "modal") setInputValue("");
+  }, [inputType]);
 
   // calculate load time on route change
   useEffect(() => {
@@ -47,30 +55,47 @@ const DevToolbarContent: React.FC = () => {
     };
   }, [startTime, router.events]);
 
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && path.trim()) {
-      const trimmedPath = path.trim();
+  const inputTypes: Record<string, string> = {
+    route: "blue",
+    modal: "purple",
+    invoke: "green",
+  };
+
+  const handleInputKeyDown = async (
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (e.key === "Enter" && inputValue.trim()) {
+      const trimmedPath = inputValue.trim();
 
       // open shared modal
-      if (trimmedPath.startsWith("modal:")) {
-        const match = trimmedPath.match(/^modal:([^:{]+)(?::(.*))?$/);
+      if (inputType === "route") {
+        if (trimmedPath.startsWith("/")) {
+          router.push(trimmedPath);
+        } else {
+          openUrl(trimmedPath);
+        }
+      } else {
+        const match = trimmedPath.match(/^([^:]+)(?::(.*))?$/);
         if (match) {
           const key = match[1];
           const paramString = match[2];
           try {
             const params = paramString ? JSON.parse(`${paramString}`) : {};
-            openSharedModal(key, params);
+            if (inputType === "modal") {
+              openSharedModal(key, params);
+            } else if (inputType === "invoke") {
+              try {
+                const res = await invoke(key, params);
+                console.log("Invoke result:", res);
+              } catch (err) {
+                console.error("Invoke error:", err);
+              }
+            }
+            setInputValue("");
           } catch (err) {
             console.error("Failed to parse modal params:", err);
           }
-          return;
         }
-      }
-
-      if (trimmedPath.startsWith("/")) {
-        router.push(trimmedPath);
-      } else {
-        openUrl(trimmedPath);
       }
     }
   };
@@ -89,15 +114,30 @@ const DevToolbarContent: React.FC = () => {
         variant="ghost"
         onClick={() => router.reload()}
       />
+      <Tag
+        cursor="pointer"
+        colorScheme={inputTypes[inputType]}
+        onClick={() => {
+          const inputTypeKeys = Object.keys(inputTypes);
+          setInputType(
+            inputTypeKeys[
+              (inputTypeKeys.indexOf(inputType) + 1) % inputTypeKeys.length
+            ]
+          );
+        }}
+      >
+        {inputType}
+      </Tag>
       <Input
         className="secondary-text"
         size="xs"
         variant="unstyled"
-        value={path}
-        onChange={(e) => setPath(e.target.value)}
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={handleInputKeyDown}
-        width={240}
+        width={200}
         mx={2}
+        placeholder={inputType === "route" ? "" : "key(:params)"}
       />
       {loadTime && (
         <Text
