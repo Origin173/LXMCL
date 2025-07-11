@@ -433,6 +433,7 @@ pub async fn refresh_player(app: AppHandle, player_id: String) -> SJMCLResult<()
 
   Ok(())
 }
+
 #[tauri::command]
 pub fn retrieve_auth_server_list(app: AppHandle) -> SJMCLResult<Vec<AuthServer>> {
   let binding = app.state::<Mutex<AccountInfo>>();

@@ -1,4 +1,5 @@
 use super::{
+  constants::CONFIG_PARTIAL_UPDATE_EVENT,
   helpers::java::{
     get_java_info_from_command, get_java_info_from_release_file, refresh_and_update_javas,
   },
@@ -12,7 +13,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use tauri::path::BaseDirectory;
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_http::reqwest;
 
 #[tauri::command]
@@ -26,6 +27,7 @@ pub fn retrieve_launcher_config(app: AppHandle) -> SJMCLResult<LauncherConfig> {
 pub fn update_launcher_config(app: AppHandle, key_path: String, value: String) -> SJMCLResult<()> {
   let binding = app.state::<Mutex<LauncherConfig>>();
   let mut state = binding.lock()?;
+  let original_key_path = key_path.clone();
   let key_path = {
     let mut snake = String::new();
     for (i, ch) in key_path.char_indices() {
@@ -38,6 +40,11 @@ pub fn update_launcher_config(app: AppHandle, key_path: String, value: String) -
   };
   state.update(&key_path, &value)?;
   state.save()?;
+  // emit to update frontend's state
+  app.emit(
+    CONFIG_PARTIAL_UPDATE_EVENT,
+    serde_json::json!({ "path": original_key_path, "value": value }),
+  )?;
   Ok(())
 }
 

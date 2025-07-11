@@ -66,15 +66,12 @@ export const LauncherConfigContextProvider: React.FC<{
     }
   }, [colorMode, config.appearance.theme.colorMode, toggleColorMode]);
 
+  // from frontend to call backend update
   const handleUpdateLauncherConfig = (path: string, value: any) => {
-    const newConfig = { ...config };
-    updateByKeyPath(newConfig, path, value);
-
     // Save to the backend
     ConfigService.updateLauncherConfig(path, value).then((response) => {
-      if (response.status === "success") {
-        setConfig(newConfig); // update frontend state if successful
-      } else {
+      // if success, backend will emit signal, the logic below will be executed
+      if (response.status !== "success") {
         toast({
           title: response.message,
           description: response.details,
@@ -83,6 +80,18 @@ export const LauncherConfigContextProvider: React.FC<{
       }
     });
   };
+
+  // listen from backend to update frontend's config state
+  useEffect(() => {
+    const unlisten = ConfigService.onConfigPartialUpdate((payload) => {
+      const { path, value } = payload;
+      const newConfig = { ...config };
+      updateByKeyPath(newConfig, path, JSON.parse(value));
+      setConfig(newConfig);
+    });
+
+    return () => unlisten();
+  }, [config]);
 
   const handleRetrieveJavaList = useCallback(() => {
     ConfigService.retrieveJavaList().then((response) => {
