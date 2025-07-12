@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter};
 use tokio::time::Duration;
 
-const TASK_PROGRESS_UPDATE_EVENT: &str = "task://progress-update";
+const TASK_PROGRESS_UPDATE_EVENT: &str = "task:progress-update";
 
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(tag = "status")]

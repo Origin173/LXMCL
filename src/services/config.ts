@@ -142,7 +142,7 @@ export class ConfigService {
     callback: (payload: { path: string; value: any }) => void
   ) {
     const unlisten = getCurrentWebview().listen<{ path: string; value: any }>(
-      "config://partial-update",
+      "config:partial-update",
       (event) => {
         callback(event.payload);
       }

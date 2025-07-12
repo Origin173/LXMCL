@@ -52,7 +52,11 @@ pub async fn add_player_offline(app: AppHandle, username: String, uuid: String) 
     return Err(AccountError::Duplicate.into());
   }
 
-  config_state.states.shared.selected_player_id = new_player.id.clone();
+  config_state.partial_update(
+    &app,
+    "states.shared.selected_player_id",
+    &serde_json::json!(new_player.id.clone()),
+  )?;
   config_state.save()?;
 
   account_state.players.push(new_player);
@@ -128,7 +132,11 @@ pub async fn add_player_oauth(
       return Err(AccountError::Duplicate.into());
     }
 
-    config_state.states.shared.selected_player_id = new_player.id.clone();
+    config_state.partial_update(
+      &app,
+      "states.shared.selected_player_id",
+      &serde_json::json!(new_player.id.clone()),
+    )?;
     config_state.save()?;
 
     account_state.players.push(new_player);
@@ -236,7 +244,11 @@ pub async fn add_player_3rdparty_password(
     Err(AccountError::Duplicate.into())
   } else if new_players.len() == 1 {
     // if only one player will be added, save it and return **an empty vector** to inform the frontend not to trigger selector.
-    config_state.states.shared.selected_player_id = new_players[0].id.clone();
+    config_state.partial_update(
+      &app,
+      "states.shared.selected_player_id",
+      &serde_json::json!(new_players[0].id.clone()),
+    )?;
     account_state.players.push(new_players[0].clone());
 
     account_state.save()?;
@@ -325,7 +337,11 @@ pub async fn add_player_from_selection(app: AppHandle, player: Player) -> SJMCLR
       return Err(AccountError::Duplicate.into());
     }
 
-    config_state.states.shared.selected_player_id = refreshed_player.id.clone();
+    config_state.partial_update(
+      &app,
+      "states.shared.selected_player_id",
+      &serde_json::json!(refreshed_player.id.clone()),
+    )?;
     account_state.players.push(refreshed_player);
 
     account_state.save()?;
@@ -378,10 +394,14 @@ pub async fn delete_player(app: AppHandle, player_id: String) -> SJMCLResult<()>
     }
 
     if config_state.states.shared.selected_player_id == player_id {
-      config_state.states.shared.selected_player_id = account_state
-        .players
-        .first()
-        .map_or("".to_string(), |player| player.id.clone());
+      config_state.partial_update(
+        &app,
+        "states.shared.selected_player_id",
+        &serde_json::json!(account_state
+          .players
+          .first()
+          .map_or("".to_string(), |player| player.id.clone())),
+      )?;
       config_state.save()?;
     }
 
@@ -511,11 +531,15 @@ pub fn delete_auth_server(app: AppHandle, url: String) -> SJMCLResult<()> {
   });
 
   if need_reset {
-    if let Some(first_player) = account_state.players.first() {
-      config_state.states.shared.selected_player_id = first_player.id.clone();
-    } else {
-      config_state.states.shared.selected_player_id = "".to_string();
-    }
+    config_state.partial_update(
+      &app,
+      "states.shared.selected_player_id",
+      &serde_json::json!(if let Some(first_player) = account_state.players.first() {
+        first_player.id.clone()
+      } else {
+        "".to_string()
+      }),
+    )?;
   }
 
   account_state.save()?;

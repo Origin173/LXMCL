@@ -122,7 +122,7 @@ export class TaskService {
     callback: (payload: PTaskEventPayload) => void
   ) {
     const unlisten = getCurrentWebview().listen<PTaskEventPayload>(
-      "task://progress-update",
+      "task:progress-update",
       (event) => {
         callback(event.payload);
       }

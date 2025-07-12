@@ -7,6 +7,7 @@ use super::{
 };
 use crate::{
   error::SJMCLResult, instance::helpers::misc::refresh_instances, partial::PartialUpdate,
+  utils::var::camel_to_snake_case,
 };
 use crate::{storage::Storage, utils::fs::get_subdirectories};
 use std::fs;
@@ -28,16 +29,7 @@ pub fn update_launcher_config(app: AppHandle, key_path: String, value: String) -
   let binding = app.state::<Mutex<LauncherConfig>>();
   let mut state = binding.lock()?;
   let original_key_path = key_path.clone();
-  let key_path = {
-    let mut snake = String::new();
-    for (i, ch) in key_path.char_indices() {
-      if i > 0 && ch.is_uppercase() {
-        snake.push('_');
-      }
-      snake.push(ch.to_ascii_lowercase());
-    }
-    snake
-  };
+  let key_path = camel_to_snake_case(key_path.as_str());
   state.update(&key_path, &value)?;
   state.save()?;
   // emit to update frontend's state
