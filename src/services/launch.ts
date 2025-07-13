@@ -57,6 +57,20 @@ export class LaunchService {
     return await invoke("cancel_launch_process");
   }
 
+  @responseHandler("launch")
+  static async retreiveGameLog(
+    log_label: string
+  ): Promise<InvokeResponse<string[]>> {
+    return await invoke("retreive_game_log", { log_label });
+  }
+
+  @responseHandler("launch")
+  static async open_game_log_window(
+    log_label: string
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("open_game_log_window", { log_label });
+  }
+
   /**
    * LISTEN to the game log output line by line.
    * @param callback The callback function to be called when the game log is output.

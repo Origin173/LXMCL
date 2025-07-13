@@ -27,11 +27,15 @@ use crate::{
   resource::helpers::misc::get_source_priority_list,
   storage::load_json_async,
   tasks::commands::schedule_progressive_task_group,
+  utils::window::create_webview_window,
 };
-use std::collections::HashMap;
-use std::process::{Command, Stdio};
 use std::sync::{mpsc, Mutex};
-use tauri::{AppHandle, Manager, State};
+use std::{collections::HashMap, path::PathBuf};
+use std::{
+  io::{prelude::*, BufReader},
+  process::{Command, Stdio},
+};
+use tauri::{path::BaseDirectory, AppHandle, Manager, State};
 
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
@@ -279,5 +283,24 @@ pub fn cancel_launch_process(launching_state: State<'_, Mutex<LaunchingState>>) 
   // clear launching state
   *launching = LaunchingState::default();
 
+  Ok(())
+}
+
+#[tauri::command]
+pub fn retrieve_game_log(app: AppHandle, log_label: String) -> SJMCLResult<Vec<String>> {
+  let log_file_dir = app
+    .path()
+    .resolve::<PathBuf>(format!("{log_label}.log").into(), BaseDirectory::AppCache)?;
+  Ok(
+    BufReader::new(std::fs::OpenOptions::new().read(true).open(log_file_dir)?)
+      .lines()
+      .map_while(Result::ok)
+      .collect(),
+  )
+}
+
+#[tauri::command]
+pub fn open_game_log_window(app: AppHandle, log_label: String) -> SJMCLResult<()> {
+  create_webview_window(&app, &log_label, "game_log", None)?;
   Ok(())
 }
