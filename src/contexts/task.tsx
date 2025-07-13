@@ -15,6 +15,7 @@ import {
   PTaskEventPayload,
   PTaskEventStatusEnums,
   StartedPTaskEventStatus,
+  TaskDesc,
   TaskDescStatusEnums,
   TaskGroupDesc,
   TaskParam,
@@ -62,17 +63,17 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
       t.progress = t.total ? (t.current * 100) / t.total : 0;
     });
     group.taskDescs.sort((a, b) => {
-      if (
-        a.status === TaskDescStatusEnums.InProgress ||
-        a.status === TaskDescStatusEnums.Failed
-      )
-        return -1;
-      else if (
-        b.status === TaskDescStatusEnums.InProgress ||
-        b.status === TaskDescStatusEnums.Failed
-      )
-        return 1;
-      return b.taskId - a.taskId;
+      let level = (desc: TaskDesc) => {
+        switch (desc.status) {
+          case TaskDescStatusEnums.Failed:
+            return 0;
+          case TaskDescStatusEnums.InProgress:
+            return 1;
+          default:
+            return 2;
+        }
+      };
+      return level(a) - level(b);
     });
 
     if (
