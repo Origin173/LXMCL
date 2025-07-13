@@ -10,6 +10,7 @@ import {
   ModalOverlay,
   ModalProps,
   Text,
+  Tooltip,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -23,6 +24,7 @@ import {
 } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import ResourceDownloader from "@/components/resource-downloader";
+import { useLauncherConfig } from "@/contexts/config";
 import { OtherResourceType } from "@/enums/resource";
 
 interface DownloadResourceModalProps extends Omit<ModalProps, "children"> {
@@ -34,6 +36,8 @@ const DownloadResourceModal: React.FC<DownloadResourceModalProps> = ({
   ...modalProps
 }) => {
   const { t } = useTranslation();
+  const { config } = useLauncherConfig();
+  const language = config.general.general.language;
 
   const [selectedResourceType, setSelectedResourceType] =
     useState<OtherResourceType>(initialResourceType);
@@ -71,13 +75,30 @@ const DownloadResourceModal: React.FC<DownloadResourceModalProps> = ({
               justify="center"
               items={resourceTypeList.map((item) => ({
                 value: item.key,
-                label: (
+                label: language.startsWith("zh") ? (
                   <HStack spacing={1.5} fontSize="sm">
                     <Icon as={item.icon} />
                     <Text>
                       {t(`DownloadResourceModal.resourceTypeList.${item.key}`)}
                     </Text>
                   </HStack>
+                ) : (
+                  <Tooltip
+                    label={t(
+                      `DownloadResourceModal.resourceTypeList.${item.key}`
+                    )}
+                  >
+                    <HStack spacing={1.5} fontSize="sm">
+                      <Icon as={item.icon} boxSize="20px" />
+                      {selectedResourceType === item.key && (
+                        <Text>
+                          {t(
+                            `DownloadResourceModal.resourceTypeList.${item.key}`
+                          )}
+                        </Text>
+                      )}
+                    </HStack>
+                  </Tooltip>
                 ),
               }))}
             />
