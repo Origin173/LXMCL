@@ -55,7 +55,7 @@ pub async fn add_player_offline(app: AppHandle, username: String, uuid: String) 
   config_state.partial_update(
     &app,
     "states.shared.selected_player_id",
-    &serde_json::json!(new_player.id.clone()),
+    &serde_json::to_string(&new_player.id).unwrap_or_default(),
   )?;
   config_state.save()?;
 
@@ -135,7 +135,7 @@ pub async fn add_player_oauth(
     config_state.partial_update(
       &app,
       "states.shared.selected_player_id",
-      &serde_json::json!(new_player.id.clone()),
+      &serde_json::to_string(&new_player.id).unwrap_or_default(),
     )?;
     config_state.save()?;
 
@@ -247,7 +247,7 @@ pub async fn add_player_3rdparty_password(
     config_state.partial_update(
       &app,
       "states.shared.selected_player_id",
-      &serde_json::json!(new_players[0].id.clone()),
+      &serde_json::to_string(&new_players[0].id).unwrap_or_default(),
     )?;
     account_state.players.push(new_players[0].clone());
 
@@ -340,7 +340,7 @@ pub async fn add_player_from_selection(app: AppHandle, player: Player) -> SJMCLR
     config_state.partial_update(
       &app,
       "states.shared.selected_player_id",
-      &serde_json::json!(refreshed_player.id.clone()),
+      &serde_json::to_string(&refreshed_player.id).unwrap_or_default(),
     )?;
     account_state.players.push(refreshed_player);
 
@@ -397,10 +397,13 @@ pub async fn delete_player(app: AppHandle, player_id: String) -> SJMCLResult<()>
       config_state.partial_update(
         &app,
         "states.shared.selected_player_id",
-        &serde_json::json!(account_state
-          .players
-          .first()
-          .map_or("".to_string(), |player| player.id.clone())),
+        &serde_json::to_string(
+          &account_state
+            .players
+            .first()
+            .map_or("".to_string(), |player| player.id.clone()),
+        )
+        .unwrap_or_default(),
       )?;
       config_state.save()?;
     }
@@ -534,11 +537,14 @@ pub fn delete_auth_server(app: AppHandle, url: String) -> SJMCLResult<()> {
     config_state.partial_update(
       &app,
       "states.shared.selected_player_id",
-      &serde_json::json!(if let Some(first_player) = account_state.players.first() {
-        first_player.id.clone()
-      } else {
-        "".to_string()
-      }),
+      &serde_json::to_string(
+        &(if let Some(first_player) = account_state.players.first() {
+          first_player.id.clone()
+        } else {
+          "".to_string()
+        }),
+      )
+      .unwrap_or_default(),
     )?;
   }
 

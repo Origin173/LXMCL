@@ -282,16 +282,10 @@ impl LauncherConfig {
     &mut self,
     app: &AppHandle,
     key_path: &str,
-    value: &serde_json::Value,
+    value: &str,
   ) -> Result<(), std::io::Error> {
-    // Convert JSON value to string - if it's already a string, serialize it properly
-    let value_str = match value {
-      serde_json::Value::String(s) => serde_json::to_string(s).unwrap(),
-      _ => value.to_string(),
-    };
-
     self
-      .update(key_path, &value_str)
+      .update(key_path, value)
       .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
 
     app
@@ -299,7 +293,7 @@ impl LauncherConfig {
         CONFIG_PARTIAL_UPDATE_EVENT,
         serde_json::json!({
           "path": snake_to_camel_case(key_path),
-          "value": value_str,
+          "value": value,
         }),
       )
       .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
