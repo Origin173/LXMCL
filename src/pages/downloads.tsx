@@ -194,8 +194,13 @@ export const DownloadTasksPage = () => {
                           variant="ghost"
                           onClick={() =>
                             handleScheduleProgressiveTaskGroup(
-                              group.taskGroup || "",
-                              group.taskDescs.map((t) => t.payload)
+                              "retry",
+                              group.taskDescs
+                                .filter(
+                                  (t) =>
+                                    t.status !== TaskDescStatusEnums.Completed
+                                )
+                                .map((t) => t.payload)
                             )
                           }
                         />
@@ -259,14 +264,20 @@ export const DownloadTasksPage = () => {
                         )
                       }
                     >
-                      {task.status !== TaskDescStatusEnums.Completed && (
-                        <Progress
-                          w={36}
-                          size="xs"
-                          value={task.progress}
-                          colorScheme={primaryColor}
-                          borderRadius="sm"
-                        />
+                      {task.status !== TaskDescStatusEnums.Completed &&
+                        task.status !== TaskDescStatusEnums.Failed && (
+                          <Progress
+                            w={36}
+                            size="xs"
+                            value={task.progress}
+                            colorScheme={primaryColor}
+                            borderRadius="sm"
+                          />
+                        )}
+                      {task.status === TaskDescStatusEnums.Failed && (
+                        <Text color="red.600" fontSize="xs">
+                          {task.reason || t("DownloadTasksPage.label.error")}
+                        </Text>
                       )}
                       {task.status === TaskDescStatusEnums.Completed && (
                         <CommonIconButton

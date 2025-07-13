@@ -9,6 +9,7 @@ import React, {
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/contexts/toast";
 import {
+  CreatedPTaskEventStatus,
   FailedPTaskEventStatus,
   InProgressPTaskEventStatus,
   PTaskEventPayload,
@@ -60,12 +61,17 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
       }
       t.progress = t.total ? (t.current * 100) / t.total : 0;
     });
-    group.taskDescs = group.taskDescs.filter(
-      (t) => t.status !== TaskDescStatusEnums.Failed
-    );
     group.taskDescs.sort((a, b) => {
-      if (a.status === TaskDescStatusEnums.InProgress) return -1;
-      else if (b.status === TaskDescStatusEnums.InProgress) return 1;
+      if (
+        a.status === TaskDescStatusEnums.InProgress ||
+        a.status === TaskDescStatusEnums.Failed
+      )
+        return -1;
+      else if (
+        b.status === TaskDescStatusEnums.InProgress ||
+        b.status === TaskDescStatusEnums.Failed
+      )
+        return 1;
       return b.taskId - a.taskId;
     });
 
@@ -73,6 +79,14 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
       group.taskDescs.every((t) => t.status === TaskDescStatusEnums.Completed)
     ) {
       group.status = TaskDescStatusEnums.Completed;
+    } else if (
+      group.taskDescs.some((t) => t.status === TaskDescStatusEnums.Failed)
+    ) {
+      group.status = TaskDescStatusEnums.Failed;
+      group.reason = group.taskDescs
+        .filter((t) => t.status === TaskDescStatusEnums.Failed)
+        .map((t) => t.reason)
+        .filter((r) => r)[0];
     } else if (
       group.taskDescs.some((t) => t.status === TaskDescStatusEnums.Cancelled)
     ) {
@@ -213,6 +227,24 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
                 //   `Task ${payload.id} already exists in group ${payload.taskGroup}`
                 // );
                 return prevTasks;
+              } else if (
+                group.taskDescs.some(
+                  (t) =>
+                    t.payload.dest ===
+                    (payload.event as CreatedPTaskEventStatus).desc.payload.dest
+                )
+              ) {
+                // It' a retrial task emitted from the backend
+                group.taskDescs = group.taskDescs.map((t) => {
+                  if (
+                    t.payload.dest ===
+                    (payload.event as CreatedPTaskEventStatus).desc.payload.dest
+                  ) {
+                    t = (payload.event as CreatedPTaskEventStatus).desc;
+                  }
+                  return t;
+                });
+                return [...prevTasks];
               } else {
                 group.taskDescs.unshift(payload.event.desc);
                 // info(`Added task ${payload.id} to group ${payload.taskGroup}`);
@@ -335,7 +367,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
               }`
             );
             toast({
-              title: t(`task.onProgressiveTaskUpdate.error.title`, {
+              title: t(`Services.task.onProgressiveTaskUpdate.error.title`, {
                 param: payload.id,
               }),
               description: (payload.event as FailedPTaskEventStatus).reason,
@@ -346,9 +378,14 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             );
             if (!group) return prevTasks;
 
-            group.taskDescs = group.taskDescs.filter(
-              (t) => t.taskId !== payload.id
-            );
+            group.taskDescs = group.taskDescs.map((t) => {
+              if (t.taskId === payload.id) {
+                t.status = TaskDescStatusEnums.Failed;
+                t.reason = (payload.event as FailedPTaskEventStatus).reason;
+              }
+              return t;
+            });
+            updateGroupInfo(group);
             // info(`Task ${payload.id} failed in group ${payload.taskGroup}`);
             return [...prevTasks];
           } else {
