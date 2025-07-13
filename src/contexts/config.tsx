@@ -81,16 +81,21 @@ export const LauncherConfigContextProvider: React.FC<{
   };
 
   // listen from backend to update frontend's config state
-  useEffect(() => {
-    const unlisten = ConfigService.onConfigPartialUpdate((payload) => {
-      const { path, value } = payload;
-      const newConfig = { ...config };
+  const handleConfigPartialUpdate = useCallback((payload: any) => {
+    const { path, value } = payload;
+    setConfig((prevConfig) => {
+      const newConfig = { ...prevConfig };
       updateByKeyPath(newConfig, path, JSON.parse(value));
-      setConfig(newConfig);
+      return newConfig;
     });
+  }, []);
 
+  useEffect(() => {
+    const unlisten = ConfigService.onConfigPartialUpdate(
+      handleConfigPartialUpdate
+    );
     return () => unlisten();
-  }, [config]);
+  }, [handleConfigPartialUpdate]);
 
   const handleRetrieveJavaList = useCallback(() => {
     ConfigService.retrieveJavaList().then((response) => {

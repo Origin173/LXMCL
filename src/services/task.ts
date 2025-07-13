@@ -120,7 +120,7 @@ export class TaskService {
    */
   static onProgressiveTaskUpdate(
     callback: (payload: PTaskEventPayload) => void
-  ) {
+  ): () => void {
     const unlisten = getCurrentWebview().listen<PTaskEventPayload>(
       "task:progress-update",
       (event) => {
