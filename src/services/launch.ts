@@ -57,18 +57,29 @@ export class LaunchService {
     return await invoke("cancel_launch_process");
   }
 
+  /**
+   * OPEN the game log window during instance runtime.
+   * @param log_label The label of the game log.
+   * @returns {Promise<InvokeResponse<void>>}
+   */
   @responseHandler("launch")
-  static async retreiveGameLog(
-    log_label: string
-  ): Promise<InvokeResponse<string[]>> {
-    return await invoke("retreive_game_log", { log_label });
+  static async openGameLogWindow(
+    logLabel: string
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("open_game_log_window", { logLabel });
   }
 
+  /**
+   * RETRIEVE the game log content according to the specified log label.
+   * Typically used when opening the game log window for the first time during instance runtime.
+   * @param log_label The label of the game log.
+   * @returns {Promise<InvokeResponse<string[]>>}
+   */
   @responseHandler("launch")
-  static async open_game_log_window(
-    log_label: string
-  ): Promise<InvokeResponse<void>> {
-    return await invoke("open_game_log_window", { log_label });
+  static async retrieveGameLog(
+    logLabel: string
+  ): Promise<InvokeResponse<string[]>> {
+    return await invoke("retrieve_game_log", { logLabel });
   }
 
   /**

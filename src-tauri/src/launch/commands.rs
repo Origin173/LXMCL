@@ -287,6 +287,12 @@ pub fn cancel_launch_process(launching_state: State<'_, Mutex<LaunchingState>>) 
 }
 
 #[tauri::command]
+pub fn open_game_log_window(app: AppHandle, log_label: String) -> SJMCLResult<()> {
+  create_webview_window(&app, &log_label, "game_log", None)?;
+  Ok(())
+}
+
+#[tauri::command]
 pub fn retrieve_game_log(app: AppHandle, log_label: String) -> SJMCLResult<Vec<String>> {
   let log_file_dir = app
     .path()
@@ -297,10 +303,4 @@ pub fn retrieve_game_log(app: AppHandle, log_label: String) -> SJMCLResult<Vec<S
       .map_while(Result::ok)
       .collect(),
   )
-}
-
-#[tauri::command]
-pub fn open_game_log_window(app: AppHandle, log_label: String) -> SJMCLResult<()> {
-  create_webview_window(&app, &log_label, "game_log", None)?;
-  Ok(())
 }

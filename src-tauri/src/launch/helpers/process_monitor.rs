@@ -182,16 +182,16 @@ pub async fn monitor_process(
         let _ =
           create_webview_window(&app, &label.replace("log", "error"), "game_error", None).unwrap();
 
-        if log_window.is_none() {
-          let _ = create_webview_window(&app, "testing", "game_log", None).unwrap();
-          let log_file = std::fs::OpenOptions::new()
-            .read(true)
-            .open(&log_file_dir)
-            .unwrap();
-          for line in BufReader::new(log_file).lines().map_while(Result::ok) {
-            let _ = app.emit_to("testing", GAME_PROCESS_OUTPUT_EVENT, &line);
-          }
-        }
+        // if log_window.is_none() {
+        //   let _ = create_webview_window(&app, "testing", "game_log", None).unwrap();
+        //   let log_file = std::fs::OpenOptions::new()
+        //     .read(true)
+        //     .open(&log_file_dir)
+        //     .unwrap();
+        //   for line in BufReader::new(log_file).lines().map_while(Result::ok) {
+        //     let _ = app.emit_to("testing", GAME_PROCESS_OUTPUT_CHANNEL, &line);
+        //   }
+        // }
       }
 
       // calc and update play time
