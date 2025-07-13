@@ -22,6 +22,7 @@ use std::time::Duration;
 /// * `use_proxy` - Whether to use the proxy settings from the config.
 ///
 /// TODO: support more custom config from reqwest::Config
+/// FIXME: Seems like hyper will panic if this client is shared across threads.
 ///
 /// # Returns
 ///
@@ -78,6 +79,7 @@ impl RetryableStrategy for SJMCLRetryableStrategy {
       Err(error) if matches!(error.status(), Some(StatusCode::FORBIDDEN)) => {
         Some(Retryable::Transient)
       }
+      Err(error) if error.is_request() => Some(Retryable::Transient),
       Err(error) => default_on_request_failure(error),
     }
   }

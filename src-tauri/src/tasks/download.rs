@@ -1,11 +1,13 @@
 use crate::error::{SJMCLError, SJMCLResult};
 use crate::launcher_config::commands::retrieve_launcher_config;
+use crate::utils::web::build_sjmcl_client;
 
 use async_speed_limit::Limiter;
 use futures::stream::TryStreamExt;
 use futures::StreamExt;
 use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
+use std::error::Error;
 use std::future::Future;
 use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
@@ -125,7 +127,7 @@ impl DownloadTask {
     current: i64,
     param: &DownloadParam,
   ) -> SJMCLResult<reqwest::Response> {
-    let client = with_retry(app_handle.state::<reqwest::Client>().inner().clone());
+    let client = with_retry(build_sjmcl_client(app_handle, true, false));
     let request = if current == 0 {
       client
         .get(param.src.clone())
@@ -136,8 +138,16 @@ impl DownloadTask {
         .header(ACCEPT_ENCODING, Self::CONTENT_ENCODING_CHOICES)
         .header(RANGE, format!("bytes={current}-"))
     };
-    let response = request.send().await?;
-    let response = response.error_for_status()?;
+
+    let response = request
+      .send()
+      .await
+      .map_err(|e| SJMCLError(format!("{:?}", e.source())))?;
+
+    let response = response
+      .error_for_status()
+      .map_err(|e| SJMCLError(format!("{:?}", e.source())))?;
+
     Ok(response)
   }
 

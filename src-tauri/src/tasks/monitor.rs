@@ -242,9 +242,7 @@ impl TaskMonitor {
           tokio::spawn(async move {
             let r = future.f.await;
             match r {
-              Ok(_) => {
-                info!("Task {task_id} completed");
-              }
+              Ok(_) => {}
               Err(e) => {
                 info!("Task failed: {e:?}");
                 if let Some(group_name) = future.task_group {
