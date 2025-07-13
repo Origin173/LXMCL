@@ -222,11 +222,13 @@ pub async fn launch_game(
   // execute launch command
   #[cfg(target_os = "windows")]
   cmd_base.creation_flags(0x08000000);
-  let mut child = cmd_base
+
+  let child = cmd_base
     .args(cmd_args)
     .stdout(Stdio::piped())
     .stderr(Stdio::piped())
     .spawn()?;
+
   let pid = child.id();
   {
     let mut launching = launching_state.lock().unwrap();
@@ -237,7 +239,7 @@ pub async fn launch_game(
   let (tx, rx) = mpsc::channel();
   monitor_process(
     app.clone(),
-    &mut child,
+    child,
     instance_id,
     game_config.display_game_log,
     game_config.launcher_visibility.clone(),
@@ -260,6 +262,7 @@ pub async fn launch_game(
 
   // clear launching state
   *launching_state.lock().unwrap() = LaunchingState::default();
+  eprintln!("OK");
 
   Ok(())
 }
