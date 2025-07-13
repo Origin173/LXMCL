@@ -1989,6 +1989,11 @@
     "task": {
       "scheduleProgressiveTaskGroup": {
         "success": "任务创建成功"
+      },
+      "onProgressiveTaskUpdate": {
+        "error": {
+          "title": "任务 {{param}} 失败"
+        }
       }
     }
   },
