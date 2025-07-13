@@ -91,7 +91,7 @@ pub async fn monitor_process(
   ));
 
   let log_window = if display_log_window {
-    (create_webview_window(&app, &label, "game_log", None).await).ok()
+    create_webview_window(&app, &label, "game_log", None).ok()
   } else {
     None
   };
@@ -146,7 +146,9 @@ pub async fn monitor_process(
         let _ = h.join();
       }
 
+      log_file.lock().unwrap().flush().unwrap();
       drop(log_file);
+
       // handle launcher main window visiablity
       match launcher_visibility {
         LauncherVisiablity::RunningHidden => {
@@ -176,14 +178,19 @@ pub async fn monitor_process(
         }
       } else {
         eprintln!("Game process exited with an error status: {status:?}");
+
         let _ =
-          create_webview_window(&app, &label.replace("log", "error"), "game_error", None).await;
-        let log_file = std::fs::OpenOptions::new()
-          .read(true)
-          .open(&log_file_dir)
-          .unwrap();
-        for line in BufReader::new(log_file).lines().map_while(Result::ok) {
-          let _ = app.emit_to(&label, GAME_PROCESS_OUTPUT_EVENT, &line);
+          create_webview_window(&app, &label.replace("log", "error"), "game_error", None).unwrap();
+
+        if log_window.is_none() {
+          let _ = create_webview_window(&app, "testing", "game_log", None).unwrap();
+          let log_file = std::fs::OpenOptions::new()
+            .read(true)
+            .open(&log_file_dir)
+            .unwrap();
+          for line in BufReader::new(log_file).lines().map_while(Result::ok) {
+            let _ = app.emit_to("testing", GAME_PROCESS_OUTPUT_EVENT, &line);
+          }
         }
       }
 
