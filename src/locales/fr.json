@@ -1161,8 +1161,8 @@
   },
   "ResourceDownloader": {
     "label": {
-      "source": "Source de téléchargement",
-      "gameVer": "Version du jeu",
+      "source": "Source",
+      "gameVer": "Version",
       "tag": "Type",
       "sortBy": "Ordonner",
       "name": "Nom"
