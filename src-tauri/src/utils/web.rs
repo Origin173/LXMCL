@@ -86,7 +86,7 @@ impl RetryableStrategy for SJMCLRetryableStrategy {
 pub fn with_retry(client: Client) -> ClientWithMiddleware {
   ClientWithMiddlewareBuilder::new(client)
     .with(RetryTransientMiddleware::new_with_policy_and_strategy(
-      ExponentialBackoff::builder().build_with_total_retry_duration(Duration::from_seconds(3600)),
+      ExponentialBackoff::builder().build_with_total_retry_duration(Duration::from_secs(3600)),
       SJMCLRetryableStrategy {},
     ))
     .build()
