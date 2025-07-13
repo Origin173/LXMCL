@@ -7,7 +7,7 @@ use super::{
 };
 use crate::{
   error::SJMCLResult, instance::helpers::misc::refresh_instances, partial::PartialUpdate,
-  utils::var::camel_to_snake_case,
+  utils::string::camel_to_snake_case,
 };
 use crate::{storage::Storage, utils::fs::get_subdirectories};
 use std::fs;

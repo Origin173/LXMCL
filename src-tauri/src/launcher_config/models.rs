@@ -2,7 +2,7 @@ use crate::{
   launcher_config::constants::CONFIG_PARTIAL_UPDATE_EVENT,
   partial::PartialUpdate,
   storage::Storage,
-  utils::{sys_info, var::snake_to_camel_case},
+  utils::{string::snake_to_camel_case, sys_info},
   EXE_DIR,
 };
 use partial_derive::Partial;
