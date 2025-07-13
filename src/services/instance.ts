@@ -31,6 +31,35 @@ export class InstanceService {
   }
 
   /**
+   * CREATE the new instance (include download client, resource and create config).
+   * @param {GameDirectory} directory - The directory where the instance should be created.
+   * @param {string} name - The name of the instance.
+   * @param {string} description - The description of the instance.
+   * @param {string} iconSrc - The icon source of the instance.
+   * @param {GameResourceInfo} game - The game resource info of the instance.
+   * @param {ModLoader} modLoader - The mod loader info of the instance.
+   * @returns {Promise<InvokeResponse<null>>}
+   */
+  @responseHandler("instance")
+  static async createInstance(
+    directory: GameDirectory,
+    name: string,
+    description: string,
+    iconSrc: string,
+    game: GameResourceInfo,
+    modLoader: ModLoader
+  ): Promise<InvokeResponse<null>> {
+    return await invoke("create_instance", {
+      directory,
+      name,
+      description,
+      iconSrc,
+      game,
+      modLoader,
+    });
+  }
+
+  /**
    * UPDATE a specific key of the instance's config (include basic info and game config).
    * @param {string} instanceId - The ID of the instance.
    * @param {string} keyPath - Path to the key to update, e.g., "spec_game_config.javaPath".
@@ -330,35 +359,6 @@ export class InstanceService {
   ): Promise<InvokeResponse<null>> {
     return await invoke("create_launch_desktop_shortcut", {
       instanceId,
-    });
-  }
-
-  /**
-   * DOWNLOAD the new instance and create an instance config.
-   * @param {GameDirectory} directory - The directory where the instance should be downloaded.
-   * @param {string} name - The name of the instance.
-   * @param {string} description - The description of the instance.
-   * @param {string} iconSrc - The icon source of the instance.
-   * @param {GameResourceInfo} game - The game resource info of the instance.
-   * @param {ModLoader} modLoader - The mod loader info of the instance.
-   * @returns {Promise<InvokeResponse<null>>}
-   */
-  @responseHandler("instance")
-  static async downloadInstance(
-    directory: GameDirectory,
-    name: string,
-    description: string,
-    iconSrc: string,
-    game: GameResourceInfo,
-    modLoader: ModLoader
-  ): Promise<InvokeResponse<null>> {
-    return await invoke("download_instance", {
-      directory,
-      name,
-      description,
-      iconSrc,
-      game,
-      modLoader,
     });
   }
 }

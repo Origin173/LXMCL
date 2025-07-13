@@ -77,9 +77,9 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   const [instanceIconSrc, setInstanceIconSrc] = useState("");
   const [instanceDirectory, setInstanceDirectory] = useState<GameDirectory>();
 
-  const handleDownloadInstance = useCallback(() => {
+  const handleCreateInstance = useCallback(() => {
     if (!selectedGameVersion) return;
-    InstanceService.downloadInstance(
+    InstanceService.createInstance(
       instanceDirectory!,
       instanceName,
       instanceDescription,
@@ -225,7 +225,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
           <Button
             disabled={!instanceDirectory || instanceName === ""}
             colorScheme={primaryColor}
-            onClick={() => handleDownloadInstance()}
+            onClick={() => handleCreateInstance()}
           >
             {t("General.finish")}
           </Button>
@@ -233,7 +233,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
       </>
     );
   }, [
-    handleDownloadInstance,
+    handleCreateInstance,
     instanceDescription,
     instanceDirectory,
     instanceIconSrc,

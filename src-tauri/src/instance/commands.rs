@@ -776,7 +776,7 @@ pub fn create_launch_desktop_shortcut(app: AppHandle, instance_id: String) -> SJ
 }
 
 #[tauri::command]
-pub async fn download_instance(
+pub async fn create_instance(
   app: AppHandle,
   client: State<'_, reqwest::Client>,
   launcher_config_state: State<'_, Mutex<LauncherConfig>>,

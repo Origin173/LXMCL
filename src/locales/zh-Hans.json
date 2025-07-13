@@ -1817,6 +1817,19 @@
           }
         }
       },
+      "createInstance": {
+        "success": "实例下载任务创建成功",
+        "error": {
+          "title": "实例下载任务创建失败",
+          "description": {
+            "FOLDER_CREATION_FAILED": "目标文件夹创建失败",
+            "FILE_CREATION_FAILED": "目标文件创建失败",
+            "NETWORK_ERROR": "网络错误",
+            "CLIENT_JSON_PARSE_ERROR": "实例版本信息解析错误",
+            "ASSET_INDEX_PARSE_ERROR": "资源索引文件解析错误"
+          }
+        }
+      },
       "updateInstanceConfig": {
         "error": {
           "title": "实例设置更新失败",
@@ -1969,19 +1982,6 @@
           "description": {
             "SHORTCUT_CREATION_FAILED": "命令执行失败",
             "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在"
-          }
-        }
-      },
-      "downloadInstance": {
-        "success": "实例下载成功",
-        "error": {
-          "title": "实例下载失败",
-          "description": {
-            "FOLDER_CREATION_FAILED": "目标文件夹创建失败",
-            "FILE_CREATION_FAILED": "目标文件创建失败",
-            "NETWORK_ERROR": "网络错误",
-            "CLIENT_JSON_PARSE_ERROR": "实例版本信息解析错误",
-            "ASSET_INDEX_PARSE_ERROR": "资源索引文件解析错误"
           }
         }
       }

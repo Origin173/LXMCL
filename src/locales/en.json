@@ -1817,6 +1817,19 @@
           }
         }
       },
+      "createInstance": {
+        "success": "Instance download task created successfully",
+        "error": {
+          "title": "Failed to create instance download task",
+          "description": {
+            "FOLDER_CREATION_FAILED": "Failed to create target folder",
+            "FILE_CREATION_FAILED": "Failed to create target file",
+            "NETWORK_ERROR": "Failed to connect to the server",
+            "CLIENT_JSON_PARSE_ERROR": "Failed to parse instance version info",
+            "ASSET_INDEX_PARSE_ERROR": "Failed to parse asset index"
+          }
+        }
+      },
       "updateInstanceConfig": {
         "error": {
           "title": "Failed to update instance settings",
@@ -1969,19 +1982,6 @@
           "description": {
             "SHORTCUT_CREATION_FAILED": "Command execution failed",
             "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist"
-          }
-        }
-      },
-      "downloadInstance": {
-        "success": "Successfully downloaded new instance",
-        "error": {
-          "title": "Failed to download new instance",
-          "description": {
-            "FOLDER_CREATION_FAILED": "Failed to create target folder",
-            "FILE_CREATION_FAILED": "Failed to create target file",
-            "NETWORK_ERROR": "Failed to connect to the server",
-            "CLIENT_JSON_PARSE_ERROR": "Failed to parse instance version info",
-            "ASSET_INDEX_PARSE_ERROR": "Failed to parse asset index"
           }
         }
       }
