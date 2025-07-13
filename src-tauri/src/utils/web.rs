@@ -1,9 +1,16 @@
-use std::sync::Mutex;
-use std::time::Duration;
+use reqwest_retry::{
+  default_on_request_failure, default_on_request_success, Retryable, RetryableStrategy,
+};
+use tauri::http::StatusCode;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest::{header::HeaderMap, Client, ClientBuilder, Proxy};
 
 use crate::launcher_config::models::{LauncherConfig, ProxyType};
+use reqwest_middleware::ClientBuilder as ClientWithMiddlewareBuilder;
+use reqwest_middleware::ClientWithMiddleware;
+use reqwest_retry::{policies::ExponentialBackoff, RetryTransientMiddleware};
+use std::sync::Mutex;
+use std::time::Duration;
 
 /// Builds a reqwest client with SJMCL version header and proxy support.
 /// Defaults to 10s timeout.
@@ -53,6 +60,36 @@ pub fn build_sjmcl_client(app: &AppHandle, use_version_header: bool, use_proxy: 
   }
 
   builder.build().unwrap_or_else(|_| Client::new())
+}
+
+struct SJMCLRetryableStrategy;
+
+impl RetryableStrategy for SJMCLRetryableStrategy {
+  fn handle(
+    &self,
+    res: &Result<tauri_plugin_http::reqwest::Response, reqwest_middleware::Error>,
+  ) -> Option<reqwest_retry::Retryable> {
+    match res {
+      // retry if 403
+      Ok(success) if success.status() == StatusCode::FORBIDDEN => Some(Retryable::Transient),
+      // otherwise do not retry a successful request
+      Ok(success) => default_on_request_success(success),
+      // but maybe retry a request failure
+      Err(error) if matches!(error.status(), Some(StatusCode::FORBIDDEN)) => {
+        Some(Retryable::Transient)
+      }
+      Err(error) => default_on_request_failure(error),
+    }
+  }
+}
+
+pub fn with_retry(client: Client) -> ClientWithMiddleware {
+  ClientWithMiddlewareBuilder::new(client)
+    .with(RetryTransientMiddleware::new_with_policy_and_strategy(
+      ExponentialBackoff::builder().build_with_total_retry_duration(Duration::from_secs(3600)),
+      SJMCLRetryableStrategy {},
+    ))
+    .build()
 }
 
 pub async fn is_china_mainland_ip(app: &AppHandle) -> Option<bool> {

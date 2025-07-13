@@ -484,7 +484,7 @@
     "task": {
       "game-client-download": "Game Client {{param}}",
       "game-server-download": "Game Server {{param}}",
-      "game-resource-download": "Game Resource"
+      "game-resource-download": "Resource Pack"
     }
   },
   "Editable": {
@@ -1814,6 +1814,19 @@
             "INVALID_SOURCE_PATH": "Invalid source path",
             "CONFLICT_NAME_ERROR": "Instance name already exists",
             "FILE_MOVE_FAILED": "Failed to move instance files"
+          }
+        }
+      },
+      "createInstance": {
+        "success": "Instance download task created successfully",
+        "error": {
+          "title": "Failed to create instance download task",
+          "description": {
+            "FOLDER_CREATION_FAILED": "Failed to create target folder",
+            "FILE_CREATION_FAILED": "Failed to create target file",
+            "NETWORK_ERROR": "Failed to connect to the server",
+            "CLIENT_JSON_PARSE_ERROR": "Failed to parse instance version info",
+            "ASSET_INDEX_PARSE_ERROR": "Failed to parse asset index"
           }
         }
       },

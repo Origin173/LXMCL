@@ -89,6 +89,7 @@ pub async fn run() {
       account::commands::delete_auth_server,
       account::commands::fetch_auth_server,
       instance::commands::retrieve_instance_list,
+      instance::commands::create_instance,
       instance::commands::update_instance_config,
       instance::commands::retrieve_instance_game_config,
       instance::commands::reset_instance_game_config,

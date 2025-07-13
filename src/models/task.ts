@@ -30,6 +30,7 @@ export enum TaskDescStatusEnums {
   Completed = "Completed",
   InProgress = "InProgress",
   Failed = "Failed",
+  Waiting = "Waiting",
 }
 
 export interface TaskDesc {
