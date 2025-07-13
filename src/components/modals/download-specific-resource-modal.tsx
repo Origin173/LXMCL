@@ -47,6 +47,7 @@ import { useTaskContext } from "@/contexts/task";
 import { useToast } from "@/contexts/toast";
 import { InstanceSubdirType, ModLoaderType } from "@/enums/instance";
 import {
+  OtherResourceType,
   datapackTagList,
   modTagList,
   modpackTagList,
@@ -58,9 +59,9 @@ import { GetStateFlag } from "@/hooks/get-state";
 import { useThemedCSSStyle } from "@/hooks/themed-css";
 import {
   GameResourceInfo,
+  OtherResourceFileInfo,
   OtherResourceInfo,
-  ResourceFileInfo,
-  ResourceVersionPack,
+  OtherResourceVersionPack,
 } from "@/models/resource";
 import { TaskTypeEnums } from "@/models/task";
 import { InstanceService } from "@/services/instance";
@@ -106,7 +107,9 @@ const DownloadSpecificResourceModal: React.FC<
   >(curInstanceModLoader || "All");
   const [isVersionPacksLoading, setIsLoadingVersionPacks] =
     useState<boolean>(true);
-  const [versionPacks, setVersionPacks] = useState<ResourceVersionPack[]>([]);
+  const [versionPacks, setVersionPacks] = useState<OtherResourceVersionPack[]>(
+    []
+  );
 
   const { getGameVersionList, isGameVersionListLoading } = useGlobalData();
   const { handleScheduleProgressiveTaskGroup } = useTaskContext();
@@ -163,7 +166,7 @@ const DownloadSpecificResourceModal: React.FC<
     }
   };
 
-  const versionPackFilter = (pack: ResourceVersionPack): boolean => {
+  const versionPackFilter = (pack: OtherResourceVersionPack): boolean => {
     const loader = pack.name.split(" ")[0];
     const version = pack.name.split(" ").slice(1).join(" ");
 
@@ -312,7 +315,7 @@ const DownloadSpecificResourceModal: React.FC<
     return defaultDownloadPath;
   }, [resource.type, router.query.id, toast]);
 
-  const startDownload = async (item: ResourceFileInfo) => {
+  const startDownload = async (item: OtherResourceFileInfo) => {
     const dir = await getDefaultFilePath();
     const savepath = await save({
       defaultPath: dir + "/" + item.fileName,
@@ -367,7 +370,7 @@ const DownloadSpecificResourceModal: React.FC<
             <OptionItem
               title={
                 resource.translatedName
-                  ? `${resource.translatedName}｜${resource.name}`
+                  ? `${resource.translatedName} | ${resource.name}`
                   : resource.name
               }
               titleExtra={
@@ -455,7 +458,7 @@ const DownloadSpecificResourceModal: React.FC<
               </MenuList>
             </Menu>
             <Box>
-              {resource.type === "mod" && (
+              {resource.type === OtherResourceType.Mod && (
                 <NavMenu
                   className="no-scrollbar"
                   selectedKeys={[selectedModLoader]}

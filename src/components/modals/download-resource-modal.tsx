@@ -23,26 +23,27 @@ import {
 } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import ResourceDownloader from "@/components/resource-downloader";
+import { OtherResourceType } from "@/enums/resource";
 
 interface DownloadResourceModalProps extends Omit<ModalProps, "children"> {
-  initialResourceType?: string;
+  initialResourceType?: OtherResourceType;
 }
 
 const DownloadResourceModal: React.FC<DownloadResourceModalProps> = ({
-  initialResourceType = "mod",
+  initialResourceType = OtherResourceType.Mod,
   ...modalProps
 }) => {
   const { t } = useTranslation();
 
   const [selectedResourceType, setSelectedResourceType] =
-    useState<string>(initialResourceType);
+    useState<OtherResourceType>(initialResourceType);
 
-  const resourceTypeList: { key: string; icon: IconType }[] = [
-    { key: "mod", icon: LuSquareLibrary },
-    { key: "world", icon: LuEarth },
-    { key: "resourcepack", icon: LuPackage },
-    { key: "shader", icon: LuHaze },
-    { key: "datapack", icon: LuPuzzle },
+  const resourceTypeList: { key: OtherResourceType; icon: IconType }[] = [
+    { key: OtherResourceType.Mod, icon: LuSquareLibrary },
+    { key: OtherResourceType.World, icon: LuEarth },
+    { key: OtherResourceType.ResourcePack, icon: LuPackage },
+    { key: OtherResourceType.ShaderPack, icon: LuHaze },
+    { key: OtherResourceType.DataPack, icon: LuPuzzle },
   ];
 
   return (

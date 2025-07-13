@@ -24,6 +24,7 @@ import { useInstanceSharedData } from "@/contexts/instance";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { useToast } from "@/contexts/toast";
 import { InstanceSubdirType } from "@/enums/instance";
+import { OtherResourceType } from "@/enums/resource";
 import { GetStateFlag } from "@/hooks/get-state";
 import { GameServerInfo } from "@/models/instance/misc";
 import { WorldInfo } from "@/models/instance/world";
@@ -126,7 +127,7 @@ const InstanceWorldsPage = () => {
       icon: "download",
       onClick: () => {
         openSharedModal("download-resource", {
-          initialResourceType: "world",
+          initialResourceType: OtherResourceType.World,
         });
       },
     },

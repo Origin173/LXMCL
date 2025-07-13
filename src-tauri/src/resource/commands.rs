@@ -9,8 +9,8 @@ use super::{
     version_manifest::get_game_version_manifest,
   },
   models::{
-    ExtraResourceSearchQuery, ExtraResourceSearchRes, GameClientResourceInfo,
-    ModLoaderResourceInfo, ResourceError, ResourceVersionPack, ResourceVersionPackQuery,
+    GameClientResourceInfo, ModLoaderResourceInfo, OtherResourceSearchQuery,
+    OtherResourceSearchRes, OtherResourceVersionPack, OtherResourceVersionPackQuery, ResourceError,
   },
 };
 use crate::{
@@ -65,8 +65,8 @@ pub async fn fetch_mod_loader_version_list(
 pub async fn fetch_resource_list_by_name(
   app: AppHandle,
   download_source: String,
-  query: ExtraResourceSearchQuery,
-) -> SJMCLResult<ExtraResourceSearchRes> {
+  query: OtherResourceSearchQuery,
+) -> SJMCLResult<OtherResourceSearchRes> {
   match download_source.as_str() {
     "CurseForge" => Ok(fetch_resource_list_by_name_curseforge(&app, &query).await?),
     "Modrinth" => Ok(fetch_resource_list_by_name_modrinth(&app, &query).await?),
@@ -78,8 +78,8 @@ pub async fn fetch_resource_list_by_name(
 pub async fn fetch_resource_version_packs(
   app: AppHandle,
   download_source: String,
-  query: ResourceVersionPackQuery,
-) -> SJMCLResult<Vec<ResourceVersionPack>> {
+  query: OtherResourceVersionPackQuery,
+) -> SJMCLResult<Vec<OtherResourceVersionPack>> {
   match download_source.as_str() {
     "CurseForge" => Ok(fetch_resource_version_packs_curseforge(&app, &query).await?),
     "Modrinth" => Ok(fetch_resource_version_packs_modrinth(&app, &query).await?),
