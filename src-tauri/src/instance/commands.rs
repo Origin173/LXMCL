@@ -190,11 +190,18 @@ pub fn delete_instance(app: AppHandle, instance_id: String) -> SJMCLResult<()> {
   // not update state here. if send success to frontend, it will call retrieve_instance_list and update state there.
 
   if config_state.states.shared.selected_instance_id == instance_id {
-    config_state.states.shared.selected_instance_id = instance_state
-      .keys()
-      .next()
-      .cloned()
-      .unwrap_or_else(|| "".to_string());
+    config_state.partial_update(
+      &app,
+      "states.shared.selected_instance_id",
+      &serde_json::to_string(
+        &instance_state
+          .keys()
+          .next()
+          .cloned()
+          .unwrap_or_else(|| "".to_string()),
+      )
+      .unwrap_or_default(),
+    )?;
     config_state.save()?;
   }
   Ok(())

@@ -18,7 +18,6 @@ interface LauncherConfigContextType {
   config: LauncherConfig;
   setConfig: React.Dispatch<React.SetStateAction<LauncherConfig>>;
   update: (path: string, value: any) => void;
-  refreshConfig: () => void;
   // other shared data associated with the launcher config.
   getJavaInfos: (sync?: boolean) => JavaInfo[] | undefined;
 }
@@ -80,15 +79,12 @@ export const LauncherConfigContextProvider: React.FC<{
     }
   }, [userSelectedColorMode, colorMode, toggleColorMode]);
 
+  // from frontend to call backend update
   const handleUpdateLauncherConfig = (path: string, value: any) => {
-    const newConfig = { ...config };
-    updateByKeyPath(newConfig, path, value);
-
     // Save to the backend
     ConfigService.updateLauncherConfig(path, value).then((response) => {
-      if (response.status === "success") {
-        setConfig(newConfig); // update frontend state if successful
-      } else {
+      // if success, backend will emit signal, the logic below will be executed
+      if (response.status !== "success") {
         toast({
           title: response.message,
           description: response.details,
@@ -97,6 +93,23 @@ export const LauncherConfigContextProvider: React.FC<{
       }
     });
   };
+
+  // listen from backend to update frontend's config state
+  const handleConfigPartialUpdate = useCallback((payload: any) => {
+    const { path, value } = payload;
+    setConfig((prevConfig) => {
+      const newConfig = { ...prevConfig };
+      updateByKeyPath(newConfig, path, JSON.parse(value));
+      return newConfig;
+    });
+  }, []);
+
+  useEffect(() => {
+    const unlisten = ConfigService.onConfigPartialUpdate(
+      handleConfigPartialUpdate
+    );
+    return () => unlisten();
+  }, [handleConfigPartialUpdate]);
 
   const handleRetrieveJavaList = useCallback(() => {
     ConfigService.retrieveJavaList().then((response) => {
@@ -121,7 +134,6 @@ export const LauncherConfigContextProvider: React.FC<{
         config,
         setConfig,
         update: handleUpdateLauncherConfig,
-        refreshConfig: handleRetrieveLauncherConfig,
         getJavaInfos,
       }}
     >

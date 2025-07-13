@@ -118,5 +118,3 @@ export interface PTaskEventPayload {
     | StoppedPTaskEventStatus
     | CancelledPTaskEventStatus;
 }
-
-export const TaskProgressListener = `SJMCL://task-progress`;
