@@ -37,6 +37,7 @@ export interface OtherResourceFileInfo {
   downloadUrl: string;
   sha1: string;
   fileName: string;
+  loader?: string; // "forge", "fabric", "iris", "optifine", etc.
 }
 
 export interface OtherResourceVersionPack {
