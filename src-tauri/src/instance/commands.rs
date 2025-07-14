@@ -874,7 +874,7 @@ pub async fn create_instance(
         library
           .downloads
           .as_ref()
-          .and_then(|d| d.artifact.as_ref().and_then(|a| Some(a.sha1.clone()))),
+          .and_then(|d| d.artifact.as_ref().map(|a| a.sha1.clone())),
       )
     };
     let path = convert_library_name_to_path(&library.name, natives)?;
@@ -900,7 +900,7 @@ pub async fn create_instance(
   let asset_index_path = directory.dir.join("assets/indexes");
   fs::create_dir_all(&asset_index_path).map_err(|_| InstanceError::FolderCreationFailed)?;
   fs::write(
-    &asset_index_path.join(format!("{}.json", version_info.asset_index.id)),
+    asset_index_path.join(format!("{}.json", version_info.asset_index.id)),
     asset_index.to_string(),
   )
   .map_err(|_| InstanceError::FileCreationFailed)?;

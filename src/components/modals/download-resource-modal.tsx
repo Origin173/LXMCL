@@ -75,22 +75,17 @@ const DownloadResourceModal: React.FC<DownloadResourceModalProps> = ({
               justify="center"
               items={resourceTypeList.map((item) => ({
                 value: item.key,
-                label: language.startsWith("zh") ? (
-                  <HStack spacing={1.5} fontSize="sm">
-                    <Icon as={item.icon} />
-                    <Text>
-                      {t(`DownloadResourceModal.resourceTypeList.${item.key}`)}
-                    </Text>
-                  </HStack>
-                ) : (
+                label: (
                   <Tooltip
                     label={t(
                       `DownloadResourceModal.resourceTypeList.${item.key}`
                     )}
+                    isDisabled={language.startsWith("zh")}
                   >
                     <HStack spacing={1.5} fontSize="sm">
-                      <Icon as={item.icon} boxSize="20px" />
-                      {selectedResourceType === item.key && (
+                      <Icon as={item.icon} />
+                      {(language.startsWith("zh") ||
+                        selectedResourceType === item.key) && (
                         <Text>
                           {t(
                             `DownloadResourceModal.resourceTypeList.${item.key}`
