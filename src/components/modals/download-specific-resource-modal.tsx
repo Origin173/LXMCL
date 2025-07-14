@@ -479,8 +479,11 @@ const DownloadSpecificResourceModal: React.FC<
         <ModalBody>
           <Card
             className={themedStyles.card["card-front"]}
-            mb={3}
+            mt={-2}
+            mb={2}
+            py={2}
             fontWeight={400}
+            flexDir="row"
           >
             <OptionItem
               title={
@@ -520,25 +523,24 @@ const DownloadSpecificResourceModal: React.FC<
                 <Avatar
                   src={resource.iconSrc}
                   name={resource.name}
-                  boxSize="48px"
-                  borderRadius="4px"
+                  boxSize="36px"
+                  borderRadius="2px"
                 />
               }
               fontWeight={400}
+              flex={1}
             />
-            <HStack mt={1.5}>
-              <HStack spacing={1}>
-                <LuExternalLink />
-                <Link
-                  fontSize="xs"
-                  color={`${primaryColor}.500`}
-                  onClick={() => {
-                    resource.websiteUrl && openUrl(resource.websiteUrl);
-                  }}
-                >
-                  {resource.source}
-                </Link>
-              </HStack>
+            <HStack spacing={1}>
+              <LuExternalLink />
+              <Link
+                fontSize="xs"
+                color={`${primaryColor}.500`}
+                onClick={() => {
+                  resource.websiteUrl && openUrl(resource.websiteUrl);
+                }}
+              >
+                {resource.source}
+              </Link>
             </HStack>
           </Card>
           <HStack align="center" justify="space-between" mb={3}>
