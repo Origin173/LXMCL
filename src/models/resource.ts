@@ -1,4 +1,5 @@
 import { ModLoaderType } from "@/enums/instance";
+import { OtherResourceType } from "@/enums/resource";
 
 export interface GameResourceInfo {
   id: string;
@@ -10,7 +11,7 @@ export interface GameResourceInfo {
 export interface OtherResourceInfo {
   id?: string; // got from API
   websiteUrl?: string;
-  type: "mod" | "world" | "resourcepack" | "shader" | "modpack" | "datapack";
+  type: OtherResourceType;
   name: string;
   translatedName?: string;
   description: string;
@@ -28,7 +29,7 @@ export interface OtherResourceSearchRes {
   pageSize: number;
 }
 
-export interface ResourceFileInfo {
+export interface OtherResourceFileInfo {
   name: string;
   releaseType: string;
   downloads: number;
@@ -38,9 +39,9 @@ export interface ResourceFileInfo {
   fileName: string;
 }
 
-export interface ResourceVersionPack {
+export interface OtherResourceVersionPack {
   name: string;
-  items: ResourceFileInfo[];
+  items: OtherResourceFileInfo[];
 }
 
 export interface ModLoaderResourceInfo {

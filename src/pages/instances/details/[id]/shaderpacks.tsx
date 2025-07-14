@@ -11,6 +11,7 @@ import { Section } from "@/components/common/section";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { InstanceSubdirType } from "@/enums/instance";
+import { OtherResourceType } from "@/enums/resource";
 import { GetStateFlag } from "@/hooks/get-state";
 import { ShaderPackInfo } from "@/models/instance/misc";
 
@@ -66,7 +67,7 @@ const InstanceShaderPacksPage = () => {
       icon: "download",
       onClick: () => {
         openSharedModal("download-resource", {
-          initialResourceType: "shader",
+          initialResourceType: OtherResourceType.ShaderPack,
         });
       },
     },

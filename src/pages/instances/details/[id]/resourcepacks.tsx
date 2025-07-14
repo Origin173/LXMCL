@@ -13,6 +13,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { InstanceSubdirType } from "@/enums/instance";
+import { OtherResourceType } from "@/enums/resource";
 import { GetStateFlag } from "@/hooks/get-state";
 import { ResourcePackInfo } from "@/models/instance/misc";
 import { base64ImgSrc } from "@/utils/string";
@@ -99,7 +100,7 @@ const InstanceResourcePacksPage = () => {
           icon: "download",
           onClick: () => {
             openSharedModal("download-resource", {
-              initialResourceType: "resourcepack",
+              initialResourceType: OtherResourceType.ResourcePack,
             });
           },
         },
