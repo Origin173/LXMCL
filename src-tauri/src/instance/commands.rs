@@ -38,17 +38,14 @@ use crate::{
   },
   storage::Storage,
   tasks::{commands::schedule_progressive_task_group, download::DownloadParam, PTaskParam},
-  utils::{
-    fs::{create_url_shortcut, generate_unique_directory_name},
-    image::ImageWrapper,
-  },
+  utils::{fs::create_url_shortcut, image::ImageWrapper},
 };
 use lazy_static::lazy_static;
 use regex::{Regex, RegexBuilder};
 use serde_json::{from_value, Value};
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::{collections::HashMap, ffi::OsStr};
 use std::{sync::Mutex, time::SystemTime};
 use tauri::{AppHandle, Manager, State};
 use tauri_plugin_http::reqwest;
@@ -791,7 +788,7 @@ pub async fn create_instance(
   client: State<'_, reqwest::Client>,
   launcher_config_state: State<'_, Mutex<LauncherConfig>>,
   directory: GameDirectory,
-  mut name: String,
+  name: String,
   description: String,
   icon_src: String,
   game: GameClientResourceInfo,
@@ -804,8 +801,10 @@ pub async fn create_instance(
   };
 
   // Ensure the instance name is unique
-  name = generate_unique_directory_name(&directory.dir, OsStr::new(&name));
   let version_path = directory.dir.join("versions").join(&name);
+  if version_path.exists() {
+    return Err(InstanceError::ConflictNameError.into());
+  }
   fs::create_dir_all(&version_path).map_err(|_| InstanceError::FolderCreationFailed)?;
 
   // Create instance config
@@ -845,11 +844,8 @@ pub async fn create_instance(
   .map_err(|_| InstanceError::FileCreationFailed)?;
 
   // Try to parse as McClientInfo, with better error handling for legacy versions
-  let version_info = from_value::<McClientInfo>(version_info_raw.clone()).map_err(|e| {
-    // Log the specific parsing error for debugging
-    eprintln!("Failed to parse client JSON for version {}: {}", game.id, e);
-    InstanceError::ClientJsonParseError
-  })?;
+  let version_info = from_value::<McClientInfo>(version_info_raw.clone())
+    .map_err(|_| InstanceError::ClientJsonParseError)?;
 
   let mut task_params = Vec::<PTaskParam>::new();
 

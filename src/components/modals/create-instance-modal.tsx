@@ -115,9 +115,9 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     instanceIconSrc,
     selectedModLoader.loaderType,
     selectedModLoader.version,
+    toast,
     modalProps,
     router,
-    toast,
   ]);
 
   const step1Content = useMemo(() => {
