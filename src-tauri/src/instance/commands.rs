@@ -24,6 +24,7 @@ use super::{
 use crate::{
   error::SJMCLResult,
   instance::{helpers::client_json::McClientInfo, models::misc::ModLoader},
+  launch::helpers::{file_validator::convert_library_name_to_path, misc::get_natives_string},
   launcher_config::{
     helpers::misc::get_global_game_config,
     models::{GameConfig, GameDirectory, LauncherConfig},
@@ -864,42 +865,27 @@ pub async fn create_instance(
 
   // Download libraries (use task)
   let libraries_download_api = get_download_api(priority_list[0], ResourceType::Libraries)?;
-  for library in version_info.libraries {
-    // Check if library has downloads field (modern format)
-    if let Some(downloads) = library.downloads {
-      if let Some(artifact) = downloads.artifact {
-        let dest = directory.dir.join(format!("libraries/{}", artifact.path));
-        if dest.exists() {
-          continue;
-        }
-        task_params.push(PTaskParam::Download(DownloadParam {
-          src: libraries_download_api
-            .join(&artifact.path)
-            .map_err(|_| InstanceError::ClientJsonParseError)?,
-          dest,
-          filename: None,
-          sha1: Some(artifact.sha1),
-        }));
-      }
+  for library in &version_info.libraries {
+    let (natives, sha1) = if let Some(natives) = &library.natives {
+      (get_natives_string(natives), None)
     } else {
-      // Legacy format - construct path from library name
-      if let Ok(library_path) =
-        crate::launch::helpers::file_validator::convert_library_name_to_path(&name, None)
-      {
-        let dest = directory.dir.join(format!("libraries/{}", library_path));
-        if dest.exists() {
-          continue;
-        }
-        task_params.push(PTaskParam::Download(DownloadParam {
-          src: libraries_download_api
-            .join(&library_path)
-            .map_err(|_| InstanceError::ClientJsonParseError)?,
-          dest,
-          filename: None,
-          sha1: None, // Legacy versions might not have SHA1
-        }));
-      }
-    }
+      (
+        None,
+        library
+          .downloads
+          .as_ref()
+          .and_then(|d| d.artifact.as_ref().and_then(|a| Some(a.sha1.clone()))),
+      )
+    };
+    let path = convert_library_name_to_path(&library.name, natives)?;
+    task_params.push(PTaskParam::Download(DownloadParam {
+      src: libraries_download_api
+        .join(&path)
+        .map_err(|_| InstanceError::ClientJsonParseError)?,
+      dest: directory.dir.join(format!("libraries/{}", path)),
+      filename: Some(library.name.clone()),
+      sha1,
+    }));
   }
 
   // Download asset index
