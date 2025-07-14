@@ -122,6 +122,12 @@ const DownloadSpecificResourceModal: React.FC<
     datapack: datapackTagList,
   };
 
+  const iconBackgroundColor: Record<string, string> = {
+    alpha: "yellow.300",
+    beta: "purple.500",
+    release: "green.500",
+  };
+
   const translateTag = (
     tag: string,
     resourceType: string,
@@ -155,30 +161,12 @@ const DownloadSpecificResourceModal: React.FC<
     [gameVersionList, resource.source]
   );
 
-  const iconBackgroundColor = (releaseType: string) => {
-    switch (releaseType) {
-      case "alpha":
-        return "yellow.300";
-      case "beta":
-        return "purple.500";
-      case "release":
-        return "green.500";
-    }
-  };
-
   const versionPackFilter = (pack: OtherResourceVersionPack): boolean => {
-    const loader = pack.name.split(" ")[0];
-    const version = pack.name.split(" ").slice(1).join(" ");
-
-    const matchesModloader =
-      selectedModLoader === "All" ||
-      loader.toLowerCase() === selectedModLoader.toLowerCase();
-
     const matchesVersion =
       selectedVersionLabel === "All" ||
-      new RegExp(`^${selectedVersionLabel}(\\.|$)`).test(version);
+      new RegExp(`^${selectedVersionLabel}(\\.|$)`).test(pack.name);
 
-    return matchesModloader && matchesVersion;
+    return matchesVersion;
   };
 
   const fetchVersionLabels = useCallback(() => {
@@ -254,9 +242,7 @@ const DownloadSpecificResourceModal: React.FC<
 
   const buildVersionLabelItem = (version: string) => {
     return version !== "All"
-      ? version === curInstanceMajorVersion
-        ? `${version} (${t("DownloadSpecificResourceModal.label.recommendedVersion")})`
-        : version
+      ? version
       : t("DownloadSpecificResourceModal.label.all");
   };
 
@@ -431,17 +417,17 @@ const DownloadSpecificResourceModal: React.FC<
               <MenuButton
                 as={Button}
                 size="xs"
-                w={36}
+                w={24}
                 variant="outline"
                 fontSize="xs"
                 textAlign="center"
                 rightIcon={<LuChevronDown />}
               >
-                <Text className="ellipsis-text" maxW={36}>
+                <Text className="ellipsis-text" maxW={24}>
                   {buildVersionLabelItem(selectedVersionLabel)}
                 </Text>
               </MenuButton>
-              <MenuList maxH="40vh" minW={36} overflow="auto">
+              <MenuList maxH="40vh" minW={24} overflow="auto">
                 <MenuOptionGroup
                   value={selectedVersionLabel}
                   type="radio"
@@ -458,22 +444,23 @@ const DownloadSpecificResourceModal: React.FC<
               </MenuList>
             </Menu>
             <Box>
-              {resource.type === OtherResourceType.Mod && (
-                <NavMenu
-                  className="no-scrollbar"
-                  selectedKeys={[selectedModLoader]}
-                  onClick={setSelectedModLoader}
-                  direction="row"
-                  size="xs"
-                  spacing={2}
-                  flex={1}
-                  display="flex"
-                  items={modLoaderLabels.map((item) => ({
-                    value: item,
-                    label: buildModLoaderItem(item),
-                  }))}
-                />
-              )}
+              {resource.type === OtherResourceType.Mod &&
+                !resource.tags.includes("datapack") && (
+                  <NavMenu
+                    className="no-scrollbar"
+                    selectedKeys={[selectedModLoader]}
+                    onClick={setSelectedModLoader}
+                    direction="row"
+                    size="xs"
+                    spacing={2}
+                    flex={1}
+                    display="flex"
+                    items={modLoaderLabels.map((item) => ({
+                      value: item,
+                      label: buildModLoaderItem(item),
+                    }))}
+                  />
+                )}
             </Box>
           </HStack>
           {isGameVersionListLoading || isVersionPacksLoading ? (
@@ -528,10 +515,21 @@ const DownloadSpecificResourceModal: React.FC<
                             name={item.releaseType}
                             boxSize="32px"
                             borderRadius="4px"
-                            backgroundColor={iconBackgroundColor(
-                              item.releaseType
-                            )}
+                            backgroundColor={
+                              iconBackgroundColor[item.releaseType]
+                            }
                           />
+                        }
+                        titleExtra={
+                          item.loader && (
+                            <Tag
+                              key={item.loader}
+                              colorScheme={primaryColor}
+                              className="tag-xs"
+                            >
+                              {item.loader}
+                            </Tag>
+                          )
                         }
                         isFullClickZone
                         onClick={() => startDownload(item)}

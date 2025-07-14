@@ -107,16 +107,8 @@ pub fn map_modrinth_file_to_version_pack(
         .collect::<Vec<_>>()
     };
 
-    let loaders = if loaders.is_empty() {
-      vec!["".to_string()]
-    } else {
-      loaders
-    };
-
     for game_version in &game_versions {
       for loader in &loaders {
-        let version_name = format!("{} {}", loader, game_version);
-
         let file_infos = version
           .files
           .iter()
@@ -128,13 +120,18 @@ pub fn map_modrinth_file_to_version_pack(
             download_url: file.url.clone(),
             sha1: file.hashes.sha1.clone(),
             file_name: file.filename.clone(),
+            loader: if loader.is_empty() {
+              None
+            } else {
+              Some(loader.to_string())
+            },
           })
           .collect::<Vec<_>>();
 
         version_packs
-          .entry(version_name.clone())
+          .entry(game_version.clone())
           .or_insert_with(|| OtherResourceVersionPack {
-            name: version_name,
+            name: game_version.clone(),
             items: Vec::new(),
           })
           .items

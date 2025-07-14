@@ -87,6 +87,7 @@ pub struct OtherResourceFileInfo {
   pub download_url: String,
   pub sha1: String,
   pub file_name: String,
+  pub loader: Option<String>,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
