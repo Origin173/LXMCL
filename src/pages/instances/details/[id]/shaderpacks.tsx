@@ -1,7 +1,8 @@
-import { HStack } from "@chakra-ui/react";
+import { Center, HStack } from "@chakra-ui/react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { BeatLoader } from "react-spinners";
 import { CommonIconButton } from "@/components/common/common-icon-button";
 import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
@@ -10,6 +11,7 @@ import { Section } from "@/components/common/section";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { InstanceSubdirType } from "@/enums/instance";
+import { GetStateFlag } from "@/hooks/get-state";
 import { ShaderPackInfo } from "@/models/instance/misc";
 
 const InstanceShaderPacksPage = () => {
@@ -19,14 +21,27 @@ const InstanceShaderPacksPage = () => {
     openInstanceSubdir,
     handleImportResource,
     getShaderPackList,
+    isShaderPackListLoading: isLoading,
   } = useInstanceSharedData();
   const { openSharedModal } = useSharedModals();
 
   const [shaderPacks, setShaderPacks] = useState<ShaderPackInfo[]>([]);
 
+  const getShaderPackListWrapper = useCallback(
+    (sync?: boolean) => {
+      getShaderPackList(sync)
+        .then((data) => {
+          if (data === GetStateFlag.Cancelled) return;
+          setShaderPacks(data || []);
+        })
+        .catch((e) => setShaderPacks([]));
+    },
+    [getShaderPackList]
+  );
+
   useEffect(() => {
-    setShaderPacks(getShaderPackList() || []);
-  }, [getShaderPackList]);
+    getShaderPackListWrapper();
+  }, [getShaderPackListWrapper]);
 
   const shaderSecMenuOperations = [
     {
@@ -43,9 +58,7 @@ const InstanceShaderPacksPage = () => {
           filterExt: ["zip"],
           tgtDirType: InstanceSubdirType.ShaderPacks,
           decompress: false,
-          onSuccessCallback: () => {
-            setShaderPacks(getShaderPackList(true) || []);
-          },
+          onSuccessCallback: () => getShaderPackListWrapper(true),
         });
       },
     },
@@ -59,9 +72,7 @@ const InstanceShaderPacksPage = () => {
     },
     {
       icon: "refresh",
-      onClick: () => {
-        setShaderPacks(getShaderPackList(true) || []);
-      },
+      onClick: () => getShaderPackListWrapper(true),
     },
   ];
 
@@ -102,7 +113,11 @@ const InstanceShaderPacksPage = () => {
         </HStack>
       }
     >
-      {shaderPacks.length > 0 ? (
+      {isLoading ? (
+        <Center mt={4}>
+          <BeatLoader size={16} color="gray" />
+        </Center>
+      ) : shaderPacks.length > 0 ? (
         <OptionItemGroup
           items={shaderPacks.map((pack) => (
             <OptionItem key={pack.fileName} title={pack.fileName}>

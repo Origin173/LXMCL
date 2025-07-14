@@ -484,7 +484,8 @@
     "task": {
       "game-client-download": "Game Client {{param}}",
       "game-server-download": "Game Server {{param}}",
-      "game-resource-download": "Resource Pack"
+      "game-resource-download": "Resource Pack",
+      "retry": "Retry Task"
     }
   },
   "Editable": {
@@ -1989,6 +1990,11 @@
     "task": {
       "scheduleProgressiveTaskGroup": {
         "success": "Task created successfully"
+      },
+      "onProgressiveTaskUpdate": {
+        "error": {
+          "title": "Task {{param}} failed"
+        }
       }
     }
   },

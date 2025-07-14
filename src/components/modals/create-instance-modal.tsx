@@ -29,7 +29,6 @@ import { GameVersionSelector } from "@/components/game-version-selector";
 import { InstanceBasicSettings } from "@/components/instance-basic-settings";
 import { ModLoaderSelector } from "@/components/mod-loader-selector";
 import { useLauncherConfig } from "@/contexts/config";
-import { useGlobalData } from "@/contexts/global-data";
 import { useToast } from "@/contexts/toast";
 import { GameDirectory } from "@/models/config";
 import {
@@ -58,7 +57,6 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
 }) => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
-  const { getInstanceList } = useGlobalData();
   const primaryColor = config.appearance.theme.primaryColor;
   const toast = useToast();
   const router = useRouter();
@@ -76,9 +74,11 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   const [instanceDescription, setInstanceDescription] = useState("");
   const [instanceIconSrc, setInstanceIconSrc] = useState("");
   const [instanceDirectory, setInstanceDirectory] = useState<GameDirectory>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleCreateInstance = useCallback(() => {
     if (!selectedGameVersion) return;
+    setIsLoading(true);
     InstanceService.createInstance(
       instanceDirectory!,
       instanceName,
@@ -89,23 +89,24 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
         loaderType: selectedModLoader.loaderType,
         version: selectedModLoader.version,
       }
-    ).then((res) => {
-      if (res.status === "success") {
-        toast({
-          title: res.message,
-          status: "success",
-        });
-        getInstanceList(true);
-      } else {
-        toast({
-          title: res.message,
-          description: res.details,
-          status: "error",
-        });
-      }
-    });
-    modalProps.onClose();
-    router.push("/downloads");
+    )
+      .then((res) => {
+        if (res.status === "success") {
+          toast({
+            title: res.message,
+            status: "success",
+          });
+          modalProps.onClose();
+          router.push("/downloads");
+        } else {
+          toast({
+            title: res.message,
+            description: res.details,
+            status: "error",
+          });
+        }
+      })
+      .finally(() => setIsLoading(false));
   }, [
     selectedGameVersion,
     instanceDirectory,
@@ -117,7 +118,6 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     modalProps,
     router,
     toast,
-    getInstanceList,
   ]);
 
   const step1Content = useMemo(() => {
@@ -226,6 +226,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
             disabled={!instanceDirectory || instanceName === ""}
             colorScheme={primaryColor}
             onClick={() => handleCreateInstance()}
+            isLoading={isLoading}
           >
             {t("General.finish")}
           </Button>
@@ -238,6 +239,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     instanceDirectory,
     instanceIconSrc,
     instanceName,
+    isLoading,
     modalProps.onClose,
     primaryColor,
     setActiveStep,

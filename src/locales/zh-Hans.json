@@ -484,7 +484,8 @@
     "task": {
       "game-client-download": "游戏客户端 {{param}}",
       "game-server-download": "游戏服务端 {{param}}",
-      "game-resource-download": "资源包"
+      "game-resource-download": "资源包",
+      "retry": "重试任务"
     }
   },
   "Editable": {
@@ -1989,6 +1990,11 @@
     "task": {
       "scheduleProgressiveTaskGroup": {
         "success": "任务创建成功"
+      },
+      "onProgressiveTaskUpdate": {
+        "error": {
+          "title": "任务 {{param}} 失败"
+        }
       }
     }
   },
