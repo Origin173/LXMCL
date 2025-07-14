@@ -23,7 +23,10 @@ use super::{
 };
 use crate::{
   error::SJMCLResult,
-  instance::{helpers::client_json::McClientInfo, models::misc::ModLoader},
+  instance::{
+    helpers::client_json::McClientInfo, helpers::mod_loader::install_mod_loader,
+    models::misc::ModLoader,
+  },
   launch::helpers::{file_validator::convert_library_name_to_path, misc::get_natives_string},
   launcher_config::{
     helpers::misc::get_global_game_config,
@@ -930,12 +933,35 @@ pub async fn create_instance(
   }
 
   schedule_progressive_task_group(
-    app,
+    app.clone(),
     format!("game-client-download:{}", name),
     task_params,
     true,
   )
   .await?;
-  // TODO: install mod loaders
+
+  if instance.mod_loader.loader_type != ModLoaderType::Unknown {
+    let vjson_path = directory
+      .dir
+      .join(format!("versions/{}/{}.json", name, name));
+
+    let mut version_json: Value = serde_json::from_slice(&std::fs::read(&vjson_path)?)?;
+
+    install_mod_loader(
+      app,
+      client,
+      &priority_list,
+      &instance.version,
+      &instance.mod_loader,
+      &directory.dir,
+      &name,
+      directory.dir.join("libraries"),
+      &mut version_json,
+    )
+    .await?;
+
+    std::fs::write(&vjson_path, serde_json::to_vec_pretty(&version_json)?)?;
+  }
+
   Ok(())
 }
