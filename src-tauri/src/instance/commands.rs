@@ -23,10 +23,7 @@ use super::{
 };
 use crate::{
   error::SJMCLResult,
-  instance::{
-    helpers::{client_json::McClientInfo, libraries::construct_legacy_library_path},
-    models::misc::ModLoader,
-  },
+  instance::{helpers::client_json::McClientInfo, models::misc::ModLoader},
   launcher_config::{
     helpers::misc::get_global_game_config,
     models::{GameConfig, GameDirectory, LauncherConfig},
@@ -886,7 +883,9 @@ pub async fn create_instance(
       }
     } else {
       // Legacy format - construct path from library name
-      if let Some(library_path) = construct_legacy_library_path(&library.name) {
+      if let Ok(library_path) =
+        crate::launch::helpers::file_validator::convert_library_name_to_path(&name, None)
+      {
         let dest = directory.dir.join(format!("libraries/{}", library_path));
         if dest.exists() {
           continue;

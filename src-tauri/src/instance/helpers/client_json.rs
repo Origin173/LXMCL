@@ -20,8 +20,8 @@ pub struct McClientInfo {
   pub assets: String,
   pub downloads: HashMap<String, DownloadsValue>,
   pub libraries: Vec<LibrariesValue>,
-  pub logging: Option<Logging>,          // Optional for legacy versions
-  pub java_version: Option<JavaVersion>, // Optional for legacy versions
+  pub logging: Logging,
+  pub java_version: JavaVersion,
   #[serde(rename = "type")]
   pub type_: String,
   pub time: String,
@@ -57,7 +57,7 @@ pub struct PatchesInfo {
 #[serde(rename_all = "camelCase", default)]
 pub struct JavaVersion {
   pub component: String,
-  pub major_version: Option<i32>, // Optional for legacy versions
+  pub major_version: i32,
 }
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]

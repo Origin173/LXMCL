@@ -66,11 +66,7 @@ pub async fn select_suitable_jre(
     &game_config.game_java,
     &javas,
     &instance,
-    client_info
-      .java_version
-      .as_ref()
-      .and_then(|jv| jv.major_version)
-      .unwrap_or(8),
+    client_info.java_version.major_version,
   )
   .await?;
 
