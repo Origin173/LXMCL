@@ -1823,6 +1823,7 @@
         "error": {
           "title": "Failed to create instance download task",
           "description": {
+            "CONFLICT_NAME_ERROR": "Instance name already exists",
             "FOLDER_CREATION_FAILED": "Failed to create target folder",
             "FILE_CREATION_FAILED": "Failed to create target file",
             "NETWORK_ERROR": "Failed to connect to the server",

@@ -1823,6 +1823,7 @@
         "error": {
           "title": "实例下载任务创建失败",
           "description": {
+            "CONFLICT_NAME_ERROR": "当前游戏目录存在重名实例",
             "FOLDER_CREATION_FAILED": "目标文件夹创建失败",
             "FILE_CREATION_FAILED": "目标文件创建失败",
             "NETWORK_ERROR": "网络错误",
