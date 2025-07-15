@@ -359,7 +359,9 @@ impl TaskMonitor {
   pub fn resume_progressive_task_group(&self, task_group: String) {
     if let Some(group) = self.group_map.write().unwrap().get(&task_group) {
       for handle in group {
-        handle.write().unwrap().mark_resumed();
+        if handle.read().unwrap().desc.status.is_stopped() {
+          handle.write().unwrap().mark_resumed();
+        }
       }
     }
   }
@@ -367,7 +369,10 @@ impl TaskMonitor {
   pub fn stop_progressive_task_group(&self, task_group: String) {
     if let Some(group) = self.group_map.write().unwrap().get(&task_group) {
       for handle in group {
-        handle.write().unwrap().mark_stopped();
+        let status = handle.read().unwrap().desc.status.clone();
+        if status.is_in_progress() || status.is_waiting() {
+          handle.write().unwrap().mark_stopped();
+        }
       }
     }
   }
