@@ -1,3 +1,4 @@
+use super::super::utils::web::with_retry;
 use super::models::PostSourceInfo;
 use crate::{
   discover::models::{PostResponse, PostSummary},
@@ -17,7 +18,7 @@ pub async fn fetch_post_sources_info(app: AppHandle) -> SJMCLResult<Vec<PostSour
     state.discover_source_endpoints.clone()
   };
 
-  let client = app.state::<reqwest::Client>();
+  let client = with_retry(app.state::<reqwest::Client>().inner().clone());
 
   let tasks: Vec<_> = post_source_urls
     .into_iter()
