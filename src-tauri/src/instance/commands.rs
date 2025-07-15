@@ -24,19 +24,16 @@ use super::{
 use crate::{
   error::SJMCLResult,
   instance::{
-    helpers::client_json::{FeaturesInfo, IsAllowed, McClientInfo},
-    models::misc::ModLoader,
+    helpers::{client_json::McClientInfo, misc::get_instance_subdir_paths},
+    models::misc::{AssetIndex, ModLoader},
   },
-  launch::helpers::{file_validator::convert_library_name_to_path, misc::get_natives_string},
+  launch::helpers::file_validator::{get_invalid_assets, get_invalid_library_files},
   launcher_config::{
     helpers::misc::get_global_game_config,
     models::{GameConfig, GameDirectory, LauncherConfig},
   },
   partial::{PartialError, PartialUpdate},
-  resource::{
-    helpers::misc::{get_download_api, get_source_priority_list},
-    models::{GameClientResourceInfo, ResourceType},
-  },
+  resource::{helpers::misc::get_source_priority_list, models::GameClientResourceInfo},
   storage::Storage,
   tasks::{commands::schedule_progressive_task_group, download::DownloadParam, PTaskParam},
   utils::{fs::create_url_shortcut, image::ImageWrapper},
@@ -865,95 +862,46 @@ pub async fn create_instance(
     sha1: Some(client_download_info.sha1.clone()),
   }));
 
-  // Download libraries (use task)
-  let libraries_download_api = get_download_api(priority_list[0], ResourceType::Libraries)?;
-  let feature = FeaturesInfo::default();
-  for library in &version_info.libraries {
-    if !library.is_allowed(&feature).unwrap_or(false) {
-      continue;
-    }
-    let (native, sha1) = if let Some(natives) = &library.natives {
-      if let Some(natives_string) = get_natives_string(natives) {
-        (
-          Some(natives_string.clone()),
-          library.downloads.as_ref().and_then(|d| {
-            d.classifiers
-              .as_ref()?
-              .get(&natives_string)
-              .map(|c| c.sha1.clone())
-          }),
-        )
-      } else {
-        (None, None)
-      }
-    } else {
-      (
-        None,
-        library
-          .downloads
-          .as_ref()
-          .and_then(|d| d.artifact.as_ref().map(|a| a.sha1.clone())),
-      )
-    };
-    let path = convert_library_name_to_path(&library.name, native)?;
-    task_params.push(PTaskParam::Download(DownloadParam {
-      src: libraries_download_api
-        .join(&path)
-        .map_err(|_| InstanceError::ClientJsonParseError)?,
-      dest: directory.dir.join(format!("libraries/{}", path)),
-      filename: Some(library.name.clone()),
-      sha1,
-    }));
-  }
+  let subdirs = get_instance_subdir_paths(
+    &app,
+    &instance,
+    &[&InstanceSubdirType::Libraries, &InstanceSubdirType::Assets],
+  )
+  .ok_or(InstanceError::InstanceNotFoundByID)?;
+  let [libraries_dir, assets_dir] = subdirs.as_slice() else {
+    return Err(InstanceError::InstanceNotFoundByID.into());
+  };
+
+  // We only download libraries if they are invalid (not already downloaded)
+  task_params.extend(
+    get_invalid_library_files(priority_list[0], libraries_dir, &version_info, false).await?,
+  );
 
   // Download asset index
-  let asset_index = client
-    .get(version_info.asset_index.url)
+  let asset_index_raw = client
+    .get(version_info.asset_index.url.clone())
     .send()
     .await
     .map_err(|_| InstanceError::NetworkError)?
-    .json::<Value>()
+    .json::<serde_json::Value>()
     .await
     .map_err(|_| InstanceError::AssetIndexParseError)?;
-  let asset_index_path = directory.dir.join("assets/indexes");
+
+  let asset_index_path = assets_dir.join("indexes");
+
   fs::create_dir_all(&asset_index_path).map_err(|_| InstanceError::FolderCreationFailed)?;
   fs::write(
     asset_index_path.join(format!("{}.json", version_info.asset_index.id)),
-    asset_index.to_string(),
+    asset_index_raw.to_string(),
   )
   .map_err(|_| InstanceError::FileCreationFailed)?;
 
-  // Download assets (use task)
-  let assets_download_api = get_download_api(priority_list[0], ResourceType::Assets)?;
-  let objects = asset_index["objects"]
-    .as_object()
-    .ok_or(InstanceError::AssetIndexParseError)?;
-  for (_, value) in objects {
-    let hash = value["hash"]
-      .as_str()
-      .ok_or(InstanceError::AssetIndexParseError)?;
-    let path = format!("{}/{}", &hash[..2], hash);
-    let dest = directory.dir.join(format!("assets/objects/{}", path));
-    if dest.exists() {
-      continue;
-    }
-    task_params.push(PTaskParam::Download(DownloadParam {
-      src: assets_download_api
-        .join(&path)
-        .map_err(|_| InstanceError::ClientJsonParseError)?,
-      dest,
-      filename: None,
-      sha1: Some(hash.to_string()),
-    }));
-  }
+  // We only download assets if they are invalid (not already downloaded)
+  let asset_index: AssetIndex =
+    serde_json::from_value(asset_index_raw).map_err(|_| InstanceError::AssetIndexParseError)?;
+  task_params.extend(get_invalid_assets(priority_list[0], assets_dir, &asset_index, false).await?);
 
-  schedule_progressive_task_group(
-    app,
-    format!("game-client-download:{}", name),
-    task_params,
-    true,
-  )
-  .await?;
+  schedule_progressive_task_group(app, format!("game-client:{}", name), task_params, true).await?;
   // TODO: install mod loaders
   Ok(())
 }

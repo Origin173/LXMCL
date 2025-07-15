@@ -367,13 +367,6 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
                 (payload.event as FailedPTaskEventStatus).reason
               }`
             );
-            toast({
-              title: t(`Services.task.onProgressiveTaskUpdate.error.title`, {
-                param: payload.id,
-              }),
-              description: (payload.event as FailedPTaskEventStatus).reason,
-              status: "error",
-            });
             let group = prevTasks?.find(
               (t) => t.taskGroup === payload.taskGroup
             );

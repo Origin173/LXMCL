@@ -218,7 +218,7 @@ const DownloadSpecificResourceModal: React.FC<
       defaultPath: dir + "/" + item.fileName,
     });
     if (!savepath) return;
-    handleScheduleProgressiveTaskGroup("game-resource-download", [
+    handleScheduleProgressiveTaskGroup("game-resource", [
       {
         src: item.downloadUrl,
         dest: savepath,

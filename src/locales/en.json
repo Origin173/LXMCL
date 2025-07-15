@@ -482,9 +482,10 @@
       "cancelled": "Cancelled"
     },
     "task": {
-      "game-client-download": "Game Client {{param}}",
-      "game-server-download": "Game Server {{param}}",
-      "game-resource-download": "Resource Pack",
+      "game-client": "Game Client {{param}}",
+      "game-server": "Game Server {{param}}",
+      "game-resource": "Resource Pack",
+      "patch-files": "Patch Game Files {{param}}",
       "retry": "Retry Task"
     }
   },
@@ -1737,7 +1738,8 @@
         "error": {
           "title": "Failed to validate game files",
           "description": {
-            "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist"
+            "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist",
+            "GAME_FILES_INCOMPLETE": "Game files are incomplete"
           }
         }
       },

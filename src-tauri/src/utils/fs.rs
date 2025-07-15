@@ -1,6 +1,7 @@
 use crate::error::{SJMCLError, SJMCLResult};
 use crate::utils::portable::is_portable;
 use regex::Regex;
+use sha1::{Digest, Sha1};
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 use std::{fs, io};
@@ -204,7 +205,7 @@ pub fn get_app_resource_filepath(
   app
     .path()
     .resolve(relative_path, dir)
-    .map_err(|e| io::Error::new(io::ErrorKind::Other, e))
+    .map_err(io::Error::other)
 }
 
 /// Creates a cross-platform desktop shortcut that points to a URL (include deeplink).
@@ -368,4 +369,34 @@ Terminal=false
   }
 
   Ok(())
+}
+
+pub fn validate_sha1(dest_path: PathBuf, truth: String) -> SJMCLResult<()> {
+  let mut f = std::fs::File::options()
+    .read(true)
+    .create(false)
+    .write(false)
+    .open(&dest_path)
+    .map_err(|e| {
+      SJMCLError(format!(
+        "Failed to open file {}: {}",
+        dest_path.display(),
+        e
+      ))
+    })?;
+  let mut hasher = Sha1::new();
+  std::io::copy(&mut f, &mut hasher)
+    .map_err(|e| SJMCLError(format!("Failed to copy data for SHA1 validation: {}", e)))?;
+
+  let sha1 = hex::encode(hasher.finalize());
+  if sha1 != truth {
+    Err(SJMCLError(format!(
+      "SHA1 mismatch for {}: expected {}, got {}",
+      dest_path.display(),
+      truth,
+      sha1
+    )))
+  } else {
+    Ok(())
+  }
 }

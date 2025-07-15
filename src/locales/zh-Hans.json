@@ -482,9 +482,10 @@
       "cancelled": "已取消"
     },
     "task": {
-      "game-client-download": "游戏客户端 {{param}}",
-      "game-server-download": "游戏服务端 {{param}}",
-      "game-resource-download": "资源包",
+      "game-client": "游戏客户端 {{param}}",
+      "game-server": "游戏服务端 {{param}}",
+      "game-resource": "资源包",
+      "patch-files": "修补游戏文件 {{param}}",
       "retry": "重试任务"
     }
   },
@@ -1737,7 +1738,8 @@
         "error": {
           "title": "验证游戏文件失败",
           "description": {
-            "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在"
+            "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在",
+            "GAME_FILES_INCOMPLETE": "游戏文件不完整或缺失"
           }
         }
       },
