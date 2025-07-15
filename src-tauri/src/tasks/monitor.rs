@@ -1,6 +1,7 @@
 use crate::error::SJMCLResult;
 use crate::launcher_config::commands::retrieve_launcher_config;
 use crate::tasks::events::PEvent;
+use crate::tasks::streams::desc::PStatus;
 
 use async_speed_limit::Limiter;
 use download::DownloadTask;
@@ -45,8 +46,7 @@ impl TaskMonitor {
       tasks: Arc::new(Mutex::new(HashMap::new())),
       concurrency: Arc::new(Semaphore::new(
         if config.download.transmission.auto_concurrent {
-          let parallelism: usize = std::thread::available_parallelism().unwrap().into();
-          1 + (parallelism / 2_usize)
+          std::thread::available_parallelism().unwrap().into()
         } else {
           config.download.transmission.concurrent_count
         },
@@ -122,6 +122,7 @@ impl TaskMonitor {
   ) where
     T: Future<Output = SJMCLResult<()>> + Send + 'static,
   {
+    p_handle.write().unwrap().desc.status = PStatus::Waiting;
     self.phs.write().unwrap().insert(id, p_handle.clone());
 
     if let Some(ref g) = task_group {
@@ -169,6 +170,7 @@ impl TaskMonitor {
   pub async fn enqueue_task_group(&self, task_group: String, futures: Vec<SJMCLFutureDesc>) {
     let mut hvec: Vec<Arc<RwLock<PTaskHandle>>> = Vec::new();
     for future in futures.iter() {
+      future.h.write().unwrap().desc.status = PStatus::Waiting;
       self
         .phs
         .write()
@@ -216,7 +218,6 @@ impl TaskMonitor {
   pub async fn background_process(&self) {
     loop {
       let future = self.rx.recv_async().await.unwrap();
-      let tasks = self.tasks.clone();
       let group_map = self.group_map.clone();
 
       if self
@@ -234,34 +235,37 @@ impl TaskMonitor {
         continue;
       }
 
-      if self.concurrency.acquire().await.is_ok() {
-        let concurrency = self.concurrency.clone();
-        let task_id = future.task_id;
-        self.tasks.lock().unwrap().insert(
-          future.task_id,
-          tokio::spawn(async move {
-            let r = future.f.await;
-            match r {
-              Ok(_) => {}
-              Err(e) => {
-                info!("Task failed: {e:?}");
-                if let Some(group_name) = future.task_group {
-                  if let Some(group) = group_map.write().unwrap().remove(&group_name) {
-                    for handle in group {
-                      let mut handle = handle.write().unwrap();
-                      if handle.desc.status.is_waiting() {
-                        handle.mark_cancelled()
-                      }
+      let tasks = self.tasks.clone();
+      let concurrency = self.concurrency.clone();
+      let task_id = future.task_id;
+
+      self.tasks.lock().unwrap().insert(
+        future.task_id,
+        tokio::spawn(async move {
+          // Acquire permit before executing the actual task
+          let _permit = concurrency.acquire().await.unwrap();
+
+          let r = future.f.await;
+          match r {
+            Ok(_) => {}
+            Err(e) => {
+              info!("Task failed: {e:?}");
+              if let Some(group_name) = future.task_group {
+                if let Some(group) = group_map.write().unwrap().remove(&group_name) {
+                  for handle in group {
+                    let mut handle = handle.write().unwrap();
+                    if handle.desc.status.is_waiting() {
+                      handle.mark_cancelled()
                     }
                   }
                 }
               }
             }
-            tasks.lock().unwrap().remove(&future.task_id);
-            concurrency.add_permits(1);
-          }),
-        );
-      }
+          }
+          tasks.lock().unwrap().remove(&future.task_id);
+          // The permit will be automatically released when _permit is dropped
+        }),
+      );
     }
   }
 

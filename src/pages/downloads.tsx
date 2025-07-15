@@ -252,7 +252,7 @@ export const DownloadTasksPage = () => {
                     <OptionItem
                       key={`${task.taskId}-detail`}
                       title={task.payload.filename}
-                      titleExtra={
+                      description={
                         task.status === TaskDescStatusEnums.InProgress && (
                           <Text
                             fontSize="xs"
@@ -271,6 +271,9 @@ export const DownloadTasksPage = () => {
                             size="xs"
                             value={task.progress}
                             colorScheme={primaryColor}
+                            isIndeterminate={
+                              task.status === TaskDescStatusEnums.Waiting
+                            }
                             borderRadius="sm"
                           />
                         )}
