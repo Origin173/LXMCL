@@ -23,7 +23,10 @@ use super::{
 };
 use crate::{
   error::SJMCLResult,
-  instance::{helpers::client_json::McClientInfo, models::misc::ModLoader},
+  instance::{
+    helpers::client_json::{FeaturesInfo, IsAllowed, McClientInfo},
+    models::misc::ModLoader,
+  },
   launch::helpers::{file_validator::convert_library_name_to_path, misc::get_natives_string},
   launcher_config::{
     helpers::misc::get_global_game_config,
@@ -45,7 +48,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::{sync::Mutex, time::SystemTime};
-use tauri::{AppHandle, Manager, State};
+use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 use tokio;
 use url::Url;
@@ -783,8 +786,6 @@ pub fn create_launch_desktop_shortcut(app: AppHandle, instance_id: String) -> SJ
 #[tauri::command]
 pub async fn create_instance(
   app: AppHandle,
-  client: State<'_, reqwest::Client>,
-  launcher_config_state: State<'_, Mutex<LauncherConfig>>,
   directory: GameDirectory,
   name: String,
   description: String,
@@ -792,6 +793,8 @@ pub async fn create_instance(
   game: GameClientResourceInfo,
   mod_loader: ModLoader,
 ) -> SJMCLResult<()> {
+  let client = app.state::<reqwest::Client>();
+  let launcher_config_state = app.state::<Mutex<LauncherConfig>>();
   // Get priority list
   let priority_list = {
     let launcher_config = launcher_config_state.lock()?;
@@ -841,7 +844,6 @@ pub async fn create_instance(
   )
   .map_err(|_| InstanceError::FileCreationFailed)?;
 
-  // Try to parse as McClientInfo, with better error handling for legacy versions
   let version_info = from_value::<McClientInfo>(version_info_raw.clone())
     .map_err(|_| InstanceError::ClientJsonParseError)?;
 
@@ -865,9 +867,25 @@ pub async fn create_instance(
 
   // Download libraries (use task)
   let libraries_download_api = get_download_api(priority_list[0], ResourceType::Libraries)?;
+  let feature = FeaturesInfo::default();
   for library in &version_info.libraries {
-    let (natives, sha1) = if let Some(natives) = &library.natives {
-      (get_natives_string(natives), None)
+    if !library.is_allowed(&feature).unwrap_or(false) {
+      continue;
+    }
+    let (native, sha1) = if let Some(natives) = &library.natives {
+      if let Some(natives_string) = get_natives_string(natives) {
+        (
+          Some(natives_string.clone()),
+          library.downloads.as_ref().and_then(|d| {
+            d.classifiers
+              .as_ref()?
+              .get(&natives_string)
+              .map(|c| c.sha1.clone())
+          }),
+        )
+      } else {
+        (None, None)
+      }
     } else {
       (
         None,
@@ -877,7 +895,7 @@ pub async fn create_instance(
           .and_then(|d| d.artifact.as_ref().map(|a| a.sha1.clone())),
       )
     };
-    let path = convert_library_name_to_path(&library.name, natives)?;
+    let path = convert_library_name_to_path(&library.name, native)?;
     task_params.push(PTaskParam::Download(DownloadParam {
       src: libraries_download_api
         .join(&path)
