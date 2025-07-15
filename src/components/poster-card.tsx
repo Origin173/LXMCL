@@ -5,6 +5,7 @@ import {
   CardProps,
   HStack,
   Image,
+  Skeleton,
   Tag,
   Text,
   VStack,
@@ -32,8 +33,9 @@ const PosterCard = ({ data }: PosterCardProps) => {
   const primaryColor = config.appearance.theme.primaryColor;
   const themedStyles = useThemedCSSStyle();
 
-  const { title, abstracts, keywords, imageSrc, source, updateAt, link } = data;
+  const { title, abstract, keywords, imageSrc, source, updateAt, link } = data;
   const [isHovered, setIsHovered] = useState(false);
+  const [src, width, height] = imageSrc || [];
 
   return (
     <Card
@@ -47,7 +49,19 @@ const PosterCard = ({ data }: PosterCardProps) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {imageSrc && <Image objectFit="cover" src={imageSrc} alt={title} />}
+      {src && (
+        <Skeleton isLoaded={!!src} height="auto">
+          <Image
+            objectFit="cover"
+            src={src}
+            alt={title}
+            width={width}
+            height={height}
+            style={{ height: "auto" }}
+          />
+        </Skeleton>
+      )}
+
       <CardBody p={3}>
         <VStack spacing={1} alignItems="start" overflow="hidden">
           <Text fontSize="xs-sm">{title}</Text>
@@ -60,9 +74,9 @@ const PosterCard = ({ data }: PosterCardProps) => {
               ))}
             </Wrap>
           )}
-          {abstracts && (
+          {abstract && (
             <Text fontSize="xs" className="secondary-text">
-              {cleanHtmlText(abstracts)}
+              {cleanHtmlText(abstract)}
             </Text>
           )}
           <HStack className="secondary-text" fontSize="xs" mt={1} spacing={1}>
