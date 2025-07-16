@@ -304,3 +304,11 @@ pub fn retrieve_game_log(app: AppHandle, log_label: String) -> SJMCLResult<Vec<S
       .collect(),
   )
 }
+
+#[tauri::command]
+pub fn retrieve_game_launching_state(
+  launching_state: State<'_, Mutex<LaunchingState>>,
+) -> SJMCLResult<LaunchingState> {
+  let launching = launching_state.lock()?;
+  Ok(launching.clone())
+}
