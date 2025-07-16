@@ -59,6 +59,15 @@ impl<T: Read + Send + 'static> OutputPipe<T> {
   }
 }
 
+pub async fn record_play_time(app: AppHandle, start_time: Instant, instance_id: String) {
+  let binding = app.state::<Mutex<HashMap<String, Instance>>>();
+  let inst = binding.lock().unwrap().get(&instance_id).cloned();
+  if let Some(mut instance) = inst {
+    instance.play_time = start_time.elapsed().as_secs() as u128;
+    let _ = instance.clone().save_json_cfg().await;
+  }
+}
+
 pub async fn monitor_process(
   app: AppHandle,
   mut child: Child,
@@ -128,71 +137,68 @@ pub async fn monitor_process(
   let game_ready_flag = game_ready_flag.clone();
 
   tokio::spawn(async move {
-    if let Ok(status) = child.wait() {
-      if !game_ready_flag.load(Ordering::SeqCst) {
-        let _ = ready_tx.send(());
-      }
-
-      if let Some(h) = stdout {
-        let _ = h.join();
-      }
-
-      if let Some(h) = stderr {
-        let _ = h.join();
-      }
-
-      log_file.lock().unwrap().flush().unwrap();
-      drop(log_file);
-
-      // handle launcher main window visiablity
-      match launcher_visibility {
-        LauncherVisiablity::RunningHidden => {
-          let main_window = app.get_webview_window("main").expect("no main window");
-          let _ = main_window.show();
-          let _ = main_window.set_focus();
+    let exit_ok = match child.wait() {
+      Ok(status) => {
+        if !game_ready_flag.load(Ordering::SeqCst) {
+          let _ = ready_tx.send(());
         }
-        LauncherVisiablity::StartHidden => {
-          // If the main window is still hidden (not shown again due to the single instance plugin when the user runs the launcher again), exit the launcher process
-          let main_window = app.get_webview_window("main").expect("no main window");
-          if let Ok(is_visible) = main_window.is_visible() {
-            if !is_visible {
-              std::process::exit(0);
-            }
-          } else {
+
+        if let Some(h) = stdout {
+          let _ = h.join();
+        }
+
+        if let Some(h) = stderr {
+          let _ = h.join();
+        }
+
+        log_file.lock().unwrap().flush().unwrap();
+        drop(log_file);
+        // calc and update play time
+        let start_time_lock = *start_time.lock().unwrap();
+        if let Some(start_time) = start_time_lock {
+          record_play_time(app.clone(), start_time, instance_id_clone).await;
+        }
+
+        status.success()
+      }
+      Err(e) => {
+        writeln!(
+          log_file.lock().unwrap(),
+          "[FATAL] Game process was killed Reason: {e}."
+        )
+        .unwrap();
+        false
+      }
+    };
+
+    // handle launcher main window visiablity
+    match launcher_visibility {
+      LauncherVisiablity::RunningHidden => {
+        let main_window = app.get_webview_window("main").expect("no main window");
+        let _ = main_window.show();
+        let _ = main_window.set_focus();
+      }
+      LauncherVisiablity::StartHidden => {
+        // If the main window is still hidden (not shown again due to the single instance plugin when the user runs the launcher again), exit the launcher process
+        let main_window = app.get_webview_window("main").expect("no main window");
+        if let Ok(is_visible) = main_window.is_visible() {
+          if !is_visible {
             std::process::exit(0);
           }
-        }
-        _ => {}
-      }
-
-      if status.success() {
-        eprintln!("Game process exited successfully.");
-        if let Some(ref window) = log_window {
-          // auto close the game-log window if the game exits successfully
-          let _ = window.destroy();
-        }
-      } else {
-        eprintln!("Game process exited with an error status: {status:?}");
-
-        let _ =
-          create_webview_window(&app, &label.replace("log", "error"), "game_error", None).unwrap();
-      }
-
-      // calc and update play time
-      let start_time_lock = start_time.lock().unwrap();
-      if let Some(start_time) = *start_time_lock {
-        let elapsed_time = start_time.elapsed().as_secs() as u128;
-
-        let binding = app.state::<Mutex<HashMap<String, Instance>>>();
-        let mut state = binding.lock().unwrap();
-        if let Some(instance) = state.get_mut(&instance_id_clone) {
-          instance.play_time += elapsed_time;
-          let instance_clone = instance.clone();
-          tokio::task::spawn(async move {
-            let _ = &instance_clone.save_json_cfg().await;
-          });
+        } else {
+          std::process::exit(0);
         }
       }
+      _ => {}
+    }
+
+    if exit_ok {
+      if let Some(ref window) = log_window {
+        let _ = window.destroy();
+      }
+    } else {
+      let _ =
+        create_webview_window(&app, &label.replace("log", "error"), "game_error", None).unwrap();
     }
   });
 
@@ -326,27 +332,3 @@ pub fn change_process_window_title(pid: u32, new_title: &str) -> SJMCLResult<()>
 
   Ok(())
 }
-
-// fn is_process_exists(pid: u32) -> bool {
-//   #[cfg(target_os = "windows")]
-//   {
-//     use std::os::windows::process::CommandExt;
-
-//     let output = Command::new("tasklist")
-//       .arg("/FI")
-//       .arg(format!("PID eq {}", pid))
-//       .output()
-//       .unwrap();
-//     output.stdout.contains(&pid.to_string().into_bytes())
-//   }
-
-//   #[cfg(any(target_os = "linux", target_os = "macos"))]
-//   {
-//     let output = Command::new("ps")
-//       .arg("-p")
-//       .arg(pid.to_string())
-//       .output()
-//       .unwrap();
-//     output.status.success()
-//   }
-// }
