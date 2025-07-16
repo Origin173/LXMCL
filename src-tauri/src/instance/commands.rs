@@ -833,16 +833,22 @@ pub async fn create_instance(
     .json::<Value>()
     .await
     .map_err(|_| InstanceError::ClientJsonParseError)?;
+
+  let mut version_info = from_value::<McClientInfo>(version_info_raw.clone())
+    .map_err(|_| InstanceError::ClientJsonParseError)?;
+
+  version_info.id = name.clone();
+
+  let version_info_tosave =
+    serde_json::to_string_pretty(&version_info).map_err(|_| InstanceError::ClientJsonParseError)?;
+
   fs::write(
     directory
       .dir
       .join(format!("versions/{}/{}.json", name, name)),
-    version_info_raw.to_string(),
+    version_info_tosave,
   )
   .map_err(|_| InstanceError::FileCreationFailed)?;
-
-  let version_info = from_value::<McClientInfo>(version_info_raw.clone())
-    .map_err(|_| InstanceError::ClientJsonParseError)?;
 
   let mut task_params = Vec::<PTaskParam>::new();
 
