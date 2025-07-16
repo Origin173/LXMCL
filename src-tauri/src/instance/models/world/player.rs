@@ -73,13 +73,13 @@ pub struct PlayerAbilityData {
   pub instabuild: u8,
   pub flying: u8,
   #[serde(rename = "flySpeed")]
-  pub fly_speed: f32,
+  pub fly_speed: Option<f32>,
   #[serde(rename = "walkSpeed")]
-  pub walk_speed: f32,
+  pub walk_speed: Option<f32>,
   #[serde(rename = "mayBuild")]
-  pub may_build: u8,
+  pub may_build: Option<u8>,
   #[serde(rename = "mayfly")]
-  pub may_fly: u8,
+  pub may_fly: Option<u8>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default)]
