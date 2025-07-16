@@ -152,6 +152,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         }}
       >
         {children}
+        {isDev && <DevToolbar />}
       </div>
     );
   }

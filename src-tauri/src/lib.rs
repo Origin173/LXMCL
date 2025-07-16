@@ -114,6 +114,8 @@ pub async fn run() {
       launch::commands::validate_selected_player,
       launch::commands::launch_game,
       launch::commands::cancel_launch_process,
+      launch::commands::open_game_log_window,
+      launch::commands::retrieve_game_log,
       resource::commands::fetch_game_version_list,
       resource::commands::fetch_mod_loader_version_list,
       resource::commands::fetch_resource_list_by_name,

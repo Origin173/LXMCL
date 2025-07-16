@@ -27,11 +27,15 @@ use crate::{
   resource::helpers::misc::get_source_priority_list,
   storage::load_json_async,
   tasks::commands::schedule_progressive_task_group,
+  utils::window::create_webview_window,
 };
-use std::collections::HashMap;
-use std::process::{Command, Stdio};
 use std::sync::{mpsc, Mutex};
-use tauri::{AppHandle, Manager, State};
+use std::{collections::HashMap, path::PathBuf};
+use std::{
+  io::{prelude::*, BufReader},
+  process::{Command, Stdio},
+};
+use tauri::{path::BaseDirectory, AppHandle, Manager, State};
 
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
@@ -222,11 +226,13 @@ pub async fn launch_game(
   // execute launch command
   #[cfg(target_os = "windows")]
   cmd_base.creation_flags(0x08000000);
-  let mut child = cmd_base
+
+  let child = cmd_base
     .args(cmd_args)
     .stdout(Stdio::piped())
     .stderr(Stdio::piped())
     .spawn()?;
+
   let pid = child.id();
   {
     let mut launching = launching_state.lock().unwrap();
@@ -237,7 +243,7 @@ pub async fn launch_game(
   let (tx, rx) = mpsc::channel();
   monitor_process(
     app.clone(),
-    &mut child,
+    child,
     instance_id,
     game_config.display_game_log,
     game_config.launcher_visibility.clone(),
@@ -260,6 +266,7 @@ pub async fn launch_game(
 
   // clear launching state
   *launching_state.lock().unwrap() = LaunchingState::default();
+  eprintln!("OK");
 
   Ok(())
 }
@@ -277,4 +284,31 @@ pub fn cancel_launch_process(launching_state: State<'_, Mutex<LaunchingState>>) 
   *launching = LaunchingState::default();
 
   Ok(())
+}
+
+#[tauri::command]
+pub fn open_game_log_window(app: AppHandle, log_label: String) -> SJMCLResult<()> {
+  create_webview_window(&app, &log_label, "game_log", None)?;
+  Ok(())
+}
+
+#[tauri::command]
+pub fn retrieve_game_log(app: AppHandle, log_label: String) -> SJMCLResult<Vec<String>> {
+  let log_file_dir = app
+    .path()
+    .resolve::<PathBuf>(format!("{log_label}.log").into(), BaseDirectory::AppCache)?;
+  Ok(
+    BufReader::new(std::fs::OpenOptions::new().read(true).open(log_file_dir)?)
+      .lines()
+      .map_while(Result::ok)
+      .collect(),
+  )
+}
+
+#[tauri::command]
+pub fn retrieve_game_launching_state(
+  launching_state: State<'_, Mutex<LaunchingState>>,
+) -> SJMCLResult<LaunchingState> {
+  let launching = launching_state.lock()?;
+  Ok(launching.clone())
 }
