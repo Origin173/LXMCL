@@ -241,6 +241,9 @@ export const DownloadTasksPage = () => {
                     size="xs"
                     value={group.progress}
                     colorScheme={primaryColor}
+                    isIndeterminate={
+                      group.status === TaskDescStatusEnums.Waiting
+                    }
                     borderRadius="sm"
                     mb={1}
                   />
@@ -252,7 +255,7 @@ export const DownloadTasksPage = () => {
                     <OptionItem
                       key={`${task.taskId}-detail`}
                       title={task.payload.filename}
-                      titleExtra={
+                      description={
                         task.status === TaskDescStatusEnums.InProgress && (
                           <Text
                             fontSize="xs"
@@ -271,6 +274,9 @@ export const DownloadTasksPage = () => {
                             size="xs"
                             value={task.progress}
                             colorScheme={primaryColor}
+                            isIndeterminate={
+                              task.status === TaskDescStatusEnums.Waiting
+                            }
                             borderRadius="sm"
                           />
                         )}
@@ -292,7 +298,7 @@ export const DownloadTasksPage = () => {
                   ))
                 : []),
             ]}
-            maxFirstVisibleItems={4}
+            maxFirstVisibleItems={10}
           />
         ))}
       </VStack>

@@ -52,9 +52,11 @@ where
 
   fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
     {
-      let h = self.handle.read().unwrap();
+      let mut h = self.handle.write().unwrap();
       let state = h.status();
       if state.is_stopped() {
+        // Store the waker so we can be woken up when resumed
+        h.store_waker(cx.waker().clone());
         return Poll::Pending;
       }
 

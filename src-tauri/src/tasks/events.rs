@@ -146,9 +146,6 @@ impl Sink for TauriEventSink {
   fn report_cancelled(&self, task_id: u32, task_group: Option<&str>) {
     PEvent::emit_cancelled(&self.app, task_id, task_group);
   }
-  fn report_resumed(&self, task_id: u32, task_group: Option<&str>) {
-    PEvent::emit_started(&self.app, task_id, task_group, 0);
-  }
   fn report_completion(&self, task_id: u32, task_group: Option<&str>) {
     PEvent::emit_completed(&self.app, task_id, task_group);
   }
