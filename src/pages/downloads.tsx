@@ -298,7 +298,7 @@ export const DownloadTasksPage = () => {
                   ))
                 : []),
             ]}
-            maxFirstVisibleItems={4}
+            maxFirstVisibleItems={10}
           />
         ))}
       </VStack>

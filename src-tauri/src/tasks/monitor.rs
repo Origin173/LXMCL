@@ -246,16 +246,17 @@ impl TaskMonitor {
         continue;
       }
 
+      // Acquire permit before spawning the task to limit memory usage
+      let permit = self.concurrency.clone().acquire_owned().await.unwrap();
+
       let tasks = self.tasks.clone();
-      let concurrency = self.concurrency.clone();
       let group_map = self.group_map.clone();
-      let task_id = future.task_id;
 
       self.tasks.lock().unwrap().insert(
         future.task_id,
         tokio::spawn(async move {
-          // Acquire permit before executing the actual task
-          let _permit = concurrency.acquire().await.unwrap();
+          // Move the permit into the spawned task
+          let _permit = permit;
 
           if let Some(task_group) = future.task_group.clone() {
             // Wait for the task group to be resumed if it is stopped
