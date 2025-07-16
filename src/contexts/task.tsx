@@ -21,6 +21,7 @@ import {
   TaskParam,
 } from "@/models/task";
 import { TaskService } from "@/services/task";
+import { useGlobalData } from "./global-data";
 
 interface TaskContextType {
   tasks: TaskGroupDesc[];
@@ -42,18 +43,21 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const toast = useToast();
+  const { getInstanceList } = useGlobalData();
   const [tasks, setTasks] = useState<TaskGroupDesc[]>([]);
   const [generalPercent, setGeneralPercent] = useState<number>();
   const { t } = useTranslation();
 
   // use ref to cache pending update on tasks
   const pendingTasksRef = useRef<TaskGroupDesc[] | null>(null);
+  const tasksChangedRef = useRef<boolean>(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
-      if (pendingTasksRef.current) {
+      if (pendingTasksRef.current && tasksChangedRef.current) {
         setTasks([...pendingTasksRef.current]);
+        tasksChangedRef.current = false;
       }
     }, 1000);
 
@@ -64,7 +68,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
-  const updateGroupInfo = (group: TaskGroupDesc) => {
+  const updateGroupInfo = useCallback((group: TaskGroupDesc) => {
     group.current = group.taskDescs.reduce((acc, t) => acc + t.current, 0);
     group.total = group.taskDescs.reduce((acc, t) => acc + t.total, 0);
     group.progress = group.total > 0 ? (group.current * 100) / group.total : 0;
@@ -102,6 +106,15 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
       group.taskDescs.every((t) => t.status === TaskDescStatusEnums.Completed)
     ) {
       group.status = TaskDescStatusEnums.Completed;
+
+      let groupInfo = group.taskGroup.split("@")[0].split(":");
+      if (groupInfo.length > 1 && groupInfo[0] === "game-client") {
+        getInstanceList(true);
+      }
+    } else if (
+      group.taskDescs.some((t) => t.status === TaskDescStatusEnums.Stopped)
+    ) {
+      group.status = TaskDescStatusEnums.Stopped;
     } else if (
       group.taskDescs.some((t) => t.status === TaskDescStatusEnums.Failed)
     ) {
@@ -115,17 +128,17 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
     ) {
       group.status = TaskDescStatusEnums.Cancelled;
     } else if (
-      group.taskDescs.some((t) => t.status === TaskDescStatusEnums.Stopped)
-    ) {
-      group.status = TaskDescStatusEnums.Stopped;
-    } else if (
       group.taskDescs.some((t) => t.status === TaskDescStatusEnums.InProgress)
     ) {
       group.status = TaskDescStatusEnums.InProgress;
     } else {
       group.status = TaskDescStatusEnums.Waiting;
     }
-  };
+
+    tasksChangedRef.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleRetrieveProgressTasks = useCallback(() => {
     TaskService.retrieveProgressiveTaskList().then((response) => {
       if (response.status === "success") {
@@ -153,7 +166,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
         });
       }
     });
-  }, [toast]);
+  }, [toast, updateGroupInfo]);
 
   useEffect(() => {
     handleRetrieveProgressTasks();
@@ -286,6 +299,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             updateGroupInfo(newGroup);
 
             pendingTasksRef.current = [newGroup, ...(currentTasks || [])];
+            tasksChangedRef.current = true;
           }
         } else if (payload.event.status === PTaskEventStatusEnums.Started) {
           let group = currentTasks?.find(
@@ -301,6 +315,8 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             }
             return t;
           });
+          updateGroupInfo(group);
+          tasksChangedRef.current = true;
         } else if (payload.event.status === PTaskEventStatusEnums.Completed) {
           let group = currentTasks?.find(
             (t) => t.taskGroup === payload.taskGroup
@@ -317,15 +333,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
           // info(`Task ${payload.id} completed in group ${payload.taskGroup}`);
 
           updateGroupInfo(group);
-
-          if (
-            group.taskDescs.every(
-              (t) => t.status === TaskDescStatusEnums.Completed
-            )
-          ) {
-            // info(`All tasks completed in group ${payload.taskGroup}`);
-            group.status = TaskDescStatusEnums.Completed;
-          }
+          tasksChangedRef.current = true;
         } else if (payload.event.status === PTaskEventStatusEnums.Stopped) {
           let group = currentTasks?.find(
             (t) => t.taskGroup === payload.taskGroup
@@ -338,7 +346,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             }
             return t;
           });
-          group.status = TaskDescStatusEnums.Stopped;
+          tasksChangedRef.current = true;
           // info(`Task ${payload.id} stopped in group ${payload.taskGroup}`);
         } else if (payload.event.status === PTaskEventStatusEnums.Cancelled) {
           let group = currentTasks?.find(
@@ -352,7 +360,8 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             }
             return t;
           });
-          group.status = TaskDescStatusEnums.Cancelled;
+          updateGroupInfo(group);
+          tasksChangedRef.current = true;
           // info(`Task ${payload.id} cancelled in group ${payload.taskGroup}`);
         } else if (payload.event.status === PTaskEventStatusEnums.InProgress) {
           let group = currentTasks?.find(
@@ -370,8 +379,8 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             }
             return t;
           });
-          group.status = TaskDescStatusEnums.InProgress;
           updateGroupInfo(group);
+          tasksChangedRef.current = true;
 
           // info(
           //   `Task ${payload.id} in progress in group ${payload.taskGroup}`
@@ -401,6 +410,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             return t;
           });
           updateGroupInfo(group);
+          tasksChangedRef.current = true;
           // info(`Task ${payload.id} failed in group ${payload.taskGroup}`);
         }
       }
@@ -409,7 +419,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => {
       unlisten();
     };
-  }, [t, toast]);
+  }, [t, toast, updateGroupInfo]);
 
   useEffect(() => {
     if (!tasks || !tasks.length) return;

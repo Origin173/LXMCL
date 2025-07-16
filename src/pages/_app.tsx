@@ -112,8 +112,8 @@ export default function App({ Component, pageProps }: AppProps) {
       <ToastContextProvider>
         <RoutingHistoryContextProvider>
           <LauncherConfigContextProvider>
-            <TaskContextProvider>
-              <GlobalDataContextProvider>
+            <GlobalDataContextProvider>
+              <TaskContextProvider>
                 <SharedModalsProvider>
                   <GlobalEventHandler>
                     <MainLayout>
@@ -125,8 +125,8 @@ export default function App({ Component, pageProps }: AppProps) {
                     </MainLayout>
                   </GlobalEventHandler>
                 </SharedModalsProvider>
-              </GlobalDataContextProvider>
-            </TaskContextProvider>
+              </TaskContextProvider>
+            </GlobalDataContextProvider>
           </LauncherConfigContextProvider>
         </RoutingHistoryContextProvider>
       </ToastContextProvider>

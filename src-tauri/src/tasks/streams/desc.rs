@@ -96,7 +96,7 @@ where
   }
 
   pub fn stop(&mut self) {
-    if self.status == PStatus::InProgress {
+    if self.status == PStatus::InProgress || self.status == PStatus::Waiting {
       self.status = PStatus::Stopped
     }
   }
