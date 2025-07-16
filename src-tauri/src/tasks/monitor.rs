@@ -21,6 +21,11 @@ use super::events::TEvent;
 use super::SJMCLFuture;
 use super::*;
 
+pub struct GroupMonitor {
+  pub is_stopped: bool,
+  pub phs: Vec<Arc<RwLock<PTaskHandle>>>,
+}
+
 pub struct TaskMonitor {
   app_handle: AppHandle,
   id_counter: AtomicU32,
@@ -30,7 +35,7 @@ pub struct TaskMonitor {
   concurrency: Arc<Semaphore>,
   tx: FlumeSender<SJMCLFuture>,
   rx: FlumeReceiver<SJMCLFuture>,
-  group_map: Arc<RwLock<HashMap<String, Vec<Arc<RwLock<PTaskHandle>>>>>>,
+  group_map: Arc<RwLock<HashMap<String, GroupMonitor>>>,
   pub download_rate_limiter: Option<Limiter>,
 }
 
@@ -128,9 +133,15 @@ impl TaskMonitor {
     if let Some(ref g) = task_group {
       let mut group_map = self.group_map.write().unwrap();
       if let Some(group) = group_map.get_mut(g) {
-        group.push(p_handle.clone());
+        group.phs.push(p_handle.clone());
       } else {
-        group_map.insert(g.clone(), vec![p_handle.clone()]);
+        group_map.insert(
+          g.clone(),
+          GroupMonitor {
+            is_stopped: false,
+            phs: vec![p_handle.clone()],
+          },
+        );
       }
     }
 
@@ -185,11 +196,13 @@ impl TaskMonitor {
       hvec.push(future.h.clone());
     }
 
-    self
-      .group_map
-      .write()
-      .unwrap()
-      .insert(task_group.clone(), hvec);
+    self.group_map.write().unwrap().insert(
+      task_group.clone(),
+      GroupMonitor {
+        is_stopped: false,
+        phs: hvec,
+      },
+    );
 
     for future in futures {
       let task = Box::pin(async move {
@@ -218,8 +231,6 @@ impl TaskMonitor {
   pub async fn background_process(&self) {
     loop {
       let future = self.rx.recv_async().await.unwrap();
-      let group_map = self.group_map.clone();
-
       if self
         .phs
         .read()
@@ -237,6 +248,7 @@ impl TaskMonitor {
 
       let tasks = self.tasks.clone();
       let concurrency = self.concurrency.clone();
+      let group_map = self.group_map.clone();
       let task_id = future.task_id;
 
       self.tasks.lock().unwrap().insert(
@@ -245,6 +257,22 @@ impl TaskMonitor {
           // Acquire permit before executing the actual task
           let _permit = concurrency.acquire().await.unwrap();
 
+          if let Some(task_group) = future.task_group.clone() {
+            // Wait for the task group to be resumed if it is stopped
+            loop {
+              let is_stopped = group_map
+                .read()
+                .unwrap()
+                .get(&task_group)
+                .map(|g| g.is_stopped)
+                .unwrap_or(false);
+              if !is_stopped {
+                break;
+              }
+              tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+            }
+          }
+
           let r = future.f.await;
           match r {
             Ok(_) => {}
@@ -252,7 +280,7 @@ impl TaskMonitor {
               info!("Task failed: {e:?}");
               if let Some(group_name) = future.task_group {
                 if let Some(group) = group_map.write().unwrap().remove(&group_name) {
-                  for handle in group {
+                  for handle in group.phs {
                     let mut handle = handle.write().unwrap();
                     if handle.desc.status.is_waiting() {
                       handle.mark_cancelled()
@@ -342,7 +370,7 @@ impl TaskMonitor {
 
   pub fn cancel_progressive_task_group(&self, task_group: String) {
     if let Some(group) = self.group_map.write().unwrap().remove(&task_group) {
-      for handle in group {
+      for handle in group.phs {
         handle.write().unwrap().mark_cancelled();
         if let Some(join_handle) = self
           .tasks
@@ -357,8 +385,9 @@ impl TaskMonitor {
   }
 
   pub fn resume_progressive_task_group(&self, task_group: String) {
-    if let Some(group) = self.group_map.write().unwrap().get(&task_group) {
-      for handle in group {
+    if let Some(group) = self.group_map.write().unwrap().get_mut(&task_group) {
+      group.is_stopped = false;
+      for handle in &group.phs {
         if handle.read().unwrap().desc.status.is_stopped() {
           handle.write().unwrap().mark_resumed();
         }
@@ -367,8 +396,9 @@ impl TaskMonitor {
   }
 
   pub fn stop_progressive_task_group(&self, task_group: String) {
-    if let Some(group) = self.group_map.write().unwrap().get(&task_group) {
-      for handle in group {
+    if let Some(group) = self.group_map.write().unwrap().get_mut(&task_group) {
+      group.is_stopped = true;
+      for handle in &group.phs {
         let status = handle.read().unwrap().desc.status.clone();
         if status.is_in_progress() || status.is_waiting() {
           handle.write().unwrap().mark_stopped();
@@ -385,7 +415,11 @@ impl TaskMonitor {
       .iter()
       .map(|(k, v)| PTaskGroupDesc {
         task_group: k.clone(),
-        task_descs: v.iter().map(|h| h.read().unwrap().desc.clone()).collect(),
+        task_descs: v
+          .phs
+          .iter()
+          .map(|h| h.read().unwrap().desc.clone())
+          .collect(),
       })
       .collect()
   }

@@ -241,6 +241,9 @@ export const DownloadTasksPage = () => {
                     size="xs"
                     value={group.progress}
                     colorScheme={primaryColor}
+                    isIndeterminate={
+                      group.status === TaskDescStatusEnums.Waiting
+                    }
                     borderRadius="sm"
                     mb={1}
                   />

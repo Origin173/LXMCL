@@ -1,4 +1,3 @@
-import { info } from "@tauri-apps/plugin-log";
 import React, {
   createContext,
   useCallback,
@@ -90,6 +89,8 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             return 1;
           case TaskDescStatusEnums.Waiting:
             return 2;
+          case TaskDescStatusEnums.Completed:
+            return 4;
           default:
             return 3;
         }
@@ -121,6 +122,8 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
       group.taskDescs.some((t) => t.status === TaskDescStatusEnums.InProgress)
     ) {
       group.status = TaskDescStatusEnums.InProgress;
+    } else {
+      group.status = TaskDescStatusEnums.Waiting;
     }
   };
   const handleRetrieveProgressTasks = useCallback(() => {
@@ -235,9 +238,9 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const unlisten = TaskService.onProgressiveTaskUpdate(
       (payload: PTaskEventPayload) => {
-        info(
-          `Received task update: ${payload.id}, status: ${payload.event.status}`
-        );
+        // info(
+        //   `Received task update: ${payload.id}, status: ${payload.event.status}`
+        // );
 
         const currentTasks = pendingTasksRef.current;
 

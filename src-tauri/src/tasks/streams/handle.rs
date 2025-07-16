@@ -2,7 +2,7 @@ use super::desc::{PDesc, PStatus};
 use super::reporter::{Reporter, Sink};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use std::task::Context;
+use std::task::{Context, Waker};
 use tokio::time::{interval, Duration, Interval};
 
 pub struct PHandle<S, P>
@@ -14,6 +14,7 @@ where
   pub desc: PDesc<P>,
   pub path: PathBuf,
   pub reporter: Reporter<S>,
+  pub waker: Option<Waker>,
 }
 
 impl<S, P> PHandle<S, P>
@@ -27,6 +28,7 @@ where
       desc,
       path,
       reporter,
+      waker: None,
     }
   }
 
@@ -41,9 +43,16 @@ where
   pub fn mark_resumed(&mut self) {
     self.desc.resume();
     self.desc.save(&self.path).unwrap();
-    self
-      .reporter
-      .report_resumed(self.desc.task_id, self.desc.task_group.as_deref());
+    self.reporter.report_started(
+      self.desc.task_id,
+      self.desc.task_group.as_deref(),
+      self.desc.total,
+    );
+
+    // Wake up any waiting poll_next calls
+    if let Some(waker) = self.waker.take() {
+      waker.wake();
+    }
   }
 
   pub fn mark_cancelled(&mut self) {
@@ -82,6 +91,10 @@ where
 
   pub fn status(&self) -> &PStatus {
     &self.desc.status
+  }
+
+  pub fn store_waker(&mut self, waker: Waker) {
+    self.waker = Some(waker);
   }
 
   pub fn set_total(&mut self, total: i64) {
