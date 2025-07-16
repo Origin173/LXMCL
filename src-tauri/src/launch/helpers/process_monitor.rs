@@ -41,12 +41,7 @@ impl<T: Read + Send + 'static> OutputPipe<T> {
             .app
             .emit_to(&self.label, GAME_PROCESS_OUTPUT_EVENT, &line);
         }
-        self
-          .log_file
-          .lock()
-          .unwrap()
-          .write_all(line.as_bytes())
-          .unwrap();
+        writeln!(self.log_file.lock().unwrap(), "{line}").unwrap();
         // the first time when log contains 'render thread', 'lwjgl version', or 'lwjgl openal', send signal to launch command, close frontend modal.
         if !self.game_ready_flag.load(Ordering::SeqCst)
           && READY_FLAG.iter().any(|p| line.to_lowercase().contains(p))
