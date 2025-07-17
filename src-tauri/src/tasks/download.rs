@@ -12,7 +12,7 @@ use std::future::Future;
 use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
-use tauri::{AppHandle, Url};
+use tauri::{AppHandle, Manager, Url};
 use tauri_plugin_http::reqwest;
 use tauri_plugin_http::reqwest::header::{ACCEPT_ENCODING, RANGE};
 use tokio::io::AsyncSeekExt;
@@ -127,7 +127,8 @@ impl DownloadTask {
     current: i64,
     param: &DownloadParam,
   ) -> SJMCLResult<reqwest::Response> {
-    let client = with_retry(build_sjmcl_client(app_handle, true, false));
+    let state = app_handle.state::<reqwest::Client>();
+    let client = with_retry(state.inner().clone());
     let request = if current == 0 {
       client
         .get(param.src.clone())

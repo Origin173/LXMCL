@@ -13,9 +13,9 @@ use std::future::Future;
 use std::sync::atomic::AtomicU32;
 use std::sync::{Arc, Mutex, RwLock};
 use std::vec::Vec;
+use tauri::async_runtime::JoinHandle;
 use tauri::AppHandle;
 use tokio::sync::Semaphore;
-use tokio::task::JoinHandle;
 
 use super::events::TEvent;
 use super::SJMCLFuture;
@@ -254,7 +254,7 @@ impl TaskMonitor {
 
       self.tasks.lock().unwrap().insert(
         future.task_id,
-        tokio::spawn(async move {
+        tauri::async_runtime::spawn(async move {
           // Move the permit into the spawned task
           let _permit = permit;
 
