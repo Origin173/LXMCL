@@ -706,7 +706,7 @@
       "MOD_RESOLUTION_MISSING": "Mod {{param1}} is missing the required dependency {{param2}}.",
       "MOD_RESOLUTION_MISSING_MINECRAFT": "Mod {{param1}} requires Minecraft {{param2}} to run.",
       "MOD_RESOLUTION_COLLECTION": "Mod {{param1}} is missing the required dependency {{param2}}.",
-      "FILE_ALREADY_EXISTS": "{{param}} already exists. If you think this file can be deleted, try backing it up and deleting it, then restart.",
+      "FILE_ALREADY_EXISTS": "{{param1}} already exists. If you think this file can be deleted, try backing it up and deleting it, then restart.",
       "LOADING_CRASHED_FORGE": "Mod {{param1}} ({{param2}}) caused an error. Try deleting or updating this mod.",
       "BOOTSTRAP_FAILED": "Mod {{param1}} caused a startup issue. Try deleting or updating this mod.",
       "LOADING_CRASHED_FABRIC": "Mod {{param1}} caused an error. Try deleting or updating this mod.",

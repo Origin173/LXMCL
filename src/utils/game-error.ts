@@ -250,7 +250,6 @@ export const analyzeCrashReport = (
     for (const rule of crashRules) {
       const match = rule.pattern.exec(line);
       if (match) {
-        // 返回 key 以及正则捕获的分组参数
         return {
           key: rule.key,
           params: match.slice(1),

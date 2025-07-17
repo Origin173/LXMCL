@@ -265,8 +265,6 @@ pub async fn launch_game(
       .hide();
   }
 
-  eprintln!("OK");
-
   Ok(())
 }
 

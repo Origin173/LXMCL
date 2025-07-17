@@ -24,6 +24,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { InstanceSummary } from "@/models/instance/misc";
 import { JavaInfo } from "@/models/system-info";
 import { LaunchService } from "@/services/launch";
+import { parseModernWindowsVersion } from "@/utils/env";
 import { analyzeCrashReport } from "@/utils/game-error";
 import { capitalizeFirstLetter } from "@/utils/string";
 
@@ -50,7 +51,19 @@ const GameErrorPage: React.FC = () => {
     // construct info maps
     let infoList = new Map<string, string>();
     infoList.set("launcherVersion", config.basicInfo.launcherVersion);
-    infoList.set("os", `${platformName()} ${config.basicInfo.platformVersion}`);
+    let platform = platformName();
+    if (platform === "Linux") {
+      infoList.set("os", "Linux");
+    } else {
+      infoList.set(
+        "os",
+        `${platform} ${
+          platform === "Windows"
+            ? parseModernWindowsVersion(config.basicInfo.platformVersion)
+            : config.basicInfo.platformVersion
+        }`
+      );
+    }
     infoList.set("arch", config.basicInfo.arch);
     setBasicInfoParams(infoList);
   }, [config.basicInfo, platformName]);
