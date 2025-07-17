@@ -380,6 +380,17 @@
       "online": "在线"
     }
   },
+  "DownloadJavaModal": {
+    "header": {
+      "title": "下载 Java"
+    },
+    "selector": {
+      "vendor": "发行方",
+      "version": "版本",
+      "type": "类型"
+    },
+    "warning": "从 Oracle 源下载可能需要登录"
+  },
   "DownloadModpackModal": {
     "header": {
       "title": "下载整合包"

@@ -380,6 +380,17 @@
       "online": "Online"
     }
   },
+  "DownloadJavaModal": {
+    "header": {
+      "title": "Download Java"
+    },
+    "selector": {
+      "vendor": "Vendor",
+      "version": "Version",
+      "type": "Type"
+    },
+    "warning": "Downloading from Oracle may require login."
+  },
   "DownloadModpackModal": {
     "header": {
       "title": "Download Modpack"
