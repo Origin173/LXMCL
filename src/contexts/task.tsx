@@ -299,7 +299,6 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             updateGroupInfo(newGroup);
 
             pendingTasksRef.current = [newGroup, ...(currentTasks || [])];
-            tasksChangedRef.current = true;
           }
         } else if (payload.event.status === PTaskEventStatusEnums.Started) {
           let group = currentTasks?.find(
@@ -316,7 +315,6 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             return t;
           });
           updateGroupInfo(group);
-          tasksChangedRef.current = true;
         } else if (payload.event.status === PTaskEventStatusEnums.Completed) {
           let group = currentTasks?.find(
             (t) => t.taskGroup === payload.taskGroup
@@ -346,8 +344,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             }
             return t;
           });
-          tasksChangedRef.current = true;
-          // info(`Task ${payload.id} stopped in group ${payload.taskGroup}`);
+          updateGroupInfo(group);
         } else if (payload.event.status === PTaskEventStatusEnums.Cancelled) {
           let group = currentTasks?.find(
             (t) => t.taskGroup === payload.taskGroup
@@ -361,7 +358,6 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             return t;
           });
           updateGroupInfo(group);
-          tasksChangedRef.current = true;
           // info(`Task ${payload.id} cancelled in group ${payload.taskGroup}`);
         } else if (payload.event.status === PTaskEventStatusEnums.InProgress) {
           let group = currentTasks?.find(
@@ -380,7 +376,6 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             return t;
           });
           updateGroupInfo(group);
-          tasksChangedRef.current = true;
 
           // info(
           //   `Task ${payload.id} in progress in group ${payload.taskGroup}`
@@ -410,7 +405,6 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             return t;
           });
           updateGroupInfo(group);
-          tasksChangedRef.current = true;
           // info(`Task ${payload.id} failed in group ${payload.taskGroup}`);
         }
       }

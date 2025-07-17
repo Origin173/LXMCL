@@ -453,7 +453,7 @@
         },
         "clear": {
           "title": "Clear Download Cache",
-          "description": "Clear all files in the download cache directory.",
+          "description": "Clear all files in the cache directory, which will not affect downloaded resource files.",
           "button": "Clear"
         }
       }
