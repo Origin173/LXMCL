@@ -12,7 +12,7 @@ export interface Texture {
   preset?: PresetSkinType;
 }
 
-// player
+// player (frontend display format)
 export interface Player {
   id: string;
   name: string;
@@ -24,6 +24,20 @@ export interface Player {
   password?: string; // only from authlib-injector
   accessToken?: string; // only from authlib-injector or microsoft
   refreshToken?: string; // only from oauth login methods
+  textures: Array<Texture>;
+}
+
+// player (backend storage format)
+export interface PlayerInfo {
+  id: string;
+  name: string;
+  uuid: string;
+  playerType: PlayerType;
+  authAccount: string;
+  password: string;
+  authServerUrl: string;
+  accessToken: string;
+  refreshToken: string;
   textures: Array<Texture>;
 }
 
