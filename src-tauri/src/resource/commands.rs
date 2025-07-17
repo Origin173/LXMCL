@@ -17,6 +17,13 @@ use crate::{
   error::SJMCLResult,
   instance::{helpers::client_json::McClientInfo, models::misc::ModLoaderType},
   launcher_config::models::LauncherConfig,
+  resource::{
+    helpers::{
+      curseforge::get_remote_resource_by_file_curseforge,
+      modrinth::get_remote_resource_by_file_modrinth,
+    },
+    models::OtherResourceFileInfo,
+  },
   tasks::{commands::schedule_progressive_task_group, download::DownloadParam, PTaskParam},
 };
 use std::sync::Mutex;
@@ -122,4 +129,17 @@ pub async fn download_game_server(
   .await?;
 
   Ok(())
+}
+
+#[tauri::command]
+pub async fn get_remote_resource_by_file(
+  app: AppHandle,
+  download_source: String,
+  file_path: String,
+) -> SJMCLResult<OtherResourceFileInfo> {
+  match download_source.as_str() {
+    "CurseForge" => Ok(get_remote_resource_by_file_curseforge(&app, &file_path).await?),
+    "Modrinth" => Ok(get_remote_resource_by_file_modrinth(&app, &file_path).await?),
+    _ => Err(ResourceError::NoDownloadApi.into()),
+  }
 }

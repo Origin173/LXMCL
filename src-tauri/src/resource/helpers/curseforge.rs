@@ -78,6 +78,7 @@ pub struct CurseForgeFileHash {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeFileInfo {
+  pub mod_id: u32,
   pub display_name: String,
   pub file_name: String,
   pub release_type: u32,
@@ -162,6 +163,7 @@ pub fn map_curseforge_file_to_version_pack(
     for version in &versions {
       for loader in &loaders {
         let file_info = OtherResourceFileInfo {
+          resource_id: cf_file.mod_id.to_string(),
           name: cf_file.display_name.clone(),
           release_type: cvt_id_to_release_type(cf_file.release_type),
           downloads: cf_file.download_count,
@@ -326,4 +328,22 @@ pub async fn fetch_resource_version_packs_curseforge(
   }
 
   Ok(map_curseforge_file_to_version_pack(aggregated_files))
+}
+
+#[tauri::command]
+pub async fn get_remote_resource_by_file_curseforge(
+  app: &AppHandle,
+  file_path: &String,
+) -> SJMCLResult<OtherResourceFileInfo> {
+  Ok(OtherResourceFileInfo {
+    resource_id: "".to_string(),
+    name: file_path.clone(),
+    release_type: "".to_string(),
+    downloads: 0,
+    file_date: "".to_string(),
+    download_url: "".to_string(),
+    sha1: "".to_string(),
+    file_name: "".to_string(),
+    loader: None,
+  })
 }

@@ -124,6 +124,7 @@ pub async fn run() {
       resource::commands::fetch_resource_list_by_name,
       resource::commands::fetch_resource_version_packs,
       resource::commands::download_game_server,
+      resource::commands::get_remote_resource_by_file,
       discover::commands::fetch_post_sources_info,
       discover::commands::fetch_post_summaries,
       tasks::commands::schedule_progressive_task_group,

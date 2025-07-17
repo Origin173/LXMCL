@@ -3,8 +3,11 @@ use crate::resource::models::{
   OtherResourceFileInfo, OtherResourceInfo, OtherResourceSearchQuery, OtherResourceSearchRes,
   OtherResourceVersionPack, OtherResourceVersionPackQuery, ResourceError,
 };
+use hex;
 use serde::Deserialize;
+use sha1::{Digest, Sha1};
 use std::collections::HashMap;
+use std::fs;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
@@ -45,6 +48,7 @@ pub struct ModrinthFile {
 
 #[derive(Deserialize, Debug)]
 pub struct ModrinthVersionPack {
+  pub project_id: String,
   pub game_versions: Vec<String>,
   pub loaders: Vec<String>,
   pub name: String,
@@ -113,6 +117,7 @@ pub fn map_modrinth_file_to_version_pack(
           .files
           .iter()
           .map(|file| OtherResourceFileInfo {
+            resource_id: version.project_id.clone(),
             name: version.name.clone(),
             release_type: version.version_type.clone(),
             downloads: version.downloads,
@@ -244,4 +249,62 @@ pub async fn fetch_resource_version_packs_modrinth(
     .map_err(|_| ResourceError::ParseError)?;
 
   Ok(map_modrinth_file_to_version_pack(results))
+}
+
+#[tauri::command]
+pub async fn get_remote_resource_by_file_modrinth(
+  app: &AppHandle,
+  file_path: &String,
+) -> SJMCLResult<OtherResourceFileInfo> {
+  let file_content = fs::read(file_path).map_err(|_| ResourceError::ParseError)?;
+
+  let mut hasher = Sha1::new();
+  hasher.update(&file_content);
+  let hash = hasher.finalize();
+  let hash_string = hex::encode(hash);
+
+  let mut params = HashMap::new();
+  params.insert("algorithm", "sha1");
+
+  let url = format!("https://api.modrinth.com/v2/version_file/{}", hash_string);
+  let client = app.state::<reqwest::Client>();
+
+  let response = client
+    .get(&url)
+    .query(&params)
+    .send()
+    .await
+    .map_err(|_| ResourceError::NetworkError)?;
+
+  if !response.status().is_success() {
+    return Err(ResourceError::NetworkError.into());
+  }
+
+  let version_pack = response
+    .json::<ModrinthVersionPack>()
+    .await
+    .map_err(|_| ResourceError::ParseError)?;
+
+  let file_info = version_pack
+    .files
+    .iter()
+    .find(|file| file.hashes.sha1 == hash_string)
+    .or_else(|| version_pack.files.first())
+    .ok_or(ResourceError::ParseError)?;
+
+  Ok(OtherResourceFileInfo {
+    resource_id: version_pack.project_id.clone(),
+    name: version_pack.name,
+    release_type: version_pack.version_type,
+    downloads: version_pack.downloads,
+    file_date: version_pack.date_published,
+    download_url: file_info.url.clone(),
+    sha1: file_info.hashes.sha1.clone(),
+    file_name: file_info.filename.clone(),
+    loader: if version_pack.loaders.is_empty() {
+      None
+    } else {
+      Some(version_pack.loaders[0].clone())
+    },
+  })
 }

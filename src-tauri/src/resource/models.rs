@@ -80,6 +80,7 @@ pub struct OtherResourceVersionPackQuery {
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct OtherResourceFileInfo {
+  pub resource_id: String,
   pub name: String,
   pub release_type: String,
   pub downloads: u32,

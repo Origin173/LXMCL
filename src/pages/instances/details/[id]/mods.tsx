@@ -8,6 +8,7 @@ import {
   Input,
   Tag,
   Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -27,16 +28,21 @@ import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import ModLoaderCards from "@/components/mod-loader-cards";
+import CheckModUpdateModal from "@/components/modals/check-mod-update-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useSharedModals } from "@/contexts/shared-modal";
+import { useTaskContext } from "@/contexts/task";
 import { useToast } from "@/contexts/toast";
 import { InstanceSubdirType, ModLoaderType } from "@/enums/instance";
 import { OtherResourceType } from "@/enums/resource";
 import { InstanceError } from "@/enums/service-error";
 import { GetStateFlag } from "@/hooks/get-state";
 import { LocalModInfo } from "@/models/instance/misc";
+import { ModUpdateRecord, OtherResourceFileInfo } from "@/models/resource";
+import { TaskTypeEnums } from "@/models/task";
 import { InstanceService } from "@/services/instance";
+import { ResourceService } from "@/services/resource";
 import { base64ImgSrc } from "@/utils/string";
 
 const InstanceModsPage = () => {
@@ -51,6 +57,7 @@ const InstanceModsPage = () => {
   } = useInstanceSharedData();
   const { config, update } = useLauncherConfig();
   const { openSharedModal } = useSharedModals();
+  const { handleScheduleProgressiveTaskGroup } = useTaskContext();
   const primaryColor = config.appearance.theme.primaryColor;
   const accordionStates = config.states.instanceModsPage.accordionStates;
 
@@ -59,6 +66,16 @@ const InstanceModsPage = () => {
   const [query, setQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState<boolean>(false);
+  const [updateList, setUpdateList] = useState<ModUpdateRecord[]>([]);
+  const [modsToUpdate, setModsToUpdate] = useState<LocalModInfo[]>([]);
+
+  const {
+    isOpen: isCheckUpdateModalOpen,
+    onOpen: onCheckUpdateModalOpen,
+    onClose: onCheckUpdateModalClose,
+  } = useDisclosure();
 
   const getLocalModListWrapper = useCallback(
     (sync?: boolean) => {
@@ -144,6 +161,196 @@ const InstanceModsPage = () => {
     [toast, getLocalModListWrapper]
   );
 
+  const handleFetchLatestMod = useCallback(
+    async (
+      resourceId: string,
+      modLoader: ModLoaderType | "All",
+      gameVersions: string[],
+      downloadSource: string
+    ): Promise<OtherResourceFileInfo | undefined> => {
+      try {
+        const response = await ResourceService.fetchResourceVersionPacks(
+          resourceId,
+          modLoader,
+          gameVersions,
+          downloadSource
+        );
+
+        if (response.status === "success") {
+          const versionPack = response.data.find(
+            (pack) => pack.name === summary?.version
+          );
+
+          if (!versionPack) return undefined;
+
+          const candidateFiles = versionPack.items.filter(
+            (file) =>
+              file.releaseType === "beta" || file.releaseType === "release"
+          );
+
+          candidateFiles.sort(
+            (a, b) =>
+              new Date(b.fileDate).getTime() - new Date(a.fileDate).getTime()
+          );
+
+          return candidateFiles[0];
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+          return undefined;
+        }
+      } catch (error) {
+        console.error("Failed to fetch latest mod:", error);
+        return undefined;
+      }
+    },
+    [summary?.version, toast]
+  );
+
+  const handleCheckModUpdate = useCallback(async () => {
+    setIsCheckingUpdate(true);
+    onCheckUpdateModalOpen();
+
+    try {
+      const updatePromises = localMods.map(async (mod) => {
+        try {
+          const [remoteCurseForge, remoteModrinth] = await Promise.all([
+            ResourceService.getRemoteResourceByFile("CurseForge", mod.filePath),
+            ResourceService.getRemoteResourceByFile("Modrinth", mod.filePath),
+          ]);
+
+          let cfMod,
+            mdMod = undefined;
+
+          if (remoteCurseForge.status === "success") {
+            cfMod = remoteCurseForge.data;
+          }
+          if (remoteModrinth.status === "success") {
+            mdMod = remoteModrinth.data;
+          }
+
+          const updatePromises = [];
+
+          // if (cfMod?.resourceId) {
+          //   updatePromises.push(
+          //     handleFetchLatestMod(
+          //       cfMod.resourceId,
+          //       mod.loaderType,
+          //       [summary?.majorVersion || "All"],
+          //       "CurseForge"
+          //     )
+          //   );
+          // } else {
+          //   updatePromises.push(Promise.resolve(undefined));
+          // }
+
+          if (mdMod?.resourceId) {
+            updatePromises.push(
+              handleFetchLatestMod(
+                mdMod.resourceId,
+                mod.loaderType,
+                [summary?.version || "All"],
+                "Modrinth"
+              )
+            );
+          } else {
+            updatePromises.push(Promise.resolve(undefined));
+          }
+
+          const [modrinthFile] = await Promise.all(updatePromises);
+
+          const isCurseForgeNewer = false; // TODO: Implement logic to compare CurseForge and Modrinth files
+          const latestFile = modrinthFile; // TODO: Use isCurseForgeNewer to decide which file to use
+          const remoteMod = isCurseForgeNewer ? cfMod : mdMod;
+
+          let needUpdate = false;
+
+          if (latestFile && remoteMod) {
+            needUpdate =
+              new Date(latestFile.fileDate).getTime() -
+                new Date(remoteMod.fileDate).getTime() >
+              0;
+          }
+
+          if (needUpdate && latestFile) {
+            return {
+              mod,
+              updateRecord: {
+                name: mod.name,
+                curVersion: mod.version,
+                newVersion: latestFile.name,
+                source: isCurseForgeNewer ? "CurseForge" : "Modrinth",
+                downloadUrl: latestFile.downloadUrl,
+                sha1: latestFile.sha1,
+                fileName: latestFile.fileName,
+              },
+            };
+          }
+          return null;
+        } catch (error) {
+          console.error(`Failed to check update for mod ${mod.name}:`, error);
+          return null;
+        }
+      });
+
+      const results = await Promise.all(updatePromises);
+
+      const validUpdates = results.filter(
+        (result): result is NonNullable<typeof result> => result !== null
+      );
+
+      setModsToUpdate(validUpdates.map((item) => item.mod));
+      setUpdateList(validUpdates.map((item) => item.updateRecord));
+    } catch (error) {
+      console.error("Failed to check mod updates:", error);
+    } finally {
+      setIsCheckingUpdate(false);
+    }
+  }, [
+    localMods,
+    handleFetchLatestMod,
+    summary?.version,
+    // summary?.majorVersion,
+    onCheckUpdateModalOpen,
+  ]);
+
+  const handleDownloadUpdatedMods = useCallback(
+    async (urlShaPairs: { url: string; sha1: string; fileName: string }[]) => {
+      if (summary?.id) {
+        InstanceService.retrieveInstanceSubdirPath(
+          summary.id,
+          InstanceSubdirType.Mods
+        ).then((response) => {
+          if (response.status === "success") {
+            const modsDir = response.data;
+            for (const pair of urlShaPairs) {
+              const { url, sha1, fileName } = pair;
+              const filePath = modsDir + "/" + fileName;
+              handleScheduleProgressiveTaskGroup("mod-update", [
+                {
+                  src: url,
+                  dest: filePath,
+                  sha1: sha1,
+                  taskType: TaskTypeEnums.Download,
+                },
+              ]);
+            }
+          } else {
+            toast({
+              title: response.message,
+              description: response.details,
+              status: "error",
+            });
+          }
+        });
+      }
+    },
+    [summary?.id, handleScheduleProgressiveTaskGroup, toast]
+  );
+
   const modSecMenuOperations = [
     {
       icon: "openFolder",
@@ -176,7 +383,7 @@ const InstanceModsPage = () => {
     {
       icon: LuClockArrowUp,
       label: t("InstanceModsPage.modList.menu.update"),
-      onClick: () => {},
+      onClick: handleCheckModUpdate,
     },
     {
       icon: "refresh",
@@ -406,6 +613,13 @@ const InstanceModsPage = () => {
           <Empty withIcon={false} size="sm" />
         )}
       </Section>
+      <CheckModUpdateModal
+        isOpen={isCheckUpdateModalOpen}
+        onClose={onCheckUpdateModalClose}
+        isLoading={isCheckingUpdate}
+        updateList={updateList}
+        onDownload={handleDownloadUpdatedMods}
+      />
     </>
   );
 };

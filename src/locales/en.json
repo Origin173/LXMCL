@@ -285,6 +285,38 @@
       }
     }
   },
+  "CheckModUpdateModal": {
+    "header": {
+      "title": "Check Mod Updates"
+    },
+    "button": {
+      "download": "Download",
+      "cancel": "Cancel"
+    },
+    "noUpdate": "No mods need updating",
+    "updateList": {
+      "mod": "Mod",
+      "currentVersion": "Current Version",
+      "latestVersion": "Latest Version",
+      "source": "Source"
+    }
+  },
+  "CheckModUpdateModal": {
+    "header": {
+      "title": "Check Mod Updates"
+    },
+    "button": {
+      "download": "Download",
+      "cancel": "Cancel"
+    },
+    "noUpdate": "No mods need updating",
+    "updateList": {
+      "mod": "Mod",
+      "currentVersion": "Current Version",
+      "latestVersion": "Latest Version",
+      "source": "Source"
+    }
+  },
   "ClearDownloadCacheAlertDialog": {
     "dialog": {
       "title": "Clear Download Cache",
@@ -509,6 +541,7 @@
       "game-server": "Game Server {{param}}",
       "game-resource": "Resource Pack",
       "patch-files": "Patch Game Files {{param}}",
+      "mod-update": "Update Mod",
       "retry": "Retry Task"
     }
   },

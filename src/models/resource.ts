@@ -30,6 +30,7 @@ export interface OtherResourceSearchRes {
 }
 
 export interface OtherResourceFileInfo {
+  resourceId: string;
   name: string;
   releaseType: string;
   downloads: number;
@@ -61,4 +62,14 @@ export const defaultModLoaderResourceInfo: ModLoaderResourceInfo = {
 export interface ModLoader {
   loaderType: ModLoaderType;
   version: string;
+}
+
+export interface ModUpdateRecord {
+  name: string;
+  curVersion: string;
+  newVersion: string;
+  source: string;
+  downloadUrl: string;
+  sha1: string;
+  fileName: string;
 }

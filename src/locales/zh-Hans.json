@@ -285,6 +285,38 @@
       }
     }
   },
+  "CheckModUpdateModal": {
+    "header": {
+      "title": "检查模组更新"
+    },
+    "button": {
+      "download": "下载",
+      "cancel": "取消"
+    },
+    "noUpdate": "没有需要更新的模组",
+    "updateList": {
+      "mod": "模组",
+      "currentVersion": "当前版本",
+      "latestVersion": "最新版本",
+      "source": "来源"
+    }
+  },
+  "CheckModUpdateModal": {
+    "header": {
+      "title": "检查模组更新"
+    },
+    "button": {
+      "download": "下载",
+      "cancel": "取消"
+    },
+    "noUpdate": "没有需要更新的模组",
+    "updateList": {
+      "mod": "模组",
+      "currentVersion": "当前版本",
+      "latestVersion": "最新版本",
+      "source": "来源"
+    }
+  },
   "ClearDownloadCacheAlertDialog": {
     "dialog": {
       "title": "清除下载缓存",
@@ -509,6 +541,7 @@
       "game-server": "游戏服务端 {{param}}",
       "game-resource": "资源包",
       "patch-files": "修补游戏文件 {{param}}",
+      "mod-update": "更新模组",
       "retry": "重试任务"
     }
   },

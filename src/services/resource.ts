@@ -3,6 +3,7 @@ import { ModLoaderType } from "@/enums/instance";
 import {
   GameResourceInfo,
   ModLoaderResourceInfo,
+  OtherResourceFileInfo,
   OtherResourceSearchRes,
   OtherResourceVersionPack,
 } from "@/models/resource";
@@ -103,6 +104,23 @@ export class ResourceService {
     return await invoke("download_game_server", {
       resourceInfo,
       dest,
+    });
+  }
+
+  /**
+   * FETCH a remote resource by its local file.
+   * @param filePath The file path of the resource.
+   * @param downloadSource The source from which to download the resource.
+   * @returns {Promise<InvokeResponse<OtherResourceFileInfo>>}
+   */
+  @responseHandler("resource")
+  static async getRemoteResourceByFile(
+    downloadSource: string,
+    filePath: string
+  ): Promise<InvokeResponse<OtherResourceFileInfo>> {
+    return await invoke("get_remote_resource_by_file", {
+      downloadSource,
+      filePath,
     });
   }
 }
