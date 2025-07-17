@@ -139,10 +139,6 @@ pub async fn monitor_process(
   tokio::spawn(async move {
     let exit_ok = match child.wait() {
       Ok(status) => {
-        if !game_ready_flag.load(Ordering::SeqCst) {
-          let _ = ready_tx.send(());
-        }
-
         if let Some(h) = stdout {
           let _ = h.join();
         }
@@ -151,16 +147,14 @@ pub async fn monitor_process(
           let _ = h.join();
         }
 
-        log_file.lock().unwrap().flush().unwrap();
-        drop(log_file);
-        // calc and update play time
-        let start_time_lock = *start_time.lock().unwrap();
-        if let Some(start_time) = start_time_lock {
-          record_play_time(app.clone(), start_time, instance_id_clone).await;
+        if !game_ready_flag.load(Ordering::SeqCst) {
+          false
+        } else {
+          log_file.lock().unwrap().flush().unwrap();
+          status.success()
         }
-
-        status.success()
       }
+
       Err(e) => {
         writeln!(
           log_file.lock().unwrap(),
@@ -171,6 +165,7 @@ pub async fn monitor_process(
       }
     };
 
+    drop(log_file);
     // handle launcher main window visiablity
     match launcher_visibility {
       LauncherVisiablity::RunningHidden => {
@@ -195,6 +190,12 @@ pub async fn monitor_process(
     if exit_ok {
       if let Some(ref window) = log_window {
         let _ = window.destroy();
+      }
+
+      let start_time_lock = *start_time.lock().unwrap();
+
+      if let Some(start_time) = start_time_lock {
+        record_play_time(app.clone(), start_time, instance_id_clone).await;
       }
     } else {
       let _ =
