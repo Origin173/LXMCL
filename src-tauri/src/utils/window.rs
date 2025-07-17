@@ -23,7 +23,7 @@ use url::Url;
 /// ```rust
 /// let _ = create_webview_window(app, "game_output", "game_log", None).await?;
 /// ```
-pub fn create_webview_window(
+pub async fn create_webview_window(
   app: &AppHandle,
   label: &str,
   config_label: &str,
@@ -44,7 +44,7 @@ pub fn create_webview_window(
     window_config.url = WebviewUrl::External(custom_url);
   }
 
-  create_webview_window_with_config(app, &window_config)
+  create_webview_window_with_config(app, &window_config).await
 }
 
 /// Creates a new webview window using the provided `WindowConfig`.
@@ -68,7 +68,7 @@ pub fn create_webview_window(
 ///
 /// let _ = create_webview_window_with_config(app, &config).await?;
 /// ```
-pub fn create_webview_window_with_config(
+pub async fn create_webview_window_with_config(
   app: &AppHandle,
   config: &WindowConfig,
 ) -> SJMCLResult<WebviewWindow> {

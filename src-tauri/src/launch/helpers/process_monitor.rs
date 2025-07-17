@@ -95,7 +95,9 @@ pub async fn monitor_process(
   ));
 
   let log_window = if display_log_window {
-    create_webview_window(&app, &label, "game_log", None).ok()
+    create_webview_window(&app, &label, "game_log", None)
+      .await
+      .ok()
   } else {
     None
   };
@@ -198,8 +200,9 @@ pub async fn monitor_process(
         record_play_time(app.clone(), start_time, instance_id_clone).await;
       }
     } else {
-      let _ =
-        create_webview_window(&app, &label.replace("log", "error"), "game_error", None).unwrap();
+      let _ = create_webview_window(&app, &label.replace("log", "error"), "game_error", None)
+        .await
+        .unwrap();
     }
   });
 

@@ -287,8 +287,9 @@ pub fn cancel_launch_process(launching_state: State<'_, Mutex<LaunchingState>>) 
 }
 
 #[tauri::command]
-pub fn open_game_log_window(app: AppHandle, log_label: String) -> SJMCLResult<()> {
-  create_webview_window(&app, &log_label, "game_log", None)?;
+pub async fn open_game_log_window(app: AppHandle, log_label: String) -> SJMCLResult<()> {
+  create_webview_window(&app, &log_label, "game_log", None).await?;
+
   Ok(())
 }
 
