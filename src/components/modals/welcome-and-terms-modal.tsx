@@ -51,7 +51,9 @@ const WelcomeAndTermsModal: React.FC<Omit<ModalProps, "children">> = ({
             <Link
               color={`${primaryColor}.500`}
               onClick={() => {
-                openUrl("https://mc.sjtu.cn/sjmcl-tos/");
+                openUrl(
+                  t("AboutSettingsPage.legalInfo.settings.userAgreement.url")
+                );
               }}
             >
               {t("WelcomeAndTermsModal.body.terms")}
