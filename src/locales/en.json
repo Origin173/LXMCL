@@ -301,22 +301,6 @@
       "source": "Source"
     }
   },
-  "CheckModUpdateModal": {
-    "header": {
-      "title": "Check Mod Updates"
-    },
-    "button": {
-      "download": "Download",
-      "cancel": "Cancel"
-    },
-    "noUpdate": "No mods need updating",
-    "updateList": {
-      "mod": "Mod",
-      "currentVersion": "Current Version",
-      "latestVersion": "Latest Version",
-      "source": "Source"
-    }
-  },
   "ClearDownloadCacheAlertDialog": {
     "dialog": {
       "title": "Clear Download Cache",

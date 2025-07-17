@@ -301,22 +301,6 @@
       "source": "来源"
     }
   },
-  "CheckModUpdateModal": {
-    "header": {
-      "title": "检查模组更新"
-    },
-    "button": {
-      "download": "下载",
-      "cancel": "取消"
-    },
-    "noUpdate": "没有需要更新的模组",
-    "updateList": {
-      "mod": "模组",
-      "currentVersion": "当前版本",
-      "latestVersion": "最新版本",
-      "source": "来源"
-    }
-  },
   "ClearDownloadCacheAlertDialog": {
     "dialog": {
       "title": "清除下载缓存",
