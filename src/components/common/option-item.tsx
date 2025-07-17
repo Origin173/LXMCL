@@ -35,6 +35,7 @@ export interface OptionItemGroupProps extends SectionProps {
   withInCard?: boolean;
   withDivider?: boolean;
   maxFirstVisibleItems?: number;
+  enableShowAll?: boolean;
 }
 
 export const OptionItem: React.FC<OptionItemProps> = ({
@@ -147,6 +148,7 @@ export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
   withInCard = true,
   withDivider = true,
   maxFirstVisibleItems,
+  enableShowAll = true,
   ...props
 }) => {
   const { t } = useTranslation();
@@ -191,6 +193,7 @@ export const OptionItemGroup: React.FC<OptionItemGroupProps> = ({
             onClick={() => setShowAll(!showAll)}
             mt={1.5}
             ml={-1.5}
+            disabled={!enableShowAll}
           >
             {t("OptionItemGroup.button.showAll", {
               left: items.length - maxFirstVisibleItems,

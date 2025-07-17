@@ -16,7 +16,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { GameVersionSelector } from "@/components/game-version-selector";
 import { useLauncherConfig } from "@/contexts/config";
-import { useTaskContext } from "@/contexts/task";
 import { useToast } from "@/contexts/toast";
 import { GameResourceInfo } from "@/models/resource";
 import { ResourceService } from "@/services/resource";
@@ -29,7 +28,6 @@ export const DownloadGameServerModal: React.FC<
   const toast = useToast();
   const router = useRouter();
   const primaryColor = config.appearance.theme.primaryColor;
-  const { handleScheduleProgressiveTaskGroup } = useTaskContext();
 
   const [selectedGameVersion, setSelectedGameVersion] =
     useState<GameResourceInfo>();
