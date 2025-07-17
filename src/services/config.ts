@@ -135,6 +135,15 @@ export class ConfigService {
   }
 
   /**
+   * CLEAR the download cache directory.
+   * @returns {Promise<InvokeResponse<void>>} Returns void if successful.
+   */
+  @responseHandler("config")
+  static async clearDownloadCache(): Promise<InvokeResponse<void>> {
+    return await invoke("clear_download_cache");
+  }
+
+  /**
    * Listens for backend-initiated changes to the `config` field.
    * @param callback - Callback function invoked whenever the config is updated by the backend.
    */

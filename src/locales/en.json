@@ -285,6 +285,12 @@
       }
     }
   },
+  "ClearDownloadCacheAlertDialog": {
+    "dialog": {
+      "title": "Clear Download Cache",
+      "content": "Are you sure you want to clear the download cache? This action cannot be undone."
+    }
+  },
   "ComingSoonSign": {
     "text": "This page is not available yet, coming soon!"
   },
@@ -366,7 +372,7 @@
   },
   "DiscoverPage": {
     "title": "Discover",
-    "noMore":"No more",
+    "noMore": "No more",
     "button": {
       "sources": "Manage Sources"
     }
@@ -441,9 +447,14 @@
       "title": "Cache",
       "settings": {
         "directory": {
-          "title": "Download Cache Diretory",
+          "title": "Download Cache Directory",
           "select": "Change",
           "open": "Open"
+        },
+        "clear": {
+          "title": "Clear Download Cache",
+          "description": "Clear all files in the download cache directory.",
+          "button": "Clear"
         }
       }
     },
@@ -1570,6 +1581,16 @@
           "title": "Service Unavailable",
           "description": {
             "FETCH_ERROR": "Failed to fetch the meta server"
+          }
+        }
+      },
+      "clearDownloadCache": {
+        "success": "Successfully cleared download cache",
+        "error": {
+          "title": "Failed to clear download cache",
+          "description": {
+            "HAS_ACTIVE_DOWNLOAD_TASKS": "There are active download tasks in progress.",
+            "FILE_DELETION_FAILED": "Failed to delete files, they may be in use."
           }
         }
       }

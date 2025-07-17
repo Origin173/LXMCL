@@ -424,4 +424,19 @@ impl TaskMonitor {
       })
       .collect()
   }
+
+  pub fn has_active_download_tasks(&self) -> bool {
+    let phs = self.phs.read().unwrap();
+    for handle in phs.values() {
+      let desc = handle.read().unwrap();
+      let status = &desc.desc.status;
+      // check if the task is a download task and is in progress or waiting
+      if matches!(desc.desc.payload, super::PTaskParam::Download(_))
+        && (status.is_in_progress() || status.is_waiting())
+      {
+        return true;
+      }
+    }
+    false
+  }
 }

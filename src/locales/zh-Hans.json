@@ -285,6 +285,12 @@
       }
     }
   },
+  "ClearDownloadCacheAlertDialog": {
+    "dialog": {
+      "title": "清除下载缓存",
+      "content": "确定要清除下载缓存吗？此操作无法撤销。"
+    }
+  },
   "ComingSoonSign": {
     "text": "该页面暂未开放，敬请期待"
   },
@@ -444,6 +450,11 @@
           "title": "下载缓存目录",
           "select": "修改",
           "open": "打开"
+        },
+        "clear": {
+          "title": "清除下载缓存",
+          "description": "清除下载缓存目录中的所有文件。此操作不会清除已下载的资源文件。",
+          "button": "清除缓存"
         }
       }
     },
@@ -1570,6 +1581,16 @@
           "title": "服务器不可用",
           "description": {
             "FETCH_ERROR": "服务器侧或未知错误"
+          }
+        }
+      },
+      "clearDownloadCache": {
+        "success": "下载缓存已清除",
+        "error": {
+          "title": "清除下载缓存失败",
+          "description": {
+            "HAS_ACTIVE_DOWNLOAD_TASKS": "当前有下载任务正在进行中，请稍后再试",
+            "FILE_DELETION_FAILED": "无法删除缓存文件，可能是文件正在被使用"
           }
         }
       }
