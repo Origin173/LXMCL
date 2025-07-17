@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
+import { LaunchingState } from "@/models/launch";
 import { InvokeResponse } from "@/models/response";
 import { responseHandler } from "@/utils/response";
 
@@ -80,6 +81,18 @@ export class LaunchService {
     logLabel: string
   ): Promise<InvokeResponse<string[]>> {
     return await invoke("retrieve_game_log", { logLabel });
+  }
+
+  /**
+   * RETRIEVE the game launching state.
+   * This command is usually called by the game error window when game process crashed.
+   * @returns {Promise<InvokeResponse<LaunchingState>>} The current game launching state.
+   */
+  @responseHandler("launch")
+  static async retrieveGameLaunchingState(): Promise<
+    InvokeResponse<LaunchingState>
+  > {
+    return await invoke("retrieve_game_launching_state");
   }
 
   /**

@@ -32,8 +32,7 @@
         "minWidth": 640,
         "minHeight": 440,
         "center": true,
-        "dragDropEnabled": false,
-        "contentProtected": true
+        "dragDropEnabled": false
       },
       {
         "label": "game_log",
@@ -52,10 +51,7 @@
       "csp": null,
       "assetProtocol": {
         "enable": true,
-        "scope": [
-          "**",
-          "**/.minecraft/**"
-        ]
+        "scope": ["**", "**/.minecraft/**"]
       }
     }
   },
@@ -92,9 +88,7 @@
   "plugins": {
     "deep-link": {
       "desktop": {
-        "schemes": [
-          "sjmcl"
-        ]
+        "schemes": ["sjmcl"]
       }
     },
     "fs": {

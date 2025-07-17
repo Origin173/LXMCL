@@ -16,11 +16,15 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
+import { openPath, revealItemInDir } from "@tauri-apps/plugin-opener";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuCircleAlert, LuFolderOpen } from "react-icons/lu";
 import { useLauncherConfig } from "@/contexts/config";
+import { InstanceSummary } from "@/models/instance/misc";
+import { JavaInfo } from "@/models/system-info";
 import { LaunchService } from "@/services/launch";
+import { analyzeCrashReport } from "@/utils/game-error";
 import { capitalizeFirstLetter } from "@/utils/string";
 
 const GameErrorPage: React.FC = () => {
@@ -31,6 +35,9 @@ const GameErrorPage: React.FC = () => {
   const [basicInfoParams, setBasicInfoParams] = useState(
     new Map<string, string>()
   );
+  const [instanceInfo, setInstanceInfo] = useState<InstanceSummary>();
+  const [javaInfo, setJavaInfo] = useState<JavaInfo>();
+  const [reason, setReason] = useState<string>();
 
   const platformName = useCallback(() => {
     let name = config.basicInfo.platform
@@ -47,6 +54,32 @@ const GameErrorPage: React.FC = () => {
     infoList.set("arch", config.basicInfo.arch);
     setBasicInfoParams(infoList);
   }, [config.basicInfo, platformName]);
+
+  useEffect(() => {
+    LaunchService.retrieveGameLaunchingState().then((response) => {
+      if (response.status === "success") {
+        console.log(response.data);
+        setInstanceInfo(response.data.selectedInstance);
+        setJavaInfo(response.data.selectedJava);
+        // setReason(analyzeCrashReport(response.data))
+      }
+    });
+
+    LaunchService.retrieveGameLog(
+      getCurrentWebview().label.replace("error", "log")
+    ).then((response) => {
+      if (response.status === "success") {
+        let { key, params } = analyzeCrashReport(response.data);
+        setReason(
+          t(`GameErrorPage.crashDetails.${key}`, {
+            param1: params[0],
+            param2: params[1],
+            param3: params[2],
+          })
+        );
+      }
+    });
+  }, [t]);
 
   const renderStats = ({
     title,
@@ -99,52 +132,55 @@ const GameErrorPage: React.FC = () => {
             )}
           </HStack>
 
-          {renderStats({
-            title: t("GameErrorPage.gameInfo.gameVersion"),
-            value: "1.20.4 + Fabric 0.15.11", // TBD
-            helper: (
-              <HStack spacing={1}>
-                <Text className="secondary-text" fontSize="sm">
-                  /mock/path/to/minecraft/
-                </Text>
-                <Tooltip label={t("General.openFolder")}>
-                  <IconButton
-                    aria-label={"open"}
-                    icon={<LuFolderOpen />}
-                    variant="ghost"
-                    size="sm"
-                    h={21}
-                    // onClick={() => {}} TBD
-                  />
-                </Tooltip>
-              </HStack>
-            ),
-          })}
-          {renderStats({
-            title: t("GameErrorPage.javaInfo.javaVersion"),
-            value: "JDK 21.0.3", // TBD
-            helper: (
-              <HStack spacing={1}>
-                <Text className="secondary-text" fontSize="sm">
-                  /mock/path/to/java/
-                </Text>
-                <Tooltip label={t("General.openFolder")}>
-                  <IconButton
-                    aria-label={"open"}
-                    icon={<LuFolderOpen />}
-                    variant="ghost"
-                    size="sm"
-                    h={21}
-                    // onClick={() => {}} TBD
-                  />
-                </Tooltip>
-              </HStack>
-            ),
-          })}
+          {instanceInfo &&
+            renderStats({
+              title: t("GameErrorPage.gameInfo.gameVersion"),
+              value: instanceInfo.name, // TBD
+              helper: (
+                <HStack spacing={1}>
+                  <Text className="secondary-text" fontSize="sm">
+                    {instanceInfo.versionPath}
+                  </Text>
+                  <Tooltip label={t("General.openFolder")}>
+                    <IconButton
+                      aria-label={"open"}
+                      icon={<LuFolderOpen />}
+                      variant="ghost"
+                      size="sm"
+                      h={21}
+                      onClick={() => openPath(instanceInfo.versionPath)}
+                    />
+                  </Tooltip>
+                </HStack>
+              ),
+            })}
+          {javaInfo &&
+            renderStats({
+              title: t("GameErrorPage.javaInfo.javaVersion"),
+              value: javaInfo.name, // TBD
+              helper: (
+                <HStack spacing={1}>
+                  <Text className="secondary-text" fontSize="sm">
+                    {javaInfo.execPath}
+                  </Text>
+                  <Tooltip label={t("General.openFolder")}>
+                    <IconButton
+                      aria-label={"open"}
+                      icon={<LuFolderOpen />}
+                      variant="ghost"
+                      size="sm"
+                      h={21}
+                      onClick={() => revealItemInDir(javaInfo.execPath)}
+                    />
+                  </Tooltip>
+                </HStack>
+              ),
+            })}
           <VStack spacing={1} align="stretch">
             <Text fontSize="xs-sm">
               {t("GameErrorPage.crashDetails.title")}
             </Text>
+            <Text fontSize="lg">{reason}</Text>
           </VStack>
         </VStack>
       </Box>
