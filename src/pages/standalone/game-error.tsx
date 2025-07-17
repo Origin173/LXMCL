@@ -180,7 +180,7 @@ const GameErrorPage: React.FC = () => {
             <Text fontSize="xs-sm">
               {t("GameErrorPage.crashDetails.title")}
             </Text>
-            <Text fontSize="lg">{reason}</Text>
+            <Text fontSize="md">{reason}</Text>
           </VStack>
         </VStack>
       </Box>
