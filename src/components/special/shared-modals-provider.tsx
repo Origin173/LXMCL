@@ -1,3 +1,4 @@
+import DownloadSpecificResourceModal from "@/components//modals/download-specific-resource-modal";
 import AddAuthServerModal from "@/components/modals/add-auth-server-modal";
 import CopyOrMoveModal from "@/components/modals/copy-or-move-modal";
 import DeleteInstanceDialog from "@/components/modals/delete-instance-alert-dialog";
@@ -33,6 +34,7 @@ const SharedModals: React.FC<{ children: React.ReactNode }> = ({
     launch: LaunchProcessModal,
     relogin: ReLoginPlayerModal,
     "spotlight-search": SpotlightSearchModal,
+    "download-specific-resource": DownloadSpecificResourceModal,
   };
 
   return (

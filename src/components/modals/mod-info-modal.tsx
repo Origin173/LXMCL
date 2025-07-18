@@ -11,20 +11,19 @@ import {
   ModalProps,
   Tag,
   Text,
-  useDisclosure,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuExternalLink } from "react-icons/lu";
 import { OptionItem } from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
+import { useSharedModals } from "@/contexts/shared-modal";
 import { useToast } from "@/contexts/toast";
 import { ModLoaderType } from "@/enums/instance";
 import { OtherResourceType } from "@/enums/resource";
 import { LocalModInfo } from "@/models/instance/misc";
 import { ResourceService } from "@/services/resource";
 import { base64ImgSrc } from "@/utils/string";
-import DownloadSpecificResourceModal from "./download-specific-resource-modal";
 
 interface ModInfoModalProps extends Omit<ModalProps, "children"> {
   mod: LocalModInfo;
@@ -35,26 +34,29 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
   const { config } = useLauncherConfig();
   const toast = useToast();
   const primaryColor = config.appearance.theme.primaryColor;
+  const { openSharedModal } = useSharedModals();
 
   const [cfRemoteModId, setCfRemoteModId] = useState<string | null>(null);
   const [mrRemoteModId, setMrRemoteModId] = useState<string | null>(null);
 
-  const {
-    onOpen: onCfDownloadModalOpen,
-    isOpen: isCfDownloadModalOpen,
-    onClose: onCfDownloadModalClose,
-  } = useDisclosure();
-
-  const {
-    onOpen: onMrDownloadModalOpen,
-    isOpen: isMrDownloadModalOpen,
-    onClose: onMrDownloadModalClose,
-  } = useDisclosure();
-
-  const handleCloseModal = () => {
-    modalProps.onClose();
-    setCfRemoteModId(null);
-    setMrRemoteModId(null);
+  const openDownloadModal = (downloadSource: string) => {
+    openSharedModal("download-specific-resource", {
+      resource: {
+        id: downloadSource === "CurseForge" ? cfRemoteModId : mrRemoteModId,
+        websiteUrl: "",
+        type: OtherResourceType.Mod,
+        name: mod.name,
+        translatedName: mod.translatedName,
+        description: mod.description || "",
+        iconSrc: base64ImgSrc(mod.iconSrc),
+        tags: [],
+        lastUpdated: "",
+        downloads: 0,
+        source: downloadSource,
+      },
+      curInstanceMajorVersion: undefined,
+      curInstanceModLoader: mod.loaderType,
+    });
   };
 
   const handleCurseForgeInfo = useCallback(async () => {
@@ -94,7 +96,14 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
   useEffect(() => {
     handleCurseForgeInfo();
     handleModrinthInfo();
-  }, [handleCurseForgeInfo, handleModrinthInfo]);
+    setCfRemoteModId(null);
+    setMrRemoteModId(null);
+  }, [
+    handleCurseForgeInfo,
+    handleModrinthInfo,
+    setCfRemoteModId,
+    setMrRemoteModId,
+  ]);
 
   return (
     <Modal size={{ base: "lg", lg: "xl", xl: "2xl" }} {...modalProps}>
@@ -102,7 +111,7 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
       <ModalContent>
         <ModalHeader></ModalHeader>
 
-        <ModalBody>
+        <ModalBody px={5}>
           <OptionItem
             title={
               <Text fontWeight="bold" fontSize="lg">
@@ -141,7 +150,7 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
               ></Avatar>
             }
           ></OptionItem>
-          <Text fontSize="xs-sm" mt={4}>
+          <Text fontSize="xs-sm" mt={4} ml={1}>
             {mod.description}
           </Text>
         </ModalBody>
@@ -152,7 +161,8 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
             <Button
               colorScheme={primaryColor}
               onClick={() => {
-                onCfDownloadModalOpen();
+                modalProps.onClose();
+                openDownloadModal("CurseForge");
               }}
               fontSize="sm"
               variant="link"
@@ -166,7 +176,8 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
             <Button
               colorScheme={primaryColor}
               onClick={() => {
-                onMrDownloadModalOpen();
+                modalProps.onClose();
+                openDownloadModal("Modrinth");
               }}
               fontSize="sm"
               variant="link"
@@ -177,7 +188,7 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
           </HStack>
           <Button
             colorScheme={primaryColor}
-            onClick={handleCloseModal}
+            onClick={modalProps.onClose}
             fontSize="sm"
             variant="ghost"
           >
@@ -185,48 +196,6 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
           </Button>
         </ModalFooter>
       </ModalContent>
-      {cfRemoteModId && (
-        <DownloadSpecificResourceModal
-          isOpen={isCfDownloadModalOpen}
-          onClose={onCfDownloadModalClose}
-          resource={{
-            id: cfRemoteModId,
-            websiteUrl: "",
-            type: OtherResourceType.Mod,
-            name: mod.name,
-            translatedName: mod.translatedName,
-            description: mod.description || "",
-            iconSrc: base64ImgSrc(mod.iconSrc),
-            tags: [],
-            lastUpdated: "",
-            downloads: 0,
-            source: "CurseForge",
-          }}
-          curInstanceMajorVersion={undefined}
-          curInstanceModLoader={mod.loaderType}
-        />
-      )}
-      {mrRemoteModId && (
-        <DownloadSpecificResourceModal
-          isOpen={isMrDownloadModalOpen}
-          onClose={onMrDownloadModalClose}
-          resource={{
-            id: mrRemoteModId,
-            websiteUrl: "",
-            type: OtherResourceType.Mod,
-            name: mod.name,
-            translatedName: mod.translatedName,
-            description: mod.description || "",
-            iconSrc: base64ImgSrc(mod.iconSrc),
-            tags: [],
-            lastUpdated: "",
-            downloads: 0,
-            source: "Modrinth",
-          }}
-          curInstanceMajorVersion={undefined}
-          curInstanceModLoader={mod.loaderType}
-        />
-      )}
     </Modal>
   );
 };
