@@ -290,10 +290,13 @@
       "title": "Check Mod Updates"
     },
     "button": {
-      "download": "Download",
+      "update": "Update",
       "cancel": "Cancel"
     },
-    "noUpdate": "No mods need updating",
+    "label": {
+      "noUpdate": "No mods need updating",
+      "loading": "Checking for updates... {{x}}/{{y}}"
+    },
     "updateList": {
       "mod": "Mod",
       "currentVersion": "Current Version",

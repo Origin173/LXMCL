@@ -11,19 +11,21 @@ import {
   ModalHeader,
   ModalOverlay,
   ModalProps,
+  Progress,
   Text,
   VStack,
   useColorModeValue,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { BeatLoader } from "react-spinners";
 import { useLauncherConfig } from "@/contexts/config";
 import { ModUpdateRecord } from "@/models/resource";
 
 interface CheckModUpdateModalProps extends Omit<ModalProps, "children"> {
   isLoading: boolean;
   updateList: ModUpdateRecord[];
+  checkingUpdateIndex: number;
+  totalModNum: number;
   onDownload: (
     pairs: { url: string; sha1: string; fileName: string }[]
   ) => void;
@@ -32,6 +34,8 @@ interface CheckModUpdateModalProps extends Omit<ModalProps, "children"> {
 const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
   isLoading,
   updateList,
+  checkingUpdateIndex,
+  totalModNum,
   onDownload,
   ...modalProps
 }) => {
@@ -85,12 +89,30 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
           overflow="hidden"
         >
           {isLoading ? (
-            <VStack mt={8}>
-              <BeatLoader size={16} color="gray" />
+            <VStack mt={8} spacing={4}>
+              <Text fontSize="md" color="gray.700">
+                {t("CheckModUpdateModal.label.loading", {
+                  x: checkingUpdateIndex,
+                  y: totalModNum,
+                })}
+              </Text>
+              <Progress
+                value={
+                  totalModNum > 0
+                    ? (checkingUpdateIndex / totalModNum) * 100
+                    : 0
+                }
+                size="md"
+                colorScheme={primaryColor}
+                w="80%"
+                borderRadius="md"
+              />
             </VStack>
           ) : updateList.length === 0 ? (
             <VStack mt={8}>
-              <Text color="gray.500">{t("CheckModUpdateModal.noUpdate")}</Text>
+              <Text color="gray.500">
+                {t("CheckModUpdateModal.label.noUpdate")}
+              </Text>
             </VStack>
           ) : (
             <VStack spacing={0} align="stretch" flex="1" overflow="hidden">
@@ -240,7 +262,7 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
                 }}
                 isDisabled={selectedMods.length === 0}
               >
-                {t("CheckModUpdateModal.button.download")}
+                {t("CheckModUpdateModal.button.update")}
               </Button>
             </HStack>
           </ModalFooter>

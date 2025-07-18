@@ -67,12 +67,21 @@ const InstanceModsPage = () => {
   const [isCheckingUpdate, setIsCheckingUpdate] = useState<boolean>(false);
   const [updateList, setUpdateList] = useState<ModUpdateRecord[]>([]);
   const [modsToUpdate, setModsToUpdate] = useState<LocalModInfo[]>([]);
+  const [checkingUpdateIndex, setCheckingUpdateIndex] = useState<number>(1);
 
   const {
     isOpen: isCheckUpdateModalOpen,
     onOpen: onCheckUpdateModalOpen,
-    onClose: onCheckUpdateModalClose,
+    onClose,
   } = useDisclosure();
+
+  const onCheckUpdateModalClose = () => {
+    setIsCheckingUpdate(false);
+    setUpdateList([]);
+    setModsToUpdate([]);
+    setCheckingUpdateIndex(0);
+    onClose();
+  };
 
   const getLocalModListWrapper = useCallback(
     (sync?: boolean) => {
@@ -300,7 +309,15 @@ const InstanceModsPage = () => {
         }
       });
 
-      const results = await Promise.all(updatePromises);
+      const results: any[] = [];
+
+      await Promise.allSettled(
+        updatePromises.map(async (p) => {
+          const res = await p;
+          setCheckingUpdateIndex(results.length + 1);
+          results.push(res);
+        })
+      );
 
       const validUpdates = results.filter(
         (result): result is NonNullable<typeof result> => result !== null
@@ -638,6 +655,8 @@ const InstanceModsPage = () => {
         onClose={onCheckUpdateModalClose}
         isLoading={isCheckingUpdate}
         updateList={updateList}
+        checkingUpdateIndex={checkingUpdateIndex}
+        totalModNum={localMods.length}
         onDownload={handleDownloadUpdatedMods}
       />
     </>

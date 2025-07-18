@@ -290,10 +290,13 @@
       "title": "检查模组更新"
     },
     "button": {
-      "download": "下载",
+      "update": "更新",
       "cancel": "取消"
     },
-    "noUpdate": "没有需要更新的模组",
+    "label": {
+      "noUpdate": "没有需要更新的模组",
+      "loading": "正在检查更新... {{x}}/{{y}}"
+    },
     "updateList": {
       "mod": "模组",
       "currentVersion": "当前版本",
