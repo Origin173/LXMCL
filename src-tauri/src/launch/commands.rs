@@ -27,8 +27,9 @@ use crate::{
   resource::helpers::misc::get_source_priority_list,
   storage::load_json_async,
   tasks::commands::schedule_progressive_task_group,
-  utils::window::create_webview_window,
+  utils::{fs::create_zip_from_dirs, window::create_webview_window},
 };
+use chrono::Local;
 use std::{collections::HashMap, path::PathBuf};
 use std::{
   io::{prelude::*, BufReader},
@@ -330,4 +331,32 @@ pub fn retrieve_game_launching_state(
   } else {
     Err(LaunchError::LaunchingStateNotFound.into())
   }
+}
+
+#[tauri::command]
+pub fn export_game_crash_info(
+  app: AppHandle,
+  launching_queue_state: State<'_, Mutex<Vec<LaunchingState>>>,
+  id: u64,
+) -> SJMCLResult<String> {
+  let log_file_dir = app
+    .path()
+    .resolve::<PathBuf>(format!("game_log_{id}.log").into(), BaseDirectory::AppCache)?;
+  let launching_queue = launching_queue_state.lock()?;
+  let launching = launching_queue
+    .iter()
+    .find(|l| l.id == id)
+    .ok_or(LaunchError::LaunchingStateNotFound)?;
+  let version_info_dir = launching
+    .selected_instance
+    .version_path
+    .join(format!("{}.json", launching.selected_instance.name));
+
+  let time = Local::now().format("%Y-%m-%d_%H-%M-%S").to_string();
+  let zip_file_path = app.path().resolve::<PathBuf>(
+    format!("minecraft-exported-crash-info-{time}.zip").into(),
+    BaseDirectory::AppCache,
+  )?;
+
+  create_zip_from_dirs(vec![log_file_dir, version_info_dir], zip_file_path.clone())
 }

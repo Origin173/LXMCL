@@ -27,6 +27,7 @@ import { LaunchService } from "@/services/launch";
 import { parseModernWindowsVersion } from "@/utils/env";
 import { analyzeCrashReport } from "@/utils/game-error";
 import { capitalizeFirstLetter } from "@/utils/string";
+import { parseIdFromWindowLabel } from "@/utils/window";
 
 const GameErrorPage: React.FC = () => {
   const { t } = useTranslation();
@@ -39,6 +40,7 @@ const GameErrorPage: React.FC = () => {
   const [instanceInfo, setInstanceInfo] = useState<InstanceSummary>();
   const [javaInfo, setJavaInfo] = useState<JavaInfo>();
   const [reason, setReason] = useState<string>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const platformName = useCallback(() => {
     let name = config.basicInfo.platform
@@ -69,9 +71,7 @@ const GameErrorPage: React.FC = () => {
   }, [config.basicInfo, platformName]);
 
   useEffect(() => {
-    let launchingId = parseInt(
-      getCurrentWebview().label.split("_").pop() || "0"
-    );
+    let launchingId = parseIdFromWindowLabel(getCurrentWebview().label);
 
     LaunchService.retrieveGameLaunchingState(launchingId).then((response) => {
       if (response.status === "success") {
@@ -128,6 +128,18 @@ const GameErrorPage: React.FC = () => {
     }
   };
 
+  const handleExportGameInfo = async () => {
+    let launchingId = parseIdFromWindowLabel(getCurrentWebview().label);
+    if (launchingId) {
+      setIsLoading(true);
+      const res = await LaunchService.exportGameCrashInfo(launchingId);
+      if (res.status === "success") {
+        await revealItemInDir(res.data);
+      }
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Flex direction="column" h="100vh">
       <Alert status="error">
@@ -149,7 +161,7 @@ const GameErrorPage: React.FC = () => {
           {instanceInfo &&
             renderStats({
               title: t("GameErrorPage.gameInfo.gameVersion"),
-              value: instanceInfo.name, // TBD
+              value: instanceInfo.name,
               helper: (
                 <HStack spacing={1}>
                   <Text className="secondary-text" fontSize="sm">
@@ -171,7 +183,7 @@ const GameErrorPage: React.FC = () => {
           {javaInfo &&
             renderStats({
               title: t("GameErrorPage.javaInfo.javaVersion"),
-              value: javaInfo.name, // TBD
+              value: javaInfo.name,
               helper: (
                 <HStack spacing={1}>
                   <Text className="secondary-text" fontSize="sm">
@@ -200,7 +212,12 @@ const GameErrorPage: React.FC = () => {
       </Box>
 
       <HStack mt="auto" p={4}>
-        <Button colorScheme={primaryColor} variant="solid">
+        <Button
+          colorScheme={primaryColor}
+          variant="solid"
+          onClick={handleExportGameInfo}
+          isLoading={isLoading}
+        >
           {t("GameErrorPage.button.exportGameInfo")}
         </Button>
         <Button

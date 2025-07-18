@@ -95,6 +95,19 @@ export class LaunchService {
   }
 
   /**
+   * EXPORT the game crash info to a zip file and reveal it in the file explorer.
+   * This command is usually called by the game error window when game process crashed.
+   * @param id The id of the launching state to export.
+   * @returns {Promise<InvokeResponse<string>>} The path of the exported zip file.
+   */
+  @responseHandler("launch")
+  static async exportGameCrashInfo(
+    id: number
+  ): Promise<InvokeResponse<string>> {
+    return await invoke("export_game_crash_info", { id });
+  }
+
+  /**
    * LISTEN to the game log output line by line.
    * @param callback The callback function to be called when the game log is output.
    */

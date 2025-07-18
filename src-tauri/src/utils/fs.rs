@@ -7,6 +7,8 @@ use std::path::{Path, PathBuf};
 use std::{fs, io};
 use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager};
+use zip::write::{ExtendedFileOptions, FileOptions};
+use zip::{CompressionMethod, ZipWriter};
 
 /// Recursively copies the contents of a source directory to a destination directory.
 ///
@@ -399,4 +401,30 @@ pub fn validate_sha1(dest_path: PathBuf, truth: String) -> SJMCLResult<()> {
   } else {
     Ok(())
   }
+}
+
+pub fn create_zip_from_dirs(paths: Vec<PathBuf>, zip_file_path: PathBuf) -> SJMCLResult<String> {
+  let zip_file = std::fs::File::create(&zip_file_path)
+    .map_err(|e| SJMCLError(format!("Failed to create zip file: {}", e)))?;
+  let mut zip = ZipWriter::new(zip_file);
+  let options = FileOptions::<ExtendedFileOptions>::default()
+    .compression_method(CompressionMethod::Deflated)
+    .unix_permissions(0o755);
+
+  for path in paths {
+    if path.is_file() {
+      let file_name = path.file_name().and_then(OsStr::to_str).unwrap_or_default();
+      zip.start_file(file_name, options.clone())?;
+      let mut file = std::fs::File::open(&path)
+        .map_err(|e| SJMCLError(format!("Failed to open file {}: {}", path.display(), e)))?;
+      std::io::copy(&mut file, &mut zip)
+        .map_err(|e| SJMCLError(format!("Failed to copy data to zip: {}", e)))?;
+    }
+  }
+
+  zip
+    .finish()
+    .map_err(|e| SJMCLError(format!("Failed to finalize zip file: {}", e)))?;
+
+  Ok(zip_file_path.to_string_lossy().to_string())
 }

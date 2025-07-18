@@ -30,3 +30,6 @@ export const createWindow = (
 
   return newWindow;
 };
+
+export const parseIdFromWindowLabel = (label: string): number =>
+  parseInt(label.split("_").pop() || "0");

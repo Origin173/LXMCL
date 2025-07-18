@@ -246,7 +246,7 @@ const crashRules: { key: string; pattern: RegExp }[] = [
 export const analyzeCrashReport = (
   report: string[]
 ): { key: string; params: string[] } => {
-  let reportText = report.join("\n\r");
+  let reportText = report.join("\n");
   for (const rule of crashRules) {
     const match = rule.pattern.exec(reportText);
     if (match) {

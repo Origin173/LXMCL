@@ -16,6 +16,7 @@ import Empty from "@/components/common/empty";
 import { useLauncherConfig } from "@/contexts/config";
 import { LaunchService } from "@/services/launch";
 import styles from "@/styles/game-log.module.css";
+import { parseIdFromWindowLabel } from "@/utils/window";
 
 const GameLogPage: React.FC = () => {
   const { t } = useTranslation();
@@ -39,9 +40,7 @@ const GameLogPage: React.FC = () => {
   // invoke retrieve on first load
   useEffect(() => {
     (async () => {
-      let launchingId = parseInt(
-        getCurrentWebview().label.split("_").pop() || "0"
-      );
+      let launchingId = parseIdFromWindowLabel(getCurrentWebview().label);
       if (launchingId) {
         const res = await LaunchService.retrieveGameLog(launchingId);
         if (res.status === "success" && Array.isArray(res.data)) {
