@@ -53,8 +53,7 @@ pub async fn select_suitable_jre(
   launching_queue_state: State<'_, Mutex<Vec<LaunchingState>>>,
 ) -> SJMCLResult<()> {
   let instance = instances_state
-    .lock()
-    .unwrap()
+    .lock()?
     .get(&instance_id)
     .ok_or(InstanceError::InstanceNotFoundByID)?
     .clone();
@@ -70,7 +69,7 @@ pub async fn select_suitable_jre(
     .join(format!("indexes/{}.json", client_info.asset_index.id));
   let asset_index = load_json_async::<AssetIndex>(&asset_index_path).await?;
 
-  let javas = javas_state.lock().unwrap().clone();
+  let javas = javas_state.lock()?.clone();
   let selected_java = select_java_runtime(
     &app,
     &game_config.game_java,
@@ -80,11 +79,8 @@ pub async fn select_suitable_jre(
   )
   .await?;
 
-  let timestamp = SystemTime::now()
-    .duration_since(UNIX_EPOCH)
-    .unwrap()
-    .as_secs();
-  let mut launching = launching_queue_state.lock().unwrap();
+  let timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
+  let mut launching = launching_queue_state.lock()?;
   launching.push(LaunchingState {
     timestamp,
     game_config,
@@ -106,8 +102,10 @@ pub async fn validate_game_files(
   launching_queue_state: State<'_, Mutex<Vec<LaunchingState>>>,
 ) -> SJMCLResult<()> {
   let (instance, client_info, asset_index, validate_policy) = {
-    let mut launching_queue = launching_queue_state.lock().unwrap();
-    let launching = launching_queue.last_mut().unwrap();
+    let mut launching_queue = launching_queue_state.lock()?;
+    let launching = launching_queue
+      .last_mut()
+      .ok_or(LaunchError::LaunchingStateNotFound)?;
     launching.current_step = 2;
     (
       launching.selected_instance.clone(),
@@ -181,8 +179,10 @@ pub async fn validate_selected_player(
   let player = get_selected_player_info(&app)?;
 
   {
-    let mut launching_queue = launching_queue_state.lock().unwrap();
-    let launching = launching_queue.last_mut().unwrap();
+    let mut launching_queue = launching_queue_state.lock()?;
+    let launching = launching_queue
+      .last_mut()
+      .ok_or(LaunchError::LaunchingStateNotFound)?;
     launching.current_step = 3;
     launching.selected_player = Some(player.clone());
 
@@ -212,8 +212,10 @@ pub async fn launch_game(
   launching_queue_state: State<'_, Mutex<Vec<LaunchingState>>>,
 ) -> SJMCLResult<()> {
   let (timestamp, selected_java, game_config, instance_id) = {
-    let mut launching_queue = launching_queue_state.lock().unwrap();
-    let launching = launching_queue.last_mut().unwrap();
+    let mut launching_queue = launching_queue_state.lock()?;
+    let launching = launching_queue
+      .last_mut()
+      .ok_or(LaunchError::LaunchingStateNotFound)?;
     launching.current_step = 4;
     (
       launching.timestamp,
@@ -245,8 +247,11 @@ pub async fn launch_game(
 
   let pid = child.id();
   {
-    let mut launching_queue = launching_queue_state.lock().unwrap();
-    launching_queue.last_mut().unwrap().pid = pid;
+    let mut launching_queue = launching_queue_state.lock()?;
+    launching_queue
+      .last_mut()
+      .ok_or(LaunchError::LaunchingStateNotFound)?
+      .pid = pid;
   }
 
   // wait for the game window, create log window if needed
@@ -282,7 +287,7 @@ pub async fn launch_game(
 pub fn cancel_launch_process(
   launching_queue_state: State<'_, Mutex<Vec<LaunchingState>>>,
 ) -> SJMCLResult<()> {
-  let launching_queue = launching_queue_state.lock().unwrap();
+  let launching_queue = launching_queue_state.lock()?;
 
   // kill process if pid exists
   if let Some(launching) = launching_queue.last() {

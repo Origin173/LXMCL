@@ -1827,7 +1827,8 @@
           "title": "验证游戏文件失败",
           "description": {
             "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在",
-            "GAME_FILES_INCOMPLETE": "游戏文件不完整或缺失"
+            "GAME_FILES_INCOMPLETE": "游戏文件不完整或缺失",
+            "LAUNCHING_STATE_NOT_FOUND": "启动状态丢失"
           }
         }
       },
@@ -1840,7 +1841,16 @@
             "NETWORK_ERROR": "无法连接到服务器",
             "PARSE_ERROR": "服务器返回的数据格式错误",
             "NO_DOWNLOAD_API": "下载 Authlib-Injector 失败，请检查网络连接",
-            "SAVE_ERROR": "保存 Authlib-Injector 失败"
+            "SAVE_ERROR": "保存 Authlib-Injector 失败",
+            "LAUNCHING_STATE_NOT_FOUND": "启动状态丢失"
+          }
+        }
+      },
+      "launchGame": {
+        "error": {
+          "title": "启动游戏失败",
+          "description": {
+            "LAUNCHING_STATE_NOT_FOUND": "启动状态丢失"
           }
         }
       }
