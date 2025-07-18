@@ -82,7 +82,7 @@ pub async fn select_suitable_jre(
   let timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
   let mut launching = launching_queue_state.lock()?;
   launching.push(LaunchingState {
-    timestamp,
+    id: timestamp,
     game_config,
     client_info,
     asset_index,
@@ -211,14 +211,14 @@ pub async fn launch_game(
   app: AppHandle,
   launching_queue_state: State<'_, Mutex<Vec<LaunchingState>>>,
 ) -> SJMCLResult<()> {
-  let (timestamp, selected_java, game_config, instance_id) = {
+  let (id, selected_java, game_config, instance_id) = {
     let mut launching_queue = launching_queue_state.lock()?;
     let launching = launching_queue
       .last_mut()
       .ok_or(LaunchError::LaunchingStateNotFound)?;
     launching.current_step = 4;
     (
-      launching.timestamp,
+      launching.id,
       launching.selected_java.clone(),
       launching.game_config.clone(),
       launching.selected_instance.id.clone(),
@@ -258,7 +258,7 @@ pub async fn launch_game(
   let (tx, rx) = mpsc::channel();
   monitor_process(
     app.clone(),
-    timestamp,
+    id,
     child,
     instance_id,
     game_config.display_game_log,
@@ -307,10 +307,10 @@ pub async fn open_game_log_window(app: AppHandle, log_label: String) -> SJMCLRes
 }
 
 #[tauri::command]
-pub fn retrieve_game_log(app: AppHandle, log_label: String) -> SJMCLResult<Vec<String>> {
+pub fn retrieve_game_log(app: AppHandle, id: u64) -> SJMCLResult<Vec<String>> {
   let log_file_dir = app
     .path()
-    .resolve::<PathBuf>(format!("{log_label}.log").into(), BaseDirectory::AppCache)?;
+    .resolve::<PathBuf>(format!("game_log_{id}.log").into(), BaseDirectory::AppCache)?;
   Ok(
     BufReader::new(std::fs::OpenOptions::new().read(true).open(log_file_dir)?)
       .lines()
@@ -322,10 +322,10 @@ pub fn retrieve_game_log(app: AppHandle, log_label: String) -> SJMCLResult<Vec<S
 #[tauri::command]
 pub fn retrieve_game_launching_state(
   launching_queue_state: State<'_, Mutex<Vec<LaunchingState>>>,
-  timestamp: u64,
+  id: u64,
 ) -> SJMCLResult<LaunchingState> {
   let launching_queue = launching_queue_state.lock()?;
-  if let Some(launching) = launching_queue.iter().find(|l| l.timestamp == timestamp) {
+  if let Some(launching) = launching_queue.iter().find(|l| l.id == id) {
     Ok(launching.clone())
   } else {
     Err(LaunchError::LaunchingStateNotFound.into())

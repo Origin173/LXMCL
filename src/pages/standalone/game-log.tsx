@@ -39,9 +39,11 @@ const GameLogPage: React.FC = () => {
   // invoke retrieve on first load
   useEffect(() => {
     (async () => {
-      const label = getCurrentWebview().label;
-      if (label) {
-        const res = await LaunchService.retrieveGameLog(label);
+      let launchingId = parseInt(
+        getCurrentWebview().label.split("_").pop() || "0"
+      );
+      if (launchingId) {
+        const res = await LaunchService.retrieveGameLog(launchingId);
         if (res.status === "success" && Array.isArray(res.data)) {
           setLogs(res.data);
         }

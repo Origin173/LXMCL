@@ -22,7 +22,7 @@ impl std::error::Error for LaunchError {}
 #[derive(Debug, Clone, Serialize, Deserialize, SmartDefault)]
 #[serde(rename_all = "camelCase", default)]
 pub struct LaunchingState {
-  pub timestamp: u64,
+  pub id: u64,
   #[default = 1]
   pub current_step: usize,
   // shared variables between steps.

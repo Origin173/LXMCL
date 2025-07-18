@@ -4,7 +4,7 @@ import { InstanceSummary } from "@/models/instance/misc";
 import { JavaInfo } from "@/models/system-info";
 
 export interface LaunchingState {
-  timestamp: number;
+  id: number;
   currentStep: number;
   selectedJava: JavaInfo;
   selectedInstance: InstanceSummary;

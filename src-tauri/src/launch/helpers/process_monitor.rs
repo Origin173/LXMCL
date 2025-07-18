@@ -70,7 +70,7 @@ pub async fn record_play_time(app: AppHandle, start_time: Instant, instance_id: 
 
 pub async fn monitor_process(
   app: AppHandle,
-  timestamp: u64,
+  id: u64,
   mut child: Child,
   instance_id: String,
   display_log_window: bool,
@@ -78,7 +78,7 @@ pub async fn monitor_process(
   ready_tx: Sender<()>,
 ) -> SJMCLResult<()> {
   // create unique log window
-  let label = format!("game_log_{timestamp}");
+  let label = format!("game_log_{id}");
   let log_file_dir = app
     .path()
     .resolve::<PathBuf>(format!("{label}.log").into(), BaseDirectory::AppCache)?;
@@ -199,9 +199,9 @@ pub async fn monitor_process(
 
       let launching_queue_state = app.state::<Mutex<Vec<LaunchingState>>>();
       let mut launching_queue = launching_queue_state.lock().unwrap();
-      launching_queue.retain(|state| state.timestamp != timestamp);
+      launching_queue.retain(|state| state.id != id);
     } else {
-      let _ = create_webview_window(&app, &label.replace("log", "error"), "game_error", None)
+      let _ = create_webview_window(&app, &format!("game_error_{id}"), "game_error", None)
         .await
         .unwrap();
     }
