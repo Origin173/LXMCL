@@ -530,18 +530,20 @@ const DownloadSpecificResourceModal: React.FC<
               fontWeight={400}
               flex={1}
             />
-            <HStack spacing={1}>
-              <LuExternalLink />
-              <Link
-                fontSize="xs"
-                color={`${primaryColor}.500`}
-                onClick={() => {
-                  resource.websiteUrl && openUrl(resource.websiteUrl);
-                }}
-              >
-                {resource.source}
-              </Link>
-            </HStack>
+            {resource.websiteUrl && (
+              <HStack spacing={1}>
+                <LuExternalLink />
+                <Link
+                  fontSize="xs"
+                  color={`${primaryColor}.500`}
+                  onClick={() => {
+                    resource.websiteUrl && openUrl(resource.websiteUrl);
+                  }}
+                >
+                  {resource.source}
+                </Link>
+              </HStack>
+            )}
           </Card>
           <HStack align="center" justify="space-between" mb={3}>
             <Menu>

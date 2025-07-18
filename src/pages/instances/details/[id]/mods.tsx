@@ -29,6 +29,7 @@ import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import ModLoaderCards from "@/components/mod-loader-cards";
 import CheckModUpdateModal from "@/components/modals/check-mod-update-modal";
+import ModInfoModal from "@/components/modals/mod-info-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useSharedModals } from "@/contexts/shared-modal";
@@ -69,18 +70,27 @@ const InstanceModsPage = () => {
   const [modsToUpdate, setModsToUpdate] = useState<LocalModInfo[]>([]);
   const [checkingUpdateIndex, setCheckingUpdateIndex] = useState<number>(1);
 
+  const [modInfoSelectedMod, setModInfoSelectedMod] =
+    useState<LocalModInfo | null>(null);
+
   const {
     isOpen: isCheckUpdateModalOpen,
     onOpen: onCheckUpdateModalOpen,
-    onClose,
+    onClose: onCheckUpdateModalClose,
   } = useDisclosure();
 
-  const onCheckUpdateModalClose = () => {
+  const {
+    isOpen: isModInfoModalOpen,
+    onOpen: onModInfoModalOpen,
+    onClose: onModInfoModalClose,
+  } = useDisclosure();
+
+  const onCheckUpdateModalClear = () => {
     setIsCheckingUpdate(false);
     setUpdateList([]);
     setModsToUpdate([]);
-    setCheckingUpdateIndex(0);
-    onClose();
+    setCheckingUpdateIndex(1);
+    onCheckUpdateModalClose();
   };
 
   const getLocalModListWrapper = useCallback(
@@ -223,19 +233,19 @@ const InstanceModsPage = () => {
     try {
       const updatePromises = localMods.map(async (mod) => {
         try {
-          const [cfRemoteModRes, mdRemoteModRes] = await Promise.all([
+          const [cfRemoteModRes, mrRemoteModRes] = await Promise.all([
             ResourceService.getRemoteResourceByFile("CurseForge", mod.filePath),
             ResourceService.getRemoteResourceByFile("Modrinth", mod.filePath),
           ]);
 
           let cfRemoteMod,
-            mdRemoteMod = undefined;
+            mrRemoteMod = undefined;
 
           if (cfRemoteModRes.status === "success") {
             cfRemoteMod = cfRemoteModRes.data;
           }
-          if (mdRemoteModRes.status === "success") {
-            mdRemoteMod = mdRemoteModRes.data;
+          if (mrRemoteModRes.status === "success") {
+            mrRemoteMod = mrRemoteModRes.data;
           }
 
           const updatePromises = [];
@@ -253,10 +263,10 @@ const InstanceModsPage = () => {
             updatePromises.push(Promise.resolve(undefined));
           }
 
-          if (mdRemoteMod?.resourceId) {
+          if (mrRemoteMod?.resourceId) {
             updatePromises.push(
               handleFetchLatestMod(
-                mdRemoteMod.resourceId,
+                mrRemoteMod.resourceId,
                 mod.loaderType,
                 [summary?.version || "All"],
                 "Modrinth"
@@ -266,18 +276,18 @@ const InstanceModsPage = () => {
             updatePromises.push(Promise.resolve(undefined));
           }
 
-          const [cfRemoteFile, mdRemoteFile] =
+          const [cfRemoteFile, mrRemoteFile] =
             await Promise.all(updatePromises);
 
           let isCurseForgeNewer = cfRemoteMod !== undefined;
-          if (cfRemoteFile && mdRemoteFile) {
+          if (cfRemoteFile && mrRemoteFile) {
             isCurseForgeNewer =
               new Date(cfRemoteFile.fileDate).getTime() >
-              new Date(mdRemoteFile.fileDate).getTime();
+              new Date(mrRemoteFile.fileDate).getTime();
           }
 
-          const latestFile = isCurseForgeNewer ? cfRemoteFile : mdRemoteFile;
-          const remoteMod = isCurseForgeNewer ? cfRemoteMod : mdRemoteMod;
+          const latestFile = isCurseForgeNewer ? cfRemoteFile : mrRemoteFile;
+          const remoteMod = isCurseForgeNewer ? cfRemoteMod : mrRemoteMod;
 
           let needUpdate = false;
 
@@ -461,7 +471,10 @@ const InstanceModsPage = () => {
       label: t("InstanceModsPage.modList.menu.info"),
       icon: "info",
       danger: false,
-      onClick: () => {},
+      onClick: () => {
+        setModInfoSelectedMod(mod);
+        onModInfoModalOpen();
+      },
     },
   ];
 
@@ -573,7 +586,7 @@ const InstanceModsPage = () => {
                       styles={{ bg: "yello.200" }}
                     >
                       {mod.translatedName
-                        ? `${mod.translatedName}｜${mod.name}`
+                        ? `${mod.translatedName} | ${mod.name}`
                         : mod.name || mod.fileName}
                     </Highlight>
                   </Text>
@@ -652,13 +665,20 @@ const InstanceModsPage = () => {
       </Section>
       <CheckModUpdateModal
         isOpen={isCheckUpdateModalOpen}
-        onClose={onCheckUpdateModalClose}
+        onClose={onCheckUpdateModalClear}
         isLoading={isCheckingUpdate}
         updateList={updateList}
         checkingUpdateIndex={checkingUpdateIndex}
         totalModNum={localMods.length}
         onDownload={handleDownloadUpdatedMods}
       />
+      {modInfoSelectedMod && (
+        <ModInfoModal
+          isOpen={isModInfoModalOpen}
+          onClose={onModInfoModalClose}
+          mod={modInfoSelectedMod}
+        />
+      )}
     </>
   );
 };
