@@ -22,6 +22,7 @@ pub fn get_download_api(source: SourceType, resource_type: ResourceType) -> SJMC
           ResourceType::Libraries => Ok(Url::parse("https://libraries.minecraft.net/")?),
           ResourceType::MojangJava => Ok(Url::parse("https://launchermeta.mojang.com/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json")?),
           ResourceType::ForgeMaven => Ok(Url::parse("https://files.minecraftforge.net/maven/")?),
+          ResourceType::ForgeInstall => Ok(Url::parse("https://maven.minecraftforge.net/net/minecraftforge/forge/")?),
           ResourceType::ForgeMeta => Err(ResourceError::NoDownloadApi.into()), // https://github.com/HMCL-dev/HMCL/pull/3259/files
           ResourceType::Liteloader => Ok(Url::parse("https://dl.liteloader.com/versions/versions.json")?),
           ResourceType::Optifine => Err(ResourceError::NoDownloadApi.into()), // 
@@ -33,6 +34,7 @@ pub fn get_download_api(source: SourceType, resource_type: ResourceType) -> SJMC
           ResourceType::NeoforgeMetaNeoforge => Ok(Url::parse("https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge/")?),
           ResourceType::NeoforgedForge => Ok(Url::parse("https://bmclapi2.bangbang93.com/maven/net/neoforged/forge/")?),
           ResourceType::NeoforgedNeoforge => Ok(Url::parse("https://bmclapi2.bangbang93.com/maven/net/neoforged/neoforge/")?),
+          ResourceType::NeoforgeInstall => Ok(Url::parse("https://maven.neoforged.net/releases/")?),
           ResourceType::QuiltMaven => Ok(Url::parse("https://maven.quiltmc.org/repository/release/")?),
           ResourceType::QuiltMeta => Ok(Url::parse("https://meta.quiltmc.org/")?),
       },
@@ -46,6 +48,7 @@ pub fn get_download_api(source: SourceType, resource_type: ResourceType) -> SJMC
           ResourceType::MojangJava => Ok(Url::parse("https://bmclapi2.bangbang93.com/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json")?),
           ResourceType::ForgeMaven => Ok(Url::parse("https://bmclapi2.bangbang93.com/maven/")?),
           ResourceType::ForgeMeta => Ok(Url::parse("https://bmclapi2.bangbang93.com/forge/")?),
+          ResourceType::ForgeInstall => Ok(Url::parse("https://bmclapi2.bangbang93.com/forge/version/")?),
           ResourceType::Liteloader => Ok(Url::parse("https://bmclapi.bangbang93.com/maven/com/mumfrey/liteloader/versions.json")?),
           ResourceType::AuthlibInjector => Ok(Url::parse("https://bmclapi2.bangbang93.com/mirrors/authlib-injector/")?),
           ResourceType::FabricMeta => Ok(Url::parse("https://bmclapi2.bangbang93.com/fabric-meta/")?),
@@ -53,6 +56,7 @@ pub fn get_download_api(source: SourceType, resource_type: ResourceType) -> SJMC
           ResourceType::NeoforgeMetaForge | ResourceType::NeoforgeMetaNeoforge => Ok(Url::parse("https://bmclapi2.bangbang93.com/neoforge/")?),
           ResourceType::NeoforgedForge => Ok(Url::parse("https://bmclapi2.bangbang93.com/maven/net/neoforged/forge/")?),
           ResourceType::NeoforgedNeoforge => Ok(Url::parse("https://bmclapi2.bangbang93.com/maven/net/neoforged/neoforge/")?),
+          ResourceType::NeoforgeInstall => Ok(Url::parse("https://bmclapi2.bangbang93.com/neoforge/version/")?),
           ResourceType::Optifine => Err(ResourceError::NoDownloadApi.into()),
           ResourceType::QuiltMaven => Ok(Url::parse("https://bmclapi2.bangbang93.com/maven/")?),
           ResourceType::QuiltMeta => Ok(Url::parse("https://bmclapi2.bangbang93.com/quilt-meta/")?),

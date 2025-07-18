@@ -24,7 +24,8 @@ use super::{
 use crate::{
   error::SJMCLResult,
   instance::{
-    helpers::client_json::McClientInfo, helpers::mod_loader::install_mod_loader,
+    helpers::client_json::McClientInfo,
+    helpers::mod_loader::{finish_forge_install, finish_neoforge_install, install_mod_loader},
     models::misc::ModLoader,
   },
   launch::helpers::{file_validator::convert_library_name_to_path, misc::get_natives_string},
@@ -953,7 +954,6 @@ pub async fn create_instance(
       &priority_list,
       &instance.version,
       &instance.mod_loader,
-      &directory.dir,
       &name,
       directory.dir.join("libraries"),
       &mut version_json,
@@ -964,4 +964,40 @@ pub async fn create_instance(
   }
 
   Ok(())
+}
+
+#[tauri::command]
+pub async fn finish_loader_install(
+  app: AppHandle,
+  directory: GameDirectory,
+  name: String,
+  game: GameClientResourceInfo,
+  mod_loader: ModLoader,
+) -> SJMCLResult<()> {
+  let inst_name = name.clone();
+  let lib_dir = directory.dir.join("libraries");
+  let vjson_path = directory
+    .dir
+    .join(format!("versions/{}/{}.json", name, name));
+
+  let mut version_json: Value = serde_json::from_slice(&std::fs::read(&vjson_path)?)?;
+
+  match mod_loader.loader_type {
+    ModLoaderType::Fabric => Ok(()),
+    ModLoaderType::Forge => {
+      finish_forge_install(
+        app,
+        &game.id,
+        &mod_loader,
+        &inst_name,
+        lib_dir,
+        &mut version_json,
+      )
+      .await
+    }
+    ModLoaderType::NeoForge => {
+      finish_neoforge_install(app, &mod_loader, &inst_name, lib_dir, &mut version_json).await
+    }
+    _ => Ok(()),
+  }
 }

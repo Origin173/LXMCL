@@ -13,6 +13,7 @@ pub enum ResourceType {
   MojangJava,
   ForgeMaven,
   ForgeMeta,
+  ForgeInstall,
   Liteloader,
   Optifine,
   AuthlibInjector,
@@ -20,6 +21,7 @@ pub enum ResourceType {
   FabricMaven,
   NeoforgeMetaForge,    // old version, only for 1.20.1
   NeoforgeMetaNeoforge, // new version
+  NeoforgeInstall,
   NeoforgedForge,
   NeoforgedNeoforge,
   QuiltMaven,
