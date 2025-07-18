@@ -246,15 +246,14 @@ const crashRules: { key: string; pattern: RegExp }[] = [
 export const analyzeCrashReport = (
   report: string[]
 ): { key: string; params: string[] } => {
-  for (const line of report) {
-    for (const rule of crashRules) {
-      const match = rule.pattern.exec(line);
-      if (match) {
-        return {
-          key: rule.key,
-          params: match.slice(1),
-        };
-      }
+  let reportText = report.join("\n");
+  for (const rule of crashRules) {
+    const match = rule.pattern.exec(reportText);
+    if (match) {
+      return {
+        key: rule.key,
+        params: match.slice(1),
+      };
     }
   }
   return { key: "UNKNOWN", params: [] };

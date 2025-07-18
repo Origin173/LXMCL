@@ -9,12 +9,12 @@ use strum_macros::Display;
 #[derive(Debug, Display)]
 #[strum(serialize_all = "SCREAMING_SNAKE_CASE")]
 pub enum LaunchError {
-  DirectoryNotFound,
   NoSuitableJava,
   GameFilesIncomplete,
   SetProcessPriorityFailed,
   ChangeWindowTitleFailed,
   KillProcessFailed,
+  LaunchingStateNotFound,
 }
 
 impl std::error::Error for LaunchError {}
@@ -22,7 +22,8 @@ impl std::error::Error for LaunchError {}
 #[derive(Debug, Clone, Serialize, Deserialize, SmartDefault)]
 #[serde(rename_all = "camelCase", default)]
 pub struct LaunchingState {
-  #[default = 0]
+  pub id: u64,
+  #[default = 1]
   pub current_step: usize,
   // shared variables between steps.
   pub selected_java: JavaInfo,

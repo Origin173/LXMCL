@@ -73,26 +73,38 @@ export class LaunchService {
   /**
    * RETRIEVE the game log content according to the specified log label.
    * Typically used when opening the game log window for the first time during instance runtime.
-   * @param log_label The label of the game log.
+   * @param id The id of the launching state.
    * @returns {Promise<InvokeResponse<string[]>>}
    */
   @responseHandler("launch")
-  static async retrieveGameLog(
-    logLabel: string
-  ): Promise<InvokeResponse<string[]>> {
-    return await invoke("retrieve_game_log", { logLabel });
+  static async retrieveGameLog(id: number): Promise<InvokeResponse<string[]>> {
+    return await invoke("retrieve_game_log", { id });
   }
 
   /**
    * RETRIEVE the game launching state.
    * This command is usually called by the game error window when game process crashed.
+   * @param id The id of the launching state to retrieve.
    * @returns {Promise<InvokeResponse<LaunchingState>>} The current game launching state.
    */
   @responseHandler("launch")
-  static async retrieveGameLaunchingState(): Promise<
-    InvokeResponse<LaunchingState>
-  > {
-    return await invoke("retrieve_game_launching_state");
+  static async retrieveGameLaunchingState(
+    id: number
+  ): Promise<InvokeResponse<LaunchingState>> {
+    return await invoke("retrieve_game_launching_state", { id });
+  }
+
+  /**
+   * EXPORT the game crash info to a zip file and reveal it in the file explorer.
+   * This command is usually called by the game error window when game process crashed.
+   * @param id The id of the launching state to export.
+   * @returns {Promise<InvokeResponse<string>>} The path of the exported zip file.
+   */
+  @responseHandler("launch")
+  static async exportGameCrashInfo(
+    id: number
+  ): Promise<InvokeResponse<string>> {
+    return await invoke("export_game_crash_info", { id });
   }
 
   /**

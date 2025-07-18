@@ -1832,7 +1832,8 @@
           "title": "Failed to validate game files",
           "description": {
             "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist",
-            "GAME_FILES_INCOMPLETE": "Game files are incomplete"
+            "GAME_FILES_INCOMPLETE": "Game files are incomplete",
+            "LAUNCHING_STATE_NOT_FOUND": "Launching state not found"
           }
         }
       },
@@ -1845,7 +1846,16 @@
             "NETWORK_ERROR": "Failed to connect to the server",
             "PARSE_ERROR": "The server returned data in an incorrect format",
             "NO_DOWNLOAD_API": "Failed to download Authlib-Injector, please check internet connection",
-            "SAVE_ERROR": "Failed to save Authlib-Injector"
+            "SAVE_ERROR": "Failed to save Authlib-Injector",
+            "LAUNCHING_STATE_NOT_FOUND": "Launching state not found"
+          }
+        }
+      },
+      "launchGame": {
+        "error": {
+          "title": "Failed to launch game",
+          "description": {
+            "LAUNCHING_STATE_NOT_FOUND": "Launching state not found"
           }
         }
       }

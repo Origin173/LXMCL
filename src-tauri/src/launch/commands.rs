@@ -27,13 +27,17 @@ use crate::{
   resource::helpers::misc::get_source_priority_list,
   storage::load_json_async,
   tasks::commands::schedule_progressive_task_group,
-  utils::window::create_webview_window,
+  utils::{fs::create_zip_from_dirs, window::create_webview_window},
 };
-use std::sync::{mpsc, Mutex};
+use chrono::Local;
 use std::{collections::HashMap, path::PathBuf};
 use std::{
   io::{prelude::*, BufReader},
   process::{Command, Stdio},
+};
+use std::{
+  sync::{mpsc, Mutex},
+  time::{SystemTime, UNIX_EPOCH},
 };
 use tauri::{path::BaseDirectory, AppHandle, Manager, State};
 
@@ -47,17 +51,10 @@ pub async fn select_suitable_jre(
   instance_id: String,
   instances_state: State<'_, Mutex<HashMap<String, Instance>>>,
   javas_state: State<'_, Mutex<Vec<JavaInfo>>>,
-  launching_state: State<'_, Mutex<LaunchingState>>,
+  launching_queue_state: State<'_, Mutex<Vec<LaunchingState>>>,
 ) -> SJMCLResult<()> {
-  {
-    let mut launching = launching_state.lock().unwrap();
-    *launching = LaunchingState::default(); // reset launching state
-    launching.current_step = 1;
-  }
-
   let instance = instances_state
-    .lock()
-    .unwrap()
+    .lock()?
     .get(&instance_id)
     .ok_or(InstanceError::InstanceNotFoundByID)?
     .clone();
@@ -73,7 +70,7 @@ pub async fn select_suitable_jre(
     .join(format!("indexes/{}.json", client_info.asset_index.id));
   let asset_index = load_json_async::<AssetIndex>(&asset_index_path).await?;
 
-  let javas = javas_state.lock().unwrap().clone();
+  let javas = javas_state.lock()?.clone();
   let selected_java = select_java_runtime(
     &app,
     &game_config.game_java,
@@ -83,12 +80,17 @@ pub async fn select_suitable_jre(
   )
   .await?;
 
-  let mut launching = launching_state.lock().unwrap();
-  launching.game_config = game_config;
-  launching.client_info = client_info;
-  launching.asset_index = asset_index;
-  launching.selected_java = selected_java;
-  launching.selected_instance = instance;
+  let timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
+  let mut launching = launching_queue_state.lock()?;
+  launching.push(LaunchingState {
+    id: timestamp,
+    game_config,
+    client_info,
+    asset_index,
+    selected_java,
+    selected_instance: instance,
+    ..LaunchingState::default()
+  });
 
   Ok(())
 }
@@ -98,10 +100,13 @@ pub async fn select_suitable_jre(
 pub async fn validate_game_files(
   app: AppHandle,
   launcher_config_state: State<'_, Mutex<LauncherConfig>>,
-  launching_state: State<'_, Mutex<LaunchingState>>,
+  launching_queue_state: State<'_, Mutex<Vec<LaunchingState>>>,
 ) -> SJMCLResult<()> {
   let (instance, client_info, asset_index, validate_policy) = {
-    let mut launching = launching_state.lock().unwrap();
+    let mut launching_queue = launching_queue_state.lock()?;
+    let launching = launching_queue
+      .last_mut()
+      .ok_or(LaunchError::LaunchingStateNotFound)?;
     launching.current_step = 2;
     (
       launching.selected_instance.clone(),
@@ -170,12 +175,15 @@ pub async fn validate_game_files(
 #[tauri::command]
 pub async fn validate_selected_player(
   app: AppHandle,
-  launching_state: State<'_, Mutex<LaunchingState>>,
+  launching_queue_state: State<'_, Mutex<Vec<LaunchingState>>>,
 ) -> SJMCLResult<bool> {
   let player = get_selected_player_info(&app)?;
 
   {
-    let mut launching = launching_state.lock().unwrap();
+    let mut launching_queue = launching_queue_state.lock()?;
+    let launching = launching_queue
+      .last_mut()
+      .ok_or(LaunchError::LaunchingStateNotFound)?;
     launching.current_step = 3;
     launching.selected_player = Some(player.clone());
 
@@ -202,12 +210,16 @@ pub async fn validate_selected_player(
 #[tauri::command]
 pub async fn launch_game(
   app: AppHandle,
-  launching_state: State<'_, Mutex<LaunchingState>>,
+  launching_queue_state: State<'_, Mutex<Vec<LaunchingState>>>,
 ) -> SJMCLResult<()> {
-  let (selected_java, game_config, instance_id) = {
-    let mut launching = launching_state.lock().unwrap();
+  let (id, selected_java, game_config, instance_id) = {
+    let mut launching_queue = launching_queue_state.lock()?;
+    let launching = launching_queue
+      .last_mut()
+      .ok_or(LaunchError::LaunchingStateNotFound)?;
     launching.current_step = 4;
     (
+      launching.id,
       launching.selected_java.clone(),
       launching.game_config.clone(),
       launching.selected_instance.id.clone(),
@@ -236,14 +248,18 @@ pub async fn launch_game(
 
   let pid = child.id();
   {
-    let mut launching = launching_state.lock().unwrap();
-    launching.pid = pid;
+    let mut launching_queue = launching_queue_state.lock()?;
+    launching_queue
+      .last_mut()
+      .ok_or(LaunchError::LaunchingStateNotFound)?
+      .pid = pid;
   }
 
   // wait for the game window, create log window if needed
   let (tx, rx) = mpsc::channel();
   monitor_process(
     app.clone(),
+    id,
     child,
     instance_id,
     game_config.display_game_log,
@@ -269,12 +285,16 @@ pub async fn launch_game(
 }
 
 #[tauri::command]
-pub fn cancel_launch_process(launching_state: State<'_, Mutex<LaunchingState>>) -> SJMCLResult<()> {
-  let launching = launching_state.lock().unwrap();
+pub fn cancel_launch_process(
+  launching_queue_state: State<'_, Mutex<Vec<LaunchingState>>>,
+) -> SJMCLResult<()> {
+  let launching_queue = launching_queue_state.lock()?;
 
-  // kill process if step 4 has been reached
-  if launching.pid != 0 {
-    kill_process(launching.pid)?;
+  // kill process if pid exists
+  if let Some(launching) = launching_queue.last() {
+    if launching.pid != 0 {
+      kill_process(launching.pid)?;
+    }
   }
 
   Ok(())
@@ -288,10 +308,10 @@ pub async fn open_game_log_window(app: AppHandle, log_label: String) -> SJMCLRes
 }
 
 #[tauri::command]
-pub fn retrieve_game_log(app: AppHandle, log_label: String) -> SJMCLResult<Vec<String>> {
+pub fn retrieve_game_log(app: AppHandle, id: u64) -> SJMCLResult<Vec<String>> {
   let log_file_dir = app
     .path()
-    .resolve::<PathBuf>(format!("{log_label}.log").into(), BaseDirectory::AppCache)?;
+    .resolve::<PathBuf>(format!("game_log_{id}.log").into(), BaseDirectory::AppCache)?;
   Ok(
     BufReader::new(std::fs::OpenOptions::new().read(true).open(log_file_dir)?)
       .lines()
@@ -302,8 +322,41 @@ pub fn retrieve_game_log(app: AppHandle, log_label: String) -> SJMCLResult<Vec<S
 
 #[tauri::command]
 pub fn retrieve_game_launching_state(
-  launching_state: State<'_, Mutex<LaunchingState>>,
+  launching_queue_state: State<'_, Mutex<Vec<LaunchingState>>>,
+  id: u64,
 ) -> SJMCLResult<LaunchingState> {
-  let launching = launching_state.lock()?;
-  Ok(launching.clone())
+  let launching_queue = launching_queue_state.lock()?;
+  if let Some(launching) = launching_queue.iter().find(|l| l.id == id) {
+    Ok(launching.clone())
+  } else {
+    Err(LaunchError::LaunchingStateNotFound.into())
+  }
+}
+
+#[tauri::command]
+pub fn export_game_crash_info(
+  app: AppHandle,
+  launching_queue_state: State<'_, Mutex<Vec<LaunchingState>>>,
+  id: u64,
+) -> SJMCLResult<String> {
+  let log_file_dir = app
+    .path()
+    .resolve::<PathBuf>(format!("game_log_{id}.log").into(), BaseDirectory::AppCache)?;
+  let launching_queue = launching_queue_state.lock()?;
+  let launching = launching_queue
+    .iter()
+    .find(|l| l.id == id)
+    .ok_or(LaunchError::LaunchingStateNotFound)?;
+  let version_info_dir = launching
+    .selected_instance
+    .version_path
+    .join(format!("{}.json", launching.selected_instance.name));
+
+  let time = Local::now().format("%Y-%m-%d_%H-%M-%S").to_string();
+  let zip_file_path = app.path().resolve::<PathBuf>(
+    format!("minecraft-exported-crash-info-{time}.zip").into(),
+    BaseDirectory::AppCache,
+  )?;
+
+  create_zip_from_dirs(vec![log_file_dir, version_info_dir], zip_file_path.clone())
 }
