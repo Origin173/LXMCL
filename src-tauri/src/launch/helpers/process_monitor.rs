@@ -1,7 +1,7 @@
 use crate::error::SJMCLResult;
 use crate::instance::models::misc::Instance;
 use crate::launch::constants::*;
-use crate::launch::models::LaunchError;
+use crate::launch::models::{LaunchError, LaunchingState};
 use crate::launcher_config::models::{LauncherVisiablity, ProcessPriority};
 use crate::utils::window::create_webview_window;
 use std::collections::HashMap;
@@ -15,7 +15,7 @@ use std::sync::{
   Arc, Mutex,
 };
 use std::thread;
-use std::time::{Instant, SystemTime, UNIX_EPOCH};
+use std::time::Instant;
 use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Emitter, Manager};
 use tokio;
@@ -70,6 +70,7 @@ pub async fn record_play_time(app: AppHandle, start_time: Instant, instance_id: 
 
 pub async fn monitor_process(
   app: AppHandle,
+  timestamp: u64,
   mut child: Child,
   instance_id: String,
   display_log_window: bool,
@@ -77,10 +78,6 @@ pub async fn monitor_process(
   ready_tx: Sender<()>,
 ) -> SJMCLResult<()> {
   // create unique log window
-  let timestamp = SystemTime::now()
-    .duration_since(UNIX_EPOCH)
-    .unwrap()
-    .as_secs();
   let label = format!("game_log_{timestamp}");
   let log_file_dir = app
     .path()
@@ -199,6 +196,10 @@ pub async fn monitor_process(
       if let Some(start_time) = start_time_lock {
         record_play_time(app.clone(), start_time, instance_id_clone).await;
       }
+
+      let launching_queue_state = app.state::<Mutex<Vec<LaunchingState>>>();
+      let mut launching_queue = launching_queue_state.lock().unwrap();
+      launching_queue.retain(|state| state.timestamp != timestamp);
     } else {
       let _ = create_webview_window(&app, &label.replace("log", "error"), "game_error", None)
         .await

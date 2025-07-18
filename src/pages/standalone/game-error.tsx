@@ -69,29 +69,32 @@ const GameErrorPage: React.FC = () => {
   }, [config.basicInfo, platformName]);
 
   useEffect(() => {
-    LaunchService.retrieveGameLaunchingState().then((response) => {
+    let label = getCurrentWebview().label;
+
+    LaunchService.retrieveGameLaunchingState(
+      parseInt(label.split("_").pop() || "0")
+    ).then((response) => {
       if (response.status === "success") {
         console.log(response.data);
         setInstanceInfo(response.data.selectedInstance);
         setJavaInfo(response.data.selectedJava);
-        // setReason(analyzeCrashReport(response.data))
       }
     });
 
-    LaunchService.retrieveGameLog(
-      getCurrentWebview().label.replace("error", "log")
-    ).then((response) => {
-      if (response.status === "success") {
-        let { key, params } = analyzeCrashReport(response.data);
-        setReason(
-          t(`GameErrorPage.crashDetails.${key}`, {
-            param1: params[0],
-            param2: params[1],
-            param3: params[2],
-          })
-        );
+    LaunchService.retrieveGameLog(label.replace("error", "log")).then(
+      (response) => {
+        if (response.status === "success") {
+          let { key, params } = analyzeCrashReport(response.data);
+          setReason(
+            t(`GameErrorPage.crashDetails.${key}`, {
+              param1: params[0],
+              param2: params[1],
+              param3: params[2],
+            })
+          );
+        }
       }
-    });
+    );
   }, [t]);
 
   const renderStats = ({

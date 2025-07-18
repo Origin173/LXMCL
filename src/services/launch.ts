@@ -86,13 +86,14 @@ export class LaunchService {
   /**
    * RETRIEVE the game launching state.
    * This command is usually called by the game error window when game process crashed.
+   * @param timestamp The timestamp of the launching state to retrieve.
    * @returns {Promise<InvokeResponse<LaunchingState>>} The current game launching state.
    */
   @responseHandler("launch")
-  static async retrieveGameLaunchingState(): Promise<
-    InvokeResponse<LaunchingState>
-  > {
-    return await invoke("retrieve_game_launching_state");
+  static async retrieveGameLaunchingState(
+    timestamp: number
+  ): Promise<InvokeResponse<LaunchingState>> {
+    return await invoke("retrieve_game_launching_state", { timestamp });
   }
 
   /**

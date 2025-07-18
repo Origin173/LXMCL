@@ -179,8 +179,8 @@ pub async fn run() {
       let client = build_sjmcl_client(app.handle(), true, false);
       app.manage(client);
 
-      let launching = LaunchingState::default();
-      app.manage(Mutex::new(launching));
+      let launching_queue = Vec::<LaunchingState>::new();
+      app.manage(Mutex::new(launching_queue));
 
       // check if full account feature (offline and 3rd-party login) is available
       let app_handle = app.handle().clone();

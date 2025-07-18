@@ -99,7 +99,7 @@ impl LaunchArguments {
 
 pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<Vec<String>> {
   let launcher_config = { app.state::<Mutex<LauncherConfig>>().lock()?.clone() };
-  let launching = { app.state::<Mutex<LaunchingState>>().lock()?.clone() };
+  let launching_queue = { app.state::<Mutex<Vec<LaunchingState>>>().lock()?.clone() };
 
   let LauncherConfig { basic_info, .. } = launcher_config;
   let LaunchingState {
@@ -109,8 +109,13 @@ pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<Vec<String>> {
     client_info,
     auth_server_meta,
     ..
-  } = launching;
-  let selected_player = launching.selected_player.ok_or(AccountError::NotFound)?;
+  } = launching_queue.last().unwrap().clone();
+  let selected_player = launching_queue
+    .last()
+    .unwrap()
+    .selected_player
+    .clone()
+    .ok_or(AccountError::NotFound)?;
   let client_jar_path = selected_instance
     .version_path
     .join(format!("{}.jar", selected_instance.name))
