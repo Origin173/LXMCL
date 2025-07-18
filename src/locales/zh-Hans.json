@@ -299,6 +299,9 @@
       "currentVersion": "当前版本",
       "latestVersion": "最新版本",
       "source": "来源"
+    },
+    "error": {
+      "renameOldMod": "重命名旧文件失败"
     }
   },
   "ClearDownloadCacheAlertDialog": {
@@ -1924,6 +1927,26 @@
           "description": {
             "PARSE_ERROR": "服务器返回数据格式错误",
             "NETWORK_ERROR": "无法连接到服务器"
+          }
+        }
+      },
+      "getRemoteResourceByFile": {
+        "error": {
+          "title": "获取远程资源失败",
+          "description": {
+            "PARSE_ERROR": "服务器返回数据格式错误",
+            "NETWORK_ERROR": "无法连接到服务器",
+            "NO_DOWNLOAD_API": "无可用的下载策略，请检查网络连接"
+          }
+        }
+      },
+      "updateMod": {
+        "error": {
+          "title": "更新模组失败",
+          "description": {
+            "PARSE_ERROR": "服务器返回数据格式错误",
+            "NETWORK_ERROR": "无法连接到服务器",
+            "FILE_OPERATION_ERROR": "无法重命名旧模组文件"
           }
         }
       }

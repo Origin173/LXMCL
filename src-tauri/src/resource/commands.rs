@@ -143,3 +143,39 @@ pub async fn get_remote_resource_by_file(
     _ => Err(ResourceError::NoDownloadApi.into()),
   }
 }
+
+#[tauri::command]
+pub async fn update_mod(
+  app: AppHandle,
+  url: String,
+  sha1: String,
+  file_path: String,
+  old_file_path: Option<String>,
+) -> SJMCLResult<()> {
+  let download_param = DownloadParam {
+    src: url::Url::parse(&url).map_err(|_| ResourceError::ParseError)?,
+    dest: file_path.clone().into(),
+    filename: None,
+    sha1: Some(sha1),
+  };
+
+  schedule_progressive_task_group(
+    app,
+    format!("mod-update"),
+    vec![PTaskParam::Download(download_param)],
+    true,
+  )
+  .await?;
+
+  if let Some(old_path) = old_file_path {
+    if old_path != file_path {
+      let new_path = format!("{}.old", old_path);
+      if let Err(e) = std::fs::rename(&old_path, &new_path) {
+        log::error!("Failed to rename old mod file: {}", e);
+        return Err(ResourceError::FileOperationError.into());
+      }
+    }
+  }
+
+  Ok(())
+}

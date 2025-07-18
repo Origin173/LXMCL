@@ -123,6 +123,7 @@ pub enum ResourceError {
   ParseError,
   NoDownloadApi,
   NetworkError,
+  FileOperationError,
 }
 
 impl std::error::Error for ResourceError {}

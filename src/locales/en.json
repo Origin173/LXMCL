@@ -299,6 +299,9 @@
       "currentVersion": "Current Version",
       "latestVersion": "Latest Version",
       "source": "Source"
+    },
+    "error": {
+      "renameOldMod": "Failed to rename old mod file"
     }
   },
   "ClearDownloadCacheAlertDialog": {
@@ -1924,6 +1927,26 @@
           "description": {
             "PARSE_ERROR": "The server returned data in an incorrect format",
             "NETWORK_ERROR": "Failed to connect to the server"
+          }
+        }
+      },
+      "getRemoteResourceByFile": {
+        "error": {
+          "title": "Failed to get remote resource",
+          "description": {
+            "PARSE_ERROR": "The server returned data in an incorrect format",
+            "NETWORK_ERROR": "Failed to connect to the server",
+            "NO_DOWNLOAD_API": "No download strategy available, please check internet connection"
+          }
+        }
+      },
+      "updateMod": {
+        "error": {
+          "title": "Failed to download latest mod",
+          "description": {
+            "PARSE_ERROR": "The server returned data in an incorrect format",
+            "NETWORK_ERROR": "Failed to connect to the server",
+            "FILE_OPERATION_ERROR": "Failed to rename old mod file"
           }
         }
       }

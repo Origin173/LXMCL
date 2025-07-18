@@ -32,7 +32,6 @@ import CheckModUpdateModal from "@/components/modals/check-mod-update-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useSharedModals } from "@/contexts/shared-modal";
-import { useTaskContext } from "@/contexts/task";
 import { useToast } from "@/contexts/toast";
 import { InstanceSubdirType, ModLoaderType } from "@/enums/instance";
 import { OtherResourceType } from "@/enums/resource";
@@ -40,7 +39,6 @@ import { InstanceError } from "@/enums/service-error";
 import { GetStateFlag } from "@/hooks/get-state";
 import { LocalModInfo } from "@/models/instance/misc";
 import { ModUpdateRecord, OtherResourceFileInfo } from "@/models/resource";
-import { TaskTypeEnums } from "@/models/task";
 import { InstanceService } from "@/services/instance";
 import { ResourceService } from "@/services/resource";
 import { base64ImgSrc } from "@/utils/string";
@@ -57,7 +55,6 @@ const InstanceModsPage = () => {
   } = useInstanceSharedData();
   const { config, update } = useLauncherConfig();
   const { openSharedModal } = useSharedModals();
-  const { handleScheduleProgressiveTaskGroup } = useTaskContext();
   const primaryColor = config.appearance.theme.primaryColor;
   const accordionStates = config.states.instanceModsPage.accordionStates;
 
@@ -336,14 +333,30 @@ const InstanceModsPage = () => {
             for (const pair of urlShaPairs) {
               const { url, sha1, fileName } = pair;
               const filePath = modsDir + "/" + fileName;
-              handleScheduleProgressiveTaskGroup("mod-update", [
-                {
-                  src: url,
-                  dest: filePath,
-                  sha1: sha1,
-                  taskType: TaskTypeEnums.Download,
-                },
-              ]);
+              const oldMod = modsToUpdate.find((mod) =>
+                updateList.some(
+                  (update) =>
+                    update.fileName === fileName && update.name === mod.name
+                )
+              );
+
+              if (oldMod) {
+                const oldFilePath = oldMod.filePath;
+                ResourceService.updateMod(
+                  url,
+                  sha1,
+                  filePath,
+                  oldFilePath
+                ).then((response) => {
+                  if (response.status !== "success") {
+                    toast({
+                      title: response.message,
+                      description: response.details,
+                      status: "error",
+                    });
+                  }
+                });
+              }
             }
           } else {
             toast({
@@ -355,7 +368,7 @@ const InstanceModsPage = () => {
         });
       }
     },
-    [summary?.id, handleScheduleProgressiveTaskGroup, toast]
+    [summary?.id, toast, modsToUpdate, updateList]
   );
 
   const modSecMenuOperations = [

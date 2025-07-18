@@ -123,4 +123,27 @@ export class ResourceService {
       filePath,
     });
   }
+
+  /**
+   * DOWNLOAD the latest mod file.
+   * @param url The download URL of the mod file.
+   * @param sha1 The SHA1 hash of the mod file.
+   * @param filePath The destination path to save the downloaded mod file.
+   * @param oldFilePath The path of the old mod file to be renamed.
+   * @returns {Promise<InvokeResponse<void>>}
+   */
+  @responseHandler("resource")
+  static async updateMod(
+    url: string,
+    sha1: string,
+    filePath: string,
+    oldFilePath: string
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("update_mod", {
+      url,
+      sha1,
+      filePath,
+      oldFilePath,
+    });
+  }
 }
