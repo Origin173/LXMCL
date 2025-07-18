@@ -65,7 +65,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
     );
   }, [getInstanceList, instanceId]);
 
-  const handleCloseModal = useCallback(() => {
+  const handleCloseModalWithCancel = useCallback(() => {
     LaunchService.cancelLaunchProcess();
     setErrorPaused(false);
     props.onClose();
@@ -92,7 +92,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
         isOK: (data: any) => true,
         onResCallback: (data: any) => {}, // TODO
         onErrCallback: (error: ResponseError) => {
-          handleCloseModal();
+          handleCloseModalWithCancel();
           toast({
             title: error.message,
             description: error.details,
@@ -139,7 +139,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
     ],
     [
       activeStep,
-      handleCloseModal,
+      handleCloseModalWithCancel,
       instanceId,
       openSharedModal,
       router,
@@ -154,13 +154,14 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
         title: t("LaunchProcessModal.toast.noSelectedPlayer"),
         status: "warning",
       });
-      handleCloseModal();
+      handleCloseModalWithCancel();
       return;
     }
     if (activeStep >= launchProcessSteps.length) {
-      handleCloseModal();
+      // Final launching state, we don't use handleCloseModalWithCancel
+      setErrorPaused(false);
+      props.onClose();
       return;
-      // TODO
     }
     const currentStep = launchProcessSteps[activeStep];
 
@@ -185,7 +186,8 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
     activeStep,
     setActiveStep,
     launchProcessSteps,
-    handleCloseModal,
+    handleCloseModalWithCancel,
+    props,
     selectedPlayer,
     t,
     toast,
@@ -197,7 +199,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
       closeOnEsc={false}
       closeOnOverlayClick={false}
       {...props}
-      onClose={handleCloseModal}
+      onClose={handleCloseModalWithCancel}
     >
       <ModalOverlay />
       <ModalContent>
@@ -252,7 +254,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
           </Stepper>
         </ModalBody>
         <ModalFooter>
-          <Button variant="ghost" onClick={handleCloseModal}>
+          <Button variant="ghost" onClick={handleCloseModalWithCancel}>
             {t("General.cancel")}
           </Button>
         </ModalFooter>
