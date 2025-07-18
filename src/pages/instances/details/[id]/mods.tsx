@@ -217,40 +217,40 @@ const InstanceModsPage = () => {
     try {
       const updatePromises = localMods.map(async (mod) => {
         try {
-          const [remoteCurseForge, remoteModrinth] = await Promise.all([
+          const [cfRemoteModRes, mdRemoteModRes] = await Promise.all([
             ResourceService.getRemoteResourceByFile("CurseForge", mod.filePath),
             ResourceService.getRemoteResourceByFile("Modrinth", mod.filePath),
           ]);
 
-          let cfMod,
-            mdMod = undefined;
+          let cfRemoteMod,
+            mdRemoteMod = undefined;
 
-          if (remoteCurseForge.status === "success") {
-            cfMod = remoteCurseForge.data;
+          if (cfRemoteModRes.status === "success") {
+            cfRemoteMod = cfRemoteModRes.data;
           }
-          if (remoteModrinth.status === "success") {
-            mdMod = remoteModrinth.data;
+          if (mdRemoteModRes.status === "success") {
+            mdRemoteMod = mdRemoteModRes.data;
           }
 
           const updatePromises = [];
 
-          // if (cfMod?.resourceId) {
-          //   updatePromises.push(
-          //     handleFetchLatestMod(
-          //       cfMod.resourceId,
-          //       mod.loaderType,
-          //       [summary?.majorVersion || "All"],
-          //       "CurseForge"
-          //     )
-          //   );
-          // } else {
-          //   updatePromises.push(Promise.resolve(undefined));
-          // }
-
-          if (mdMod?.resourceId) {
+          if (cfRemoteMod?.resourceId) {
             updatePromises.push(
               handleFetchLatestMod(
-                mdMod.resourceId,
+                cfRemoteMod.resourceId,
+                mod.loaderType,
+                [summary?.majorVersion || "All"],
+                "CurseForge"
+              )
+            );
+          } else {
+            updatePromises.push(Promise.resolve(undefined));
+          }
+
+          if (mdRemoteMod?.resourceId) {
+            updatePromises.push(
+              handleFetchLatestMod(
+                mdRemoteMod.resourceId,
                 mod.loaderType,
                 [summary?.version || "All"],
                 "Modrinth"
@@ -260,11 +260,18 @@ const InstanceModsPage = () => {
             updatePromises.push(Promise.resolve(undefined));
           }
 
-          const [modrinthFile] = await Promise.all(updatePromises);
+          const [cfRemoteFile, mdRemoteFile] =
+            await Promise.all(updatePromises);
 
-          const isCurseForgeNewer = false; // TODO: Implement logic to compare CurseForge and Modrinth files
-          const latestFile = modrinthFile; // TODO: Use isCurseForgeNewer to decide which file to use
-          const remoteMod = isCurseForgeNewer ? cfMod : mdMod;
+          let isCurseForgeNewer = cfRemoteMod !== undefined;
+          if (cfRemoteFile && mdRemoteFile) {
+            isCurseForgeNewer =
+              new Date(cfRemoteFile.fileDate).getTime() >
+              new Date(mdRemoteFile.fileDate).getTime();
+          }
+
+          const latestFile = isCurseForgeNewer ? cfRemoteFile : mdRemoteFile;
+          const remoteMod = isCurseForgeNewer ? cfRemoteMod : mdRemoteMod;
 
           let needUpdate = false;
 
@@ -313,7 +320,7 @@ const InstanceModsPage = () => {
     localMods,
     handleFetchLatestMod,
     summary?.version,
-    // summary?.majorVersion,
+    summary?.majorVersion,
     onCheckUpdateModalOpen,
   ]);
 

@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   Checkbox,
-  Flex,
   HStack,
   Modal,
   ModalBody,
@@ -78,76 +77,87 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
           </HStack>
         </ModalHeader>
         <ModalCloseButton />
-        <Flex flexGrow="1" flexDir="column">
-          <ModalBody>
-            {isLoading ? (
-              <VStack mt={8}>
-                <BeatLoader size={16} color="gray" />
-              </VStack>
-            ) : updateList.length === 0 ? (
-              <VStack mt={8}>
-                <Text color="gray.500">
-                  {t("CheckModUpdateModal.noUpdate")}
-                </Text>
-              </VStack>
-            ) : (
-              <VStack spacing={0} align="stretch">
-                <HStack
-                  py={3}
-                  px={4}
-                  bg={headerBg}
-                  borderRadius="md"
-                  borderBottomRadius="none"
-                  border="1px"
-                  borderColor={borderColor}
-                  fontSize="sm"
-                >
-                  <Checkbox
-                    isChecked={
-                      selectedMods.length === updateList.length &&
-                      updateList.length > 0
-                    }
-                    isIndeterminate={
-                      selectedMods.length > 0 &&
-                      selectedMods.length < updateList.length
-                    }
-                    onChange={handleSelectAll}
-                    colorScheme={primaryColor}
-                  />
-                  <Box flex="2" minW="0">
-                    <Text textAlign="center">
-                      {t("CheckModUpdateModal.updateList.mod")}
-                    </Text>
-                  </Box>
-                  <Box flex="2" minW="0">
-                    <Text textAlign="center">
-                      {t("CheckModUpdateModal.updateList.currentVersion")}
-                    </Text>
-                  </Box>
-                  <Box flex="3" minW="0">
-                    <Text textAlign="center">
-                      {t("CheckModUpdateModal.updateList.latestVersion")}
-                    </Text>
-                  </Box>
-                  <Box flex="1" minW="0">
-                    <Text textAlign="center">
-                      {t("CheckModUpdateModal.updateList.source")}
-                    </Text>
-                  </Box>
-                </HStack>
 
+        <ModalBody
+          flex="1"
+          display="flex"
+          flexDirection="column"
+          overflow="hidden"
+        >
+          {isLoading ? (
+            <VStack mt={8}>
+              <BeatLoader size={16} color="gray" />
+            </VStack>
+          ) : updateList.length === 0 ? (
+            <VStack mt={8}>
+              <Text color="gray.500">{t("CheckModUpdateModal.noUpdate")}</Text>
+            </VStack>
+          ) : (
+            <VStack spacing={0} align="stretch" flex="1" overflow="hidden">
+              <HStack
+                py={3}
+                px={4}
+                bg={headerBg}
+                borderRadius="md"
+                borderBottomRadius="none"
+                border="1px"
+                borderColor={borderColor}
+                fontSize="sm"
+                flexShrink={0}
+              >
+                <Checkbox
+                  isChecked={
+                    selectedMods.length === updateList.length &&
+                    updateList.length > 0
+                  }
+                  isIndeterminate={
+                    selectedMods.length > 0 &&
+                    selectedMods.length < updateList.length
+                  }
+                  onChange={handleSelectAll}
+                  colorScheme={primaryColor}
+                />
+                <Box flex="2" minW="0">
+                  <Text textAlign="center">
+                    {t("CheckModUpdateModal.updateList.mod")}
+                  </Text>
+                </Box>
+                <Box flex="2" minW="0">
+                  <Text textAlign="center">
+                    {t("CheckModUpdateModal.updateList.currentVersion")}
+                  </Text>
+                </Box>
+                <Box flex="3" minW="0">
+                  <Text textAlign="center">
+                    {t("CheckModUpdateModal.updateList.latestVersion")}
+                  </Text>
+                </Box>
+                <Box flex="1" minW="0">
+                  <Text textAlign="center">
+                    {t("CheckModUpdateModal.updateList.source")}
+                  </Text>
+                </Box>
+              </HStack>
+
+              <Box
+                flex="1"
+                overflowY="auto"
+                border="1px"
+                borderColor={borderColor}
+                borderTop="none"
+                borderRadius="md"
+                borderTopRadius="none"
+              >
                 <VStack spacing={0} align="stretch">
                   {updateList.map((mod, index) => (
                     <HStack
                       key={mod.name}
                       py={3}
                       px={4}
-                      border="1px"
-                      borderColor={borderColor}
-                      borderTop="none"
-                      borderBottomRadius={
-                        index === updateList.length - 1 ? "md" : "none"
+                      borderBottom={
+                        index === updateList.length - 1 ? "none" : "1px"
                       }
+                      borderColor={borderColor}
                       _hover={{ bg: hoverBg }}
                       cursor="pointer"
                       onClick={() => handleModToggle(mod)}
@@ -205,12 +215,13 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
                     </HStack>
                   ))}
                 </VStack>
-              </VStack>
-            )}
-          </ModalBody>
-        </Flex>
+              </Box>
+            </VStack>
+          )}
+        </ModalBody>
+
         {!isLoading && updateList.length > 0 && (
-          <ModalFooter>
+          <ModalFooter flexShrink={0}>
             <HStack spacing={3}>
               <Button variant="ghost" onClick={modalProps.onClose}>
                 {t("CheckModUpdateModal.button.cancel")}
