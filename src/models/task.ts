@@ -50,8 +50,7 @@ export interface TaskGroupDesc {
   taskDescs: TaskDesc[];
   taskGroup: string;
   status?: TaskDescStatusEnums;
-  current?: number; // current progress in bytes
-  total?: number; // total size in bytes
+  finishedCount?: number;
   progress?: number;
   reason?: string;
   estimatedTime?: Duration; // estimated time remaining in seconds

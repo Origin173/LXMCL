@@ -67,10 +67,15 @@ export const DownloadTasksPage = () => {
   };
 
   const showTaskProgressInfo = (task: TaskDesc) => {
-    let text = [
-      `${formatByteSize(task.current)} / ${formatByteSize(task.total)}`,
-    ];
-    if (task.speed) text.push(`${formatByteSize(task.speed)}/s`);
+    let text = [];
+    if (task.total) {
+      text.push(
+        `${formatByteSize(task.current)} / ${formatByteSize(task.total)}`
+      );
+    }
+    if (task.speed) {
+      text.push(`${formatByteSize(task.speed)}/s`);
+    }
     return text.join(" - ");
   };
 
@@ -113,6 +118,9 @@ export const DownloadTasksPage = () => {
                   </Text>
 
                   <HStack alignItems="center">
+                    <Text fontSize="xs" className="secondary-text">
+                      {group.finishedCount} / {group.taskDescs.length}
+                    </Text>
                     {group.status === TaskDescStatusEnums.InProgress &&
                       group.estimatedTime && (
                         <Text fontSize="xs" className="secondary-text">

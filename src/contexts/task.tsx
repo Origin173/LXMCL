@@ -69,9 +69,28 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const updateGroupInfo = useCallback((group: TaskGroupDesc) => {
-    group.current = group.taskDescs.reduce((acc, t) => acc + t.current, 0);
-    group.total = group.taskDescs.reduce((acc, t) => acc + t.total, 0);
-    group.progress = group.total > 0 ? (group.current * 100) / group.total : 0;
+    group.finishedCount = group.taskDescs.filter(
+      (t) => t.status === TaskDescStatusEnums.Completed
+    ).length;
+
+    let knownTotalArr = group.taskDescs.filter((t) => t.total && t.total > 0);
+    let knownTotal = knownTotalArr.reduce((acc, t) => acc + t.total, 0);
+    let knownCurrent = knownTotalArr.reduce(
+      (acc, t) => acc + (t.current || 0),
+      0
+    );
+    let estimatedTotal;
+    if (knownTotalArr.length > 0) {
+      estimatedTotal =
+        knownTotal +
+        (group.taskDescs.length - knownTotalArr.length) *
+          (knownTotal / knownTotalArr.length); // Estimate unknown task's size based on known tasks' average size
+    } else {
+      estimatedTotal = knownTotal; // Fallback when no known tasks exist
+    }
+
+    group.progress = estimatedTotal ? (knownCurrent * 100) / estimatedTotal : 0;
+
     group.estimatedTime = undefined;
     group.taskDescs.forEach((t) => {
       if (t.status === TaskDescStatusEnums.InProgress && t.estimatedTime) {
@@ -112,6 +131,10 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
         getInstanceList(true);
       }
     } else if (
+      group.taskDescs.every((t) => t.status === TaskDescStatusEnums.Waiting)
+    ) {
+      group.status = TaskDescStatusEnums.Waiting;
+    } else if (
       group.taskDescs.some((t) => t.status === TaskDescStatusEnums.Stopped)
     ) {
       group.status = TaskDescStatusEnums.Stopped;
@@ -127,12 +150,8 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
       group.taskDescs.some((t) => t.status === TaskDescStatusEnums.Cancelled)
     ) {
       group.status = TaskDescStatusEnums.Cancelled;
-    } else if (
-      group.taskDescs.some((t) => t.status === TaskDescStatusEnums.InProgress)
-    ) {
-      group.status = TaskDescStatusEnums.InProgress;
     } else {
-      group.status = TaskDescStatusEnums.Waiting;
+      group.status = TaskDescStatusEnums.InProgress;
     }
 
     tasksChangedRef.current = true;
@@ -417,30 +436,19 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     if (!tasks || !tasks.length) return;
-    const generalCurrent = tasks.reduce(
-      (acc, task) =>
-        acc +
-        (task?.status === TaskDescStatusEnums.InProgress
-          ? (task?.current ?? 0)
-          : 0) /
-          tasks.length,
-      0
-    );
-    const generalTotal = tasks.reduce(
-      (acc, task) =>
-        acc +
-        (task?.status === TaskDescStatusEnums.InProgress
-          ? (task?.total ?? 0)
-          : 0) /
-          tasks.length,
-      0
+
+    let filteredTasks = tasks.filter(
+      (t) =>
+        t.status !== TaskDescStatusEnums.Completed &&
+        t.status !== TaskDescStatusEnums.Cancelled
     );
 
-    if (generalTotal) {
-      setGeneralPercent((generalCurrent / generalTotal) * 100);
-    } else {
-      setGeneralPercent(0);
-    }
+    setGeneralPercent(
+      filteredTasks.reduce(
+        (acc, group) => acc + (group.progress ?? 0) / filteredTasks.length,
+        0
+      )
+    );
   }, [tasks]);
 
   return (
