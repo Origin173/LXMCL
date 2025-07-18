@@ -61,10 +61,9 @@ const chakraExtendTheme = extendTheme({
         },
         title: {
           fontSize: "sm",
-          marginBottom: -0.5,
         },
         description: {
-          fontSize: "xs",
+          fontSize: "xs-sm",
           lineHeight: 4,
         },
       },
