@@ -353,8 +353,7 @@ pub async fn fetch_resource_version_packs_curseforge(
   Ok(map_curseforge_file_to_version_pack(aggregated_files))
 }
 
-#[tauri::command]
-pub async fn get_remote_resource_by_file_curseforge(
+pub async fn fetch_remote_resource_by_local_curseforge(
   app: &AppHandle,
   file_path: &String,
 ) -> SJMCLResult<OtherResourceFileInfo> {
@@ -372,8 +371,7 @@ pub async fn get_remote_resource_by_file_curseforge(
     match reader.read(&mut buffer) {
       Ok(0) => break,
       Ok(len) => {
-        for i in 0..len {
-          let byte = buffer[i];
+        for &byte in &buffer[..len] {
           if byte != 0x09 && byte != 0x0a && byte != 0x0d && byte != 0x20 {
             filtered_bytes.push(byte);
           }

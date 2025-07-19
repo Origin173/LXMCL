@@ -234,8 +234,14 @@ const InstanceModsPage = () => {
       const updatePromises = localMods.map(async (mod) => {
         try {
           const [cfRemoteModRes, mrRemoteModRes] = await Promise.all([
-            ResourceService.getRemoteResourceByFile("CurseForge", mod.filePath),
-            ResourceService.getRemoteResourceByFile("Modrinth", mod.filePath),
+            ResourceService.fetchRemoteResourceByLocal(
+              "CurseForge",
+              mod.filePath
+            ),
+            ResourceService.fetchRemoteResourceByLocal(
+              "Modrinth",
+              mod.filePath
+            ),
           ]);
 
           let cfRemoteMod,

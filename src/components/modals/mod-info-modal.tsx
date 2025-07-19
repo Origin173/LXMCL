@@ -6,7 +6,6 @@ import {
   ModalBody,
   ModalContent,
   ModalFooter,
-  ModalHeader,
   ModalOverlay,
   ModalProps,
   Tag,
@@ -60,7 +59,7 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
   };
 
   const handleCurseForgeInfo = useCallback(async () => {
-    ResourceService.getRemoteResourceByFile("CurseForge", mod.filePath).then(
+    ResourceService.fetchRemoteResourceByLocal("CurseForge", mod.filePath).then(
       (response) => {
         if (response.status === "success") {
           const modId = response.data.resourceId;
@@ -77,7 +76,7 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
   }, [mod.filePath, toast, setCfRemoteModId]);
 
   const handleModrinthInfo = useCallback(async () => {
-    ResourceService.getRemoteResourceByFile("Modrinth", mod.filePath).then(
+    ResourceService.fetchRemoteResourceByLocal("Modrinth", mod.filePath).then(
       (response) => {
         if (response.status === "success") {
           const modId = response.data.resourceId;
@@ -106,15 +105,13 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
   ]);
 
   return (
-    <Modal size={{ base: "lg", lg: "xl", xl: "2xl" }} {...modalProps}>
+    <Modal size={{ base: "md", lg: "lg", xl: "xl" }} {...modalProps}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader></ModalHeader>
-
-        <ModalBody px={5}>
+        <ModalBody mt={2}>
           <OptionItem
             title={
-              <Text fontWeight="bold" fontSize="lg">
+              <Text fontWeight="semibold" fontSize="md">
                 {mod.translatedName
                   ? `${mod.translatedName} | ${mod.name}`
                   : mod.name || mod.fileName}
@@ -141,56 +138,55 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
               <Avatar
                 src={base64ImgSrc(mod.iconSrc)}
                 name={mod.name || mod.fileName}
-                boxSize="48px"
+                boxSize="40px"
                 borderRadius="4px"
                 style={{
                   filter: mod.enabled ? "none" : "grayscale(90%)",
                   opacity: mod.enabled ? 1 : 0.5,
                 }}
-              ></Avatar>
+              />
             }
-          ></OptionItem>
-          <Text fontSize="xs-sm" mt={4} ml={1}>
-            {mod.description}
-          </Text>
+          />
+          <Text mt={4}>{mod.description}</Text>
         </ModalBody>
 
-        <ModalFooter mt={1}>
-          <HStack spacing={1}>
-            <LuExternalLink />
-            <Button
-              colorScheme={primaryColor}
-              onClick={() => {
-                modalProps.onClose();
-                openDownloadModal("CurseForge");
-              }}
-              fontSize="sm"
-              variant="link"
-              disabled={!cfRemoteModId}
-            >
-              CurseForge
-            </Button>
-          </HStack>
-          <HStack spacing={1}>
-            <LuExternalLink />
-            <Button
-              colorScheme={primaryColor}
-              onClick={() => {
-                modalProps.onClose();
-                openDownloadModal("Modrinth");
-              }}
-              fontSize="sm"
-              variant="link"
-              disabled={!mrRemoteModId}
-            >
-              Modrinth
-            </Button>
+        <ModalFooter w="100%">
+          <HStack spacing={3}>
+            <HStack spacing={2}>
+              <LuExternalLink />
+              <Button
+                colorScheme={primaryColor}
+                onClick={() => {
+                  modalProps.onClose();
+                  openDownloadModal("CurseForge");
+                }}
+                fontSize="sm"
+                variant="link"
+                disabled={!cfRemoteModId}
+              >
+                CurseForge
+              </Button>
+            </HStack>
+            <HStack spacing={2}>
+              <LuExternalLink />
+              <Button
+                colorScheme={primaryColor}
+                onClick={() => {
+                  modalProps.onClose();
+                  openDownloadModal("Modrinth");
+                }}
+                fontSize="sm"
+                variant="link"
+                disabled={!mrRemoteModId}
+              >
+                Modrinth
+              </Button>
+            </HStack>
           </HStack>
           <Button
             colorScheme={primaryColor}
             onClick={modalProps.onClose}
-            fontSize="sm"
-            variant="ghost"
+            ml="auto"
           >
             {t("General.confirm")}
           </Button>

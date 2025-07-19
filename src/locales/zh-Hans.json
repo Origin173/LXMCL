@@ -1933,7 +1933,7 @@
           }
         }
       },
-      "getRemoteResourceByFile": {
+      "fetchRemoteResourceByLocal": {
         "error": {
           "title": "获取远程资源失败",
           "description": {

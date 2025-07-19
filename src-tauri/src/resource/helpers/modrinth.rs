@@ -251,8 +251,7 @@ pub async fn fetch_resource_version_packs_modrinth(
   Ok(map_modrinth_file_to_version_pack(results))
 }
 
-#[tauri::command]
-pub async fn get_remote_resource_by_file_modrinth(
+pub async fn fetch_remote_resource_by_local_modrinth(
   app: &AppHandle,
   file_path: &String,
 ) -> SJMCLResult<OtherResourceFileInfo> {

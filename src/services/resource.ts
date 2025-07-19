@@ -42,7 +42,7 @@ export class ResourceService {
 
   /**
    * FETCH the list of resources according to the given parameters.
-   * @returns {Promise<InvokeResponse<OtherResourceInfo[]>>}
+   * @returns {Promise<InvokeResponse<OtherResourceSearchRes>>}
    */
   @responseHandler("resource")
   static async fetchResourceListByName(
@@ -108,17 +108,17 @@ export class ResourceService {
   }
 
   /**
-   * FETCH a remote resource by its local file.
+   * FETCH a remote resource info by local file.
    * @param filePath The file path of the resource.
    * @param downloadSource The source from which to download the resource.
    * @returns {Promise<InvokeResponse<OtherResourceFileInfo>>}
    */
   @responseHandler("resource")
-  static async getRemoteResourceByFile(
+  static async fetchRemoteResourceByLocal(
     downloadSource: string,
     filePath: string
   ): Promise<InvokeResponse<OtherResourceFileInfo>> {
-    return await invoke("get_remote_resource_by_file", {
+    return await invoke("fetch_remote_resource_by_local", {
       downloadSource,
       filePath,
     });

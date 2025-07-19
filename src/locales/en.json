@@ -1933,7 +1933,7 @@
           }
         }
       },
-      "getRemoteResourceByFile": {
+      "fetchRemoteResourceByLocal": {
         "error": {
           "title": "Failed to get remote resource",
           "description": {
