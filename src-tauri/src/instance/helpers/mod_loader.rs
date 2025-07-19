@@ -125,6 +125,10 @@ async fn install_fabric_loader(
 ) -> SJMCLResult<()> {
   let loader_ver = &loader.version;
 
+  let old_json = vanilla_json.clone();
+
+  let mut new_json = json!({});
+
   let meta_url = get_download_api(priority[0], ResourceType::FabricMeta)?
     .join(&format!("v2/versions/loader/{game_version}/{loader_ver}"))?;
 
@@ -146,10 +150,27 @@ async fn install_fabric_loader(
   vanilla_json["id"] = json!(inst_name);
   vanilla_json["jar"] = json!(inst_name);
 
+  new_json["id"] = json!("fabric");
+  new_json["mainClass"] = json!(main_class);
+  new_json["version"] = json!(loader_ver);
+  new_json["arguments"] = json!({});
+  new_json["libraries"] = json!([]);
+
   let maven_root = get_download_api(priority[0], ResourceType::FabricMaven)?;
 
   add_library_entry(vanilla_json, loader_path, maven_root.as_str())?;
   add_library_entry(vanilla_json, int_path, maven_root.as_str())?;
+
+  if let Some(libraries) = new_json["libraries"].as_array_mut() {
+    libraries.push(json!({
+        "name": loader_path,
+        "url": maven_root
+    }));
+    libraries.push(json!({
+        "name": int_path,
+        "url": maven_root
+    }));
+  }
 
   let launcher_meta = &meta["launcherMeta"]["libraries"];
   for side in ["common", "server", "client"] {
@@ -157,6 +178,12 @@ async fn install_fabric_loader(
       for item in arr {
         let name = item["name"].as_str().unwrap();
         add_library_entry(vanilla_json, name, maven_root.as_str())?;
+        if let Some(libraries) = new_json["libraries"].as_array_mut() {
+          libraries.push(json!({
+              "name": name,
+              "url": maven_root
+          }));
+        }
       }
     }
   }
@@ -190,6 +217,8 @@ async fn install_fabric_loader(
       }
     }
   }
+
+  vanilla_json["patches"] = json!([old_json, new_json]);
 
   schedule_progressive_task_group(
     app,
