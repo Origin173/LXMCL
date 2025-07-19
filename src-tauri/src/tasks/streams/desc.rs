@@ -122,7 +122,7 @@ where
 
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct PGroupDesc<T>
+pub struct GDesc<T>
 where
   T: Clone + Serialize,
 {

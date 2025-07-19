@@ -1,7 +1,12 @@
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { InvokeResponse } from "@/models/response";
-import { PTaskEventPayload, TaskGroupDesc, TaskParam } from "@/models/task";
+import {
+  GTaskEventPayload,
+  PTaskEventPayload,
+  TaskGroupDesc,
+  TaskParam,
+} from "@/models/task";
 import { responseHandler } from "@/utils/response";
 
 /**
@@ -139,9 +144,9 @@ export class TaskService {
    */
 
   static onTaskGroupUpdate(
-    callback: (payload: TaskGroupDesc) => void
+    callback: (payload: GTaskEventPayload) => void
   ): () => void {
-    const unlisten = getCurrentWebview().listen<TaskGroupDesc>(
+    const unlisten = getCurrentWebview().listen<GTaskEventPayload>(
       "task:group-update",
       (event) => {
         callback(event.payload);

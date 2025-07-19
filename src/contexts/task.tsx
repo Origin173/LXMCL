@@ -3,7 +3,6 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
@@ -11,6 +10,8 @@ import { useToast } from "@/contexts/toast";
 import {
   CreatedPTaskEventStatus,
   FailedPTaskEventStatus,
+  GTaskEventPayload,
+  GTaskEventStatusEnums,
   InProgressPTaskEventStatus,
   PTaskEventPayload,
   PTaskEventStatusEnums,
@@ -47,26 +48,6 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const [tasks, setTasks] = useState<TaskGroupDesc[]>([]);
   const [generalPercent, setGeneralPercent] = useState<number>();
   const { t } = useTranslation();
-
-  // use ref to cache pending update on tasks
-  const pendingTasksRef = useRef<TaskGroupDesc[] | null>(null);
-  const tasksChangedRef = useRef<boolean>(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      if (pendingTasksRef.current && tasksChangedRef.current) {
-        setTasks([...pendingTasksRef.current]);
-        tasksChangedRef.current = false;
-      }
-    }, 1000);
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, []);
 
   const updateGroupInfo = useCallback((group: TaskGroupDesc) => {
     group.finishedCount = group.taskDescs.filter(
@@ -120,41 +101,6 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
       };
       return level(a) - level(b);
     });
-
-    if (
-      group.taskDescs.every((t) => t.status === TaskDescStatusEnums.Completed)
-    ) {
-      group.status = TaskDescStatusEnums.Completed;
-
-      let groupInfo = group.taskGroup.split("@")[0].split(":");
-      if (groupInfo.length > 1 && groupInfo[0] === "game-client") {
-        getInstanceList(true);
-      }
-    } else if (
-      group.taskDescs.every((t) => t.status === TaskDescStatusEnums.Waiting)
-    ) {
-      group.status = TaskDescStatusEnums.Waiting;
-    } else if (
-      group.taskDescs.some((t) => t.status === TaskDescStatusEnums.Stopped)
-    ) {
-      group.status = TaskDescStatusEnums.Stopped;
-    } else if (
-      group.taskDescs.some((t) => t.status === TaskDescStatusEnums.Failed)
-    ) {
-      group.status = TaskDescStatusEnums.Failed;
-      group.reason = group.taskDescs
-        .filter((t) => t.status === TaskDescStatusEnums.Failed)
-        .map((t) => t.reason)
-        .filter((r) => r)[0];
-    } else if (
-      group.taskDescs.some((t) => t.status === TaskDescStatusEnums.Cancelled)
-    ) {
-      group.status = TaskDescStatusEnums.Cancelled;
-    } else {
-      group.status = TaskDescStatusEnums.InProgress;
-    }
-
-    tasksChangedRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -162,21 +108,26 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
     TaskService.retrieveProgressiveTaskList().then((response) => {
       if (response.status === "success") {
         // info(JSON.stringify(response.data));
-        let tasks = response.data
-          .map((taskGroup) => {
-            updateGroupInfo(taskGroup);
-            return taskGroup;
-          })
-          .filter(
-            (taskGroup) => taskGroup.status !== TaskDescStatusEnums.Cancelled
-          );
-        tasks.sort((a, b) => {
-          let aTime = parseInt(a.taskGroup.split("@").pop() || "0");
-          let bTime = parseInt(b.taskGroup.split("@").pop() || "0");
-          return bTime - aTime; // Sort by timestamp descending
+        setTasks((prevTasks) => {
+          let tasks = response.data
+            .map((group) => {
+              let prevGroup = prevTasks?.find(
+                (t) => t.taskGroup === group.taskGroup
+              );
+              if (prevGroup) return prevGroup;
+              updateGroupInfo(group);
+              return group;
+            })
+            .filter(
+              (group) => group.status !== GTaskEventStatusEnums.Cancelled
+            );
+          tasks.sort((a, b) => {
+            let aTime = parseInt(a.taskGroup.split("@").pop() || "0");
+            let bTime = parseInt(b.taskGroup.split("@").pop() || "0");
+            return bTime - aTime; // Sort by timestamp descending
+          });
+          return tasks;
         });
-        setTasks(tasks);
-        pendingTasksRef.current = tasks;
       } else {
         toast({
           title: response.message,
@@ -222,15 +173,6 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             description: response.details,
             status: "error",
           });
-        } else {
-          setTasks((prevTasks) =>
-            prevTasks?.map((t) => {
-              if (t.taskGroup === taskGroup) {
-                t.status = TaskDescStatusEnums.Cancelled;
-              }
-              return t;
-            })
-          );
         }
       });
     },
@@ -273,159 +215,155 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
         // info(
         //   `Received task update: ${payload.id}, status: ${payload.event.status}`
         // );
-
-        const currentTasks = pendingTasksRef.current;
-
-        if (payload.event.status === PTaskEventStatusEnums.Created) {
-          let group = currentTasks?.find(
+        setTasks((prevTasks) => {
+          const group = prevTasks?.find(
             (t) => t.taskGroup === payload.taskGroup
           );
 
-          if (group) {
-            if (group.taskDescs.some((t) => t.taskId === payload.id)) {
-              // info(
-              //   `Task ${payload.id} already exists in group ${payload.taskGroup}`
-              // );
-            } else if (
-              group.taskDescs.some(
-                (t) =>
-                  t.payload.dest ===
-                  (payload.event as CreatedPTaskEventStatus).desc.payload.dest
-              )
-            ) {
-              // It' a retrial task emitted from the backend
-              group.taskDescs = group.taskDescs.map((t) => {
-                if (
-                  t.payload.dest ===
-                  (payload.event as CreatedPTaskEventStatus).desc.payload.dest
+          switch (payload.event.status) {
+            case PTaskEventStatusEnums.Created: {
+              if (group) {
+                if (group.taskDescs.some((t) => t.taskId === payload.id)) {
+                  // info(
+                  //   `Task ${payload.id} already exists in group ${payload.taskGroup}`
+                  // );
+                } else if (
+                  group.taskDescs.some(
+                    (t) =>
+                      t.payload.dest ===
+                      (payload.event as CreatedPTaskEventStatus).desc.payload
+                        .dest
+                  )
                 ) {
-                  t = (payload.event as CreatedPTaskEventStatus).desc;
+                  // It' a retrial task emitted from the backend
+                  group.taskDescs = group.taskDescs.map((t) => {
+                    if (
+                      t.payload.dest ===
+                      (payload.event as CreatedPTaskEventStatus).desc.payload
+                        .dest
+                    ) {
+                      t = (payload.event as CreatedPTaskEventStatus).desc;
+                    }
+                    return t;
+                  });
+                } else {
+                  group.taskDescs.unshift(payload.event.desc);
+                  // info(`Added task ${payload.id} to group ${payload.taskGroup}`);
+                  updateGroupInfo(group);
+                }
+              } else {
+                // info(`Creating new task group ${payload.taskGroup}`);
+                // Create a new task group if it doesn't exist
+                let newGroup: TaskGroupDesc = {
+                  status: GTaskEventStatusEnums.Started,
+                  taskGroup: payload.taskGroup,
+                  taskDescs: [payload.event.desc],
+                };
+                updateGroupInfo(newGroup);
+                return [newGroup, ...(prevTasks || [])];
+              }
+              break;
+            }
+
+            case PTaskEventStatusEnums.Started: {
+              if (!group) return prevTasks;
+              group.taskDescs = group.taskDescs.map((t) => {
+                if (t.taskId === payload.id) {
+                  t.status = TaskDescStatusEnums.InProgress;
+                  t.total = (payload.event as StartedPTaskEventStatus).total;
                 }
                 return t;
               });
-            } else {
-              group.taskDescs.unshift(payload.event.desc);
-              // info(`Added task ${payload.id} to group ${payload.taskGroup}`);
               updateGroupInfo(group);
+              break;
             }
-          } else {
-            // info(`Creating new task group ${payload.taskGroup}`);
-            // Create a new task group if it doesn't exist
-            let newGroup: TaskGroupDesc = {
-              taskGroup: payload.taskGroup,
-              taskDescs: [payload.event.desc],
-            };
-            updateGroupInfo(newGroup);
 
-            pendingTasksRef.current = [newGroup, ...(currentTasks || [])];
+            case PTaskEventStatusEnums.Completed: {
+              if (!group) return prevTasks;
+              group.taskDescs = group.taskDescs.map((t) => {
+                if (t.taskId === payload.id) {
+                  t.status = TaskDescStatusEnums.Completed;
+                  t.current = t.total;
+                }
+                return t;
+              });
+              // info(`Task ${payload.id} completed in group ${payload.taskGroup}`);
+              updateGroupInfo(group);
+              break;
+            }
+
+            case PTaskEventStatusEnums.Stopped: {
+              if (!group) return prevTasks;
+              group.taskDescs = group.taskDescs.map((t) => {
+                if (t.taskId === payload.id) {
+                  t.status = TaskDescStatusEnums.Stopped;
+                }
+                return t;
+              });
+              updateGroupInfo(group);
+              break;
+            }
+
+            case PTaskEventStatusEnums.Cancelled: {
+              if (!group) return prevTasks;
+              group.taskDescs = group.taskDescs.map((t) => {
+                if (t.taskId === payload.id) {
+                  t.status = TaskDescStatusEnums.Cancelled;
+                }
+                return t;
+              });
+              updateGroupInfo(group);
+              // info(`Task ${payload.id} cancelled in group ${payload.taskGroup}`);
+              break;
+            }
+
+            case PTaskEventStatusEnums.InProgress: {
+              if (!group) return prevTasks;
+              group.taskDescs = group.taskDescs.map((t) => {
+                if (t.taskId === payload.id) {
+                  t.current = (
+                    payload.event as InProgressPTaskEventStatus
+                  ).current;
+                  t.status = TaskDescStatusEnums.InProgress;
+                  t.estimatedTime = (
+                    payload.event as InProgressPTaskEventStatus
+                  ).estimatedTime;
+                  t.speed = (payload.event as InProgressPTaskEventStatus).speed;
+                }
+                return t;
+              });
+              updateGroupInfo(group);
+              // info(
+              //   `Task ${payload.id} in progress in group ${payload.taskGroup}`
+              // );
+              break;
+            }
+
+            case PTaskEventStatusEnums.Failed: {
+              console.error(
+                `Task ${payload.id} failed in group ${payload.taskGroup}: ${
+                  (payload.event as FailedPTaskEventStatus).reason
+                }`
+              );
+              if (!group) return prevTasks;
+              group.taskDescs = group.taskDescs.map((t) => {
+                if (t.taskId === payload.id) {
+                  t.status = TaskDescStatusEnums.Failed;
+                  t.reason = (payload.event as FailedPTaskEventStatus).reason;
+                }
+                return t;
+              });
+              updateGroupInfo(group);
+              // info(`Task ${payload.id} failed in group ${payload.taskGroup}`);
+              break;
+            }
+
+            default:
+              break;
           }
-        } else if (payload.event.status === PTaskEventStatusEnums.Started) {
-          let group = currentTasks?.find(
-            (t) => t.taskGroup === payload.taskGroup
-          );
-          if (!group) return;
 
-          group.status = TaskDescStatusEnums.InProgress;
-          group.taskDescs = group.taskDescs.map((t) => {
-            if (t.taskId === payload.id) {
-              t.status = TaskDescStatusEnums.InProgress;
-              t.total = (payload.event as StartedPTaskEventStatus).total;
-            }
-            return t;
-          });
-          updateGroupInfo(group);
-        } else if (payload.event.status === PTaskEventStatusEnums.Completed) {
-          let group = currentTasks?.find(
-            (t) => t.taskGroup === payload.taskGroup
-          );
-          if (!group) return;
-
-          group.taskDescs = group.taskDescs.map((t) => {
-            if (t.taskId === payload.id) {
-              t.status = TaskDescStatusEnums.Completed;
-              t.current = t.total;
-            }
-            return t;
-          });
-          // info(`Task ${payload.id} completed in group ${payload.taskGroup}`);
-
-          updateGroupInfo(group);
-          tasksChangedRef.current = true;
-        } else if (payload.event.status === PTaskEventStatusEnums.Stopped) {
-          let group = currentTasks?.find(
-            (t) => t.taskGroup === payload.taskGroup
-          );
-          if (!group) return;
-
-          group.taskDescs = group.taskDescs.map((t) => {
-            if (t.taskId === payload.id) {
-              t.status = TaskDescStatusEnums.Stopped;
-            }
-            return t;
-          });
-          updateGroupInfo(group);
-        } else if (payload.event.status === PTaskEventStatusEnums.Cancelled) {
-          let group = currentTasks?.find(
-            (t) => t.taskGroup === payload.taskGroup
-          );
-          if (!group) return;
-
-          group.taskDescs = group.taskDescs.map((t) => {
-            if (t.taskId === payload.id) {
-              t.status = TaskDescStatusEnums.Cancelled;
-            }
-            return t;
-          });
-          updateGroupInfo(group);
-          // info(`Task ${payload.id} cancelled in group ${payload.taskGroup}`);
-        } else if (payload.event.status === PTaskEventStatusEnums.InProgress) {
-          let group = currentTasks?.find(
-            (t) => t.taskGroup === payload.taskGroup
-          );
-          if (!group) return;
-          group.taskDescs = group.taskDescs.map((t) => {
-            if (t.taskId === payload.id) {
-              t.current = (payload.event as InProgressPTaskEventStatus).current;
-              t.status = TaskDescStatusEnums.InProgress;
-              t.estimatedTime = (
-                payload.event as InProgressPTaskEventStatus
-              ).estimatedTime;
-              t.speed = (payload.event as InProgressPTaskEventStatus).speed;
-            }
-            return t;
-          });
-          updateGroupInfo(group);
-
-          // info(
-          //   `Task ${payload.id} in progress in group ${payload.taskGroup}`
-          // );
-        } else if (payload.event.status === PTaskEventStatusEnums.Failed) {
-          console.error(
-            `Task ${payload.id} failed in group ${payload.taskGroup}: ${
-              (payload.event as FailedPTaskEventStatus).reason
-            }`
-          );
-          toast({
-            title: t(`Services.task.onProgressiveTaskUpdate.error.title`, {
-              param: payload.id,
-            }),
-            description: (payload.event as FailedPTaskEventStatus).reason,
-            status: "error",
-          });
-          let group = currentTasks?.find(
-            (t) => t.taskGroup === payload.taskGroup
-          );
-          if (!group) return;
-          group.taskDescs = group.taskDescs.map((t) => {
-            if (t.taskId === payload.id) {
-              t.status = TaskDescStatusEnums.Failed;
-              t.reason = (payload.event as FailedPTaskEventStatus).reason;
-            }
-            return t;
-          });
-          updateGroupInfo(group);
-          // info(`Task ${payload.id} failed in group ${payload.taskGroup}`);
-        }
+          return [...prevTasks];
+        });
       }
     );
 
@@ -435,12 +373,36 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [t, toast, updateGroupInfo]);
 
   useEffect(() => {
+    const unlisten = TaskService.onTaskGroupUpdate(
+      (payload: GTaskEventPayload) => {
+        console.log(`Received task group update: ${payload.event.status}`);
+        setTasks((prevTasks) => {
+          return prevTasks.map((task) => {
+            if (task.taskGroup === payload.taskGroup) {
+              task.status = payload.event.status;
+            }
+            return task;
+          });
+        });
+
+        if (
+          payload.event.status === GTaskEventStatusEnums.Completed &&
+          payload.taskGroup.startsWith("game-client")
+        )
+          getInstanceList(true);
+      }
+    );
+    return () => {
+      unlisten();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateGroupInfo]);
+
+  useEffect(() => {
     if (!tasks || !tasks.length) return;
 
     let filteredTasks = tasks.filter(
-      (t) =>
-        t.status !== TaskDescStatusEnums.Completed &&
-        t.status !== TaskDescStatusEnums.Cancelled
+      (t) => t.status === GTaskEventStatusEnums.Started
     );
 
     setGeneralPercent(

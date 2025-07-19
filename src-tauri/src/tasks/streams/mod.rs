@@ -12,7 +12,7 @@ use std::sync::{Arc, RwLock};
 use std::task::{Context, Poll};
 use unit::Unit;
 
-pub use desc::{PDesc, PGroupDesc};
+pub use desc::{GDesc, PDesc};
 pub use handle::PHandle;
 use reporter::*;
 

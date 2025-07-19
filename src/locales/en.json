@@ -2099,11 +2099,6 @@
     "task": {
       "scheduleProgressiveTaskGroup": {
         "success": "Task created successfully"
-      },
-      "onProgressiveTaskUpdate": {
-        "error": {
-          "title": "Task {{param}} failed"
-        }
       }
     }
   },

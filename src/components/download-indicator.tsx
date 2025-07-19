@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 import { LuArrowDownToLine, LuCheck, LuCircleAlert } from "react-icons/lu";
 import { useLauncherConfig } from "@/contexts/config";
 import { useTaskContext } from "@/contexts/task";
-import { TaskDescStatusEnums } from "@/models/task";
+import { GTaskEventStatusEnums } from "@/models/task";
 
 export const DownloadIndicator: React.FC = () => {
   const router = useRouter();
@@ -26,13 +26,14 @@ export const DownloadIndicator: React.FC = () => {
 
   const isAllCompleted =
     tasks.every(
-      (task) =>
-        task.status === TaskDescStatusEnums.Completed ||
-        task.status === TaskDescStatusEnums.Cancelled
-    ) && tasks.some((task) => task.status === TaskDescStatusEnums.Completed);
+      (group) =>
+        group.status === GTaskEventStatusEnums.Completed ||
+        group.status === GTaskEventStatusEnums.Cancelled
+    ) &&
+    tasks.some((group) => group.status === GTaskEventStatusEnums.Completed);
 
   const hasError = tasks.some(
-    (task) => task.status === TaskDescStatusEnums.Failed
+    (task) => task.status === GTaskEventStatusEnums.Failed
   );
 
   useEffect(() => {

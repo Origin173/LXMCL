@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, RwLock};
-use streams::{PDesc, PGroupDesc, PHandle};
+use streams::{GDesc, PDesc, PHandle};
 use tokio::time::Duration;
 
 pub type SJMCLBoxedFuture = Pin<Box<dyn Future<Output = SJMCLResult<()>> + Send>>;
@@ -32,7 +32,7 @@ pub struct SJMCLFutureDesc {
 
 type PTaskHandle = PHandle<TauriEventSink, PTaskParam>;
 type PTaskDesc = PDesc<PTaskParam>;
-type PTaskGroupDesc = PGroupDesc<PTaskParam>;
+type PTaskGroupDesc = GDesc<PTaskParam>;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct THandle {

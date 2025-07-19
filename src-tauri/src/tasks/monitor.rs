@@ -36,6 +36,7 @@ pub struct TaskMonitor {
   tx: FlumeSender<SJMCLFuture>,
   rx: FlumeReceiver<SJMCLFuture>,
   group_map: Arc<RwLock<HashMap<String, GroupMonitor>>>,
+  stopped_futures: Arc<Mutex<Vec<SJMCLFuture>>>,
   pub download_rate_limiter: Option<Limiter>,
 }
 
@@ -59,6 +60,7 @@ impl TaskMonitor {
       tx,
       rx,
       group_map: Arc::new(RwLock::new(HashMap::new())),
+      stopped_futures: Arc::new(Mutex::new(Vec::new())),
       download_rate_limiter: if config.download.transmission.enable_speed_limit {
         Some(Limiter::new(
           (config.download.transmission.speed_limit_value as i64 * 1024) as f64,
@@ -250,8 +252,24 @@ impl TaskMonitor {
       {
         continue;
       }
+      // Check if the task group is stopped before acquiring permit
+      if let Some(ref task_group) = future.task_group {
+        let is_stopped = self
+          .group_map
+          .read()
+          .unwrap()
+          .get(task_group)
+          .map(|g| g.is_stopped)
+          .unwrap_or(false);
 
-      // Acquire permit before spawning the task to limit memory usage
+        if is_stopped {
+          // Store the future in the stopped_futures list and continue to next task
+          self.stopped_futures.lock().unwrap().push(future);
+          continue;
+        }
+      }
+
+      // Acquire permit before spawning the task
       let permit = self.concurrency.clone().acquire_owned().await.unwrap();
 
       let tasks = self.tasks.clone();
@@ -398,18 +416,46 @@ impl TaskMonitor {
           join_handle.abort();
         }
       }
+      GEvent::emit_group_cancelled(&self.app_handle, &task_group);
     }
   }
 
-  pub fn resume_progressive_task_group(&self, task_group: String) {
+  pub async fn resume_progressive_task_group(&self, task_group: String) {
     if let Some(group) = self.group_map.write().unwrap().get_mut(&task_group) {
       group.is_stopped = false;
+
+      // Resume existing stopped tasks
       for handle in group.phs.values() {
         if handle.read().unwrap().desc.status.is_stopped() {
           handle.write().unwrap().mark_resumed();
         }
       }
     }
+
+    // Re-send all stored stopped futures for this task group
+    let futures_to_resend = {
+      let mut stopped_futures = self.stopped_futures.lock().unwrap();
+      let mut futures = Vec::new();
+
+      // Extract futures that belong to this task group
+      let mut i = 0;
+      while i < stopped_futures.len() {
+        if stopped_futures[i].task_group.as_ref() == Some(&task_group) {
+          futures.push(stopped_futures.remove(i));
+        } else {
+          i += 1;
+        }
+      }
+
+      futures
+    };
+
+    // Re-send the futures
+    for future in futures_to_resend {
+      self.tx.send_async(future).await.unwrap();
+    }
+
+    GEvent::emit_group_started(&self.app_handle, &task_group);
   }
 
   pub fn stop_progressive_task_group(&self, task_group: String) {
@@ -421,6 +467,7 @@ impl TaskMonitor {
           handle.write().unwrap().mark_stopped();
         }
       }
+      GEvent::emit_group_stopped(&self.app_handle, &task_group);
     }
   }
 

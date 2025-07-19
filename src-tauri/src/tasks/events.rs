@@ -134,9 +134,11 @@ pub enum GEventStatus {
   Stopped,
   Failed,
   Completed,
+  Cancelled,
 }
 
 #[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct GEvent<'a> {
   pub task_group: &'a str,
   pub event: GEventStatus,
@@ -164,6 +166,20 @@ impl<'a> GEvent<'a> {
     Self {
       task_group,
       event: GEventStatus::Completed,
+    }
+    .emit(app);
+  }
+  pub fn emit_group_stopped(app: &AppHandle, task_group: &'a str) {
+    Self {
+      task_group,
+      event: GEventStatus::Stopped,
+    }
+    .emit(app);
+  }
+  pub fn emit_group_cancelled(app: &AppHandle, task_group: &'a str) {
+    Self {
+      task_group,
+      event: GEventStatus::Cancelled,
     }
     .emit(app);
   }
