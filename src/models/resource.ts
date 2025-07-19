@@ -49,6 +49,7 @@ export interface ModLoaderResourceInfo {
   version: string;
   description?: string;
   stable: boolean;
+  branch?: string;
 }
 
 export const defaultModLoaderResourceInfo: ModLoaderResourceInfo = {
@@ -60,4 +61,5 @@ export const defaultModLoaderResourceInfo: ModLoaderResourceInfo = {
 export interface ModLoader {
   loaderType: ModLoaderType;
   version: string;
+  branch?: string; // Optional branch name for mod loaders like Forge
 }

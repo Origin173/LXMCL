@@ -188,6 +188,7 @@ pub async fn refresh_instances(
       mod_loader: ModLoader {
         loader_type,
         version: loader_version.unwrap_or_default(),
+        branch: None,
       },
       ..cfg_read
     };

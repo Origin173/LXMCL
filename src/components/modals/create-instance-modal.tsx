@@ -88,6 +88,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
       {
         loaderType: selectedModLoader.loaderType,
         version: selectedModLoader.version,
+        branch: selectedModLoader.branch,
       }
     )
       .then((res) => {
@@ -115,6 +116,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     instanceIconSrc,
     selectedModLoader.loaderType,
     selectedModLoader.version,
+    selectedModLoader.branch,
     toast,
     modalProps,
     router,
