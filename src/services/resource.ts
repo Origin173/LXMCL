@@ -3,6 +3,7 @@ import { ModLoaderType } from "@/enums/instance";
 import {
   GameResourceInfo,
   ModLoaderResourceInfo,
+  ModUpdateQuery,
   OtherResourceFileInfo,
   OtherResourceSearchRes,
   OtherResourceVersionPack,
@@ -133,17 +134,13 @@ export class ResourceService {
    * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("resource")
-  static async updateMod(
-    url: string,
-    sha1: string,
-    filePath: string,
-    oldFilePath: string
+  static async updateMods(
+    instanceId: string,
+    queries: ModUpdateQuery[]
   ): Promise<InvokeResponse<void>> {
-    return await invoke("update_mod", {
-      url,
-      sha1,
-      filePath,
-      oldFilePath,
+    return await invoke("update_mods", {
+      instanceId,
+      queries,
     });
   }
 }

@@ -73,3 +73,10 @@ export interface ModUpdateRecord {
   sha1: string;
   fileName: string;
 }
+
+export interface ModUpdateQuery {
+  url: string;
+  sha1: string;
+  fileName: string;
+  oldFilePath: string;
+}

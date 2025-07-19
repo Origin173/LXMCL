@@ -15,14 +15,17 @@ use super::{
 };
 use crate::{
   error::SJMCLResult,
-  instance::{helpers::client_json::McClientInfo, models::misc::ModLoaderType},
+  instance::{
+    helpers::{client_json::McClientInfo, misc::get_instance_subdir_path_by_id},
+    models::misc::{InstanceSubdirType, ModLoaderType},
+  },
   launcher_config::models::LauncherConfig,
   resource::{
     helpers::{
       curseforge::fetch_remote_resource_by_local_curseforge,
       modrinth::fetch_remote_resource_by_local_modrinth,
     },
-    models::OtherResourceFileInfo,
+    models::{ModUpdateQuery, OtherResourceFileInfo},
   },
   tasks::{commands::schedule_progressive_task_group, download::DownloadParam, PTaskParam},
 };
@@ -145,32 +148,42 @@ pub async fn fetch_remote_resource_by_local(
 }
 
 #[tauri::command]
-pub async fn update_mod(
+pub async fn update_mods(
   app: AppHandle,
-  url: String,
-  sha1: String,
-  file_path: String,
-  old_file_path: Option<String>,
+  instance_id: String,
+  queries: Vec<ModUpdateQuery>,
 ) -> SJMCLResult<()> {
-  let download_param = DownloadParam {
-    src: url::Url::parse(&url).map_err(|_| ResourceError::ParseError)?,
-    dest: file_path.clone().into(),
-    filename: None,
-    sha1: Some(sha1),
+  if queries.is_empty() {
+    return Ok(());
+  }
+
+  let mods_dir = match get_instance_subdir_path_by_id(&app, &instance_id, &InstanceSubdirType::Mods)
+  {
+    Some(path) => path,
+    None => return Ok(()),
   };
 
-  schedule_progressive_task_group(
-    app,
-    "mod-update".to_string(),
-    vec![PTaskParam::Download(download_param)],
-    true,
-  )
-  .await?;
+  let mut download_tasks = Vec::new();
+  for query in &queries {
+    let file_path = mods_dir.join(&query.file_name);
+    let download_param = DownloadParam {
+      src: url::Url::parse(&query.url).map_err(|_| ResourceError::ParseError)?,
+      dest: file_path.into(),
+      filename: None,
+      sha1: Some(query.sha1.clone()),
+    };
+    download_tasks.push(PTaskParam::Download(download_param));
+  }
 
-  if let Some(old_path) = old_file_path {
-    if old_path != file_path {
-      let new_path = format!("{}.old", old_path);
-      if let Err(e) = std::fs::rename(&old_path, &new_path) {
+  schedule_progressive_task_group(app, "mod-update".to_string(), download_tasks, true).await?;
+
+  for query in &queries {
+    let old_file_path = &query.old_file_path;
+    let new_file_path = mods_dir.join(&query.file_name);
+
+    if old_file_path != &new_file_path.to_string_lossy().to_string() {
+      let old_backup_path = format!("{}.old", old_file_path);
+      if let Err(e) = std::fs::rename(&old_file_path, &old_backup_path) {
         log::error!("Failed to rename old mod file: {}", e);
         return Err(ResourceError::FileOperationError.into());
       }

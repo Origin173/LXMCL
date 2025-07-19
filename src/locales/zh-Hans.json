@@ -499,7 +499,7 @@
     }
   },
   "DownloadSpecificResourceModal": {
-    "title": "资源下载 - {{name}}",
+    "title": "资源下载 - {{name}} ({{source}})",
     "label": {
       "all": "全部",
       "recommendedVersion": "推荐版本",

@@ -93,10 +93,10 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
   }, [mod.filePath, toast, setMrRemoteModId]);
 
   useEffect(() => {
-    handleCurseForgeInfo();
-    handleModrinthInfo();
     setCfRemoteModId(null);
     setMrRemoteModId(null);
+    handleCurseForgeInfo();
+    handleModrinthInfo();
   }, [
     handleCurseForgeInfo,
     handleModrinthInfo,

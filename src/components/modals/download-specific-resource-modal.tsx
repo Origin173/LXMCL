@@ -473,6 +473,7 @@ const DownloadSpecificResourceModal: React.FC<
             name: resource.translatedName
               ? `${resource.translatedName} (${resource.name})`
               : resource.name,
+            source: resource.source,
           })}
         </ModalHeader>
         <ModalCloseButton />

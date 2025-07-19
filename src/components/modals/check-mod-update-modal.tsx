@@ -16,33 +16,39 @@ import {
   VStack,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
-import { ModUpdateRecord } from "@/models/resource";
+import { useToast } from "@/contexts/toast";
+import { ModLoaderType } from "@/enums/instance";
+import { InstanceSummary, LocalModInfo } from "@/models/instance/misc";
+import {
+  ModUpdateQuery,
+  ModUpdateRecord,
+  OtherResourceFileInfo,
+} from "@/models/resource";
+import { ResourceService } from "@/services/resource";
 
 interface CheckModUpdateModalProps extends Omit<ModalProps, "children"> {
-  isLoading: boolean;
-  updateList: ModUpdateRecord[];
-  checkingUpdateIndex: number;
-  totalModNum: number;
-  onDownload: (
-    pairs: { url: string; sha1: string; fileName: string }[]
-  ) => void;
+  summary: InstanceSummary | undefined;
+  localMods: LocalModInfo[];
 }
 
 const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
-  isLoading,
-  updateList,
-  checkingUpdateIndex,
-  totalModNum,
-  onDownload,
+  summary,
+  localMods,
   ...modalProps
 }) => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const toast = useToast();
+
   const [selectedMods, setSelectedMods] = useState<ModUpdateRecord[]>([]);
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState<boolean>(true);
+  const [updateList, setUpdateList] = useState<ModUpdateRecord[]>([]);
+  const [modsToUpdate, setModsToUpdate] = useState<LocalModInfo[]>([]);
+  const [checkingUpdateIndex, setCheckingUpdateIndex] = useState<number>(1);
 
   const headerBg = useColorModeValue("gray.50", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.600");
@@ -67,6 +73,238 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
     });
   };
 
+  const onCheckUpdateModalClear = useCallback(() => {
+    setIsCheckingUpdate(true);
+    setUpdateList([]);
+    setModsToUpdate([]);
+    setSelectedMods([]);
+    setCheckingUpdateIndex(1);
+  }, []);
+
+  const handleFetchLatestMod = useCallback(
+    async (
+      resourceId: string,
+      modLoader: ModLoaderType | "All",
+      gameVersions: string[],
+      downloadSource: string
+    ): Promise<OtherResourceFileInfo | undefined> => {
+      try {
+        const response = await ResourceService.fetchResourceVersionPacks(
+          resourceId,
+          modLoader,
+          gameVersions,
+          downloadSource
+        );
+
+        if (response.status === "success") {
+          const versionPack = response.data.find(
+            (pack) => pack.name === summary?.version
+          );
+
+          if (!versionPack) return undefined;
+
+          const candidateFiles = versionPack.items.filter(
+            (file) =>
+              file.releaseType === "beta" || file.releaseType === "release"
+          );
+
+          candidateFiles.sort(
+            (a, b) =>
+              new Date(b.fileDate).getTime() - new Date(a.fileDate).getTime()
+          );
+
+          return candidateFiles[0];
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+          return undefined;
+        }
+      } catch (error) {
+        console.error("Failed to fetch latest mod:", error);
+        return undefined;
+      }
+    },
+    [summary?.version, toast]
+  );
+
+  const handleCheckModUpdate = useCallback(async () => {
+    const currentSummary = summary;
+    const currentLocalMods = localMods;
+    onCheckUpdateModalClear();
+
+    try {
+      if (!currentSummary?.id || currentLocalMods.length === 0) {
+        setIsCheckingUpdate(false);
+        return;
+      }
+
+      const updatePromises = currentLocalMods.map(async (mod) => {
+        try {
+          const [cfRemoteModRes, mrRemoteModRes] = await Promise.all([
+            ResourceService.fetchRemoteResourceByLocal(
+              "CurseForge",
+              mod.filePath
+            ),
+            ResourceService.fetchRemoteResourceByLocal(
+              "Modrinth",
+              mod.filePath
+            ),
+          ]);
+
+          let cfRemoteMod = undefined;
+          let mrRemoteMod = undefined;
+
+          if (cfRemoteModRes.status === "success") {
+            cfRemoteMod = cfRemoteModRes.data;
+          }
+          if (mrRemoteModRes.status === "success") {
+            mrRemoteMod = mrRemoteModRes.data;
+          }
+
+          const updatePromises = [];
+
+          if (cfRemoteMod?.resourceId) {
+            updatePromises.push(
+              handleFetchLatestMod(
+                cfRemoteMod.resourceId,
+                mod.loaderType,
+                [currentSummary?.majorVersion || "All"],
+                "CurseForge"
+              )
+            );
+          } else {
+            updatePromises.push(Promise.resolve(undefined));
+          }
+
+          if (mrRemoteMod?.resourceId) {
+            updatePromises.push(
+              handleFetchLatestMod(
+                mrRemoteMod.resourceId,
+                mod.loaderType,
+                [currentSummary?.version || "All"],
+                "Modrinth"
+              )
+            );
+          } else {
+            updatePromises.push(Promise.resolve(undefined));
+          }
+
+          const [cfRemoteFile, mrRemoteFile] =
+            await Promise.all(updatePromises);
+
+          let isCurseForgeNewer = cfRemoteMod !== undefined;
+          if (cfRemoteFile && mrRemoteFile) {
+            isCurseForgeNewer =
+              new Date(cfRemoteFile.fileDate).getTime() >
+              new Date(mrRemoteFile.fileDate).getTime();
+          }
+
+          const latestFile = isCurseForgeNewer ? cfRemoteFile : mrRemoteFile;
+          const remoteMod = isCurseForgeNewer ? cfRemoteMod : mrRemoteMod;
+
+          let needUpdate = false;
+          if (latestFile && remoteMod) {
+            needUpdate =
+              new Date(latestFile.fileDate).getTime() -
+                new Date(remoteMod.fileDate).getTime() >
+              0;
+          }
+
+          if (needUpdate && latestFile) {
+            return {
+              mod,
+              updateRecord: {
+                name: mod.name,
+                curVersion: mod.version,
+                newVersion: latestFile.name,
+                source: isCurseForgeNewer ? "CurseForge" : "Modrinth",
+                downloadUrl: latestFile.downloadUrl,
+                sha1: latestFile.sha1,
+                fileName: latestFile.fileName,
+              },
+            };
+          }
+          return null;
+        } catch (error) {
+          console.error(`Failed to check update for mod ${mod.name}:`, error);
+          return null;
+        }
+      });
+
+      const results: any[] = [];
+
+      await Promise.allSettled(
+        updatePromises.map(async (p) => {
+          const res = await p;
+          setCheckingUpdateIndex(results.length + 1);
+          results.push(res);
+        })
+      );
+
+      const validUpdates = results.filter(
+        (result): result is NonNullable<typeof result> => result !== null
+      );
+
+      setModsToUpdate(validUpdates.map((item) => item.mod));
+      setUpdateList(validUpdates.map((item) => item.updateRecord));
+    } catch (error) {
+      console.error("Failed to check mod updates:", error);
+    } finally {
+      setIsCheckingUpdate(false);
+    }
+  }, [summary, localMods, handleFetchLatestMod, onCheckUpdateModalClear]);
+
+  const handleDownloadUpdatedMods = useCallback(
+    async (urlShaPairs: { url: string; sha1: string; fileName: string }[]) => {
+      let params: ModUpdateQuery[] = [];
+      if (summary?.id) {
+        for (const pair of urlShaPairs) {
+          const { url, sha1, fileName } = pair;
+          const oldMod = modsToUpdate.find((mod) =>
+            updateList.some(
+              (update) =>
+                update.fileName === fileName && update.name === mod.name
+            )
+          );
+          if (oldMod) {
+            const oldFilePath = oldMod.filePath;
+            params.push({
+              url,
+              sha1,
+              fileName,
+              oldFilePath,
+            });
+          }
+        }
+        ResourceService.updateMods(summary.id, params).then((response) => {
+          if (response.status !== "success") {
+            toast({
+              title: response.message,
+              description: response.details,
+              status: "error",
+            });
+          }
+        });
+      }
+    },
+    [summary?.id, toast, modsToUpdate, updateList]
+  );
+
+  useEffect(() => {
+    if (modalProps.isOpen && summary?.id && localMods.length > 0) {
+      handleCheckModUpdate();
+    }
+  }, [modalProps.isOpen, summary?.id, localMods.length, handleCheckModUpdate]);
+
+  useEffect(() => {
+    if (!modalProps.isOpen) {
+      onCheckUpdateModalClear();
+    }
+  }, [modalProps.isOpen, onCheckUpdateModalClear]);
+
   return (
     <Modal
       scrollBehavior="inside"
@@ -88,18 +326,18 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
           flexDirection="column"
           overflow="hidden"
         >
-          {isLoading ? (
+          {isCheckingUpdate ? (
             <VStack mt={8} spacing={4}>
               <Text fontSize="md" color="gray.700">
                 {t("CheckModUpdateModal.label.loading", {
                   x: checkingUpdateIndex,
-                  y: totalModNum,
+                  y: localMods.length,
                 })}
               </Text>
               <Progress
                 value={
-                  totalModNum > 0
-                    ? (checkingUpdateIndex / totalModNum) * 100
+                  localMods.length > 0
+                    ? (checkingUpdateIndex / localMods.length) * 100
                     : 0
                 }
                 size="md"
@@ -242,7 +480,7 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
           )}
         </ModalBody>
 
-        {!isLoading && updateList.length > 0 && (
+        {!isCheckingUpdate && updateList.length > 0 && (
           <ModalFooter flexShrink={0}>
             <HStack spacing={3}>
               <Button variant="ghost" onClick={modalProps.onClose}>
@@ -251,7 +489,7 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
               <Button
                 colorScheme={primaryColor}
                 onClick={() => {
-                  onDownload(
+                  handleDownloadUpdatedMods(
                     selectedMods.map((mod) => ({
                       url: mod.downloadUrl,
                       sha1: mod.sha1,

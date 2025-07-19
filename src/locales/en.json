@@ -499,7 +499,7 @@
     }
   },
   "DownloadSpecificResourceModal": {
-    "title": "Download Resource - {{name}}",
+    "title": "Download Resource - {{name}} ({{source}})",
     "label": {
       "all": "All",
       "recommendedVersion": "Recommended Ver.",
