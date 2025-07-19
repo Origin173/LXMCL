@@ -132,4 +132,23 @@ export class TaskService {
       unlisten.then((f) => f());
     };
   }
+
+  /**
+   * Listen for task group updates.
+   * @param callback - The callback to be invoked when a task group update occurs.
+   */
+
+  static onTaskGroupUpdate(
+    callback: (payload: TaskGroupDesc) => void
+  ): () => void {
+    const unlisten = getCurrentWebview().listen<TaskGroupDesc>(
+      "task:group-update",
+      (event) => {
+        callback(event.payload);
+      }
+    );
+    return () => {
+      unlisten.then((f) => f());
+    };
+  }
 }

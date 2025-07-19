@@ -6,6 +6,7 @@ use tauri::{AppHandle, Emitter};
 use tokio::time::Duration;
 
 const TASK_PROGRESS_UPDATE_EVENT: &str = "task:progress-update";
+const TASK_GROUP_UPDATE_EVENT: &str = "task:group-update";
 
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(tag = "status")]
@@ -121,6 +122,48 @@ impl<'a> PEvent<'a> {
         estimated_time,
         speed,
       },
+    }
+    .emit(app);
+  }
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(tag = "status")]
+pub enum GEventStatus {
+  Started,
+  Stopped,
+  Failed,
+  Completed,
+}
+
+#[derive(Serialize, Clone)]
+pub struct GEvent<'a> {
+  pub task_group: &'a str,
+  pub event: GEventStatus,
+}
+
+impl<'a> GEvent<'a> {
+  fn emit(self, app: &AppHandle) {
+    app.emit_to("main", TASK_GROUP_UPDATE_EVENT, self).unwrap();
+  }
+  pub fn emit_group_started(app: &AppHandle, task_group: &'a str) {
+    Self {
+      task_group,
+      event: GEventStatus::Started,
+    }
+    .emit(app);
+  }
+  pub fn emit_group_failed(app: &AppHandle, task_group: &'a str) {
+    Self {
+      task_group,
+      event: GEventStatus::Failed,
+    }
+    .emit(app);
+  }
+  pub fn emit_group_completed(app: &AppHandle, task_group: &'a str) {
+    Self {
+      task_group,
+      event: GEventStatus::Completed,
     }
     .emit(app);
   }

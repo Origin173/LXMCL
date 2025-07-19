@@ -118,3 +118,18 @@ export interface PTaskEventPayload {
     | StoppedPTaskEventStatus
     | CancelledPTaskEventStatus;
 }
+
+export enum GTaskEventStatusEnums {
+  Started = "Started",
+  Failed = "Failed",
+  Completed = "Completed",
+}
+
+export interface GTaskEventStatus {
+  status: GTaskEventStatusEnums;
+}
+
+export interface GTaskEventPayload {
+  taskGroup: string;
+  event: GTaskEventStatus;
+}
