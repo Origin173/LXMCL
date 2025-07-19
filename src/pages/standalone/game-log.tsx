@@ -32,7 +32,8 @@ const GameLogPage: React.FC = () => {
     INFO: true,
     DEBUG: true,
   });
-  const [isUserInteracting, setIsUserInteracting] = useState(false); // Track user interaction (scroll, select)
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
+
   const logContainerRef = useRef<HTMLDivElement>(null);
 
   const clearLogs = () => setLogs([]);
@@ -122,18 +123,18 @@ const GameLogPage: React.FC = () => {
     }
   };
 
-  const isAtBottom = () => {
-    if (logContainerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = logContainerRef.current;
-      return scrollHeight - scrollTop - clientHeight < 1;
-    }
-    return false;
+  const handleScroll = () => {
+    if (!logContainerRef.current) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = logContainerRef.current;
+    const atBottom = scrollHeight - scrollTop - clientHeight < 1;
+    setIsScrolledToBottom(atBottom);
   };
 
   // Auto scroll to bottom if user not interacted
   useEffect(() => {
-    if (!isUserInteracting) scrollToBottom();
-  }, [filteredLogs, isUserInteracting]);
+    if (isScrolledToBottom) scrollToBottom();
+  }, [filteredLogs, isScrolledToBottom]);
 
   return (
     <Box p={4} h="100vh" display="flex" flexDirection="column">
@@ -195,8 +196,7 @@ const GameLogPage: React.FC = () => {
         p={2}
         flex="1"
         className={`${styles["log-list-container"]}`}
-        onScroll={() => setIsUserInteracting(!isAtBottom())}
-        onMouseDown={() => setIsUserInteracting(true)}
+        onScroll={handleScroll}
       >
         {filteredLogs.length > 0 ? (
           filteredLogs.map((log, index) => {
@@ -216,7 +216,7 @@ const GameLogPage: React.FC = () => {
           <Empty colorScheme="gray" withIcon={false} />
         )}
 
-        {!isAtBottom() && (
+        {!isScrolledToBottom && (
           <Button
             position="absolute"
             bottom={7}
@@ -226,7 +226,6 @@ const GameLogPage: React.FC = () => {
             boxShadow="md"
             onClick={() => {
               scrollToBottom();
-              setIsUserInteracting(false);
             }}
             leftIcon={<LuChevronsDown />}
           >
