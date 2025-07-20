@@ -82,6 +82,7 @@ pub struct OtherResourceVersionPackQuery {
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct OtherResourceFileInfo {
+  pub resource_id: String,
   pub name: String,
   pub release_type: String,
   pub downloads: u32,
@@ -97,6 +98,15 @@ pub struct OtherResourceFileInfo {
 pub struct OtherResourceVersionPack {
   pub name: String,
   pub items: Vec<OtherResourceFileInfo>,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ModUpdateQuery {
+  pub url: String,
+  pub sha1: String,
+  pub file_name: String,
+  pub old_file_path: String,
 }
 
 // game client itself
@@ -125,6 +135,7 @@ pub enum ResourceError {
   ParseError,
   NoDownloadApi,
   NetworkError,
+  FileOperationError,
 }
 
 impl std::error::Error for ResourceError {}

@@ -8,6 +8,7 @@ import {
   Input,
   Tag,
   Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -27,6 +28,8 @@ import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import ModLoaderCards from "@/components/mod-loader-cards";
+import CheckModUpdateModal from "@/components/modals/check-mod-update-modal";
+import ModInfoModal from "@/components/modals/mod-info-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useSharedModals } from "@/contexts/shared-modal";
@@ -59,6 +62,21 @@ const InstanceModsPage = () => {
   const [query, setQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const [modInfoSelectedMod, setModInfoSelectedMod] =
+    useState<LocalModInfo | null>(null);
+
+  const {
+    isOpen: isCheckUpdateModalOpen,
+    onOpen: onCheckUpdateModalOpen,
+    onClose: onCheckUpdateModalClose,
+  } = useDisclosure();
+
+  const {
+    isOpen: isModInfoModalOpen,
+    onOpen: onModInfoModalOpen,
+    onClose: onModInfoModalClose,
+  } = useDisclosure();
 
   const getLocalModListWrapper = useCallback(
     (sync?: boolean) => {
@@ -176,7 +194,7 @@ const InstanceModsPage = () => {
     {
       icon: LuClockArrowUp,
       label: t("InstanceModsPage.modList.menu.update"),
-      onClick: () => {},
+      onClick: onCheckUpdateModalOpen,
     },
     {
       icon: "refresh",
@@ -217,7 +235,10 @@ const InstanceModsPage = () => {
       label: t("InstanceModsPage.modList.menu.info"),
       icon: "info",
       danger: false,
-      onClick: () => {},
+      onClick: () => {
+        setModInfoSelectedMod(mod);
+        onModInfoModalOpen();
+      },
     },
   ];
 
@@ -329,7 +350,7 @@ const InstanceModsPage = () => {
                       styles={{ bg: "yello.200" }}
                     >
                       {mod.translatedName
-                        ? `${mod.translatedName}｜${mod.name}`
+                        ? `${mod.translatedName} | ${mod.name}`
                         : mod.name || mod.fileName}
                     </Highlight>
                   </Text>
@@ -406,6 +427,19 @@ const InstanceModsPage = () => {
           <Empty withIcon={false} size="sm" />
         )}
       </Section>
+      <CheckModUpdateModal
+        isOpen={isCheckUpdateModalOpen}
+        onClose={onCheckUpdateModalClose}
+        summary={summary}
+        localMods={localMods}
+      />
+      {modInfoSelectedMod && (
+        <ModInfoModal
+          isOpen={isModInfoModalOpen}
+          onClose={onModInfoModalClose}
+          mod={modInfoSelectedMod}
+        />
+      )}
     </>
   );
 };

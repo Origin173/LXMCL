@@ -285,6 +285,28 @@
       }
     }
   },
+  "CheckModUpdateModal": {
+    "header": {
+      "title": "Check Mod Updates"
+    },
+    "button": {
+      "update": "Update",
+      "cancel": "Cancel"
+    },
+    "label": {
+      "noUpdate": "No mods need updating",
+      "loading": "Checking for updates... {{x}}/{{y}}"
+    },
+    "updateList": {
+      "mod": "Mod",
+      "currentVersion": "Current Version",
+      "latestVersion": "Latest Version",
+      "source": "Source"
+    },
+    "error": {
+      "renameOldMod": "Failed to rename old mod file"
+    }
+  },
   "ClearDownloadCacheAlertDialog": {
     "dialog": {
       "title": "Clear Download Cache",
@@ -477,7 +499,7 @@
     }
   },
   "DownloadSpecificResourceModal": {
-    "title": "Download Resource - {{name}}",
+    "title": "Download Resource - {{name}} ({{source}})",
     "label": {
       "all": "All",
       "recommendedVersion": "Recommended Ver.",
@@ -509,6 +531,7 @@
       "game-server": "Game Server {{param}}",
       "game-resource": "Resource Pack",
       "patch-files": "Patch Game Files {{param}}",
+      "mod-update": "Update Mod",
       "retry": "Retry Task",
       "fabric-loader": "Fabric Loader {{param}}",
       "neoforge-installer": "NeoForge Installer {{param}}",
@@ -1916,6 +1939,26 @@
           "description": {
             "PARSE_ERROR": "The server returned data in an incorrect format",
             "NETWORK_ERROR": "Failed to connect to the server"
+          }
+        }
+      },
+      "fetchRemoteResourceByLocal": {
+        "error": {
+          "title": "Failed to get remote resource",
+          "description": {
+            "PARSE_ERROR": "The server returned data in an incorrect format",
+            "NETWORK_ERROR": "Failed to connect to the server",
+            "NO_DOWNLOAD_API": "No download strategy available, please check internet connection"
+          }
+        }
+      },
+      "updateMod": {
+        "error": {
+          "title": "Failed to download latest mod",
+          "description": {
+            "PARSE_ERROR": "The server returned data in an incorrect format",
+            "NETWORK_ERROR": "Failed to connect to the server",
+            "FILE_OPERATION_ERROR": "Failed to rename old mod file"
           }
         }
       }

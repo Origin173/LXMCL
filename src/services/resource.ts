@@ -3,6 +3,8 @@ import { ModLoaderType } from "@/enums/instance";
 import {
   GameResourceInfo,
   ModLoaderResourceInfo,
+  ModUpdateQuery,
+  OtherResourceFileInfo,
   OtherResourceSearchRes,
   OtherResourceVersionPack,
 } from "@/models/resource";
@@ -41,7 +43,7 @@ export class ResourceService {
 
   /**
    * FETCH the list of resources according to the given parameters.
-   * @returns {Promise<InvokeResponse<OtherResourceInfo[]>>}
+   * @returns {Promise<InvokeResponse<OtherResourceSearchRes>>}
    */
   @responseHandler("resource")
   static async fetchResourceListByName(
@@ -103,6 +105,42 @@ export class ResourceService {
     return await invoke("download_game_server", {
       resourceInfo,
       dest,
+    });
+  }
+
+  /**
+   * FETCH a remote resource info by local file.
+   * @param filePath The file path of the resource.
+   * @param downloadSource The source from which to download the resource.
+   * @returns {Promise<InvokeResponse<OtherResourceFileInfo>>}
+   */
+  @responseHandler("resource")
+  static async fetchRemoteResourceByLocal(
+    downloadSource: string,
+    filePath: string
+  ): Promise<InvokeResponse<OtherResourceFileInfo>> {
+    return await invoke("fetch_remote_resource_by_local", {
+      downloadSource,
+      filePath,
+    });
+  }
+
+  /**
+   * DOWNLOAD the latest mod file.
+   * @param url The download URL of the mod file.
+   * @param sha1 The SHA1 hash of the mod file.
+   * @param filePath The destination path to save the downloaded mod file.
+   * @param oldFilePath The path of the old mod file to be renamed.
+   * @returns {Promise<InvokeResponse<void>>}
+   */
+  @responseHandler("resource")
+  static async updateMods(
+    instanceId: string,
+    queries: ModUpdateQuery[]
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("update_mods", {
+      instanceId,
+      queries,
     });
   }
 }

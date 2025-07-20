@@ -1,5 +1,10 @@
+use murmur2::murmur2;
+use serde_json::json;
 use std::collections::HashMap;
 use std::env;
+use std::fs::File;
+use std::io::{BufReader, Read};
+use std::path::Path;
 
 use crate::error::SJMCLResult;
 use crate::resource::helpers::curseforge_convert::cvt_category_to_id;
@@ -78,6 +83,7 @@ pub struct CurseForgeFileHash {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeFileInfo {
+  pub mod_id: u32,
   pub display_name: String,
   pub file_name: String,
   pub release_type: u32,
@@ -92,6 +98,24 @@ pub struct CurseForgeFileInfo {
 pub struct CurseForgeVersionPackSearchRes {
   pub data: Vec<CurseForgeFileInfo>,
   pub pagination: CurseForgePagination,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CurseForgeExactMatches {
+  pub file: CurseForgeFileInfo,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CurseForgeFingerprintData {
+  pub exact_matches: Vec<CurseForgeExactMatches>,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CurseForgeFingerprintRes {
+  pub data: CurseForgeFingerprintData,
 }
 
 pub fn map_curseforge_to_resource_info(res: CurseForgeSearchRes) -> OtherResourceSearchRes {
@@ -162,6 +186,7 @@ pub fn map_curseforge_file_to_version_pack(
     for version in &versions {
       for loader in &loaders {
         let file_info = OtherResourceFileInfo {
+          resource_id: cf_file.mod_id.to_string(),
           name: cf_file.display_name.clone(),
           release_type: cvt_id_to_release_type(cf_file.release_type),
           downloads: cf_file.download_count,
@@ -326,4 +351,81 @@ pub async fn fetch_resource_version_packs_curseforge(
   }
 
   Ok(map_curseforge_file_to_version_pack(aggregated_files))
+}
+
+pub async fn fetch_remote_resource_by_local_curseforge(
+  app: &AppHandle,
+  file_path: &String,
+) -> SJMCLResult<OtherResourceFileInfo> {
+  let file_path = Path::new(&file_path);
+  if !file_path.exists() {
+    return Err(ResourceError::ParseError.into());
+  }
+
+  let file = File::open(file_path).map_err(|_| ResourceError::ParseError)?;
+  let mut reader = BufReader::new(file);
+  let mut filtered_bytes = Vec::new();
+  let mut buffer = [0; 1024];
+
+  loop {
+    match reader.read(&mut buffer) {
+      Ok(0) => break,
+      Ok(len) => {
+        for &byte in &buffer[..len] {
+          if byte != 0x09 && byte != 0x0a && byte != 0x0d && byte != 0x20 {
+            filtered_bytes.push(byte);
+          }
+        }
+      }
+      Err(_) => return Err(ResourceError::ParseError.into()),
+    }
+  }
+
+  let hash = murmur2(&filtered_bytes, 1) as u64;
+
+  let url = "https://api.curseforge.com/v1/fingerprints/432";
+  let payload = json!({
+    "fingerprints": [hash]
+  });
+
+  let client = app.state::<reqwest::Client>();
+  let response = client
+    .post(url)
+    .header("x-api-key", env!("SJMCL_CURSEFORGE_API_KEY"))
+    .header("accept", "application/json")
+    .header("content-type", "application/json")
+    .json(&payload)
+    .send()
+    .await
+    .map_err(|_| ResourceError::NetworkError)?;
+
+  if !response.status().is_success() {
+    return Err(ResourceError::NetworkError.into());
+  }
+
+  let fingerprint_response = response
+    .json::<CurseForgeFingerprintRes>()
+    .await
+    .map_err(|_| ResourceError::ParseError)?;
+
+  if let Some(exact_match) = fingerprint_response.data.exact_matches.first() {
+    let cf_file = &exact_match.file;
+    Ok(OtherResourceFileInfo {
+      resource_id: cf_file.mod_id.to_string(),
+      name: cf_file.display_name.clone(),
+      release_type: cvt_id_to_release_type(cf_file.release_type),
+      downloads: cf_file.download_count,
+      file_date: cf_file.file_date.clone(),
+      download_url: cf_file.download_url.clone().unwrap_or_default(),
+      sha1: cf_file
+        .hashes
+        .iter()
+        .find(|h| h.algo == 1)
+        .map_or("".to_string(), |h| h.value.clone()),
+      file_name: cf_file.file_name.clone(),
+      loader: None,
+    })
+  } else {
+    Err(ResourceError::ParseError.into())
+  }
 }
