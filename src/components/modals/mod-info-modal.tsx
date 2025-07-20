@@ -17,7 +17,6 @@ import { LuExternalLink } from "react-icons/lu";
 import { OptionItem } from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
 import { useSharedModals } from "@/contexts/shared-modal";
-import { useToast } from "@/contexts/toast";
 import { ModLoaderType } from "@/enums/instance";
 import { OtherResourceType } from "@/enums/resource";
 import { LocalModInfo } from "@/models/instance/misc";
@@ -31,7 +30,6 @@ interface ModInfoModalProps extends Omit<ModalProps, "children"> {
 const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
-  const toast = useToast();
   const primaryColor = config.appearance.theme.primaryColor;
   const { openSharedModal } = useSharedModals();
 
@@ -44,7 +42,7 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
         id: downloadSource === "CurseForge" ? cfRemoteModId : mrRemoteModId,
         websiteUrl: "",
         type: OtherResourceType.Mod,
-        name: mod.name,
+        name: mod.name || mod.fileName,
         translatedName: mod.translatedName,
         description: mod.description || "",
         iconSrc: base64ImgSrc(mod.iconSrc),
@@ -64,16 +62,10 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
         if (response.status === "success") {
           const modId = response.data.resourceId;
           setCfRemoteModId(modId);
-        } else {
-          toast({
-            title: response.message,
-            description: response.details,
-            status: "error",
-          });
         }
       }
     );
-  }, [mod.filePath, toast, setCfRemoteModId]);
+  }, [mod.filePath, setCfRemoteModId]);
 
   const handleModrinthInfo = useCallback(async () => {
     ResourceService.fetchRemoteResourceByLocal("Modrinth", mod.filePath).then(
@@ -81,16 +73,10 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
         if (response.status === "success") {
           const modId = response.data.resourceId;
           setMrRemoteModId(modId);
-        } else {
-          toast({
-            title: response.message,
-            description: response.details,
-            status: "error",
-          });
         }
       }
     );
-  }, [mod.filePath, toast, setMrRemoteModId]);
+  }, [mod.filePath, setMrRemoteModId]);
 
   useEffect(() => {
     setCfRemoteModId(null);

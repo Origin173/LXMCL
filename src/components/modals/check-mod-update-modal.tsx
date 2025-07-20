@@ -19,7 +19,6 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLauncherConfig } from "@/contexts/config";
-import { useToast } from "@/contexts/toast";
 import { ModLoaderType } from "@/enums/instance";
 import { InstanceSummary, LocalModInfo } from "@/models/instance/misc";
 import {
@@ -42,7 +41,6 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-  const toast = useToast();
 
   const [selectedMods, setSelectedMods] = useState<ModUpdateRecord[]>([]);
   const [isCheckingUpdate, setIsCheckingUpdate] = useState<boolean>(true);
@@ -114,20 +112,13 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
           );
 
           return candidateFiles[0];
-        } else {
-          toast({
-            title: response.message,
-            description: response.details,
-            status: "error",
-          });
-          return undefined;
-        }
+        } else return undefined;
       } catch (error) {
         console.error("Failed to fetch latest mod:", error);
         return undefined;
       }
     },
-    [summary?.version, toast]
+    [summary?.version]
   );
 
   const handleCheckModUpdate = useCallback(async () => {
@@ -279,18 +270,10 @@ const CheckModUpdateModal: React.FC<CheckModUpdateModalProps> = ({
             });
           }
         }
-        ResourceService.updateMods(summary.id, params).then((response) => {
-          if (response.status !== "success") {
-            toast({
-              title: response.message,
-              description: response.details,
-              status: "error",
-            });
-          }
-        });
+        ResourceService.updateMods(summary.id, params);
       }
     },
-    [summary?.id, toast, modsToUpdate, updateList]
+    [summary?.id, modsToUpdate, updateList]
   );
 
   useEffect(() => {
