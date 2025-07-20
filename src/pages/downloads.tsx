@@ -25,7 +25,12 @@ import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { useTaskContext } from "@/contexts/task";
-import { TaskDesc, TaskDescStatusEnums, TaskGroupDesc } from "@/models/task";
+import {
+  GTaskEventStatusEnums,
+  TaskDesc,
+  TaskDescStatusEnums,
+  TaskGroupDesc,
+} from "@/models/task";
 import { formatTimeInterval } from "@/utils/datetime";
 import { formatByteSize } from "@/utils/string";
 
@@ -67,15 +72,20 @@ export const DownloadTasksPage = () => {
   };
 
   const showTaskProgressInfo = (task: TaskDesc) => {
-    let text = [
-      `${formatByteSize(task.current)} / ${formatByteSize(task.total)}`,
-    ];
-    if (task.speed) text.push(`${formatByteSize(task.speed)}/s`);
+    let text = [];
+    if (task.total) {
+      text.push(
+        `${formatByteSize(task.current)} / ${formatByteSize(task.total)}`
+      );
+    }
+    if (task.speed) {
+      text.push(`${formatByteSize(task.speed)}/s`);
+    }
     return text.join(" - ");
   };
 
   const parseGroupTitle = (taskGroup: string) => {
-    let groupInfo = taskGroup.split("@")[0].split(":");
+    let groupInfo = taskGroup.split("@")[0].split("?");
 
     return t(`DownloadTasksPage.task.${groupInfo[0]}`, {
       param: groupInfo[1] || "",
@@ -113,44 +123,47 @@ export const DownloadTasksPage = () => {
                   </Text>
 
                   <HStack alignItems="center">
-                    {group.status === TaskDescStatusEnums.InProgress &&
+                    <Text fontSize="xs" className="secondary-text">
+                      {group.finishedCount} / {group.taskDescs.length}
+                    </Text>
+                    {group.status === GTaskEventStatusEnums.Started &&
                       group.estimatedTime && (
                         <Text fontSize="xs" className="secondary-text">
                           {formatTimeInterval(group.estimatedTime.secs)}
                         </Text>
                       )}
 
-                    {group.status === TaskDescStatusEnums.Stopped && (
+                    {group.status === GTaskEventStatusEnums.Stopped && (
                       <Text fontSize="xs" className="secondary-text">
                         {t("DownloadTasksPage.label.paused")}
                       </Text>
                     )}
 
-                    {group.status === TaskDescStatusEnums.Completed && (
+                    {group.status === GTaskEventStatusEnums.Completed && (
                       <Text fontSize="xs" className="secondary-text">
                         {t("DownloadTasksPage.label.completed")}
                       </Text>
                     )}
 
-                    {(group.status === TaskDescStatusEnums.Failed ||
+                    {(group.status === GTaskEventStatusEnums.Failed ||
                       group.reason) && (
                       <Text fontSize="xs" color="red.600">
                         {group.reason || t("DownloadTasksPage.label.error")}
                       </Text>
                     )}
 
-                    {group.status === TaskDescStatusEnums.Cancelled && (
+                    {group.status === GTaskEventStatusEnums.Cancelled && (
                       <Text fontSize="xs" color="red.600">
                         {t("DownloadTasksPage.label.cancelled")}
                       </Text>
                     )}
 
-                    {(group.status === TaskDescStatusEnums.Stopped ||
-                      group.status === TaskDescStatusEnums.InProgress) && (
+                    {(group.status === GTaskEventStatusEnums.Stopped ||
+                      group.status === GTaskEventStatusEnums.Started) && (
                       <Tooltip
                         label={t(
                           `DownloadTasksPage.button.${
-                            group.status === TaskDescStatusEnums.InProgress
+                            group.status === GTaskEventStatusEnums.Started
                               ? "pause"
                               : "begin"
                           }`
@@ -159,7 +172,7 @@ export const DownloadTasksPage = () => {
                         <IconButton
                           aria-label="pause / download"
                           icon={
-                            group.status === TaskDescStatusEnums.InProgress ? (
+                            group.status === GTaskEventStatusEnums.Started ? (
                               <LuPause />
                             ) : (
                               <LuPlay />
@@ -171,7 +184,7 @@ export const DownloadTasksPage = () => {
                           ml={1}
                           variant="ghost"
                           onClick={() => {
-                            group.status === TaskDescStatusEnums.InProgress
+                            group.status === GTaskEventStatusEnums.Started
                               ? handleStopProgressiveTaskGroup(group.taskGroup)
                               : handleResumeProgressiveTaskGroup(
                                   group.taskGroup
@@ -181,7 +194,7 @@ export const DownloadTasksPage = () => {
                       </Tooltip>
                     )}
 
-                    {(group.status === TaskDescStatusEnums.Failed ||
+                    {(group.status === GTaskEventStatusEnums.Failed ||
                       group.reason) && (
                       <Tooltip label={t("DownloadTasksPage.button.retry")}>
                         <IconButton
@@ -207,8 +220,8 @@ export const DownloadTasksPage = () => {
                       </Tooltip>
                     )}
 
-                    {group.status !== TaskDescStatusEnums.Cancelled &&
-                      group.status !== TaskDescStatusEnums.Completed && (
+                    {group.status !== GTaskEventStatusEnums.Cancelled &&
+                      group.status !== GTaskEventStatusEnums.Completed && (
                         <Tooltip label={t("General.cancel")}>
                           <IconButton
                             aria-label="cancel"
@@ -236,7 +249,7 @@ export const DownloadTasksPage = () => {
                   </HStack>
                 </Flex>
 
-                {group.status !== TaskDescStatusEnums.Completed && (
+                {group.status !== GTaskEventStatusEnums.Completed && (
                   <Progress
                     size="xs"
                     value={group.progress}
@@ -252,7 +265,7 @@ export const DownloadTasksPage = () => {
                     <OptionItem
                       key={`${task.taskId}-detail`}
                       title={task.payload.filename}
-                      titleExtra={
+                      description={
                         task.status === TaskDescStatusEnums.InProgress && (
                           <Text
                             fontSize="xs"
@@ -271,6 +284,9 @@ export const DownloadTasksPage = () => {
                             size="xs"
                             value={task.progress}
                             colorScheme={primaryColor}
+                            isIndeterminate={
+                              task.status === TaskDescStatusEnums.Waiting
+                            }
                             borderRadius="sm"
                           />
                         )}
@@ -292,7 +308,8 @@ export const DownloadTasksPage = () => {
                   ))
                 : []),
             ]}
-            maxFirstVisibleItems={4}
+            maxFirstVisibleItems={6}
+            enableShowAll={false}
           />
         ))}
       </VStack>

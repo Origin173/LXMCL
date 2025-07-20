@@ -6,6 +6,7 @@ use tauri::{AppHandle, Emitter};
 use tokio::time::Duration;
 
 const TASK_PROGRESS_UPDATE_EVENT: &str = "task:progress-update";
+const TASK_GROUP_UPDATE_EVENT: &str = "task:group-update";
 
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(tag = "status")]
@@ -126,6 +127,64 @@ impl<'a> PEvent<'a> {
   }
 }
 
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(tag = "status")]
+pub enum GEventStatus {
+  Started,
+  Stopped,
+  Failed,
+  Completed,
+  Cancelled,
+}
+
+#[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct GEvent<'a> {
+  pub task_group: &'a str,
+  pub event: GEventStatus,
+}
+
+impl<'a> GEvent<'a> {
+  fn emit(self, app: &AppHandle) {
+    app.emit_to("main", TASK_GROUP_UPDATE_EVENT, self).unwrap();
+  }
+  pub fn emit_group_started(app: &AppHandle, task_group: &'a str) {
+    Self {
+      task_group,
+      event: GEventStatus::Started,
+    }
+    .emit(app);
+  }
+  pub fn emit_group_failed(app: &AppHandle, task_group: &'a str) {
+    Self {
+      task_group,
+      event: GEventStatus::Failed,
+    }
+    .emit(app);
+  }
+  pub fn emit_group_completed(app: &AppHandle, task_group: &'a str) {
+    Self {
+      task_group,
+      event: GEventStatus::Completed,
+    }
+    .emit(app);
+  }
+  pub fn emit_group_stopped(app: &AppHandle, task_group: &'a str) {
+    Self {
+      task_group,
+      event: GEventStatus::Stopped,
+    }
+    .emit(app);
+  }
+  pub fn emit_group_cancelled(app: &AppHandle, task_group: &'a str) {
+    Self {
+      task_group,
+      event: GEventStatus::Cancelled,
+    }
+    .emit(app);
+  }
+}
+
 pub struct TauriEventSink {
   app: AppHandle,
 }
@@ -145,9 +204,6 @@ impl Sink for TauriEventSink {
   }
   fn report_cancelled(&self, task_id: u32, task_group: Option<&str>) {
     PEvent::emit_cancelled(&self.app, task_id, task_group);
-  }
-  fn report_resumed(&self, task_id: u32, task_group: Option<&str>) {
-    PEvent::emit_started(&self.app, task_id, task_group, 0);
   }
   fn report_completion(&self, task_id: u32, task_group: Option<&str>) {
     PEvent::emit_completed(&self.app, task_id, task_group);

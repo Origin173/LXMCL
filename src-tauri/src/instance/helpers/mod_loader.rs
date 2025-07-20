@@ -1,7 +1,6 @@
 use super::super::super::launch::helpers::file_validator::convert_library_name_to_path;
 use reqwest::redirect::Policy;
 use reqwest::{Client, Error};
-use serde_json::{json, Value};
 use std::cmp::Ordering;
 use std::fs;
 use std::fs::File;
@@ -10,6 +9,11 @@ use std::path::PathBuf;
 use tauri_plugin_http::reqwest;
 use zip::ZipArchive;
 
+use crate::instance::helpers::client_json::{
+  LaunchArgumentTemplate, LibrariesValue, McClientInfo, PatchesInfo,
+};
+use crate::instance::helpers::misc::get_instance_subdir_paths;
+use crate::instance::models::misc::{Instance, InstanceError, InstanceSubdirType};
 use crate::{
   error::{SJMCLError, SJMCLResult},
   instance::helpers::game_version::compare_game_versions,
@@ -23,14 +27,10 @@ use crate::{
 use tauri::{AppHandle, State};
 
 pub fn add_library_entry(
-  version_json: &mut Value,
+  libraries: &mut Vec<LibrariesValue>,
   lib_path: &str,
   maven_root: &str,
 ) -> SJMCLResult<()> {
-  let libraries = version_json["libraries"].as_array_mut().ok_or(SJMCLError(
-    "invalid version.json: libraries not array".to_string(),
-  ))?;
-
   let (group, artifact, _version) = {
     let parts: Vec<_> = lib_path.split(':').collect();
     (parts[0], parts[1], parts[2])
@@ -38,25 +38,48 @@ pub fn add_library_entry(
 
   let key_prefix = format!("{}:{}", group, artifact);
 
-  if let Some(pos) = libraries.iter().position(|item| {
-    item
-      .get("name")
-      .and_then(|n| n.as_str())
-      .map(|n| n.starts_with(&key_prefix))
-      .unwrap_or(false)
-  }) {
-    libraries[pos] = json!({
-        "name": lib_path,
-        "url": maven_root
-    });
+  if let Some(pos) = libraries
+    .iter()
+    .position(|item| item.name.starts_with(&key_prefix))
+  {
+    libraries[pos].name = lib_path.to_string();
+    if let Some(downloads) = &mut libraries[pos].downloads {
+      if let Some(artifact) = &mut downloads.artifact {
+        artifact.url = maven_root.to_string();
+      }
+    }
   } else {
-    libraries.push(json!({
-        "name": lib_path,
-        "url": maven_root
-    }));
+    libraries.push(LibrariesValue {
+      name: lib_path.to_string(),
+      downloads: None,
+      natives: None,
+      extract: None,
+      rules: Vec::new(),
+    });
   }
 
   Ok(())
+}
+
+pub fn convert_client_info_to_patch(client_info: &McClientInfo) -> PatchesInfo {
+  PatchesInfo {
+    id: "game".to_string(),
+    version: client_info.id.clone(),
+    priority: 0,
+    arguments: client_info.arguments.clone().unwrap_or_default(),
+    main_class: client_info.main_class.clone(),
+    asset_index: client_info.asset_index.clone(),
+    assets: client_info.assets.clone(),
+    libraries: client_info.libraries.clone(),
+    downloads: client_info.downloads.clone(),
+    logging: client_info.logging.clone(),
+    java_version: Some(client_info.java_version.clone()),
+    type_: client_info.type_.clone(),
+    time: client_info.time.clone(),
+    release_time: client_info.release_time.clone(),
+    minimum_launcher_version: client_info.minimum_launcher_version,
+    inherits_from: None,
+  }
 }
 
 async fn fetch_forge_installer_url(
@@ -85,9 +108,8 @@ pub async fn install_mod_loader(
   priority: &[SourceType],
   game_version: &str,
   loader: &ModLoader,
-  inst_name: &str,
   lib_dir: PathBuf,
-  vanilla_json: &mut Value,
+  client_info: &mut McClientInfo,
 ) -> SJMCLResult<()> {
   match loader.loader_type {
     ModLoaderType::Fabric => {
@@ -97,19 +119,16 @@ pub async fn install_mod_loader(
         priority,
         game_version,
         loader,
-        inst_name,
         lib_dir,
-        vanilla_json,
+        client_info,
       )
       .await
     }
     ModLoaderType::Forge => {
-      install_forge_loader(app, priority, game_version, loader, inst_name, lib_dir).await
+      install_forge_loader(app, priority, game_version, loader, lib_dir).await
     }
-    ModLoaderType::NeoForge => {
-      install_neoforge_loader(app, priority, loader, inst_name, lib_dir).await
-    }
-    _ => Err(SJMCLError("暂不支持的加载器".to_string())),
+    ModLoaderType::NeoForge => install_neoforge_loader(app, priority, loader, lib_dir).await,
+    _ => Err(InstanceError::UnsupportedModLoader.into()),
   }
 }
 
@@ -119,15 +138,14 @@ async fn install_fabric_loader(
   priority: &[SourceType],
   game_version: &str,
   loader: &ModLoader,
-  inst_name: &str,
   lib_dir: PathBuf,
-  vanilla_json: &mut Value,
+  client_info: &mut McClientInfo,
 ) -> SJMCLResult<()> {
   let loader_ver = &loader.version;
 
-  let old_json = vanilla_json.clone();
-
-  let mut new_json = json!({});
+  client_info
+    .patches
+    .push(convert_client_info_to_patch(client_info));
 
   let meta_url = get_download_api(priority[0], ResourceType::FabricMeta)?
     .join(&format!("v2/versions/loader/{game_version}/{loader_ver}"))?;
@@ -146,47 +164,34 @@ async fn install_fabric_loader(
     .as_str()
     .ok_or(SJMCLError("missing mainClass.client".to_string()))?;
 
-  vanilla_json["mainClass"] = json!(main_class);
-  vanilla_json["id"] = json!(inst_name);
-  vanilla_json["jar"] = json!(inst_name);
+  client_info.main_class = main_class.to_string();
 
-  new_json["id"] = json!("fabric");
-  new_json["mainClass"] = json!(main_class);
-  new_json["version"] = json!(loader_ver);
-  new_json["arguments"] = json!({});
-  new_json["libraries"] = json!([]);
+  let mut new_patch = PatchesInfo {
+    id: "fabric".to_string(),
+    version: loader_ver.to_string(),
+    priority: 30000,
+    ..Default::default()
+  };
 
   let maven_root = get_download_api(priority[0], ResourceType::FabricMaven)?;
 
-  add_library_entry(vanilla_json, loader_path, maven_root.as_str())?;
-  add_library_entry(vanilla_json, int_path, maven_root.as_str())?;
-
-  if let Some(libraries) = new_json["libraries"].as_array_mut() {
-    libraries.push(json!({
-        "name": loader_path,
-        "url": maven_root
-    }));
-    libraries.push(json!({
-        "name": int_path,
-        "url": maven_root
-    }));
-  }
+  add_library_entry(&mut client_info.libraries, loader_path, maven_root.as_str())?;
+  add_library_entry(&mut client_info.libraries, int_path, maven_root.as_str())?;
+  add_library_entry(&mut new_patch.libraries, loader_path, maven_root.as_str())?;
+  add_library_entry(&mut new_patch.libraries, int_path, maven_root.as_str())?;
 
   let launcher_meta = &meta["launcherMeta"]["libraries"];
   for side in ["common", "server", "client"] {
     if let Some(arr) = launcher_meta.get(side).and_then(|v| v.as_array()) {
       for item in arr {
         let name = item["name"].as_str().unwrap();
-        add_library_entry(vanilla_json, name, maven_root.as_str())?;
-        if let Some(libraries) = new_json["libraries"].as_array_mut() {
-          libraries.push(json!({
-              "name": name,
-              "url": maven_root
-          }));
-        }
+        add_library_entry(&mut client_info.libraries, name, maven_root.as_str())?;
+        add_library_entry(&mut new_patch.libraries, name, maven_root.as_str())?;
       }
     }
   }
+
+  client_info.patches.push(new_patch);
 
   let mut task_params: Vec<PTaskParam> = Vec::new();
 
@@ -217,12 +222,9 @@ async fn install_fabric_loader(
       }
     }
   }
-
-  vanilla_json["patches"] = json!([old_json, new_json]);
-
   schedule_progressive_task_group(
     app,
-    format!("fabric-loader-install:{inst_name}"),
+    format!("fabric-loader?{loader_ver}"),
     task_params,
     true,
   )
@@ -235,7 +237,6 @@ async fn install_neoforge_loader(
   app: AppHandle,
   priority: &[SourceType],
   loader: &ModLoader,
-  inst_name: &str,
   lib_dir: PathBuf,
 ) -> SJMCLResult<()> {
   let loader_ver = &loader.version;
@@ -262,7 +263,7 @@ async fn install_neoforge_loader(
 
   schedule_progressive_task_group(
     app,
-    format!("neoforge-installer-download:{inst_name}"),
+    format!("neoforge-installer?{loader_ver}"),
     vec![PTaskParam::Download(DownloadParam {
       src: installer_url,
       dest: installer_path,
@@ -281,7 +282,6 @@ async fn install_forge_loader(
   priority: &[SourceType],
   game_version: &str,
   loader: &ModLoader,
-  inst_name: &str,
   lib_dir: PathBuf,
 ) -> SJMCLResult<()> {
   let loader_ver = &loader.version;
@@ -308,7 +308,7 @@ async fn install_forge_loader(
 
   schedule_progressive_task_group(
     app,
-    format!("forge-installer-download:{inst_name}"),
+    format!("forge-installer?{loader_ver}"),
     vec![PTaskParam::Download(DownloadParam {
       src: installer_url,
       dest: installer_path,
@@ -322,26 +322,65 @@ async fn install_forge_loader(
   Ok(())
 }
 
-pub async fn finish_forge_install(
+pub async fn download_forge_libraries(
   app: AppHandle,
-  game_version: &str,
-  loader: &ModLoader,
-  inst_name: &str,
-  lib_dir: PathBuf,
-  vanilla_json: &mut Value,
+  instance: &Instance,
+  client_info: &McClientInfo,
 ) -> SJMCLResult<()> {
-  let old_json = vanilla_json.clone();
+  let subdirs = get_instance_subdir_paths(&app, instance, &[&InstanceSubdirType::Libraries])
+    .ok_or(InstanceError::InvalidSourcePath)?;
+  let lib_dir = subdirs[0].clone();
 
-  let mut new_json = json!({});
+  let mut client_info = client_info.clone();
 
-  let installer_coord = format!("net.minecraftforge:forge:{}-installer", loader.version);
+  client_info
+    .patches
+    .push(convert_client_info_to_patch(&client_info));
+
+  let installer_coord = format!(
+    "net.minecraftforge:forge:{}-installer",
+    instance.mod_loader.version
+  );
   let installer_rel = convert_library_name_to_path(&installer_coord, None)?;
   let installer_path = lib_dir.join(&installer_rel);
-  let comparison = compare_game_versions(&app, game_version, "1.13").await;
+  let comparison = compare_game_versions(&app, &instance.version, "1.13").await;
   if comparison != Ordering::Less {
     let (content, version) = {
       let file = File::open(&installer_path)?;
       let mut archive = ZipArchive::new(file)?;
+
+      // Extract maven folder contents to lib_dir
+      for i in 0..archive.len() {
+        let mut file = archive.by_index(i)?;
+        let outpath = match file.enclosed_name() {
+          Some(path) => {
+            if path.starts_with("maven/") {
+              // Remove "maven/" prefix and join with lib_dir
+              let relative_path = path.strip_prefix("maven/").unwrap();
+              lib_dir.join(relative_path)
+            } else {
+              continue; // Skip non-maven files
+            }
+          }
+          None => continue,
+        };
+
+        if file.name().ends_with('/') {
+          // Create directory
+          fs::create_dir_all(&outpath)?;
+        } else {
+          // Create parent directories if they don't exist
+          if let Some(p) = outpath.parent() {
+            if !p.exists() {
+              fs::create_dir_all(p)?;
+            }
+          }
+
+          // Extract file
+          let mut outfile = File::create(&outpath)?;
+          std::io::copy(&mut file, &mut outfile)?;
+        }
+      }
 
       let mut s = String::new();
       {
@@ -359,70 +398,51 @@ pub async fn finish_forge_install(
     };
 
     let profile_json: serde_json::Value = serde_json::from_str(&content)?;
-    let version_json: serde_json::Value = serde_json::from_str(&version)?;
+    let forge_info: McClientInfo = serde_json::from_str(&version)?;
 
-    let main_class = version_json["mainClass"].as_str().unwrap();
-    let libraries = profile_json["libraries"].as_array().unwrap();
-
-    vanilla_json["mainClass"] = json!(main_class);
-    vanilla_json["id"] = json!(inst_name);
-    vanilla_json["jar"] = json!(inst_name);
-
-    let nf_game_args = version_json["arguments"]["game"]
+    let main_class = forge_info.main_class;
+    let libraries = profile_json["libraries"]
       .as_array()
-      .ok_or(SJMCLError(
-        "neoforge version.json 缺少 arguments.game".into(),
-      ))?;
+      .ok_or(InstanceError::InstallProfileParseError)?;
 
-    let v_game_args = vanilla_json["arguments"]["game"]
-      .as_array_mut()
-      .ok_or(SJMCLError(
-        "vanilla version.json 缺少 arguments.game".into(),
-      ))?;
+    client_info.main_class = main_class.to_string();
 
-    new_json["id"] = json!("forge");
-    new_json["mainClass"] = json!(main_class);
-    new_json["version"] = json!(loader.version);
-    new_json["inheritsFrom"] = json!(version_json["inheritsFrom"]);
-    new_json["arguments"] = json!(nf_game_args.clone());
-    new_json["releaseTime"] = json!(version_json["releaseTime"]);
-    new_json["time"] = json!(version_json["time"]);
-    new_json["libraries"] = json!([]);
-
-    for arg in nf_game_args {
-      v_game_args.push(arg.clone());
-    }
-
-    let nf_jvm_args = version_json["arguments"]["jvm"]
-      .as_array()
-      .ok_or(SJMCLError(
-        "neoforge version.json 缺少 arguments.jvm".into(),
-      ))?;
-
-    let v_jvm_args = vanilla_json["arguments"]["jvm"]
-      .as_array_mut()
-      .ok_or(SJMCLError("vanilla version.json 缺少 arguments.jvm".into()))?;
-
-    for arg in nf_jvm_args {
-      v_jvm_args.push(arg.clone());
-    }
+    let nf_args = forge_info
+      .arguments
+      .ok_or(InstanceError::ModLoaderVersionParseError)?;
+    let v_args = client_info
+      .arguments
+      .clone()
+      .ok_or(InstanceError::ClientJsonParseError)?;
+    let new_args = LaunchArgumentTemplate {
+      game: [nf_args.game, v_args.game].concat(),
+      jvm: [nf_args.jvm, v_args.jvm].concat(),
+    };
+    client_info.arguments = Some(new_args.clone());
+    let mut new_patch = PatchesInfo {
+      id: "forge".to_string(),
+      version: forge_info.id.clone(),
+      priority: 30000,
+      inherits_from: forge_info.inherits_from.clone(),
+      main_class: main_class.clone(),
+      arguments: new_args,
+      ..Default::default()
+    };
 
     let mut task_params = vec![];
     for lib in libraries {
       let name = lib["name"]
         .as_str()
-        .ok_or(SJMCLError("lib without name".to_string()))?;
+        .ok_or(InstanceError::InstallProfileParseError)?;
       let url = lib["downloads"]["artifact"]["url"]
         .as_str()
-        .ok_or(SJMCLError(lib.to_string()))?;
+        .ok_or(InstanceError::InstallProfileParseError)?;
+      println!("[forge] lib: {}, url: {}", name, url);
 
-      add_library_entry(vanilla_json, name, url)?;
-
-      if let Some(libraries) = new_json["libraries"].as_array_mut() {
-        libraries.push(json!({
-            "name": name,
-            "url": url
-        }));
+      add_library_entry(&mut client_info.libraries, name, url)?;
+      add_library_entry(&mut new_patch.libraries, name, url)?;
+      if url.is_empty() {
+        continue;
       }
 
       let rel = convert_library_name_to_path(&name.to_string(), None)?;
@@ -433,12 +453,11 @@ pub async fn finish_forge_install(
         sha1: None,
       }));
     }
-
-    vanilla_json["patches"] = json!([old_json, new_json]);
+    client_info.patches.push(new_patch.clone());
 
     schedule_progressive_task_group(
       app,
-      format!("neoforge-libraries-download:{inst_name}"),
+      format!("forge-libraries?{}", instance.id),
       task_params,
       true,
     )
@@ -458,50 +477,63 @@ pub async fn finish_forge_install(
     let main_class = profile_json["versionInfo"]["mainClass"].as_str().unwrap();
     let libraries = profile_json["versionInfo"]["libraries"].as_array().unwrap();
 
-    vanilla_json["mainClass"] = json!(main_class);
-    vanilla_json["id"] = json!(inst_name);
-    vanilla_json["jar"] = json!(inst_name);
+    client_info.main_class = main_class.to_string();
 
-    new_json["id"] = json!("forge");
-    new_json["mainClass"] = json!(main_class);
-    new_json["version"] = json!(loader.version);
-    new_json["inheritsFrom"] = json!(profile_json["versionInfo"]["inheritsFrom"]);
-    new_json["arguments"] = json!(profile_json["versionInfo"]["minecraftArguments"]);
-    new_json["releaseTime"] = json!(profile_json["versionInfo"]["releaseTime"]);
-    new_json["time"] = json!(profile_json["versionInfo"]["time"]);
-    new_json["jar"] = json!(profile_json["versionInfo"]["jar"]);
-    new_json["type"] = json!(profile_json["versionInfo"]["type"]);
-    new_json["assets"] = json!(profile_json["versionInfo"]["assets"]);
-    new_json["libraries"] = json!([]);
+    let mut new_patch = PatchesInfo {
+      id: "forge".to_string(),
+      version: instance.mod_loader.version.clone(),
+      priority: 30000,
+      main_class: main_class.to_string(),
+      inherits_from: Some(
+        profile_json["versionInfo"]["inheritsFrom"]
+          .as_str()
+          .unwrap()
+          .to_string(),
+      ),
+      arguments: LaunchArgumentTemplate {
+        game: vec![],
+        jvm: vec![],
+      },
+      release_time: profile_json["versionInfo"]["releaseTime"]
+        .as_str()
+        .ok_or(InstanceError::InstallProfileParseError)?
+        .to_string(),
+      time: profile_json["versionInfo"]["time"]
+        .as_str()
+        .ok_or(InstanceError::InstallProfileParseError)?
+        .to_string(),
+      type_: profile_json["versionInfo"]["type"]
+        .as_str()
+        .ok_or(InstanceError::InstallProfileParseError)?
+        .to_string(),
+      assets: profile_json["versionInfo"]["assets"]
+        .as_str()
+        .ok_or(InstanceError::InstallProfileParseError)?
+        .to_string(),
+
+      ..Default::default()
+    };
 
     let install_arguments = profile_json["versionInfo"]["minecraftArguments"]
       .as_str()
-      .ok_or(SJMCLError(
-        "missing minecraftArguments in install_profile.json".to_string(),
-      ))?;
+      .ok_or(InstanceError::InstallProfileParseError)?;
 
-    vanilla_json["minecraftArguments"] = json!(install_arguments);
+    client_info.minecraft_arguments = Some(install_arguments.to_string());
 
-    if let Some(first_lib) = libraries.get(0) {
+    if let Some(first_lib) = libraries.first() {
       let name = first_lib["name"]
         .as_str()
-        .ok_or(SJMCLError("lib without name".to_string()))?;
+        .ok_or(InstanceError::InstallProfileParseError)?;
       let url = if first_lib["url"].is_null() {
         "https://libraries.minecraft.net/"
       } else {
         first_lib["url"]
           .as_str()
-          .ok_or(SJMCLError(first_lib.to_string()))?
+          .ok_or(InstanceError::InstallProfileParseError)?
       };
 
-      add_library_entry(vanilla_json, name, url)?;
-
-      if let Some(libraries) = new_json["libraries"].as_array_mut() {
-        libraries.push(json!({
-            "name": name,
-            "url": url
-        }));
-      }
+      add_library_entry(&mut client_info.libraries, name, url)?;
+      add_library_entry(&mut new_patch.libraries, name, url)?;
 
       let rel = convert_library_name_to_path(&name.to_string(), None)?;
 
@@ -523,9 +555,7 @@ pub async fn finish_forge_install(
 
       std::io::copy(&mut file, &mut output)?;
     } else {
-      return Err(SJMCLError(
-        "No libraries found in install_profile.json".to_string(),
-      ));
+      return Err(InstanceError::InstallProfileParseError.into());
     }
 
     let mut task_params = vec![];
@@ -536,17 +566,13 @@ pub async fn finish_forge_install(
       let url = if lib["url"].is_null() {
         "https://libraries.minecraft.net/"
       } else {
-        lib["url"].as_str().ok_or(SJMCLError(lib.to_string()))?
+        lib["url"]
+          .as_str()
+          .ok_or(InstanceError::InstallProfileParseError)?
       };
 
-      add_library_entry(vanilla_json, name, url)?;
-
-      if let Some(libraries) = new_json["libraries"].as_array_mut() {
-        libraries.push(json!({
-            "name": name,
-            "url": url
-        }));
-      }
+      add_library_entry(&mut client_info.libraries, name, url)?;
+      add_library_entry(&mut new_patch.libraries, name, url)?;
 
       let rel = convert_library_name_to_path(&name.to_string(), None)?;
       let src = url::Url::parse(url)?.join(&rel)?;
@@ -557,32 +583,43 @@ pub async fn finish_forge_install(
         sha1: None,
       }));
     }
-
-    vanilla_json["patches"] = json!([old_json, new_json]);
+    client_info.patches.push(new_patch);
 
     schedule_progressive_task_group(
       app,
-      format!("neoforge-libraries-download:{inst_name}"),
+      format!("forge-libraries?{}", instance.id),
       task_params,
       true,
     )
     .await?;
   }
 
+  let vjson_path = instance
+    .version_path
+    .join(format!("{}.json", instance.name));
+  fs::write(vjson_path, serde_json::to_vec_pretty(&client_info)?)?;
+
   Ok(())
 }
 
-pub async fn finish_neoforge_install(
+pub async fn download_neoforge_libraries(
   app: AppHandle,
-  loader: &ModLoader,
-  inst_name: &str,
-  lib_dir: PathBuf,
-  vanilla_json: &mut Value,
+  instance: &Instance,
+  client_info: &McClientInfo,
 ) -> SJMCLResult<()> {
-  let old_json = vanilla_json.clone();
+  let mut client_info = client_info.clone();
+  client_info
+    .patches
+    .push(convert_client_info_to_patch(&client_info));
 
-  let mut new_json = json!({});
-  let installer_coord = format!("net.neoforged:neoforge:{}-installer", loader.version);
+  let subdirs = get_instance_subdir_paths(&app, instance, &[&InstanceSubdirType::Libraries])
+    .ok_or(InstanceError::InvalidSourcePath)?;
+  let lib_dir = subdirs[0].clone();
+
+  let installer_coord = format!(
+    "net.neoforged:neoforge:{}-installer",
+    instance.mod_loader.version
+  );
   let installer_rel = convert_library_name_to_path(&installer_coord, None)?;
   let installer_path = lib_dir.join(&installer_rel);
   let (content, version) = {
@@ -605,57 +642,53 @@ pub async fn finish_neoforge_install(
   };
 
   let profile_json: serde_json::Value = serde_json::from_str(&content)?;
-  let version_json: serde_json::Value = serde_json::from_str(&version)?;
+  let neoforge_info: McClientInfo = serde_json::from_str(&version)?;
 
-  let main_class = version_json["mainClass"].as_str().unwrap();
-  let libraries = profile_json["libraries"].as_array().unwrap();
-
-  vanilla_json["mainClass"] = json!(main_class);
-  vanilla_json["id"] = json!(inst_name);
-  vanilla_json["jar"] = json!(inst_name);
-
-  let nf_game_args = version_json["arguments"]["game"]
+  let main_class = neoforge_info.main_class;
+  let libraries = profile_json["libraries"]
     .as_array()
-    .ok_or(SJMCLError(
-      "neoforge version.json 缺少 arguments.game".into(),
-    ))?;
+    .ok_or(InstanceError::InstallProfileParseError)?;
 
-  let v_game_args = vanilla_json["arguments"]["game"]
-    .as_array_mut()
-    .ok_or(SJMCLError(
-      "vanilla version.json 缺少 arguments.game".into(),
-    ))?;
+  client_info.main_class = main_class.to_string();
 
-  new_json["id"] = json!("neoforge");
-  new_json["mainClass"] = json!(main_class);
-  new_json["version"] = json!(loader.version);
-  new_json["inheritsFrom"] = json!(version_json["inheritsFrom"]);
-  new_json["arguments"] = json!(nf_game_args.clone());
-  new_json["releaseTime"] = json!(version_json["releaseTime"]);
-  new_json["time"] = json!(version_json["time"]);
-  new_json["libraries"] = json!([]);
-
-  for arg in nf_game_args {
-    v_game_args.push(arg.clone());
-  }
+  let nf_args = neoforge_info
+    .arguments
+    .ok_or(InstanceError::ModLoaderVersionParseError)?;
+  let v_args = client_info
+    .arguments
+    .clone()
+    .ok_or(InstanceError::ClientJsonParseError)?;
+  let new_args = LaunchArgumentTemplate {
+    game: [nf_args.game, v_args.game].concat(),
+    jvm: [nf_args.jvm, v_args.jvm].concat(),
+  };
+  client_info.arguments = Some(new_args.clone());
+  let mut new_patch = PatchesInfo {
+    id: "neoforge".to_string(),
+    version: neoforge_info.id.clone(),
+    priority: 30000,
+    inherits_from: neoforge_info.inherits_from.clone(),
+    main_class: main_class.clone(),
+    arguments: new_args,
+    ..Default::default()
+  };
 
   let mut task_params = vec![];
   for lib in libraries {
     let name = lib["name"]
       .as_str()
-      .ok_or(SJMCLError("lib without name".to_string()))?;
+      .ok_or(InstanceError::InstallProfileParseError)?;
     let url = lib["downloads"]["artifact"]["url"]
       .as_str()
-      .ok_or(SJMCLError(lib.to_string()))?;
-
-    add_library_entry(vanilla_json, name, url)?;
-
-    if let Some(libraries) = new_json["libraries"].as_array_mut() {
-      libraries.push(json!({
-          "name": name,
-          "url": url
-      }));
+      .ok_or(InstanceError::InstallProfileParseError)?;
+    if url.is_empty() {
+      continue;
     }
+    println!("[forge] lib: {}, url: {}", name, url);
+
+    add_library_entry(&mut client_info.libraries, name, url)?;
+    add_library_entry(&mut new_patch.libraries, name, url)?;
+    client_info.patches.push(new_patch.clone());
 
     let rel = convert_library_name_to_path(&name.to_string(), None)?;
     task_params.push(PTaskParam::Download(DownloadParam {
@@ -666,14 +699,17 @@ pub async fn finish_neoforge_install(
     }));
   }
 
-  vanilla_json["patches"] = json!([old_json, new_json]);
-
   schedule_progressive_task_group(
     app,
-    format!("neoforge-libraries-download:{inst_name}"),
+    format!("neoforge-libraries?{}", instance.id),
     task_params,
     true,
   )
   .await?;
+
+  let vjson_path = instance
+    .version_path
+    .join(format!("{}.json", instance.name));
+  fs::write(vjson_path, serde_json::to_vec_pretty(&client_info)?)?;
   Ok(())
 }

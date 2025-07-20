@@ -2,11 +2,6 @@ import {
   Button,
   HStack,
   Input,
-  Menu,
-  MenuButton,
-  MenuItemOption,
-  MenuList,
-  MenuOptionGroup,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
@@ -25,18 +20,36 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuChevronDown, LuChevronUp } from "react-icons/lu";
 import LinkIconButton from "@/components/common/link-icon-button";
+import { MenuSelector } from "@/components/common/menu-selector";
 import {
   OptionItemGroup,
   OptionItemGroupProps,
 } from "@/components/common/option-item";
 import SegmentedControl from "@/components/common/segmented";
 import { useLauncherConfig } from "@/contexts/config";
+import { useSharedModals } from "@/contexts/shared-modal";
+import { useTaskContext } from "@/contexts/task";
+import { useToast } from "@/contexts/toast";
+import { GTaskEventStatusEnums } from "@/models/task";
+import { ConfigService } from "@/services/config";
 
 const DownloadSettingsPage = () => {
   const { t } = useTranslation();
+  const toast = useToast();
+  const { openGenericConfirmDialog, closeSharedModal } = useSharedModals();
+
   const { config, update } = useLauncherConfig();
   const downloadConfigs = config.download;
   const primaryColor = config.appearance.theme.primaryColor;
+
+  const { tasks } = useTaskContext();
+  const hasActiveDownloadTasks = tasks.some(
+    (taskGroup) =>
+      !(
+        taskGroup.status === GTaskEventStatusEnums.Completed ||
+        taskGroup.status === GTaskEventStatusEnums.Failed
+      )
+  );
 
   const [concurrentCount, setConcurrentCount] = useState<number>(
     downloadConfigs.transmission.concurrentCount
@@ -53,6 +66,8 @@ const DownloadSettingsPage = () => {
   const [proxyHost, setProxyHost] = useState<string>(
     downloadConfigs.proxy.host
   );
+  const [isClearingDownloadCache, setIsClearingDownloadCache] =
+    useState<boolean>(false);
 
   const sourceStrategyTypes = ["auto", "official", "mirror"];
   const proxyTypeOptions = [
@@ -79,6 +94,32 @@ const DownloadSettingsPage = () => {
     }
   };
 
+  const handleClearDownloadCache = () => {
+    if (isClearingDownloadCache || hasActiveDownloadTasks) {
+      return;
+    }
+    setIsClearingDownloadCache(true);
+    ConfigService.clearDownloadCache()
+      .then((response) => {
+        if (response.status === "success") {
+          toast({
+            title: response.message,
+            status: "success",
+          });
+        } else {
+          toast({
+            title: response.message,
+            description: response.details,
+            status: "error",
+          });
+        }
+      })
+      .finally(() => {
+        setIsClearingDownloadCache(false);
+      });
+    closeSharedModal("generic-confirm");
+  };
+
   const downloadSettingGroups: OptionItemGroupProps[] = [
     {
       items: [
@@ -102,37 +143,21 @@ const DownloadSettingsPage = () => {
         {
           title: t("DownloadSettingPage.source.settings.strategy.title"),
           children: (
-            <Menu>
-              <MenuButton
-                as={Button}
-                size="xs"
-                w="auto"
-                rightIcon={<LuChevronDown />}
-                variant="outline"
-                textAlign="left"
-              >
-                {t(
-                  `DownloadSettingPage.source.settings.strategy.${downloadConfigs.source.strategy}`
-                )}
-              </MenuButton>
-              <MenuList>
-                <MenuOptionGroup
-                  value={downloadConfigs.source.strategy}
-                  type="radio"
-                  onChange={(value) => {
-                    update("download.source.strategy", value);
-                  }}
-                >
-                  {sourceStrategyTypes.map((type) => (
-                    <MenuItemOption value={type} fontSize="xs" key={type}>
-                      {t(
-                        `DownloadSettingPage.source.settings.strategy.${type}`
-                      )}
-                    </MenuItemOption>
-                  ))}
-                </MenuOptionGroup>
-              </MenuList>
-            </Menu>
+            <MenuSelector
+              options={sourceStrategyTypes.map((type) => ({
+                value: type,
+                label: t(
+                  `DownloadSettingPage.source.settings.strategy.${type}`
+                ),
+              }))}
+              value={downloadConfigs.source.strategy}
+              onSelect={(value) =>
+                update("download.source.strategy", value as string)
+              }
+              placeholder={t(
+                `DownloadSettingPage.source.settings.strategy.${downloadConfigs.source.strategy}`
+              )}
+            />
           ),
         },
       ],
@@ -300,6 +325,38 @@ const DownloadSettingsPage = () => {
                 {t("DownloadSettingPage.cache.settings.directory.open")}
               </Button>
             </HStack>
+          ),
+        },
+        {
+          title: t("DownloadSettingPage.cache.settings.clear.title"),
+          description: hasActiveDownloadTasks ? (
+            <Text fontSize="xs" color="red.600">
+              {t(
+                "Services.config.clearDownloadCache.error.description.HAS_ACTIVE_DOWNLOAD_TASKS"
+              )}
+            </Text>
+          ) : (
+            t("DownloadSettingPage.cache.settings.clear.description")
+          ),
+          children: (
+            <Button
+              variant="subtle"
+              size="xs"
+              colorScheme="red"
+              isLoading={isClearingDownloadCache}
+              onClick={() =>
+                openGenericConfirmDialog({
+                  title: t("ClearDownloadCacheAlertDialog.dialog.title"),
+                  body: t("ClearDownloadCacheAlertDialog.dialog.content"),
+                  btnOK: t("General.delete"),
+                  isAlert: true,
+                  onOKCallback: handleClearDownloadCache,
+                })
+              }
+              disabled={hasActiveDownloadTasks}
+            >
+              {t("DownloadSettingPage.cache.settings.clear.button")}
+            </Button>
           ),
         },
       ],

@@ -1,7 +1,3 @@
-use crate::account::{
-  helpers::authlib_injector::jar::get_jar_path as get_authlib_injector_jar_path,
-  models::{AccountError, PlayerType},
-};
 use crate::error::{SJMCLError, SJMCLResult};
 use crate::instance::{
   helpers::client_json::FeaturesInfo,
@@ -14,6 +10,13 @@ use crate::launch::{
 };
 use crate::launcher_config::helpers::memory::get_memory_info;
 use crate::launcher_config::models::*;
+use crate::{
+  account::{
+    helpers::authlib_injector::jar::get_jar_path as get_authlib_injector_jar_path,
+    models::{AccountError, PlayerType},
+  },
+  launch::models::LaunchError,
+};
 use base64::{engine::general_purpose, Engine};
 use serde::{self, Deserialize, Serialize};
 use serde_json::Value;
@@ -99,9 +102,13 @@ impl LaunchArguments {
 
 pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<Vec<String>> {
   let launcher_config = { app.state::<Mutex<LauncherConfig>>().lock()?.clone() };
-  let launching = { app.state::<Mutex<LaunchingState>>().lock()?.clone() };
+  let launching_queue = { app.state::<Mutex<Vec<LaunchingState>>>().lock()?.clone() };
 
   let LauncherConfig { basic_info, .. } = launcher_config;
+  let launching = launching_queue
+    .last()
+    .ok_or(LaunchError::LaunchingStateNotFound)?
+    .clone();
   let LaunchingState {
     selected_java,
     selected_instance,
@@ -110,7 +117,10 @@ pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<Vec<String>> {
     auth_server_meta,
     ..
   } = launching;
-  let selected_player = launching.selected_player.ok_or(AccountError::NotFound)?;
+  let selected_player = launching
+    .selected_player
+    .clone()
+    .ok_or(AccountError::NotFound)?;
   let client_jar_path = selected_instance
     .version_path
     .join(format!("{}.jar", selected_instance.name))

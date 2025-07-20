@@ -131,9 +131,9 @@ pub fn cancel_progressive_task_group(app: AppHandle, task_group: String) -> SJMC
 }
 
 #[tauri::command]
-pub fn resume_progressive_task_group(app: AppHandle, task_group: String) -> SJMCLResult<()> {
+pub async fn resume_progressive_task_group(app: AppHandle, task_group: String) -> SJMCLResult<()> {
   let monitor = app.state::<Pin<Box<TaskMonitor>>>();
-  monitor.resume_progressive_task_group(task_group);
+  monitor.resume_progressive_task_group(task_group).await;
   Ok(())
 }
 

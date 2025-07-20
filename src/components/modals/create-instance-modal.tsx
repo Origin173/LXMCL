@@ -23,7 +23,7 @@ import {
   useSteps,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { GameVersionSelector } from "@/components/game-version-selector";
 import { InstanceBasicSettings } from "@/components/instance-basic-settings";
@@ -76,6 +76,15 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   const [instanceDirectory, setInstanceDirectory] = useState<GameDirectory>();
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    setSelectedModLoader(defaultModLoaderResourceInfo);
+    setInstanceName("");
+    setInstanceDescription("");
+    setInstanceIconSrc(
+      gameTypesToIcon[selectedGameVersion?.gameType || "release"]
+    );
+  }, [selectedGameVersion]);
+
   const handleCreateInstance = useCallback(() => {
     if (!selectedGameVersion) return;
     setIsLoading(true);
@@ -85,10 +94,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
       instanceDescription,
       instanceIconSrc,
       selectedGameVersion,
-      {
-        loaderType: selectedModLoader.loaderType,
-        version: selectedModLoader.version,
-      }
+      selectedModLoader
     )
       .then((res) => {
         if (res.status === "success") {
@@ -113,8 +119,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     instanceName,
     instanceDescription,
     instanceIconSrc,
-    selectedModLoader.loaderType,
-    selectedModLoader.version,
+    selectedModLoader,
     toast,
     modalProps,
     router,

@@ -24,19 +24,20 @@ use super::{
 use crate::{
   error::SJMCLResult,
   instance::{
-    helpers::client_json::McClientInfo,
-    helpers::mod_loader::{finish_forge_install, finish_neoforge_install, install_mod_loader},
-    models::misc::ModLoader,
+    helpers::{
+      client_json::McClientInfo, misc::get_instance_subdir_paths, mod_loader::install_mod_loader,
+    },
+    models::misc::{AssetIndex, ModLoader},
   },
-  launch::helpers::{file_validator::convert_library_name_to_path, misc::get_natives_string},
+  launch::helpers::file_validator::{get_invalid_assets, get_invalid_library_files},
   launcher_config::{
     helpers::misc::get_global_game_config,
     models::{GameConfig, GameDirectory, LauncherConfig},
   },
   partial::{PartialError, PartialUpdate},
   resource::{
-    helpers::misc::{get_download_api, get_source_priority_list},
-    models::{GameClientResourceInfo, ResourceType},
+    helpers::misc::get_source_priority_list,
+    models::{GameClientResourceInfo, ModLoaderResourceInfo},
   },
   storage::Storage,
   tasks::{commands::schedule_progressive_task_group, download::DownloadParam, PTaskParam},
@@ -44,12 +45,11 @@ use crate::{
 };
 use lazy_static::lazy_static;
 use regex::{Regex, RegexBuilder};
-use serde_json::{from_value, Value};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::{sync::Mutex, time::SystemTime};
-use tauri::{AppHandle, Manager, State};
+use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 use tokio;
 use url::Url;
@@ -787,15 +787,15 @@ pub fn create_launch_desktop_shortcut(app: AppHandle, instance_id: String) -> SJ
 #[tauri::command]
 pub async fn create_instance(
   app: AppHandle,
-  client: State<'_, reqwest::Client>,
-  launcher_config_state: State<'_, Mutex<LauncherConfig>>,
   directory: GameDirectory,
   name: String,
   description: String,
   icon_src: String,
   game: GameClientResourceInfo,
-  mod_loader: ModLoader,
+  mod_loader: ModLoaderResourceInfo,
 ) -> SJMCLResult<()> {
+  let client = app.state::<reqwest::Client>();
+  let launcher_config_state = app.state::<Mutex<LauncherConfig>>();
   // Get priority list
   let priority_list = {
     let launcher_config = launcher_config_state.lock()?;
@@ -808,14 +808,20 @@ pub async fn create_instance(
     return Err(InstanceError::ConflictNameError.into());
   }
   fs::create_dir_all(&version_path).map_err(|_| InstanceError::FolderCreationFailed)?;
-
   // Create instance config
   let instance = Instance {
     id: format!("{}:{}", directory.name, name.clone()),
     name: name.clone(),
     version: game.id.clone(),
     version_path,
-    mod_loader,
+    mod_loader: ModLoader {
+      loader_type: mod_loader.loader_type.clone(),
+      library_downloaded: matches!(
+        mod_loader.loader_type,
+        ModLoaderType::Unknown | ModLoaderType::Fabric
+      ),
+      version: mod_loader.version.clone(),
+    },
     description,
     icon_src,
     starred: false,
@@ -829,25 +835,26 @@ pub async fn create_instance(
     .map_err(|_| InstanceError::FileCreationFailed)?;
 
   // Download version info
-  let version_info_raw = client
+  let mut version_info = client
     .get(&game.url)
     .send()
     .await
     .map_err(|_| InstanceError::NetworkError)?
-    .json::<Value>()
+    .json::<McClientInfo>()
     .await
     .map_err(|_| InstanceError::ClientJsonParseError)?;
+
+  version_info.id = name.clone();
+
+  let version_info_path = directory
+    .dir
+    .join(format!("versions/{}/{}.json", name, name));
+
   fs::write(
-    directory
-      .dir
-      .join(format!("versions/{}/{}.json", name, name)),
-    version_info_raw.to_string(),
+    &version_info_path,
+    serde_json::to_vec_pretty(&version_info)?,
   )
   .map_err(|_| InstanceError::FileCreationFailed)?;
-
-  // Try to parse as McClientInfo, with better error handling for legacy versions
-  let version_info = from_value::<McClientInfo>(version_info_raw.clone())
-    .map_err(|_| InstanceError::ClientJsonParseError)?;
 
   let mut task_params = Vec::<PTaskParam>::new();
 
@@ -867,137 +874,90 @@ pub async fn create_instance(
     sha1: Some(client_download_info.sha1.clone()),
   }));
 
-  // Download libraries (use task)
-  let libraries_download_api = get_download_api(priority_list[0], ResourceType::Libraries)?;
-  for library in &version_info.libraries {
-    let (natives, sha1) = if let Some(natives) = &library.natives {
-      (get_natives_string(natives), None)
-    } else {
-      (
-        None,
-        library
-          .downloads
-          .as_ref()
-          .and_then(|d| d.artifact.as_ref().and_then(|a| Some(a.sha1.clone()))),
-      )
-    };
-    let path = convert_library_name_to_path(&library.name, natives)?;
-    task_params.push(PTaskParam::Download(DownloadParam {
-      src: libraries_download_api
-        .join(&path)
-        .map_err(|_| InstanceError::ClientJsonParseError)?,
-      dest: directory.dir.join(format!("libraries/{}", path)),
-      filename: Some(library.name.clone()),
-      sha1,
-    }));
-  }
+  let subdirs = get_instance_subdir_paths(
+    &app,
+    &instance,
+    &[&InstanceSubdirType::Libraries, &InstanceSubdirType::Assets],
+  )
+  .ok_or(InstanceError::InstanceNotFoundByID)?;
+  let [libraries_dir, assets_dir] = subdirs.as_slice() else {
+    return Err(InstanceError::InstanceNotFoundByID.into());
+  };
+
+  // We only download libraries if they are invalid (not already downloaded)
+  task_params.extend(
+    get_invalid_library_files(priority_list[0], libraries_dir, &version_info, false).await?,
+  );
 
   // Download asset index
-  let asset_index = client
-    .get(version_info.asset_index.url)
+  let asset_index_raw = client
+    .get(version_info.asset_index.url.clone())
     .send()
     .await
     .map_err(|_| InstanceError::NetworkError)?
-    .json::<Value>()
+    .json::<serde_json::Value>()
     .await
     .map_err(|_| InstanceError::AssetIndexParseError)?;
-  let asset_index_path = directory.dir.join("assets/indexes");
+
+  let asset_index_path = assets_dir.join("indexes");
+
   fs::create_dir_all(&asset_index_path).map_err(|_| InstanceError::FolderCreationFailed)?;
   fs::write(
-    &asset_index_path.join(format!("{}.json", version_info.asset_index.id)),
-    asset_index.to_string(),
+    asset_index_path.join(format!("{}.json", version_info.asset_index.id)),
+    asset_index_raw.to_string(),
   )
   .map_err(|_| InstanceError::FileCreationFailed)?;
 
-  // Download assets (use task)
-  let assets_download_api = get_download_api(priority_list[0], ResourceType::Assets)?;
-  let objects = asset_index["objects"]
-    .as_object()
-    .ok_or(InstanceError::AssetIndexParseError)?;
-  for (_, value) in objects {
-    let hash = value["hash"]
-      .as_str()
-      .ok_or(InstanceError::AssetIndexParseError)?;
-    let path = format!("{}/{}", &hash[..2], hash);
-    let dest = directory.dir.join(format!("assets/objects/{}", path));
-    if dest.exists() {
-      continue;
-    }
-    task_params.push(PTaskParam::Download(DownloadParam {
-      src: assets_download_api
-        .join(&path)
-        .map_err(|_| InstanceError::ClientJsonParseError)?,
-      dest,
-      filename: None,
-      sha1: Some(hash.to_string()),
-    }));
-  }
+  // We only download assets if they are invalid (not already downloaded)
+  let asset_index: AssetIndex =
+    serde_json::from_value(asset_index_raw).map_err(|_| InstanceError::AssetIndexParseError)?;
+  task_params.extend(get_invalid_assets(priority_list[0], assets_dir, &asset_index, false).await?);
 
   schedule_progressive_task_group(
     app.clone(),
-    format!("game-client-download:{}", name),
+    format!("game-client?{}", name),
     task_params,
     true,
   )
   .await?;
 
   if instance.mod_loader.loader_type != ModLoaderType::Unknown {
-    let vjson_path = directory
-      .dir
-      .join(format!("versions/{}/{}.json", name, name));
-
-    let mut version_json: Value = serde_json::from_slice(&std::fs::read(&vjson_path)?)?;
-
     install_mod_loader(
-      app,
+      app.clone(),
       client,
       &priority_list,
       &instance.version,
       &instance.mod_loader,
-      &name,
-      directory.dir.join("libraries"),
-      &mut version_json,
+      libraries_dir.to_path_buf(),
+      &mut version_info,
     )
     .await?;
 
-    std::fs::write(&vjson_path, serde_json::to_vec_pretty(&version_json)?)?;
+    fs::write(
+      &version_info_path,
+      serde_json::to_vec_pretty(&version_info)?,
+    )
+    .map_err(|_| InstanceError::FileCreationFailed)?;
   }
-
   Ok(())
 }
 
 #[tauri::command]
-pub async fn finish_loader_install(
+pub async fn mark_mod_loader_library_downloaded(
   app: AppHandle,
-  directory: GameDirectory,
-  name: String,
-  game: GameClientResourceInfo,
-  mod_loader: ModLoader,
+  instance_id: String,
 ) -> SJMCLResult<()> {
-  let inst_name = name.clone();
-  let lib_dir = directory.dir.join("libraries");
-  let vjson_path = directory
-    .dir
-    .join(format!("versions/{}/{}.json", name, name));
+  let instance = {
+    let binding = app.state::<Mutex<HashMap<String, Instance>>>();
+    let mut state = binding.lock().unwrap();
+    let instance = state
+      .get_mut(&instance_id)
+      .ok_or(InstanceError::InstanceNotFoundByID)?;
 
-  let mut version_json: Value = serde_json::from_slice(&std::fs::read(&vjson_path)?)?;
+    instance.mod_loader.library_downloaded = true;
+    instance.clone()
+  };
+  instance.save_json_cfg().await?;
 
-  match mod_loader.loader_type {
-    ModLoaderType::Fabric => Ok(()),
-    ModLoaderType::Forge => {
-      finish_forge_install(
-        app,
-        &game.id,
-        &mod_loader,
-        &inst_name,
-        lib_dir,
-        &mut version_json,
-      )
-      .await
-    }
-    ModLoaderType::NeoForge => {
-      finish_neoforge_install(app, &mod_loader, &inst_name, lib_dir, &mut version_json).await
-    }
-    _ => Ok(()),
-  }
+  Ok(())
 }

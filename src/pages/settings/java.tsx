@@ -1,4 +1,4 @@
-import { Flex, HStack, Tag, Text } from "@chakra-ui/react";
+import { Flex, HStack, Tag, Text, useDisclosure } from "@chakra-ui/react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import React, { useEffect, useState } from "react";
@@ -8,6 +8,7 @@ import { CommonIconButton } from "@/components/common/common-icon-button";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
+import { DownloadJavaModal } from "@/components/modals/download-java-modal";
 import { useLauncherConfig } from "@/contexts/config";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { useToast } from "@/contexts/toast";
@@ -27,6 +28,12 @@ const JavaSettingsPage = () => {
   useEffect(() => {
     setJavaInfos(getJavaInfos() || []);
   }, [getJavaInfos]);
+
+  const {
+    isOpen: isDownloadJavaModalOpen,
+    onOpen: onDownloadJavaModalOpen,
+    onClose: onDownloadJavaModalClose,
+  } = useDisclosure();
 
   const handleAddJavaPath = async () => {
     const newJavaPath = await open({
@@ -116,6 +123,7 @@ const JavaSettingsPage = () => {
     {
       icon: "download",
       label: t("JavaSettingsPage.javaList.download"),
+      onClick: () => onDownloadJavaModalOpen(),
     },
     {
       icon: "refresh",
@@ -213,6 +221,10 @@ const JavaSettingsPage = () => {
           <Empty withIcon={false} size="sm" />
         )}
       </Section>
+      <DownloadJavaModal
+        isOpen={isDownloadJavaModalOpen}
+        onClose={onDownloadJavaModalClose}
+      />
     </>
   );
 };

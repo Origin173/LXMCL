@@ -72,6 +72,7 @@ pub async fn run() {
       launcher_config::commands::retrieve_java_list,
       launcher_config::commands::validate_java,
       launcher_config::commands::check_game_directory,
+      launcher_config::commands::clear_download_cache,
       account::commands::retrieve_player_list,
       account::commands::add_player_offline,
       account::commands::fetch_oauth_code,
@@ -109,11 +110,16 @@ pub async fn run() {
       instance::commands::retrieve_screenshot_list,
       instance::commands::toggle_mod_by_extension,
       instance::commands::create_launch_desktop_shortcut,
+      instance::commands::mark_mod_loader_library_downloaded,
       launch::commands::select_suitable_jre,
       launch::commands::validate_game_files,
       launch::commands::validate_selected_player,
       launch::commands::launch_game,
       launch::commands::cancel_launch_process,
+      launch::commands::open_game_log_window,
+      launch::commands::retrieve_game_log,
+      launch::commands::retrieve_game_launching_state,
+      launch::commands::export_game_crash_info,
       resource::commands::fetch_game_version_list,
       resource::commands::fetch_mod_loader_version_list,
       resource::commands::fetch_resource_list_by_name,
@@ -175,8 +181,8 @@ pub async fn run() {
       let client = build_sjmcl_client(app.handle(), true, false);
       app.manage(client);
 
-      let launching = LaunchingState::default();
-      app.manage(Mutex::new(launching));
+      let launching_queue = Vec::<LaunchingState>::new();
+      app.manage(Mutex::new(launching_queue));
 
       // check if full account feature (offline and 3rd-party login) is available
       let app_handle = app.handle().clone();

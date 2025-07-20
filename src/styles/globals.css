@@ -20,6 +20,10 @@ body[use-custom-font] {
   font-family: var(--custom-global-font-family, inherit) !important;
 }
 
+body img {
+  -webkit-user-drag: none;
+}
+
 
 /* scrollbar */
 ::-webkit-scrollbar {

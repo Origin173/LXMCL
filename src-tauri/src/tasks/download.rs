@@ -1,12 +1,12 @@
 use crate::error::{SJMCLError, SJMCLResult};
 use crate::launcher_config::commands::retrieve_launcher_config;
+use crate::utils::fs::validate_sha1;
 use crate::utils::web::build_sjmcl_client;
 
 use async_speed_limit::Limiter;
 use futures::stream::TryStreamExt;
 use futures::StreamExt;
 use serde::{Deserialize, Serialize};
-use sha1::{Digest, Sha1};
 use std::error::Error;
 use std::future::Future;
 use std::path::PathBuf;
@@ -127,7 +127,8 @@ impl DownloadTask {
     current: i64,
     param: &DownloadParam,
   ) -> SJMCLResult<reqwest::Response> {
-    let client = with_retry(build_sjmcl_client(app_handle, true, false));
+    let state = app_handle.state::<reqwest::Client>();
+    let client = with_retry(state.inner().clone());
     let request = if current == 0 {
       client
         .get(param.src.clone())
@@ -174,33 +175,6 @@ impl DownloadTask {
     ))
   }
 
-  fn validate_sha1(dest_path: PathBuf, param: DownloadParam) -> SJMCLResult<()> {
-    let mut f = std::fs::File::options()
-      .read(true)
-      .create(false)
-      .write(false)
-      .open(&dest_path)
-      .unwrap();
-    let mut hasher = Sha1::new();
-    std::io::copy(&mut f, &mut hasher).unwrap();
-    match param.sha1 {
-      Some(truth) => {
-        let sha1 = hex::encode(hasher.finalize());
-        if sha1 != truth {
-          Err(SJMCLError(format!(
-            "SHA1 mismatch for {}: expected {}, got {}",
-            dest_path.display(),
-            truth,
-            sha1
-          )))
-        } else {
-          Ok(())
-        }
-      }
-      None => Ok(()),
-    }
-  }
-
   async fn future_impl(
     self,
     app_handle: AppHandle,
@@ -241,7 +215,10 @@ impl DownloadTask {
           tokio::fs::remove_file(&self.dest_path).await?;
           Ok(())
         } else {
-          Self::validate_sha1(dest_path, param.clone())
+          match param.sha1 {
+            Some(truth) => validate_sha1(param.dest, truth),
+            None => Ok(()),
+          }
         }
       },
       handle,

@@ -8,6 +8,7 @@ import {
   Text,
   Tooltip,
 } from "@chakra-ui/react";
+import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuChevronsDown, LuFileInput, LuTrash } from "react-icons/lu";
@@ -15,6 +16,7 @@ import Empty from "@/components/common/empty";
 import { useLauncherConfig } from "@/contexts/config";
 import { LaunchService } from "@/services/launch";
 import styles from "@/styles/game-log.module.css";
+import { parseIdFromWindowLabel } from "@/utils/window";
 
 const GameLogPage: React.FC = () => {
   const { t } = useTranslation();
@@ -30,11 +32,26 @@ const GameLogPage: React.FC = () => {
     INFO: true,
     DEBUG: true,
   });
-  const [isUserInteracting, setIsUserInteracting] = useState(false); // Track user interaction (scroll, select)
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
+
   const logContainerRef = useRef<HTMLDivElement>(null);
 
   const clearLogs = () => setLogs([]);
 
+  // invoke retrieve on first load
+  useEffect(() => {
+    (async () => {
+      let launchingId = parseIdFromWindowLabel(getCurrentWebview().label);
+      if (launchingId) {
+        const res = await LaunchService.retrieveGameLog(launchingId);
+        if (res.status === "success" && Array.isArray(res.data)) {
+          setLogs(res.data);
+        }
+      }
+    })();
+  }, []);
+
+  // keep listening to game process output
   useEffect(() => {
     const unlisten = LaunchService.onGameProcessOutput((payload) => {
       setLogs((prevLogs) => [...prevLogs, payload]);
@@ -42,14 +59,27 @@ const GameLogPage: React.FC = () => {
     return () => unlisten();
   }, []);
 
+  let lastLevel: string = "INFO";
+
   const getLogLevel = (log: string): string => {
-    for (const keyword of Object.keys(filterStates)) {
-      const index = log.indexOf(keyword);
-      if (index !== -1) {
-        return keyword;
-      }
+    const match = log.match(
+      /\[\d{2}:\d{2}:\d{2}]\s+\[.*?\/(INFO|WARN|ERROR|DEBUG|FATAL)]/i
+    );
+    if (match) {
+      lastLevel = match[1].toUpperCase();
+      return lastLevel;
     }
 
+    if (/^\s+at /.test(log) || /^\s+Caused by:/.test(log) || /^\s+/.test(log)) {
+      return lastLevel;
+    }
+
+    if (/exception|error|invalid|failed/i.test(log)) {
+      lastLevel = "ERROR";
+      return "ERROR";
+    }
+
+    lastLevel = lastLevel || "INFO";
     return "INFO";
   };
 
@@ -93,18 +123,18 @@ const GameLogPage: React.FC = () => {
     }
   };
 
-  const isAtBottom = () => {
-    if (logContainerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = logContainerRef.current;
-      return scrollHeight - scrollTop - clientHeight < 1;
-    }
-    return false;
+  const handleScroll = () => {
+    if (!logContainerRef.current) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = logContainerRef.current;
+    const atBottom = scrollHeight - scrollTop - clientHeight < 1;
+    setIsScrolledToBottom(atBottom);
   };
 
   // Auto scroll to bottom if user not interacted
   useEffect(() => {
-    if (!isUserInteracting) scrollToBottom();
-  }, [filteredLogs, isUserInteracting]);
+    if (isScrolledToBottom) scrollToBottom();
+  }, [filteredLogs, isScrolledToBottom]);
 
   return (
     <Box p={4} h="100vh" display="flex" flexDirection="column">
@@ -166,8 +196,7 @@ const GameLogPage: React.FC = () => {
         p={2}
         flex="1"
         className={`${styles["log-list-container"]}`}
-        onScroll={() => setIsUserInteracting(!isAtBottom())}
-        onMouseDown={() => setIsUserInteracting(true)}
+        onScroll={handleScroll}
       >
         {filteredLogs.length > 0 ? (
           filteredLogs.map((log, index) => {
@@ -187,7 +216,7 @@ const GameLogPage: React.FC = () => {
           <Empty colorScheme="gray" withIcon={false} />
         )}
 
-        {!isAtBottom() && (
+        {!isScrolledToBottom && (
           <Button
             position="absolute"
             bottom={7}
@@ -197,7 +226,6 @@ const GameLogPage: React.FC = () => {
             boxShadow="md"
             onClick={() => {
               scrollToBottom();
-              setIsUserInteracting(false);
             }}
             leftIcon={<LuChevronsDown />}
           >

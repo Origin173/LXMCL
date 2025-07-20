@@ -110,7 +110,7 @@ pub async fn download_game_server(
 
   schedule_progressive_task_group(
     app,
-    format!("game-server-download:{}", resource_info.id),
+    format!("game-server?{}", resource_info.id),
     vec![PTaskParam::Download(DownloadParam {
       src: url::Url::parse(&download_info.url.clone()).map_err(|_| ResourceError::ParseError)?,
       dest: dest.clone().into(),

@@ -185,9 +185,15 @@ pub async fn refresh_instances(
       name,
       version: game_version.unwrap_or_default(),
       version_path,
-      mod_loader: ModLoader {
-        loader_type,
-        version: loader_version.unwrap_or_default(),
+      mod_loader: if !cfg_read.mod_loader.library_downloaded {
+        // pass mod loader check if download is not ready
+        cfg_read.mod_loader
+      } else {
+        ModLoader {
+          loader_type,
+          version: loader_version.unwrap_or_default(),
+          library_downloaded: true,
+        }
       },
       ..cfg_read
     };

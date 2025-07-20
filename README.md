@@ -5,6 +5,8 @@
 ![Stars](https://img.shields.io/github/stars/UNIkeEN/SJMCL?style=for-the-badge)
 [![Deepwiki](https://img.shields.io/badge/Ask-DeepWiki-20B2AA?logo=&style=for-the-badge)](https://deepwiki.com/UNIkeEN/SJMCL)
 
+**English** · [简体中文](docs/README.zh-Hans.md)
+
 ## Features
 
 * **Cross Platform**: Supports Windows 10/11, macOS and Linux.

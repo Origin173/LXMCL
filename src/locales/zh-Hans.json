@@ -285,6 +285,12 @@
       }
     }
   },
+  "ClearDownloadCacheAlertDialog": {
+    "dialog": {
+      "title": "清除下载缓存",
+      "content": "确定要清除下载缓存吗？此操作无法撤销。"
+    }
+  },
   "ComingSoonSign": {
     "text": "该页面暂未开放，敬请期待"
   },
@@ -366,6 +372,7 @@
   },
   "DiscoverPage": {
     "title": "发现",
+    "noMore": "无更多内容",
     "button": {
       "sources": "管理数据源"
     }
@@ -378,6 +385,17 @@
     "tag": {
       "online": "在线"
     }
+  },
+  "DownloadJavaModal": {
+    "header": {
+      "title": "下载 Java"
+    },
+    "selector": {
+      "vendor": "发行方",
+      "version": "版本",
+      "type": "类型"
+    },
+    "warning": "从 Oracle 源下载可能需要登录"
   },
   "DownloadModpackModal": {
     "header": {
@@ -432,6 +450,11 @@
           "title": "下载缓存目录",
           "select": "修改",
           "open": "打开"
+        },
+        "clear": {
+          "title": "清除下载缓存",
+          "description": "清除下载缓存目录中的所有文件，此操作不会清除已下载的资源文件。",
+          "button": "清除缓存"
         }
       }
     },
@@ -482,10 +505,16 @@
       "cancelled": "已取消"
     },
     "task": {
-      "game-client-download": "游戏客户端 {{param}}",
-      "game-server-download": "游戏服务端 {{param}}",
-      "game-resource-download": "资源包",
-      "retry": "重试任务"
+      "game-client": "游戏客户端 {{param}}",
+      "game-server": "游戏服务端 {{param}}",
+      "game-resource": "资源包",
+      "patch-files": "修补游戏文件 {{param}}",
+      "retry": "重试任务",
+      "fabric-loader": "Fabric 加载器 {{param}}",
+      "neoforge-installer": "NeoForge 安装器 {{param}}",
+      "neoforge-libraries": "NeoForge 运行库",
+      "forge-installer": "Forge 安装器 {{param}}",
+      "forge-libraries": "Forge 运行库"
     }
   },
   "Editable": {
@@ -656,7 +685,62 @@
       "javaVersion": "Java 版本"
     },
     "crashDetails": {
-      "title": "崩溃信息"
+      "title": "崩溃信息",
+      "OPENJ9": "当前游戏无法在 OpenJ9 JVM 上运行，请使用 HotSpot JVM。",
+      "NEED_JDK11": "当前游戏使用了 JDK 11 特性，无法在当前虚拟机平台上运行，请选择 JDK 11 启动。",
+      "TOO_OLD_JAVA": "当前游戏由于过旧的 Java 版本而无法运行，建议使用最新的 Java 版本。",
+      "JVM_32BIT": "游戏内存分配过大，超过了 32 位 JVM 的限制。如果你的电脑是 64 位系统，请下载安装并更换 64 位 Java。",
+      "GL_OPERATION_FAILURE": "当前游戏由于你使用的某些模组/光影包/资源包/纹理包有问题，导致无法继续运行。请先尝试禁用你所使用的模组/光影包/资源包/纹理包再试。",
+      "OPENGL_NOT_SUPPORTED": "当前游戏由于你的显卡驱动不支持 OpenGL ，无法继续运行。请检查你的显卡驱动程序或尝试使用其他渲染器。",
+      "GRAPHICS_DRIVER": "当前游戏由于显卡驱动问题而崩溃，请更新显卡驱动程序。",
+      "MACOS_FAILED_TO_FIND_SERVICE_PORT_FOR_DISPLAY": "当前游戏由于 Apple Silicon 平台下初始化 OpenGL 窗口失败，无法继续运行。",
+      "OUT_OF_MEMORY": "当前游戏由于内存不足而崩溃，请尝试降低游戏内存分配或关闭其他程序。",
+      "MEMORY_EXCEEDED": "当前游戏由于内存分配超过限制而崩溃，请尝试降低游戏内存分配或关闭其他程序。",
+      "RESOLUTION_TOO_HIGH": "当前游戏由于分辨率过高而无法运行，请分辨率更低的资源包/纹理包再试。",
+      "JDK_9": "当前游戏使用了 JDK 9 特性，无法在当前虚拟机平台上运行，请选择 JDK 9 启动。",
+      "MAC_JDK_8U261": "当前游戏由于你所使用的 Forge/OptiFine 与 Java 冲突而崩溃。请尝试更新 Forge/OptiFine ，或使用 Java 8u251 及更早版本启动。",
+      "FILE_CHANGED": "当前游戏由于文件校验失败而无法运行，请检查文件完整性。",
+      "NO_SUCH_METHOD_ERROR": "当前游戏由于代码不完整，无法继续运行。你的游戏可能缺失了某个模组，或者某些模组文件不完整，或者模组与游戏的版本不匹配。你可能需要重新安装游戏和模组，或寻求他人帮助。",
+      "NO_CLASS_DEF_FOUND_ERROR": "当前游戏由于代码不完整，无法继续运行。你的游戏可能缺失了某个模组，或者某些模组文件不完整，或者模组与游戏的版本不匹配。你可能需要重新安装游戏和模组，或寻求他人帮助。",
+      "ILLEGAL_ACCESS_ERROR": "当前游戏由于某些模组的问题，无法继续运行，如果你认识 {{param1}}，你可以更新或删除对应模组再试。",
+      "DUPLICATED_MOD": "当前游戏由于模组 {{param1}} 重复安装，无法继续运行。请删除多余的模组再试。",
+      "MOD_RESOLUTION": "当前游戏由于模组依赖问题，无法继续运行。Fabric 提供了如下信息：{{param1}}",
+      "FORGEMOD_RESOLUTION": "当前游戏由于模组依赖问题，无法继续运行。Forge/NeoForge 提供了如下信息：{{param1}}",
+      "FORGE_FOUND_DUPLICATE_MODS": "当前游戏由于模组重复安装，无法继续运行，Forge/NeoForge 提供了如下信息：{{param1}}",
+      "MOD_RESOLUTION_CONFLICT": "当前游戏由于模组 {{param1}} 与 {{param2}} 冲突，无法继续运行。",
+      "MOD_RESOLUTION_MISSING": "当前游戏由于模组 {{param1}} 缺少前置模组 {{param2}}，无法继续运行。",
+      "MOD_RESOLUTION_MISSING_MINECRAFT": "当前游戏中模组 {{param1}} 需要 Minecraft {{param2}} 才能运行。",
+      "MOD_RESOLUTION_COLLECTION": "当前游戏由于模组 {{param1}} 缺少前置模组 {{param2}}，无法继续运行。",
+      "FILE_ALREADY_EXISTS": "当前游戏由于 {{param}} 已经存在，无法继续运行。如果你认为这个文件可以删除，你可以在备份这个文件后尝试删除它，并重新启动游戏。",
+      "LOADING_CRASHED_FORGE": "当前游戏由于模组 {{param1}} ({{param2}}) 错误，无法继续运行。你可以尝试删除或更新该模组以解决问题。",
+      "BOOTSTRAP_FAILED": "当前游戏由于模组 {{param1}} 出现问题，无法继续运行。你可以尝试删除或更新该模组以解决问题。",
+      "LOADING_CRASHED_FABRIC": "当前游戏由于模组 {{param1}} 错误，无法继续运行。你可以尝试删除或更新该模组以解决问题。",
+      "FABRIC_VERSION_0_12": "Fabric Loader 0.12 及更高版本与当前已经安装的模组可能不兼容，你需要将 Fabric Loader 降级至 0.11.7。",
+      "MODLAUNCHER_8": "当前游戏由于你所使用的 Forge 版本与当前使用的 Java 冲突而崩溃，请尝试更新 Forge 到 36.2.26 或更高版本或换用版本低于 1.8.0.320 的 Java。",
+      "DEBUG_CRASH": "当前游戏由于手动触发崩溃，无法继续运行。",
+      "CONFIG": "当前游戏由于无法解析模组 {{param1}} 的配置文件 {{param2}}，无法继续运行。",
+      "FABRIC_WARNINGS": "Fabric 提供了一些警告信息：{{param1}}",
+      "ENTITY": "当前游戏由于某个实体（类型为 {{param1}}，位于 {{param2}}）不能正常工作，无法继续运行。你可以尝试通过 MCEdit 工具删除该实体，或者直接删除相应的模组。",
+      "BLOCK": "当前游戏由于某个方块（类型为 {{param1}}，位于 {{param2}}）不能正常工作，无法继续运行。你可以尝试通过 MCEdit 工具删除该方块，或者直接删除相应的模组。",
+      "UNSATISFIED_LINK_ERROR": "当前游戏由于缺少本地库，无法继续运行。这些缺失文件包括：{{param1}}",
+      "OPTIFINE_IS_NOT_COMPATIBLE_WITH_FORGE": "当前游戏由于 OptiFine 与 Forge 不兼容，无法继续运行。请尝试使用 OptiFine 的最新版本或不使用 OptiFine。",
+      "MOD_FILES_ARE_DECOMPRESSED": "当前游戏由于模组文件已被解压缩，无法继续运行。请直接把整个模组文件放进模组文件夹中即可。",
+      "OPTIFINE_CAUSES_THE_WORLD_TO_FAIL_TO_LOAD": "当前游戏可能由于 OptiFine 而无法继续运行。该问题只在特定 OptiFine 版本中出现。",
+      "TOO_MANY_MODS_LEAD_TO_EXCEEDING_THE_ID_LIMIT": "当前游戏由于你所安装的模组过多，超出了游戏的 ID 限制，无法继续运行。请尝试安装 JEID 等修复模组，或删除部分大型模组。",
+      "MODMIXIN_FAILURE": "当前游戏由于某些模组注入失败，无法继续运行。请检查模组兼容性或尝试更换模组。",
+      "MIXIN_APPLY_MOD_FAILED": "当前游戏由于 Mixin 无法应用于模组 {{param1}}，无法继续运行。你可以尝试删除或更新该模组以解决问题。",
+      "FORGE_ERROR": "Forge/NeoForge 提供了错误信息：{{param1}}",
+      "MOD_RESOLUTION0": "当前游戏由于一些模组出现问题，无法继续运行。你可以查看日志寻找出错模组。",
+      "FORGE_REPEAT_INSTALLATION": "当前游戏由于 Forge 重复安装，无法继续运行。",
+      "OPTIFINE_REPEAT_INSTALLATION": "当前游戏由于 OptiFine 重复安装，无法继续运行。",
+      "JAVA_VERSION_IS_TOO_HIGH": "当前游戏由于 Java 版本过高，无法继续运行。请使用 Java 8 或更低版本。",
+      "INSTALL_MIXINBOOTSTRAP": "当前游戏由于 MixinBootstrap 未安装，无法继续运行。请安装 MixinBootstrap 并重试。",
+      "MOD_NAME": "当前游戏由于模组文件名称问题，无法继续运行。模组文件名称应只使用半角的大小写字母 (Aa~Zz)、数字 (0~9)、横线 (-)、下划线 (_)和点 (.)。请到模组文件夹中将所有不合规的模组文件名修改为上述合规字符。",
+      "INCOMPLETE_FORGE_INSTALLATION": "当前游戏由于 Forge 安装不完整，无法继续运行。请尝试重新安装 Forge。",
+      "NIGHT_CONFIG_FIXES": "当前游戏由于 Night Config 库的一些问题，无法继续运行。安装 Night Config Fixes 模组或许能帮助你解决这个问题。",
+      "SHADERS_MOD": "当前游戏由于同时安装了 OptiFine 和 Shaders 模组，无法继续运行。请尝试删除 Shaders 模组。",
+      "RTSS_FOREST_SODIUM": "当前游戏由于 RTSS 与 Sodium 不兼容，无法继续运行。",
+      "UNKNOWN": "暂时无法分析该错误，请查看游戏日志或导出错误崩溃报告。"
     },
     "button": {
       "exportGameInfo": "导出游戏崩溃报告",
@@ -727,6 +811,11 @@
     "refresh": "刷新",
     "revealFile": "在{{opener}}中显示",
     "search": "搜索",
+    "version": {
+      "dev": "开发版本",
+      "nightly": "夜间构建版本",
+      "beta": "测试版本"
+    },
     "viewOnWiki": "在 Minecraft Wiki 中查看"
   },
   "GeneralSettingsPage": {
@@ -1116,6 +1205,9 @@
       "now": "正在使用",
       "maxAllocation": "为 Minecraft 分配的最大值"
     }
+  },
+  "MenuSelector": {
+    "selectedCount": "已选 {{count}} 项"
   },
   "ModLoaderCards": {
     "installed": "已安装",
@@ -1559,6 +1651,16 @@
             "FETCH_ERROR": "服务器侧或未知错误"
           }
         }
+      },
+      "clearDownloadCache": {
+        "success": "下载缓存已清除",
+        "error": {
+          "title": "清除下载缓存失败",
+          "description": {
+            "HAS_ACTIVE_DOWNLOAD_TASKS": "当前有下载任务正在进行中，请稍后再试",
+            "FILE_DELETION_FAILED": "无法删除缓存文件，可能是文件正在被使用"
+          }
+        }
       }
     },
     "account": {
@@ -1737,7 +1839,10 @@
         "error": {
           "title": "验证游戏文件失败",
           "description": {
-            "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在"
+            "MOD_LOADER_LIB_NOT_DOWNLOADED": "模组加载器库文件未下载",
+            "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在",
+            "GAME_FILES_INCOMPLETE": "游戏文件不完整或缺失",
+            "LAUNCHING_STATE_NOT_FOUND": "启动状态丢失"
           }
         }
       },
@@ -1750,7 +1855,16 @@
             "NETWORK_ERROR": "无法连接到服务器",
             "PARSE_ERROR": "服务器返回的数据格式错误",
             "NO_DOWNLOAD_API": "下载 Authlib-Injector 失败，请检查网络连接",
-            "SAVE_ERROR": "保存 Authlib-Injector 失败"
+            "SAVE_ERROR": "保存 Authlib-Injector 失败",
+            "LAUNCHING_STATE_NOT_FOUND": "启动状态丢失"
+          }
+        }
+      },
+      "launchGame": {
+        "error": {
+          "title": "启动游戏失败",
+          "description": {
+            "LAUNCHING_STATE_NOT_FOUND": "启动状态丢失"
           }
         }
       }
@@ -1986,16 +2100,20 @@
             "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在"
           }
         }
+      },
+      "markModLoaderLibraryDownloaded": {
+        "success": "模组加载器运行库已下载",
+        "error": {
+          "title": "模组加载器运行库下载失败",
+          "description": {
+            "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在"
+          }
+        }
       }
     },
     "task": {
       "scheduleProgressiveTaskGroup": {
         "success": "任务创建成功"
-      },
-      "onProgressiveTaskUpdate": {
-        "error": {
-          "title": "任务 {{param}} 失败"
-        }
       }
     }
   },
@@ -2116,6 +2234,9 @@
       "part1": "欢迎使用 SJMCL！在开始使用之前，请务必阅读并同意我们的",
       "terms": "用户协议",
       "periods": "。"
+    },
+    "warning": {
+      "unstableVersion": "您正在使用{{versionLabel}}的 SJMCL，部分功能可能不稳定或未开发完成，欢迎报告使用问题与功能建议。"
     },
     "button": {
       "exit": "退出",

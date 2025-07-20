@@ -5,13 +5,13 @@ use super::{
   models::{GameDirectory, JavaInfo, LauncherConfig, LauncherConfigError},
 };
 use crate::{
-  error::SJMCLResult, instance::helpers::misc::refresh_instances,
+  error::SJMCLResult, instance::helpers::misc::refresh_instances, tasks::monitor::TaskMonitor,
   utils::string::camel_to_snake_case,
 };
 use crate::{storage::Storage, utils::fs::get_subdirectories};
-use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
+use std::{fs, pin::Pin};
 use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
@@ -276,4 +276,25 @@ pub async fn check_game_directory(app: AppHandle, dir: String) -> SJMCLResult<St
   }
 
   Ok("".to_string())
+}
+
+#[tauri::command]
+pub async fn clear_download_cache(app: AppHandle) -> SJMCLResult<()> {
+  let launcher_config = app.state::<Mutex<LauncherConfig>>();
+  let monitor = app.state::<Pin<Box<TaskMonitor>>>();
+
+  if monitor.has_active_download_tasks() {
+    return Err(LauncherConfigError::HasActiveDownloadTasks.into());
+  }
+
+  let cache_path = {
+    let config = launcher_config.lock()?;
+    config.download.cache.directory.clone()
+  };
+
+  std::fs::remove_dir_all(&cache_path).map_err(|_| LauncherConfigError::FileDeletionFailed)?;
+  // recreate the cache directory
+  std::fs::create_dir_all(&cache_path).map_err(|_| LauncherConfigError::FileDeletionFailed)?;
+
+  Ok(())
 }

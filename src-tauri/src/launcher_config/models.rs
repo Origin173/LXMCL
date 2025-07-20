@@ -318,6 +318,8 @@ pub enum LauncherConfigError {
   GameDirAlreadyAdded,
   GameDirNotExist,
   JavaExecInvalid,
+  HasActiveDownloadTasks,
+  FileDeletionFailed,
 }
 
 impl std::error::Error for LauncherConfigError {}

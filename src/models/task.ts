@@ -49,9 +49,8 @@ export interface TaskDesc {
 export interface TaskGroupDesc {
   taskDescs: TaskDesc[];
   taskGroup: string;
-  status?: TaskDescStatusEnums;
-  current?: number; // current progress in bytes
-  total?: number; // total size in bytes
+  status: GTaskEventStatusEnums;
+  finishedCount?: number;
   progress?: number;
   reason?: string;
   estimatedTime?: Duration; // estimated time remaining in seconds
@@ -118,4 +117,21 @@ export interface PTaskEventPayload {
     | FailedPTaskEventStatus
     | StoppedPTaskEventStatus
     | CancelledPTaskEventStatus;
+}
+
+export enum GTaskEventStatusEnums {
+  Started = "Started",
+  Failed = "Failed",
+  Completed = "Completed",
+  Stopped = "Stopped",
+  Cancelled = "Cancelled",
+}
+
+export interface GTaskEventStatus {
+  status: GTaskEventStatusEnums;
+}
+
+export interface GTaskEventPayload {
+  taskGroup: string;
+  event: GTaskEventStatus;
 }

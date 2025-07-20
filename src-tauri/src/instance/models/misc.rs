@@ -5,10 +5,24 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::{
   cmp::{Ord, Ordering, PartialOrd},
+  collections::HashMap,
   path::PathBuf,
   str::FromStr,
 };
 use strum_macros::Display;
+
+#[derive(Debug, Deserialize, Serialize, Default, Clone)]
+#[serde(default)]
+pub struct AssetIndex {
+  pub objects: HashMap<String, AssetIndexItem>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Default, Clone)]
+#[serde(default)]
+pub struct AssetIndexItem {
+  pub hash: String,
+  pub size: i64,
+}
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum InstanceSubdirType {
@@ -80,6 +94,7 @@ structstruck::strike! {
     pub version: String,
     pub version_path: PathBuf,
     pub mod_loader: struct {
+      pub library_downloaded: bool,
       pub loader_type: ModLoaderType,
       pub version: String,
     },
@@ -202,6 +217,7 @@ pub enum InstanceError {
   ServerNbtReadError,
   FileNotFoundError,
   InvalidSourcePath,
+  InvalidModLoaderType,
   FileCreationFailed,
   FileCopyFailed,
   FileMoveFailed,
@@ -215,7 +231,10 @@ pub enum InstanceError {
   InvalidNameError,
   ClientJsonParseError,
   AssetIndexParseError,
+  InstallProfileParseError,
+  ModLoaderVersionParseError,
   NetworkError,
+  UnsupportedModLoader,
 }
 
 impl std::error::Error for InstanceError {}

@@ -25,7 +25,7 @@ const DevTestPage = () => {
 
   return (
     <VStack align="start" spacing={4}>
-      <Alert status="warning" fontSize="sm" variant="left-accent">
+      <Alert status="warning" fontSize="xs-sm" borderRadius="md">
         <AlertIcon />
         This Page is only for developer to test components and etc. It will not
         shown in production mode.

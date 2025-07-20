@@ -96,7 +96,7 @@ where
   }
 
   pub fn stop(&mut self) {
-    if self.status == PStatus::InProgress {
+    if self.status == PStatus::InProgress || self.status == PStatus::Waiting {
       self.status = PStatus::Stopped
     }
   }
@@ -122,7 +122,7 @@ where
 
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct PGroupDesc<T>
+pub struct GDesc<T>
 where
   T: Clone + Serialize,
 {

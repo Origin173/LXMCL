@@ -12,11 +12,12 @@ use std::{collections::HashMap, str::FromStr};
 #[serde(rename_all = "camelCase", default)]
 pub struct McClientInfo {
   pub id: String,
+  pub inherits_from: Option<String>,
 
   pub arguments: Option<LaunchArgumentTemplate>, // new version
   pub minecraft_arguments: Option<String>,       // old version
 
-  pub asset_index: AssetIndex,
+  pub asset_index: AssetIndexInfo,
   pub assets: String,
   pub downloads: HashMap<String, DownloadsValue>,
   pub libraries: Vec<LibrariesValue>,
@@ -38,9 +39,10 @@ pub struct PatchesInfo {
   pub id: String,
   pub version: String,
   pub priority: i64,
+  pub inherits_from: Option<String>,
   pub arguments: LaunchArgumentTemplate,
   pub main_class: String,
-  pub asset_index: AssetIndex,
+  pub asset_index: AssetIndexInfo,
   pub assets: String,
   pub downloads: HashMap<String, DownloadsValue>,
   pub libraries: Vec<LibrariesValue>,
@@ -214,11 +216,11 @@ pub struct FeaturesInfo {
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 #[serde(rename_all = "camelCase", default)]
-pub struct AssetIndex {
+pub struct AssetIndexInfo {
   pub id: String,
   pub sha1: String,
   pub size: i64,
-  pub total_size: Option<i64>, // Optional for legacy versions
+  pub total_size: i64,
   pub url: String,
 }
 

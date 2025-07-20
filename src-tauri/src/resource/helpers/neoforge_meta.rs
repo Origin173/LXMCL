@@ -133,7 +133,13 @@ async fn get_neoforge_meta_by_game_version_bmcl(
         if let Ok(mut manifest) = response.json::<Vec<NeoforgeMetaItem>>().await {
           manifest.sort_by(|a, b| {
             let parse_version = |v: &str| {
-              v.split('.')
+              let stripped = if game_version == "1.20.1" {
+                v.strip_prefix("1.20.1-").unwrap_or(v)
+              } else {
+                v
+              };
+              stripped
+                .split('.')
                 .flat_map(|part| part.split('-'))
                 .map(|s| s.parse::<i32>().unwrap_or(0))
                 .collect::<Vec<_>>()

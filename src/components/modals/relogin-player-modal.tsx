@@ -14,6 +14,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import OAuthLoginPanel from "@/components/oauth-login-panel";
@@ -55,7 +56,9 @@ const ReLoginPlayerModal: React.FC<ReLoginPlayerModalProps> = ({
   const handleReLogin = async (isOAuth = false) => {
     setIsLoading(true);
     if (isOAuth) {
-      AccountService.reloginPlayerOAuth(player.id, oauthCodeResponse!).then(
+      if (!oauthCodeResponse) return;
+      openUrl(oauthCodeResponse.verificationUri);
+      AccountService.reloginPlayerOAuth(player.id, oauthCodeResponse).then(
         (response) => {
           if (response.status === "success") {
             toast({

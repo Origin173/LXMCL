@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertIcon,
   Button,
   HStack,
   Image,
@@ -31,6 +33,11 @@ const WelcomeAndTermsModal: React.FC<Omit<ModalProps, "children">> = ({
     props.onClose();
   };
 
+  const unstableVersionLabels = ["dev", "nightly", "beta"];
+  const matchedVersionLabel = unstableVersionLabels.find((k) =>
+    config.basicInfo.launcherVersion.includes(k)
+  );
+
   return (
     <Modal
       autoFocus={false}
@@ -51,13 +58,23 @@ const WelcomeAndTermsModal: React.FC<Omit<ModalProps, "children">> = ({
             <Link
               color={`${primaryColor}.500`}
               onClick={() => {
-                openUrl("https://mc.sjtu.cn/sjmcl-tos/");
+                openUrl(
+                  t("AboutSettingsPage.legalInfo.settings.userAgreement.url")
+                );
               }}
             >
               {t("WelcomeAndTermsModal.body.terms")}
             </Link>
             {t("WelcomeAndTermsModal.body.periods")}
           </Text>
+          {matchedVersionLabel && (
+            <Alert status="warning" mt={3} fontSize="xs-sm" borderRadius="md">
+              <AlertIcon />
+              {t("WelcomeAndTermsModal.warning.unstableVersion", {
+                versionLabel: t(`General.version.${matchedVersionLabel}`),
+              })}
+            </Alert>
+          )}
         </ModalBody>
         <ModalFooter w="100%">
           <HStack spacing={2}>

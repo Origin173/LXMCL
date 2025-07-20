@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
+import { LaunchingState } from "@/models/launch";
 import { InvokeResponse } from "@/models/response";
 import { responseHandler } from "@/utils/response";
 
@@ -55,6 +56,55 @@ export class LaunchService {
   @responseHandler("launch")
   static async cancelLaunchProcess(): Promise<InvokeResponse<void>> {
     return await invoke("cancel_launch_process");
+  }
+
+  /**
+   * OPEN the game log window during instance runtime.
+   * @param log_label The label of the game log.
+   * @returns {Promise<InvokeResponse<void>>}
+   */
+  @responseHandler("launch")
+  static async openGameLogWindow(
+    logLabel: string
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("open_game_log_window", { logLabel });
+  }
+
+  /**
+   * RETRIEVE the game log content according to the specified log label.
+   * Typically used when opening the game log window for the first time during instance runtime.
+   * @param id The id of the launching state.
+   * @returns {Promise<InvokeResponse<string[]>>}
+   */
+  @responseHandler("launch")
+  static async retrieveGameLog(id: number): Promise<InvokeResponse<string[]>> {
+    return await invoke("retrieve_game_log", { id });
+  }
+
+  /**
+   * RETRIEVE the game launching state.
+   * This command is usually called by the game error window when game process crashed.
+   * @param id The id of the launching state to retrieve.
+   * @returns {Promise<InvokeResponse<LaunchingState>>} The current game launching state.
+   */
+  @responseHandler("launch")
+  static async retrieveGameLaunchingState(
+    id: number
+  ): Promise<InvokeResponse<LaunchingState>> {
+    return await invoke("retrieve_game_launching_state", { id });
+  }
+
+  /**
+   * EXPORT the game crash info to a zip file and reveal it in the file explorer.
+   * This command is usually called by the game error window when game process crashed.
+   * @param id The id of the launching state to export.
+   * @returns {Promise<InvokeResponse<string>>} The path of the exported zip file.
+   */
+  @responseHandler("launch")
+  static async exportGameCrashInfo(
+    id: number
+  ): Promise<InvokeResponse<string>> {
+    return await invoke("export_game_crash_info", { id });
   }
 
   /**

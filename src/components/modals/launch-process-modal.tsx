@@ -22,6 +22,7 @@ import {
   Stepper,
   Text,
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuX } from "react-icons/lu";
@@ -45,6 +46,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
   ...props
 }) => {
   const { t } = useTranslation();
+  const router = useRouter();
   const toast = useToast();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
@@ -63,7 +65,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
     );
   }, [getInstanceList, instanceId]);
 
-  const handleCloseModal = useCallback(() => {
+  const handleCloseModalWithCancel = useCallback(() => {
     LaunchService.cancelLaunchProcess();
     setErrorPaused(false);
     props.onClose();
@@ -87,9 +89,17 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
       {
         label: "validateGameFiles",
         function: () => LaunchService.validateGameFiles(),
-        isOK: (data: any) => data && data.length === 0,
+        isOK: (data: any) => true,
         onResCallback: (data: any) => {}, // TODO
-        onErrCallback: (error: ResponseError) => {}, // TODO
+        onErrCallback: (error: ResponseError) => {
+          handleCloseModalWithCancel();
+          toast({
+            title: error.message,
+            description: error.details,
+            status: "error",
+          });
+          router.push("/downloads");
+        }, // TODO
       },
       {
         label: "validateSelectedPlayer",
@@ -127,7 +137,15 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
       },
       // TODO: progress bar in last step, and cancel logic
     ],
-    [activeStep, instanceId, openSharedModal, selectedPlayer, setActiveStep]
+    [
+      activeStep,
+      handleCloseModalWithCancel,
+      instanceId,
+      openSharedModal,
+      router,
+      selectedPlayer,
+      toast,
+    ]
   );
 
   useEffect(() => {
@@ -136,13 +154,14 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
         title: t("LaunchProcessModal.toast.noSelectedPlayer"),
         status: "warning",
       });
-      handleCloseModal();
+      handleCloseModalWithCancel();
       return;
     }
     if (activeStep >= launchProcessSteps.length) {
-      handleCloseModal();
+      // Final launching state, we don't use handleCloseModalWithCancel
+      setErrorPaused(false);
+      props.onClose();
       return;
-      // TODO
     }
     const currentStep = launchProcessSteps[activeStep];
 
@@ -167,7 +186,8 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
     activeStep,
     setActiveStep,
     launchProcessSteps,
-    handleCloseModal,
+    handleCloseModalWithCancel,
+    props,
     selectedPlayer,
     t,
     toast,
@@ -179,7 +199,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
       closeOnEsc={false}
       closeOnOverlayClick={false}
       {...props}
-      onClose={handleCloseModal}
+      onClose={handleCloseModalWithCancel}
     >
       <ModalOverlay />
       <ModalContent>
@@ -234,7 +254,7 @@ const LaunchProcessModal: React.FC<LaunchProcessModal> = ({
           </Stepper>
         </ModalBody>
         <ModalFooter>
-          <Button variant="ghost" onClick={handleCloseModal}>
+          <Button variant="ghost" onClick={handleCloseModalWithCancel}>
             {t("General.cancel")}
           </Button>
         </ModalFooter>

@@ -1,11 +1,14 @@
 use crate::error::{SJMCLError, SJMCLResult};
 use crate::utils::portable::is_portable;
 use regex::Regex;
+use sha1::{Digest, Sha1};
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 use std::{fs, io};
 use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager};
+use zip::write::{ExtendedFileOptions, FileOptions};
+use zip::{CompressionMethod, ZipWriter};
 
 /// Recursively copies the contents of a source directory to a destination directory.
 ///
@@ -204,7 +207,7 @@ pub fn get_app_resource_filepath(
   app
     .path()
     .resolve(relative_path, dir)
-    .map_err(|e| io::Error::new(io::ErrorKind::Other, e))
+    .map_err(io::Error::other)
 }
 
 /// Creates a cross-platform desktop shortcut that points to a URL (include deeplink).
@@ -368,4 +371,60 @@ Terminal=false
   }
 
   Ok(())
+}
+
+pub fn validate_sha1(dest_path: PathBuf, truth: String) -> SJMCLResult<()> {
+  let mut f = std::fs::File::options()
+    .read(true)
+    .create(false)
+    .write(false)
+    .open(&dest_path)
+    .map_err(|e| {
+      SJMCLError(format!(
+        "Failed to open file {}: {}",
+        dest_path.display(),
+        e
+      ))
+    })?;
+  let mut hasher = Sha1::new();
+  std::io::copy(&mut f, &mut hasher)
+    .map_err(|e| SJMCLError(format!("Failed to copy data for SHA1 validation: {}", e)))?;
+
+  let sha1 = hex::encode(hasher.finalize());
+  if sha1 != truth {
+    Err(SJMCLError(format!(
+      "SHA1 mismatch for {}: expected {}, got {}",
+      dest_path.display(),
+      truth,
+      sha1
+    )))
+  } else {
+    Ok(())
+  }
+}
+
+pub fn create_zip_from_dirs(paths: Vec<PathBuf>, zip_file_path: PathBuf) -> SJMCLResult<String> {
+  let zip_file = std::fs::File::create(&zip_file_path)
+    .map_err(|e| SJMCLError(format!("Failed to create zip file: {}", e)))?;
+  let mut zip = ZipWriter::new(zip_file);
+  let options = FileOptions::<ExtendedFileOptions>::default()
+    .compression_method(CompressionMethod::Deflated)
+    .unix_permissions(0o755);
+
+  for path in paths {
+    if path.is_file() {
+      let file_name = path.file_name().and_then(OsStr::to_str).unwrap_or_default();
+      zip.start_file(file_name, options.clone())?;
+      let mut file = std::fs::File::open(&path)
+        .map_err(|e| SJMCLError(format!("Failed to open file {}: {}", path.display(), e)))?;
+      std::io::copy(&mut file, &mut zip)
+        .map_err(|e| SJMCLError(format!("Failed to copy data to zip: {}", e)))?;
+    }
+  }
+
+  zip
+    .finish()
+    .map_err(|e| SJMCLError(format!("Failed to finalize zip file: {}", e)))?;
+
+  Ok(zip_file_path.to_string_lossy().to_string())
 }
