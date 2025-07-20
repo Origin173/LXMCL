@@ -39,7 +39,6 @@ SJMCL currently supports the following platforms:
 
 To learn about how to use SJMCL’s features and browse frequently asked questions, please refer to the [User Documentation](https://mc.sjtu.cn/sjmcl/en/docs).
 
-
 ## Development and Contributing
 
 To get started, clone the repository and install the required dependencies:
@@ -63,7 +62,7 @@ We warmly invite contributions from everyone.
 
 ### Repo Activity
 
-TBD <!-- TODO: https://repobeats.axiom.co -->
+![Repo Activity](https://repobeats.axiom.co/api/embed/ee2f4be0fbc708179a6b40c83cd8ce80702fe6fe.svg "Repobeats analytics image")
 
 ## Copyright
 
@@ -78,8 +77,6 @@ By GPLv3 License term 7, we require that when you distribute a modified version 
 1. Use a different software name than SJMCL or SJMC Launcher;
 2. Do not remove the function of sending user statisitics to our statisitics server (`src-tauri/src/utils/sys_info.rs`), and send only version numbers with prefix (more than two letters, e.g. `XX-0.0.1`).
 3. Mark clearly in your repository README file, your distribution website or thread, Support documents, About Page in the software that you program is based on SJMCL and give out the url of the origin repository.
-
-<!-- TODO: FOSSA Here -->
 
 ## Community Partners
 
