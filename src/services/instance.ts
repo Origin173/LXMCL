@@ -11,7 +11,7 @@ import {
   ShaderPackInfo,
 } from "@/models/instance/misc";
 import { LevelData, WorldInfo } from "@/models/instance/world";
-import { GameResourceInfo, ModLoader } from "@/models/resource";
+import { GameResourceInfo, ModLoaderResourceInfo } from "@/models/resource";
 import { InvokeResponse } from "@/models/response";
 import { responseHandler } from "@/utils/response";
 
@@ -37,7 +37,7 @@ export class InstanceService {
    * @param {string} description - The description of the instance.
    * @param {string} iconSrc - The icon source of the instance.
    * @param {GameResourceInfo} game - The game resource info of the instance.
-   * @param {ModLoader} modLoader - The mod loader info of the instance.
+   * @param {ModLoaderResourceInfo} modLoader - The mod loader info of the instance.
    * @returns {Promise<InvokeResponse<null>>}
    */
   @responseHandler("instance")
@@ -47,7 +47,7 @@ export class InstanceService {
     description: string,
     iconSrc: string,
     game: GameResourceInfo,
-    modLoader: ModLoader
+    modLoader: ModLoaderResourceInfo
   ): Promise<InvokeResponse<null>> {
     return await invoke("create_instance", {
       directory,
@@ -358,6 +358,20 @@ export class InstanceService {
     instanceId: string
   ): Promise<InvokeResponse<null>> {
     return await invoke("create_launch_desktop_shortcut", {
+      instanceId,
+    });
+  }
+
+  /**
+   * MARK the mod loader's runtime libraries has been downloaded successfully.
+   * @param {string} instanceId - The ID of the instance to mark the mod loader as installed.
+   * @returns {Promise<InvokeResponse<void>>}
+   */
+  @responseHandler("instance")
+  static async markModLoaderLibraryDownloaded(
+    instanceId: string
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("mark_mod_loader_library_downloaded", {
       instanceId,
     });
   }

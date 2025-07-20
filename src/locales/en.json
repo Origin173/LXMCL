@@ -532,7 +532,12 @@
       "game-resource": "Resource Pack",
       "patch-files": "Patch Game Files {{param}}",
       "mod-update": "Update Mod",
-      "retry": "Retry Task"
+      "retry": "Retry Task",
+      "fabric-loader": "Fabric Loader {{param}}",
+      "neoforge-installer": "NeoForge Installer {{param}}",
+      "neoforge-libraries": "NeoForge Libraries",
+      "forge-installer": "Forge Installer {{param}}",
+      "forge-libraries": "Forge Libraries"
     }
   },
   "Editable": {
@@ -1224,6 +1229,9 @@
       "maxAllocation": "Maximum allocated for Minecraft"
     }
   },
+  "MenuSelector": {
+    "selectedCount": "{{count}} selected"
+  },
   "ModLoaderCards": {
     "installed": "Installed",
     "unInstalled": "Not Installed",
@@ -1854,6 +1862,7 @@
         "error": {
           "title": "Failed to validate game files",
           "description": {
+            "MOD_LOADER_LIB_NOT_DOWNLOADED": "Mod loader library files not downloaded",
             "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist",
             "GAME_FILES_INCOMPLETE": "Game files are incomplete",
             "LAUNCHING_STATE_NOT_FOUND": "Launching state not found"
@@ -2134,16 +2143,20 @@
             "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist"
           }
         }
+      },
+      "markModLoaderLibraryDownloaded": {
+        "success": "Successfully downloaded mod loader library",
+        "error": {
+          "title": "Failed to download mod loader library",
+          "description": {
+            "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist"
+          }
+        }
       }
     },
     "task": {
       "scheduleProgressiveTaskGroup": {
         "success": "Task created successfully"
-      },
-      "onProgressiveTaskUpdate": {
-        "error": {
-          "title": "Task {{param}} failed"
-        }
       }
     }
   },

@@ -99,7 +99,13 @@ pub async fn get_invalid_library_files(
 }
 
 pub fn convert_library_name_to_path(name: &String, native: Option<String>) -> SJMCLResult<String> {
-  let mut name_split: Vec<String> = name.split(":").map(|s| s.to_string()).collect();
+  let name_exts = name.split('@').collect::<Vec<_>>();
+  let file_ext = if name_exts.len() > 1 {
+    name_exts[1].to_string()
+  } else {
+    "jar".to_string()
+  };
+  let mut name_split: Vec<String> = name_exts[0].split(":").map(|s| s.to_string()).collect();
   if name_split.len() < 3 {
     println!("name = {}", name);
     Err(InstanceError::ClientJsonParseError.into())
@@ -109,7 +115,7 @@ pub fn convert_library_name_to_path(name: &String, native: Option<String>) -> SJ
     }
     let pack_name = &name_split[1];
     let pack_version = &name_split[2];
-    let jar_file_name = name_split[1..].join("-") + ".jar";
+    let jar_file_name = name_split[1..].join("-") + "." + &file_ext;
     let lib_path = name_split[0].replace('.', "/");
     Ok(format!(
       "{}/{}/{}/{}",

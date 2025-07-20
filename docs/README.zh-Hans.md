@@ -62,7 +62,7 @@ npm run tauri dev
 
 ### 仓库活动
 
-TBD <!-- TODO: https://repobeats.axiom.co -->
+![仓库活动](https://repobeats.axiom.co/api/embed/ee2f4be0fbc708179a6b40c83cd8ce80702fe6fe.svg "Repobeats analytics image")
 
 ## 版权声明
 
@@ -77,8 +77,6 @@ TBD <!-- TODO: https://repobeats.axiom.co -->
 1. 必须更换软件名称，禁止使用 SJMCL 或 SJMC Launcher；
 2. 禁止移除向统计服务器发送信息的功能（`src-tauri/src/utils/sys_info.rs`），且仅发送带前缀（不少于两个字母，如 `XX-0.0.1`）的版本号；
 3. 在你的仓库 README、分发网站或相关文档、软件的关于页面中，须明确标注你的程序基于 SJMCL，并注明原仓库链接。
-
-<!-- TODO: FOSSA Here -->
 
 ## 社区合作伙伴
 

@@ -257,7 +257,7 @@ pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<Vec<String>> {
     }
 
     cmd.push("-Dfml.ignoreInvalidMinecraftCertificates=true".to_string());
-    cmd.push("-Dfml.ignorePatchDiscrepancies==true".to_string());
+    cmd.push("-Dfml.ignorePatchDiscrepancies=true".to_string());
   }
 
   // TODO: lwjgl non-ASCII path fix (HMCL DefaultLauncher.java#L236)

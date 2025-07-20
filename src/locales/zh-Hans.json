@@ -532,7 +532,12 @@
       "game-resource": "资源包",
       "patch-files": "修补游戏文件 {{param}}",
       "mod-update": "更新模组",
-      "retry": "重试任务"
+      "retry": "重试任务",
+      "fabric-loader": "Fabric 加载器 {{param}}",
+      "neoforge-installer": "NeoForge 安装器 {{param}}",
+      "neoforge-libraries": "NeoForge 运行库",
+      "forge-installer": "Forge 安装器 {{param}}",
+      "forge-libraries": "Forge 运行库"
     }
   },
   "Editable": {
@@ -1224,6 +1229,9 @@
       "maxAllocation": "为 Minecraft 分配的最大值"
     }
   },
+  "MenuSelector": {
+    "selectedCount": "已选 {{count}} 项"
+  },
   "ModLoaderCards": {
     "installed": "已安装",
     "unInstalled": "未安装",
@@ -1854,6 +1862,7 @@
         "error": {
           "title": "验证游戏文件失败",
           "description": {
+            "MOD_LOADER_LIB_NOT_DOWNLOADED": "模组加载器库文件未下载",
             "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在",
             "GAME_FILES_INCOMPLETE": "游戏文件不完整或缺失",
             "LAUNCHING_STATE_NOT_FOUND": "启动状态丢失"
@@ -2134,16 +2143,20 @@
             "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在"
           }
         }
+      },
+      "markModLoaderLibraryDownloaded": {
+        "success": "模组加载器运行库已下载",
+        "error": {
+          "title": "模组加载器运行库下载失败",
+          "description": {
+            "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在"
+          }
+        }
       }
     },
     "task": {
       "scheduleProgressiveTaskGroup": {
         "success": "任务创建成功"
-      },
-      "onProgressiveTaskUpdate": {
-        "error": {
-          "title": "任务 {{param}} 失败"
-        }
       }
     }
   },

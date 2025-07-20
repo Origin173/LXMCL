@@ -51,6 +51,7 @@ export interface ModLoaderResourceInfo {
   version: string;
   description?: string;
   stable: boolean;
+  branch?: string;
 }
 
 export const defaultModLoaderResourceInfo: ModLoaderResourceInfo = {
@@ -58,11 +59,6 @@ export const defaultModLoaderResourceInfo: ModLoaderResourceInfo = {
   version: "",
   stable: true,
 };
-
-export interface ModLoader {
-  loaderType: ModLoaderType;
-  version: string;
-}
 
 export interface ModUpdateRecord {
   name: string;
