@@ -43,11 +43,7 @@ pub fn add_library_entry(
     .position(|item| item.name.starts_with(&key_prefix))
   {
     libraries[pos].name = lib_path.to_string();
-    if let Some(downloads) = &mut libraries[pos].downloads {
-      if let Some(artifact) = &mut downloads.artifact {
-        artifact.url = maven_root.to_string();
-      }
-    }
+    libraries[pos].downloads = None;
   } else {
     libraries.push(LibrariesValue {
       name: lib_path.to_string(),
@@ -693,11 +689,10 @@ pub async fn download_neoforge_libraries(
     if url.is_empty() {
       continue;
     }
-    println!("[forge] lib: {}, url: {}", name, url);
+    println!("[neoforge] lib: {}, url: {}", name, url);
 
     add_library_entry(&mut client_info.libraries, name, url)?;
     add_library_entry(&mut new_patch.libraries, name, url)?;
-    client_info.patches.push(new_patch.clone());
 
     let rel = convert_library_name_to_path(&name.to_string(), None)?;
     task_params.push(PTaskParam::Download(DownloadParam {
@@ -707,6 +702,7 @@ pub async fn download_neoforge_libraries(
       sha1: None,
     }));
   }
+  client_info.patches.push(new_patch.clone());
 
   schedule_progressive_task_group(
     app,
