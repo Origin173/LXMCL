@@ -821,6 +821,7 @@ pub async fn create_instance(
         ModLoaderType::Unknown | ModLoaderType::Fabric
       ),
       version: mod_loader.version.clone(),
+      branch: mod_loader.branch.clone(),
     },
     description,
     icon_src,

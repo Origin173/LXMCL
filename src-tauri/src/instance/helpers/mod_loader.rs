@@ -290,16 +290,25 @@ async fn install_forge_loader(
 
   let installer_url = match priority.first().unwrap_or(&SourceType::Official) {
     SourceType::Official => {
-      let path = format!(
-        "{mc_ver}-{fg_ver}/forge-{mc_ver}-{fg_ver}-installer.jar",
-        mc_ver = game_version,
-        fg_ver = loader_ver
-      );
+      let path = if loader.branch.is_some() {
+        format!(
+          "{mc_ver}-{fg_ver}-{branch}/forge-{mc_ver}-{fg_ver}-{branch}-installer.jar",
+          mc_ver = game_version,
+          fg_ver = loader_ver,
+          branch = loader.branch.as_deref().unwrap_or("main")
+        )
+      } else {
+        format!(
+          "{mc_ver}-{fg_ver}/forge-{mc_ver}-{fg_ver}-installer.jar",
+          mc_ver = game_version,
+          fg_ver = loader_ver,
+        )
+      };
       root.join(&path)?
     }
-    SourceType::BMCLAPIMirror => {
-      url::Url::parse(&fetch_forge_installer_url(game_version, loader_ver, None).await?)?
-    }
+    SourceType::BMCLAPIMirror => url::Url::parse(
+      &fetch_forge_installer_url(game_version, loader_ver, loader.branch.as_deref()).await?,
+    )?,
   };
 
   let installer_coord = format!("net.minecraftforge:forge:{}-installer", loader.version);

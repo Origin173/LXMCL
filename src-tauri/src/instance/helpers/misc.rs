@@ -193,6 +193,7 @@ pub async fn refresh_instances(
           loader_type,
           version: loader_version.unwrap_or_default(),
           library_downloaded: true,
+          branch: None,
         }
       },
       ..cfg_read

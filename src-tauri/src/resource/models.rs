@@ -116,6 +116,7 @@ pub struct ModLoaderResourceInfo {
   pub version: String,
   pub description: String,
   pub stable: bool,
+  pub branch: Option<String>,
 }
 
 #[derive(Debug, Display)]

@@ -59,6 +59,7 @@ async fn get_neoforge_meta_by_game_version_official(
                     version,
                     description: String::new(),
                     stable: !versions.is_snapshot,
+                    branch: None,
                   },
                 ));
               } else {
@@ -95,6 +96,7 @@ async fn get_neoforge_meta_by_game_version_official(
                       version,
                       description: String::new(),
                       stable: cap.get(4).is_none(),
+                      branch: None,
                     },
                   ));
                 }
@@ -156,6 +158,7 @@ async fn get_neoforge_meta_by_game_version_bmcl(
                   version: info.version,
                   description: String::new(),
                   stable,
+                  branch: None,
                 }
               })
               .collect(),

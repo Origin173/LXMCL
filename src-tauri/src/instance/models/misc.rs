@@ -97,6 +97,7 @@ structstruck::strike! {
       pub library_downloaded: bool,
       pub loader_type: ModLoaderType,
       pub version: String,
+      pub branch: Option<String>, // Optional branch name for mod loaders like Forge
     },
     // if true, use the spec_game_config, else use the global game config
     pub use_spec_game_config: bool,
