@@ -94,8 +94,10 @@ structstruck::strike! {
     pub version: String,
     pub version_path: PathBuf,
     pub mod_loader: struct {
+      pub library_downloaded: bool,
       pub loader_type: ModLoaderType,
       pub version: String,
+      pub branch: Option<String>, // Optional branch name for mod loaders like Forge
     },
     // if true, use the spec_game_config, else use the global game config
     pub use_spec_game_config: bool,
@@ -216,6 +218,7 @@ pub enum InstanceError {
   ServerNbtReadError,
   FileNotFoundError,
   InvalidSourcePath,
+  InvalidModLoaderType,
   FileCreationFailed,
   FileCopyFailed,
   FileMoveFailed,
@@ -229,7 +232,10 @@ pub enum InstanceError {
   InvalidNameError,
   ClientJsonParseError,
   AssetIndexParseError,
+  InstallProfileParseError,
+  ModLoaderVersionParseError,
   NetworkError,
+  UnsupportedModLoader,
 }
 
 impl std::error::Error for InstanceError {}

@@ -509,7 +509,12 @@
       "game-server": "Game Server {{param}}",
       "game-resource": "Resource Pack",
       "patch-files": "Patch Game Files {{param}}",
-      "retry": "Retry Task"
+      "retry": "Retry Task",
+      "fabric-loader": "Fabric Loader {{param}}",
+      "neoforge-installer": "NeoForge Installer {{param}}",
+      "neoforge-libraries": "NeoForge Libraries",
+      "forge-installer": "Forge Installer {{param}}",
+      "forge-libraries": "Forge Libraries"
     }
   },
   "Editable": {
@@ -1834,6 +1839,7 @@
         "error": {
           "title": "Failed to validate game files",
           "description": {
+            "MOD_LOADER_LIB_NOT_DOWNLOADED": "Mod loader library files not downloaded",
             "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist",
             "GAME_FILES_INCOMPLETE": "Game files are incomplete",
             "LAUNCHING_STATE_NOT_FOUND": "Launching state not found"
@@ -2091,6 +2097,15 @@
           "title": "Failed to create launch shortcut",
           "description": {
             "SHORTCUT_CREATION_FAILED": "Command execution failed",
+            "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist"
+          }
+        }
+      },
+      "markModLoaderLibraryDownloaded": {
+        "success": "Successfully downloaded mod loader library",
+        "error": {
+          "title": "Failed to download mod loader library",
+          "description": {
             "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist"
           }
         }

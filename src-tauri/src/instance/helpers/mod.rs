@@ -3,6 +3,7 @@ pub mod client_json;
 pub mod game_version;
 pub mod hmcl_patch;
 pub mod misc;
+pub mod mod_loader;
 pub mod mods;
 pub mod resourcepack;
 pub mod server;

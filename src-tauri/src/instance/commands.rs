@@ -24,7 +24,9 @@ use super::{
 use crate::{
   error::SJMCLResult,
   instance::{
-    helpers::{client_json::McClientInfo, misc::get_instance_subdir_paths},
+    helpers::{
+      client_json::McClientInfo, misc::get_instance_subdir_paths, mod_loader::install_mod_loader,
+    },
     models::misc::{AssetIndex, ModLoader},
   },
   launch::helpers::file_validator::{get_invalid_assets, get_invalid_library_files},
@@ -33,14 +35,16 @@ use crate::{
     models::{GameConfig, GameDirectory, LauncherConfig},
   },
   partial::{PartialError, PartialUpdate},
-  resource::{helpers::misc::get_source_priority_list, models::GameClientResourceInfo},
+  resource::{
+    helpers::misc::get_source_priority_list,
+    models::{GameClientResourceInfo, ModLoaderResourceInfo},
+  },
   storage::Storage,
   tasks::{commands::schedule_progressive_task_group, download::DownloadParam, PTaskParam},
   utils::{fs::create_url_shortcut, image::ImageWrapper},
 };
 use lazy_static::lazy_static;
 use regex::{Regex, RegexBuilder};
-use serde_json::{from_value, Value};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -788,7 +792,7 @@ pub async fn create_instance(
   description: String,
   icon_src: String,
   game: GameClientResourceInfo,
-  mod_loader: ModLoader,
+  mod_loader: ModLoaderResourceInfo,
 ) -> SJMCLResult<()> {
   let client = app.state::<reqwest::Client>();
   let launcher_config_state = app.state::<Mutex<LauncherConfig>>();
@@ -804,14 +808,21 @@ pub async fn create_instance(
     return Err(InstanceError::ConflictNameError.into());
   }
   fs::create_dir_all(&version_path).map_err(|_| InstanceError::FolderCreationFailed)?;
-
   // Create instance config
   let instance = Instance {
     id: format!("{}:{}", directory.name, name.clone()),
     name: name.clone(),
     version: game.id.clone(),
     version_path,
-    mod_loader,
+    mod_loader: ModLoader {
+      loader_type: mod_loader.loader_type.clone(),
+      library_downloaded: matches!(
+        mod_loader.loader_type,
+        ModLoaderType::Unknown | ModLoaderType::Fabric
+      ),
+      version: mod_loader.version.clone(),
+      branch: mod_loader.branch.clone(),
+    },
     description,
     icon_src,
     starred: false,
@@ -825,28 +836,24 @@ pub async fn create_instance(
     .map_err(|_| InstanceError::FileCreationFailed)?;
 
   // Download version info
-  let version_info_raw = client
+  let mut version_info = client
     .get(&game.url)
     .send()
     .await
     .map_err(|_| InstanceError::NetworkError)?
-    .json::<Value>()
+    .json::<McClientInfo>()
     .await
-    .map_err(|_| InstanceError::ClientJsonParseError)?;
-
-  let mut version_info = from_value::<McClientInfo>(version_info_raw.clone())
     .map_err(|_| InstanceError::ClientJsonParseError)?;
 
   version_info.id = name.clone();
 
-  let version_info_tosave =
-    serde_json::to_string_pretty(&version_info).map_err(|_| InstanceError::ClientJsonParseError)?;
+  let version_info_path = directory
+    .dir
+    .join(format!("versions/{}/{}.json", name, name));
 
   fs::write(
-    directory
-      .dir
-      .join(format!("versions/{}/{}.json", name, name)),
-    version_info_tosave,
+    &version_info_path,
+    serde_json::to_vec_pretty(&version_info)?,
   )
   .map_err(|_| InstanceError::FileCreationFailed)?;
 
@@ -907,7 +914,51 @@ pub async fn create_instance(
     serde_json::from_value(asset_index_raw).map_err(|_| InstanceError::AssetIndexParseError)?;
   task_params.extend(get_invalid_assets(priority_list[0], assets_dir, &asset_index, false).await?);
 
-  schedule_progressive_task_group(app, format!("game-client:{}", name), task_params, true).await?;
-  // TODO: install mod loaders
+  schedule_progressive_task_group(
+    app.clone(),
+    format!("game-client?{}", name),
+    task_params,
+    true,
+  )
+  .await?;
+
+  if instance.mod_loader.loader_type != ModLoaderType::Unknown {
+    install_mod_loader(
+      app.clone(),
+      client,
+      &priority_list,
+      &instance.version,
+      &instance.mod_loader,
+      libraries_dir.to_path_buf(),
+      &mut version_info,
+    )
+    .await?;
+
+    fs::write(
+      &version_info_path,
+      serde_json::to_vec_pretty(&version_info)?,
+    )
+    .map_err(|_| InstanceError::FileCreationFailed)?;
+  }
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn mark_mod_loader_library_downloaded(
+  app: AppHandle,
+  instance_id: String,
+) -> SJMCLResult<()> {
+  let instance = {
+    let binding = app.state::<Mutex<HashMap<String, Instance>>>();
+    let mut state = binding.lock().unwrap();
+    let instance = state
+      .get_mut(&instance_id)
+      .ok_or(InstanceError::InstanceNotFoundByID)?;
+
+    instance.mod_loader.library_downloaded = true;
+    instance.clone()
+  };
+  instance.save_json_cfg().await?;
+
   Ok(())
 }

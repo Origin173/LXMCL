@@ -94,10 +94,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
       instanceDescription,
       instanceIconSrc,
       selectedGameVersion,
-      {
-        loaderType: selectedModLoader.loaderType,
-        version: selectedModLoader.version,
-      }
+      selectedModLoader
     )
       .then((res) => {
         if (res.status === "success") {
@@ -122,8 +119,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
     instanceName,
     instanceDescription,
     instanceIconSrc,
-    selectedModLoader.loaderType,
-    selectedModLoader.version,
+    selectedModLoader,
     toast,
     modalProps,
     router,

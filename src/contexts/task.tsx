@@ -21,6 +21,7 @@ import {
   TaskGroupDesc,
   TaskParam,
 } from "@/models/task";
+import { InstanceService } from "@/services/instance";
 import { TaskService } from "@/services/task";
 import { useGlobalData } from "./global-data";
 
@@ -385,11 +386,36 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
           });
         });
 
-        if (
-          payload.event.status === GTaskEventStatusEnums.Completed &&
-          payload.taskGroup.startsWith("game-client")
-        )
-          getInstanceList(true);
+        if (payload.event.status === GTaskEventStatusEnums.Completed) {
+          let groupDetails = payload.taskGroup.split("@")[0].split("?");
+          console.log(groupDetails[0]);
+          switch (groupDetails[0]) {
+            case "game-client":
+              getInstanceList(true);
+              break;
+            case "forge-libraries":
+            case "neoforge-libraries":
+              InstanceService.markModLoaderLibraryDownloaded(
+                groupDetails[1]
+              ).then((response) => {
+                if (response.status === "success") {
+                  toast({
+                    title: response.message,
+                    status: "success",
+                  });
+                } else {
+                  toast({
+                    title: response.message,
+                    description: response.details,
+                    status: "error",
+                  });
+                }
+              });
+              break;
+            default:
+              break;
+          }
+        }
       }
     );
     return () => {

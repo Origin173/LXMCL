@@ -85,7 +85,7 @@ export const DownloadTasksPage = () => {
   };
 
   const parseGroupTitle = (taskGroup: string) => {
-    let groupInfo = taskGroup.split("@")[0].split(":");
+    let groupInfo = taskGroup.split("@")[0].split("?");
 
     return t(`DownloadTasksPage.task.${groupInfo[0]}`, {
       param: groupInfo[1] || "",
