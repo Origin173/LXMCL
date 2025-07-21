@@ -66,6 +66,10 @@ jobs:
           # Clean up certificate file
           rm /tmp/cert.p12
 
+      - name: Install appdmg
+        run: |
+          npm install -g appdmg
+
       - name: Extract and sign .app
         env:
           SIGNING_IDENTITY: ${{ secrets.SIGNING_IDENTITY }}
@@ -86,20 +90,63 @@ jobs:
           # Re-compress the signed .app
           rm SJMCL_${{ inputs.version }}_macos_${{ matrix.arch }}.app.tar.gz
           tar -czf SJMCL_${{ inputs.version }}_macos_${{ matrix.arch }}.app.tar.gz SJMCL.app
-          rm -rf SJMCL.app
 
-      - name: Sign DMG
+      - name: Create DMG configuration
+        run: |
+          cd artifacts
+          
+          # Create appdmg configuration file
+          cat > dmg-config.json << EOF
+          {
+            "title": "SJMCL Installer",
+            "icon": "../src-tauri/assets/icons/icon.icns",
+            "background": "../src-tauri/assets/misc/dmg_bg.png",
+            "format": "UDZO",
+            "icon-size": 120,
+            "window": {
+              "size": {
+                "width": 640,
+                "height": 418
+              }
+            },
+            "contents": [
+              {
+                "x": 180,
+                "y": 170,
+                "type": "file",
+                "path": "SJMCL.app"
+              },
+              {
+                "x": 480,
+                "y": 170,
+                "type": "link",
+                "path": "/Applications"
+              }
+            ]
+          }
+          EOF
+
+      - name: Create and sign DMG
         env:
           SIGNING_IDENTITY: ${{ secrets.SIGNING_IDENTITY }}
         run: |
           cd artifacts
           
-          # Sign the DMG
+          # Remove the original DMG if it exists (build workflow no longer creates DMG)
+          rm -f SJMCL_${{ inputs.version }}_macos_${{ matrix.arch }}.dmg
+          
+          # Create a new DMG with the signed app using appdmg
+          appdmg dmg-config.json SJMCL_${{ inputs.version }}_macos_${{ matrix.arch }}.dmg
+          
+          # Sign the new DMG
           codesign --force --sign "$SIGNING_IDENTITY" \
             SJMCL_${{ inputs.version }}_macos_${{ matrix.arch }}.dmg
           
           # Verify DMG signing
           codesign --verify --deep --strict --verbose=2 SJMCL_${{ inputs.version }}_macos_${{ matrix.arch }}.dmg
+          
+          # Clean up extracted .app and config file
+          rm -rf SJMCL.app dmg-config.json
 
       - name: Notarize .app
         env:

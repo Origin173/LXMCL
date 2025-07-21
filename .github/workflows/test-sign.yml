@@ -53,8 +53,8 @@ jobs:
           workspaces: "./src-tauri -> target"
           key: macos-${{ matrix.target }}
 
-      - name: Build the app and the DMG image
-        run: pnpm run tauri build --bundles app,dmg --target ${{ matrix.target }}
+      - name: Build the app
+        run: pnpm run tauri build --bundles app --target ${{ matrix.target }}
         env:
           SJMCL_MICROSOFT_CLIENT_SECRET: ${{ secrets.SJMCL_MICROSOFT_CLIENT_SECRET }}
           SJMCL_CURSEFORGE_API_KEY: ${{ secrets.SJMCL_CURSEFORGE_API_KEY }}
@@ -71,8 +71,6 @@ jobs:
           ls src-tauri/target/${{ matrix.target }}/release/bundle/macos
           # Compress the .app folder
           tar -cvzf artifacts/"$ARTIFACT_NAME".app.tar.gz -C "src-tauri/target/${{ matrix.target }}/release/bundle/macos" "SJMCL.app"
-          # Copy the DMG files
-          mv "src-tauri/target/${{ matrix.target }}/release/bundle/dmg"/*.dmg artifacts/"$ARTIFACT_NAME".dmg
           ls -la artifacts
           
           echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
