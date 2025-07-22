@@ -93,4 +93,4 @@ For cross-platform compilation, packaging in a specific format, or more details,
 
 ## Being a collaborator
 
-If you’re an active contributor and are interested in working closely with the SJMCL Team on our open-source workflow 💪, please contact us at [contact@sjmc.club](mailto:contact@sjmc.club)
+If you’re an active contributor and are interested in working closely with the SJMCL Team on our open-source workflow 💪, please contact us at [launcher@sjmc.club](mailto:launcher@sjmc.club).
