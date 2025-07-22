@@ -25,7 +25,9 @@ use crate::{
   error::SJMCLResult,
   instance::{
     helpers::{
-      client_json::McClientInfo, misc::get_instance_subdir_paths, mod_loader::install_mod_loader,
+      client_json::{replace_libraries, McClientInfo},
+      misc::get_instance_subdir_paths,
+      mod_loader::install_mod_loader,
     },
     models::misc::{AssetIndex, ModLoader},
   },
@@ -885,6 +887,15 @@ pub async fn create_instance(
   let [libraries_dir, assets_dir] = subdirs.as_slice() else {
     return Err(InstanceError::InstanceNotFoundByID.into());
   };
+
+  let (os, arch) = {
+    let cfg = launcher_config_state.lock().unwrap();
+    (cfg.basic_info.os_type.clone(), cfg.basic_info.arch.clone())
+  };
+
+  replace_libraries(&app, &mut version_info, &instance, &os, &arch)
+    .await
+    .map_err(|_| InstanceError::ClientJsonParseError)?;
 
   // We only download libraries if they are invalid (not already downloaded)
   task_params.extend(

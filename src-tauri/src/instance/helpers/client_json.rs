@@ -1,12 +1,20 @@
+use super::super::super::utils::fs::get_app_resource_filepath;
+use super::super::models::misc::Instance;
+use crate::instance::helpers::game_version::compare_game_versions;
 use crate::{
   error::{SJMCLError, SJMCLResult},
-  instance::models::misc::ModLoaderType,
+  instance::{self, models::misc::ModLoaderType},
 };
+use rand::rand_core::le;
 use regex::RegexBuilder;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 use serde_with::{formats::PreferMany, serde_as, OneOrMany};
+use std::cmp::Ordering;
+use std::fs;
+use std::path::PathBuf;
 use std::{collections::HashMap, str::FromStr};
+use tauri::AppHandle;
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 #[serde(rename_all = "camelCase", default)]
@@ -341,4 +349,59 @@ impl LaunchArgumentTemplate {
     }
     Ok(arguments)
   }
+}
+
+pub fn load_replace_map(
+  path: PathBuf,
+) -> SJMCLResult<HashMap<String, HashMap<String, Option<LibrariesValue>>>> {
+  let txt =
+    fs::read_to_string(path).map_err(|e| SJMCLError(format!("读取 natives.json 失败: {e}")))?;
+  let map: HashMap<String, HashMap<String, Option<LibrariesValue>>> =
+    serde_json::from_str(&txt).map_err(|e| SJMCLError(format!("解析 natives.json 失败: {e}")))?;
+
+  Ok(map)
+}
+
+pub async fn replace_libraries(
+  app: &AppHandle,
+  client_info: &mut McClientInfo,
+  instance: &Instance,
+  os: &str,
+  arch: &str,
+) -> SJMCLResult<()> {
+  let is_x86 = arch.contains("86");
+  if is_x86 && matches!(os, "linux" | "macos") {
+    return Ok(());
+  }
+
+  if matches!(os, "windows") {
+    return Ok(());
+  }
+
+  let is_arm64 = arch == "arm64" || arch == "aarch64";
+  if is_arm64 && matches!(os, "macos") {
+    if compare_game_versions(app, instance.version.as_str(), "1.19").await != Ordering::Less {
+      return Ok(());
+    }
+  }
+  let path = get_app_resource_filepath(app, "assets/game/natives.json")?;
+  let system_info = format!("{}-{}", os.to_lowercase(), arch.to_lowercase());
+  let replace_map_all = load_replace_map(path)?;
+  let platform_map = match replace_map_all.get(system_info.as_str()) {
+    Some(m) if !m.is_empty() => m,
+    _ => {
+      return Ok(());
+    }
+  };
+
+  for lib in &mut client_info.libraries {
+    let key = lib.name.clone();
+
+    if let Some(new_lib_opt) = platform_map.get(&key) {
+      if let Some(new_lib) = new_lib_opt {
+        *lib = new_lib.clone();
+      }
+    }
+  }
+  Ok(())
 }
