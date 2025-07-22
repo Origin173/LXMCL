@@ -3,7 +3,7 @@ use crate::{
   partial::PartialUpdate,
   storage::Storage,
   utils::{string::snake_to_camel_case, sys_info},
-  EXE_DIR,
+  APP_DATA_DIR,
 };
 use partial_derive::Partial;
 use serde::{Deserialize, Serialize};
@@ -304,7 +304,8 @@ impl LauncherConfig {
 
 impl Storage for LauncherConfig {
   fn file_path() -> PathBuf {
-    EXE_DIR.join("sjmcl.conf.json")
+    // EXE_DIR.join("sjmcl.conf.json")
+    APP_DATA_DIR.get().unwrap().join("sjmcl.conf.json")
   }
 }
 
