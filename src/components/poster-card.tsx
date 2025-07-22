@@ -33,7 +33,7 @@ const PosterCard = ({ data }: PosterCardProps) => {
   const primaryColor = config.appearance.theme.primaryColor;
   const themedStyles = useThemedCSSStyle();
 
-  const { title, abstract, keywords, imageSrc, source, updateAt, link } = data;
+  const { title, abstract, keywords, imageSrc, source, createAt, link } = data;
   const [isHovered, setIsHovered] = useState(false);
   const [src, width, height] = imageSrc || [];
 
@@ -83,7 +83,7 @@ const PosterCard = ({ data }: PosterCardProps) => {
           )}
           <HStack className="secondary-text" fontSize="xs" mt={1} spacing={1}>
             <LuCalendar size={12} />
-            <Text>{formatRelativeTime(updateAt, t).replace("on", "")}</Text>
+            <Text>{formatRelativeTime(createAt, t).replace("on", "")}</Text>
             {(source as PostSourceInfo).name !== undefined && (
               <>
                 <Avatar

@@ -20,7 +20,7 @@ pub struct PostSummary {
   pub keywords: String,
   pub image_src: (String, u64, u64),
   pub source: PostSourceInfo,
-  pub update_at: String, // ISO Datetime String
+  pub create_at: String, // ISO Datetime String
   pub link: String,
 }
 

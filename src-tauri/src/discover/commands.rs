@@ -103,7 +103,7 @@ pub async fn fetch_post_summaries(
     }
   }
 
-  all_posts.sort_by(|a, b| b.update_at.cmp(&a.update_at));
+  all_posts.sort_by(|a, b| b.create_at.cmp(&a.create_at));
 
   Ok(PostResponse {
     posts: all_posts,

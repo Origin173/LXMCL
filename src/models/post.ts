@@ -6,7 +6,7 @@ export interface PostSummary {
   keywords?: string;
   imageSrc?: ImageSrcUnion;
   source: PostSourceInfo;
-  updateAt: string;
+  createAt: string;
   link: string;
 }
 

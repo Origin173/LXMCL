@@ -1,10 +1,11 @@
-import { Button, Center, HStack, Text } from "@chakra-ui/react";
+import { Center, HStack, Text } from "@chakra-ui/react";
 import { Masonry } from "masonic";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuNewspaper, LuRefreshCcw } from "react-icons/lu";
+import { LuNewspaper } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
+import { CommonIconButton } from "@/components/common/common-icon-button";
 import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
 import PosterCard from "@/components/poster-card";
@@ -16,7 +17,6 @@ export const DiscoverPage = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { config } = useLauncherConfig();
-  const primaryColor = config.appearance.theme.primaryColor;
 
   const [visiblePosts, setVisiblePosts] = useState<PostSummary[]>([]);
   const [sourceCursors, setSourceCursors] = useState<
@@ -70,6 +70,22 @@ export const DiscoverPage = () => {
     }
   }, [isLoading, sourceCursors]);
 
+  const hasMore = Object.values(sourceCursors).some(
+    (cursor) => cursor !== null
+  );
+
+  const secMenu = [
+    {
+      icon: LuNewspaper,
+      label: t("DiscoverPage.sources"),
+      onClick: () => router.push("/discover/sources"),
+    },
+    {
+      icon: "refresh",
+      onClick: fetchFirstPage,
+    },
+  ];
+
   useEffect(() => {
     fetchFirstPage();
   }, [fetchFirstPage]);
@@ -87,33 +103,23 @@ export const DiscoverPage = () => {
     return () => observer.disconnect();
   }, [loadMore, isLoading]);
 
-  const hasMore = Object.values(sourceCursors).some(
-    (cursor) => cursor !== null
-  );
-
   return (
     <Section
       className="content-full-y"
       title={t("DiscoverPage.title")}
       headExtra={
         <HStack spacing={2}>
-          <Button
-            leftIcon={<LuNewspaper />}
-            size="xs"
-            colorScheme={primaryColor}
-            variant={primaryColor === "gray" ? "subtle" : "outline"}
-            onClick={() => router.push("/discover/sources")}
-          >
-            {t("DiscoverPage.button.sources")}
-          </Button>
-          <Button
-            leftIcon={<LuRefreshCcw />}
-            size="xs"
-            colorScheme={primaryColor}
-            onClick={fetchFirstPage}
-          >
-            {t("General.refresh")}
-          </Button>
+          {secMenu.map((btn, index) => (
+            <CommonIconButton
+              key={index}
+              icon={btn.icon}
+              label={btn.label}
+              onClick={btn.onClick}
+              size="xs"
+              fontSize="sm"
+              h={21}
+            />
+          ))}
         </HStack>
       }
     >
