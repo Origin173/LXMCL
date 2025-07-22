@@ -83,7 +83,7 @@ const InstanceWidgetBase: React.FC<InstanceWidgetBaseProps> = ({
           {title}
         </Text>
       )}
-      <div style={{ zIndex: 998 }}>{children}</div>
+      {children}
       {icon && (
         <Icon
           as={icon}
@@ -128,6 +128,7 @@ export const InstanceBasicInfoWidget = () => {
         prefixElement={
           <Image src={summary?.iconSrc} alt={summary?.iconSrc} boxSize="28px" />
         }
+        zIndex={998}
       />
       <OptionItem
         title={t("InstanceWidgets.basicInfo.playTime")}
@@ -140,6 +141,7 @@ export const InstanceBasicInfoWidget = () => {
             <LuCalendarClock fontSize="24px" />
           </Center>
         }
+        zIndex={998}
       />
     </InstanceWidgetBase>
   );
@@ -268,7 +270,7 @@ export const InstanceModsWidget = () => {
       title={t("InstanceWidgets.mods.title")}
       icon={LuSquareLibrary}
     >
-      <VStack align="stretch" w="100%" spacing={3}>
+      <VStack align="stretch" w="100%" spacing={3} zIndex={998}>
         {isLoading ? (
           <Center mt={4}>
             <BeatLoader size={8} color="gray" />
@@ -355,7 +357,7 @@ export const InstanceLastPlayedWidget = () => {
           <BeatLoader size={8} color="gray" />
         </Center>
       ) : lastPlayedWorld ? (
-        <VStack spacing={3} alignItems="flex-start" w="full">
+        <VStack spacing={3} alignItems="flex-start" w="full" zIndex={998}>
           <HStack spacing={3} w="full" alignItems="center">
             <Image
               src={convertFileSrc(lastPlayedWorld.iconSrc)}
