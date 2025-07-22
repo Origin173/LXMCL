@@ -83,7 +83,7 @@ const InstanceWidgetBase: React.FC<InstanceWidgetBaseProps> = ({
           {title}
         </Text>
       )}
-      {children}
+      <div style={{ zIndex: 998 }}>{children}</div>
       {icon && (
         <Icon
           as={icon}
