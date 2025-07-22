@@ -240,7 +240,8 @@ structstruck::strike! {
     },
     pub global_game_config: GameConfig,
     pub local_game_directories: Vec<GameDirectory>,
-    #[default(_code="vec![\"https://mc.sjtu.cn/api-sjmcl/article\".to_string()]")]
+    #[default(_code="vec![\"https://mc.sjtu.cn/api-sjmcl/article\".to_string(),
+    \"https://mc.sjtu.cn/api-sjmcl/article/mua\".to_string()]")]
     pub discover_source_endpoints: Vec<String>,
     pub extra_java_paths: Vec<String>,
     pub suppressed_dialogs: Vec<String>,
