@@ -98,30 +98,68 @@ pub async fn get_invalid_library_files(
   )
 }
 
-pub fn convert_library_name_to_path(name: &String, native: Option<String>) -> SJMCLResult<String> {
-  let name_exts = name.split('@').collect::<Vec<_>>();
-  let file_ext = if name_exts.len() > 1 {
-    name_exts[1].to_string()
+pub struct LibraryParts {
+  pub path: String,
+  pub pack_name: String,
+  pub pack_version: String,
+  pub classifier: Option<String>,
+  pub extension: String,
+}
+
+pub fn parse_library_name(name: &str, native: Option<String>) -> SJMCLResult<LibraryParts> {
+  let parts: Vec<&str> = name.split('@').collect();
+  let file_ext = if parts.len() > 1 {
+    parts[1].to_string()
   } else {
     "jar".to_string()
   };
-  let mut name_split: Vec<String> = name_exts[0].split(":").map(|s| s.to_string()).collect();
+  let mut name_split: Vec<String> = parts[0].split(':').map(|s| s.to_string()).collect();
   if name_split.len() < 3 {
-    println!("name = {}", name);
-    Err(InstanceError::ClientJsonParseError.into())
+    Err(InstanceError::InvalidSourcePath.into())
   } else {
-    if let Some(n) = native {
-      name_split.push(n);
+    if let Some(native) = native {
+      name_split.push(native);
     }
-    let pack_name = &name_split[1];
-    let pack_version = &name_split[2];
-    let jar_file_name = name_split[1..].join("-") + "." + &file_ext;
-    let lib_path = name_split[0].replace('.', "/");
-    Ok(format!(
-      "{}/{}/{}/{}",
-      lib_path, pack_name, pack_version, jar_file_name
-    ))
+    let pack_name = name_split[1].clone();
+    let pack_version = name_split[2].clone();
+    let classifier = if name_split.len() > 3 {
+      Some(name_split[3].clone())
+    } else {
+      None
+    };
+    let path = name_split[0].replace('.', "/");
+    Ok(LibraryParts {
+      path,
+      pack_name,
+      pack_version,
+      classifier,
+      extension: file_ext,
+    })
   }
+}
+
+pub fn convert_library_name_to_path(name: &str, native: Option<String>) -> SJMCLResult<String> {
+  let LibraryParts {
+    path,
+    pack_name,
+    pack_version,
+    classifier,
+    extension: file_ext,
+  } = parse_library_name(&name, native)?;
+
+  let file_name = [
+    pack_name.clone(),
+    pack_version.clone(),
+    classifier.unwrap_or_default(),
+  ]
+  .iter()
+  .filter(|s| !s.is_empty())
+  .map(|s| s.as_str())
+  .collect::<Vec<&str>>()
+  .join("-")
+    + "."
+    + &file_ext;
+  Ok(format!("{path}/{pack_name}/{pack_version}/{file_name}"))
 }
 
 pub fn get_nonnative_library_paths(

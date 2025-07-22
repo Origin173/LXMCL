@@ -18,6 +18,7 @@ use crate::instance::helpers::client_json::{
 use crate::instance::helpers::misc::{get_instance_game_config, get_instance_subdir_paths};
 use crate::instance::helpers::mods::forge::InstallProfile;
 use crate::instance::models::misc::{Instance, InstanceError, InstanceSubdirType};
+use crate::launch::helpers::file_validator::{parse_library_name, LibraryParts};
 use crate::launch::helpers::{
   file_validator::convert_library_name_to_path, jre_selector::select_java_runtime,
 };
@@ -38,17 +39,24 @@ pub fn add_library_entry(
   lib_path: &str,
   params: Option<LibrariesValue>,
 ) -> SJMCLResult<()> {
-  let (group, artifact, _version) = {
-    let parts: Vec<_> = lib_path.split(':').collect();
-    (parts[0], parts[1], parts[2])
-  };
+  let LibraryParts {
+    path,
+    pack_name,
+    pack_version: _pack_version,
+    classifier,
+    extension,
+  } = parse_library_name(lib_path, None)?;
 
-  let key_prefix = format!("{}:{}", group, artifact);
-
-  if let Some(pos) = libraries
-    .iter()
-    .position(|item| item.name.starts_with(&key_prefix))
-  {
+  if let Some(pos) = libraries.iter().position(|item| {
+    if let Ok(parts) = parse_library_name(&item.name, None) {
+      parts.path == path
+        && parts.pack_name == pack_name
+        && parts.classifier == classifier
+        && parts.extension == extension
+    } else {
+      false
+    }
+  }) {
     libraries[pos] = LibrariesValue {
       name: lib_path.to_string(),
       ..params.unwrap_or_default()
@@ -199,7 +207,7 @@ async fn install_fabric_loader(
   client_info.patches.push(new_patch);
 
   let mut push_task = |coord: &str, url_root: &str| -> SJMCLResult<()> {
-    let rel: String = convert_library_name_to_path(&coord.to_string(), None)?;
+    let rel: String = convert_library_name_to_path(coord, None)?;
     let src = url::Url::parse(url_root)?.join(&rel)?;
     task_params.push(PTaskParam::Download(DownloadParam {
       src,
@@ -432,7 +440,7 @@ pub async fn download_forge_libraries(
         continue;
       }
       let mut value_client = value.client.clone();
-      if value_client.starts_with("[") && value_client.ends_with("]") {
+      if value_client.starts_with('[') && value_client.ends_with(']') {
         value_client = value_client
           .trim_start_matches('[')
           .trim_end_matches(']')
@@ -474,7 +482,7 @@ pub async fn download_forge_libraries(
       }
 
       for arg in processor.args.iter_mut() {
-        if arg.starts_with("[") && arg.ends_with("]") {
+        if arg.starts_with('[') && arg.ends_with(']') {
           *arg = arg
             .trim_start_matches('[')
             .trim_end_matches(']')
@@ -508,13 +516,7 @@ pub async fn download_forge_libraries(
     let main_class = forge_info.main_class;
     client_info.main_class = main_class.to_string();
 
-    let feature = FeaturesInfo::default();
-
     for lib in forge_info.libraries.iter() {
-      if !lib.is_allowed(&feature).unwrap_or(false) {
-        continue;
-      }
-
       let name = &lib.name;
       add_library_entry(&mut client_info.libraries, name, Some(lib.clone()))?;
 
@@ -544,8 +546,8 @@ pub async fn download_forge_libraries(
       .clone()
       .ok_or(InstanceError::ClientJsonParseError)?;
     let new_args = LaunchArgumentTemplate {
-      game: [nf_args.game, v_args.game].concat(),
-      jvm: [nf_args.jvm, v_args.jvm].concat(),
+      game: [v_args.game, nf_args.game].concat(),
+      jvm: [v_args.jvm, nf_args.jvm].concat(),
     };
     client_info.arguments = Some(new_args.clone());
     client_info.patches.push(PatchesInfo {
@@ -559,10 +561,6 @@ pub async fn download_forge_libraries(
     });
 
     for lib in profile_json.libraries.iter() {
-      if !lib.is_allowed(&feature).unwrap_or(false) {
-        continue;
-      }
-
       let name = &lib.name;
       let url = lib
         .downloads
@@ -655,7 +653,7 @@ pub async fn download_forge_libraries(
       add_library_entry(&mut client_info.libraries, name, None)?;
       add_library_entry(&mut new_patch.libraries, name, None)?;
 
-      let rel = convert_library_name_to_path(&name.to_string(), None)?;
+      let rel = convert_library_name_to_path(name, None)?;
 
       let parts: Vec<&str> = name.split(':').collect();
       let artifact_id = parts[1];
@@ -694,7 +692,7 @@ pub async fn download_forge_libraries(
       add_library_entry(&mut client_info.libraries, name, None)?;
       add_library_entry(&mut new_patch.libraries, name, None)?;
 
-      let rel = convert_library_name_to_path(&name.to_string(), None)?;
+      let rel = convert_library_name_to_path(name, None)?;
       let src = url::Url::parse(url)?.join(&rel)?;
       task_params.push(PTaskParam::Download(DownloadParam {
         src,
@@ -810,7 +808,7 @@ pub async fn download_neoforge_libraries(
     jvm: [nf_args.jvm, v_args.jvm].concat(),
   };
   client_info.arguments = Some(new_args.clone());
-  let mut new_patch = PatchesInfo {
+  let new_patch = PatchesInfo {
     id: "neoforge".to_string(),
     version: neoforge_info.id.clone(),
     priority: 30000,
