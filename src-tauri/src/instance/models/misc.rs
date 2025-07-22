@@ -94,7 +94,7 @@ structstruck::strike! {
     pub version: String,
     pub version_path: PathBuf,
     pub mod_loader: struct {
-      pub library_downloaded: bool,
+      pub installed: bool,
       pub loader_type: ModLoaderType,
       pub version: String,
       pub branch: Option<String>, // Optional branch name for mod loaders like Forge
@@ -218,7 +218,6 @@ pub enum InstanceError {
   ServerNbtReadError,
   FileNotFoundError,
   InvalidSourcePath,
-  InvalidModLoaderType,
   FileCreationFailed,
   FileCopyFailed,
   FileMoveFailed,
@@ -236,6 +235,8 @@ pub enum InstanceError {
   ModLoaderVersionParseError,
   NetworkError,
   UnsupportedModLoader,
+  MainClassNotFound,
+  ProcessorExecutionFailed,
 }
 
 impl std::error::Error for InstanceError {}

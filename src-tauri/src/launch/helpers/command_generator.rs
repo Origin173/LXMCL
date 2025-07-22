@@ -4,9 +4,10 @@ use crate::instance::{
   helpers::misc::get_instance_subdir_paths,
   models::misc::{InstanceError, InstanceSubdirType},
 };
+use crate::launch::helpers::misc::get_separator;
 use crate::launch::{
-  helpers::file_validator::get_nonnative_library_paths, helpers::misc::get_separator,
-  helpers::misc::replace_arguments, models::LaunchingState,
+  helpers::file_validator::get_nonnative_library_paths, helpers::misc::replace_arguments,
+  models::LaunchingState,
 };
 use crate::launcher_config::helpers::memory::get_memory_info;
 use crate::launcher_config::models::*;
@@ -35,7 +36,6 @@ pub struct LaunchArguments {
   pub natives_directory: String,
   pub launcher_name: String,
   pub launcher_version: String,
-  pub classpath: Vec<String>,
 
   // auth params
   pub auth_access_token: String,
@@ -65,8 +65,6 @@ pub struct LaunchArguments {
 
 impl LaunchArguments {
   pub fn into_hashmap(self) -> SJMCLResult<HashMap<String, String>> {
-    let classpath_clone = self.classpath.clone();
-
     let value =
       serde_json::to_value(self).map_err(|e| SJMCLError(format!("Serialization error: {}", e)))?;
     let obj = value
@@ -75,23 +73,14 @@ impl LaunchArguments {
 
     let mut map = HashMap::new();
 
-    let classpath_str = classpath_clone.join(get_separator());
-
-    map.insert("classpath".to_string(), classpath_str);
-
     for (k, v) in obj.iter() {
-      match k.as_str() {
-        "classpath" => {} // skip, altrady handled manually
+      match v {
+        Value::Null => {} // skip null or none
+        Value::String(s) => {
+          map.insert(k.clone(), s.clone());
+        }
         _ => {
-          match v {
-            Value::Null => {} // skip null or none
-            Value::String(s) => {
-              map.insert(k.clone(), s.clone());
-            }
-            _ => {
-              map.insert(k.clone(), v.to_string());
-            }
-          }
+          map.insert(k.clone(), v.to_string());
         }
       }
     }
@@ -100,7 +89,12 @@ impl LaunchArguments {
   }
 }
 
-pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<Vec<String>> {
+pub struct LaunchCommand {
+  pub class_paths: Vec<String>, // may be too long for Windows, consider use env var
+  pub args: Vec<String>,
+}
+
+pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<LaunchCommand> {
   let launcher_config = { app.state::<Mutex<LauncherConfig>>().lock()?.clone() };
   let launching_queue = { app.state::<Mutex<Vec<LaunchingState>>>().lock()?.clone() };
 
@@ -176,7 +170,6 @@ pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<Vec<String>> {
     natives_directory: natives_dir.to_string_lossy().to_string(),
     launcher_name: format!("SJMCL {}", basic_info.launcher_version),
     launcher_version: basic_info.launcher_version,
-    classpath: class_paths,
     library_directory: libraries_dir.to_string_lossy().to_string(),
     classpath_separator: get_separator().to_string(),
 
@@ -293,7 +286,12 @@ pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<Vec<String>> {
 
   if let Some(client_args) = &client_info.arguments {
     // specified jvm params
-    let client_jvm_args = client_args.to_jvm_arguments(&launch_feature)?;
+    let mut client_jvm_args = client_args.to_jvm_arguments(&launch_feature)?;
+    if let Some(classpath_pos) = client_jvm_args.iter().position(|s| s == "-cp") {
+      // remove -cp and "${classpath}" to make command shorter
+      client_jvm_args.remove(classpath_pos);
+      client_jvm_args.remove(classpath_pos);
+    }
     cmd.extend(replace_arguments(client_jvm_args, &map));
   } else {
     // ref: https://github.com/HMCL-dev/HMCL/blob/e8ff42c4b29d0b0a5a417c9d470390311c6d9a72/HMCLCore/src/main/java/org/jackhuang/hmcl/game/Arguments.java#L112
@@ -317,8 +315,6 @@ pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<Vec<String>> {
       "-Djava.library.path=${natives_directory}".to_string(),
       "-Dminecraft.launcher.brand=${launcher_name}".to_string(),
       "-Dminecraft.launcher.version=${launcher_version}".to_string(),
-      "-cp".to_string(),
-      "${classpath}".to_string(),
     ]);
     cmd.extend(replace_arguments(client_jvm_args, &map));
   }
@@ -339,5 +335,8 @@ pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<Vec<String>> {
   if game_config.game_window.resolution.fullscreen {
     cmd.push("--fullscreen".to_string());
   }
-  Ok(cmd)
+  Ok(LaunchCommand {
+    class_paths,
+    args: cmd,
+  })
 }

@@ -156,12 +156,16 @@ pub async fn refresh_instances(
 
     let client_data = match load_json_async::<McClientInfo>(&json_path).await {
       Ok(v) => v,
-      Err(_) => continue,
+      Err(e) => {
+        println!("Failed to load client info for {}: {}", name, e);
+        continue;
+      }
     };
     if client_data.id != name {
       if let Ok(dst_dir) = unify_instance_name(&version_path, &client_data.id) {
         version_path = dst_dir;
       } else {
+        println!("Failed to unify instance name for {}", name);
         continue;
       }
     }
@@ -171,12 +175,14 @@ pub async fn refresh_instances(
       .await
       .unwrap_or_default();
 
-    if !cfg_read.mod_loader.library_downloaded {
-      // if mod loader is not downloaded, set it to default
-
+    if !cfg_read.mod_loader.installed {
       match cfg_read.mod_loader.loader_type {
         ModLoaderType::Forge => {
-          download_forge_libraries(app, &cfg_read, &client_data).await?;
+          download_forge_libraries(app, &cfg_read, &client_data)
+            .await
+            .inspect_err(|e| {
+              println!("Failed to download Forge libraries for {}: {:?}", name, e);
+            })?;
         }
         ModLoaderType::NeoForge => {
           download_neoforge_libraries(app, &cfg_read, &client_data).await?;
@@ -202,14 +208,14 @@ pub async fn refresh_instances(
       name,
       version: game_version.unwrap_or_default(),
       version_path,
-      mod_loader: if !cfg_read.mod_loader.library_downloaded {
+      mod_loader: if !cfg_read.mod_loader.installed {
         // pass mod loader check if download is not ready
         cfg_read.mod_loader
       } else {
         ModLoader {
           loader_type,
           version: loader_version.unwrap_or_default(),
-          library_downloaded: true,
+          installed: true,
           branch: None,
         }
       },

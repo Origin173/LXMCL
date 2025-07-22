@@ -389,6 +389,12 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
           return prevTasks.map((task) => {
             if (task.taskGroup === payload.taskGroup) {
               task.status = payload.event.status;
+              if (payload.event.status === GTaskEventStatusEnums.Completed) {
+                task.taskDescs.forEach((t) => {
+                  t.status = TaskDescStatusEnums.Completed;
+                  t.current = t.total;
+                });
+              }
             }
             return task;
           });
@@ -419,7 +425,22 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             case "forge-libraries":
             case "neoforge-libraries":
               version &&
-                InstanceService.markModLoaderLibraryDownloaded(version);
+                InstanceService.finishModLoaderInstall(version).then(
+                  (response) => {
+                    if (response.status === "success") {
+                      toast({
+                        title: response.message,
+                        status: "success",
+                      });
+                    } else {
+                      toast({
+                        title: response.message,
+                        description: response.details,
+                        status: "error",
+                      });
+                    }
+                  }
+                );
               break;
             default:
               break;

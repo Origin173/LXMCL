@@ -1,7 +1,6 @@
 use crate::error::{SJMCLError, SJMCLResult};
 use crate::launcher_config::commands::retrieve_launcher_config;
 use crate::utils::fs::validate_sha1;
-use crate::utils::web::build_sjmcl_client;
 
 use async_speed_limit::Limiter;
 use futures::stream::TryStreamExt;
@@ -14,7 +13,7 @@ use std::sync::{Arc, RwLock};
 use std::time::Duration;
 use tauri::{AppHandle, Manager, Url};
 use tauri_plugin_http::reqwest;
-use tauri_plugin_http::reqwest::header::{ACCEPT_ENCODING, RANGE};
+use tauri_plugin_http::reqwest::header::RANGE;
 use tokio::io::AsyncSeekExt;
 use tokio_util::{bytes, compat::FuturesAsyncReadCompatExt};
 
@@ -41,7 +40,6 @@ pub struct DownloadTask {
 }
 
 impl DownloadTask {
-  const CONTENT_ENCODING_CHOICES: &'static str = "gzip;q=1.0, br;q=0.8, *;q=0.1";
   pub fn new(
     app_handle: AppHandle,
     task_id: u32,
@@ -130,13 +128,10 @@ impl DownloadTask {
     let state = app_handle.state::<reqwest::Client>();
     let client = with_retry(state.inner().clone());
     let request = if current == 0 {
-      client
-        .get(param.src.clone())
-        .header(ACCEPT_ENCODING, Self::CONTENT_ENCODING_CHOICES)
+      client.get(param.src.clone())
     } else {
       client
         .get(param.src.clone())
-        .header(ACCEPT_ENCODING, Self::CONTENT_ENCODING_CHOICES)
         .header(RANGE, format!("bytes={current}-"))
     };
 
@@ -187,7 +182,6 @@ impl DownloadTask {
     let handle = Arc::new(RwLock::new(self.p_handle));
     let task_handle = handle.clone();
     let param = self.param.clone();
-    let dest_path = self.dest_path.clone();
     Ok((
       async move {
         let (resp, total_progress) = Self::create_resp_stream(&app_handle, current, &param).await?;

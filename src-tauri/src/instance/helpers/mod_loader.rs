@@ -1,19 +1,27 @@
-use super::super::super::launch::helpers::file_validator::convert_library_name_to_path;
 use reqwest::redirect::Policy;
 use reqwest::{Client, Error};
 use std::cmp::Ordering;
+use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
+use std::process::Command;
+use std::sync::Mutex;
+use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 use zip::ZipArchive;
 
 use crate::instance::helpers::client_json::{
   FeaturesInfo, IsAllowed, LaunchArgumentTemplate, LibrariesValue, McClientInfo, PatchesInfo,
 };
-use crate::instance::helpers::misc::get_instance_subdir_paths;
+use crate::instance::helpers::misc::{get_instance_game_config, get_instance_subdir_paths};
+use crate::instance::helpers::mods::forge::InstallProfile;
 use crate::instance::models::misc::{Instance, InstanceError, InstanceSubdirType};
+use crate::launch::helpers::{
+  file_validator::convert_library_name_to_path, jre_selector::select_java_runtime,
+};
+use crate::launcher_config::models::JavaInfo;
 use crate::{
   error::{SJMCLError, SJMCLResult},
   instance::helpers::game_version::compare_game_versions,
@@ -24,13 +32,11 @@ use crate::{
   },
   tasks::{commands::schedule_progressive_task_group, download::DownloadParam, PTaskParam},
 };
-use tauri::{AppHandle, Manager, State};
 
 pub fn add_library_entry(
   libraries: &mut Vec<LibrariesValue>,
   lib_path: &str,
   params: Option<LibrariesValue>,
-  overwrite: bool,
 ) -> SJMCLResult<()> {
   let (group, artifact, _version) = {
     let parts: Vec<_> = lib_path.split(':').collect();
@@ -43,9 +49,6 @@ pub fn add_library_entry(
     .iter()
     .position(|item| item.name.starts_with(&key_prefix))
   {
-    if !overwrite {
-      return Ok(());
-    }
     libraries[pos] = LibrariesValue {
       name: lib_path.to_string(),
       ..params.unwrap_or_default()
@@ -124,10 +127,10 @@ pub async fn install_mod_loader(
       .await
     }
     ModLoaderType::Forge => {
-      install_forge_loader(app, priority, game_version, loader, lib_dir, task_params).await
+      install_forge_loader(priority, game_version, loader, lib_dir, task_params).await
     }
     ModLoaderType::NeoForge => {
-      install_neoforge_loader(app, priority, loader, lib_dir, task_params).await
+      install_neoforge_loader(priority, loader, lib_dir, task_params).await
     }
     _ => Err(InstanceError::UnsupportedModLoader.into()),
   }
@@ -177,18 +180,18 @@ async fn install_fabric_loader(
 
   let maven_root = get_download_api(priority[0], ResourceType::FabricMaven)?;
 
-  add_library_entry(&mut client_info.libraries, loader_path, None, true)?;
-  add_library_entry(&mut client_info.libraries, int_path, None, true)?;
-  add_library_entry(&mut new_patch.libraries, loader_path, None, true)?;
-  add_library_entry(&mut new_patch.libraries, int_path, None, true)?;
+  add_library_entry(&mut client_info.libraries, loader_path, None)?;
+  add_library_entry(&mut client_info.libraries, int_path, None)?;
+  add_library_entry(&mut new_patch.libraries, loader_path, None)?;
+  add_library_entry(&mut new_patch.libraries, int_path, None)?;
 
   let launcher_meta = &meta["launcherMeta"]["libraries"];
   for side in ["common", "server", "client"] {
     if let Some(arr) = launcher_meta.get(side).and_then(|v| v.as_array()) {
       for item in arr {
         let name = item["name"].as_str().unwrap();
-        add_library_entry(&mut client_info.libraries, name, None, true)?;
-        add_library_entry(&mut new_patch.libraries, name, None, true)?;
+        add_library_entry(&mut client_info.libraries, name, None)?;
+        add_library_entry(&mut new_patch.libraries, name, None)?;
       }
     }
   }
@@ -227,7 +230,6 @@ async fn install_fabric_loader(
 }
 
 async fn install_neoforge_loader(
-  app: AppHandle,
   priority: &[SourceType],
   loader: &ModLoader,
   lib_dir: PathBuf,
@@ -266,7 +268,6 @@ async fn install_neoforge_loader(
 }
 
 async fn install_forge_loader(
-  app: AppHandle,
   priority: &[SourceType],
   game_version: &str,
   loader: &ModLoader,
@@ -319,12 +320,22 @@ pub async fn download_forge_libraries(
   instance: &Instance,
   client_info: &McClientInfo,
 ) -> SJMCLResult<()> {
-  let subdirs = get_instance_subdir_paths(app, instance, &[&InstanceSubdirType::Libraries])
-    .ok_or(InstanceError::InvalidSourcePath)?;
-  let lib_dir = subdirs[0].clone();
+  println!(
+    "Downloading Forge libraries for instance: {}",
+    instance.name
+  );
+  let subdirs = get_instance_subdir_paths(
+    app,
+    instance,
+    &[&InstanceSubdirType::Root, &InstanceSubdirType::Libraries],
+  )
+  .ok_or(InstanceError::InvalidSourcePath)?;
+  let [root_dir, lib_dir] = subdirs.as_slice() else {
+    return Err(InstanceError::InvalidSourcePath.into());
+  };
+  let mut task_params = vec![];
 
   let mut client_info = client_info.clone();
-
   client_info
     .patches
     .push(convert_client_info_to_patch(&client_info));
@@ -336,6 +347,13 @@ pub async fn download_forge_libraries(
   let installer_rel = convert_library_name_to_path(&installer_coord, None)?;
   let installer_path = lib_dir.join(&installer_rel);
   let comparison = compare_game_versions(app, &instance.version, "1.13").await;
+  let bin_patch = lib_dir.join(convert_library_name_to_path(
+    &format!(
+      "net.minecraftforge:forge:{}:clientdata@lzma",
+      instance.mod_loader.version
+    ),
+    None,
+  )?);
   if comparison != Ordering::Less {
     let (content, version) = {
       let file = File::open(&installer_path)?;
@@ -350,8 +368,10 @@ pub async fn download_forge_libraries(
               // Remove "maven/" prefix and join with lib_dir
               let relative_path = path.strip_prefix("maven/").unwrap();
               lib_dir.join(relative_path)
+            } else if path == PathBuf::from("data/client.lzma") {
+              bin_patch.clone()
             } else {
-              continue; // Skip non-maven files
+              continue;
             }
           }
           None => continue,
@@ -389,16 +409,105 @@ pub async fn download_forge_libraries(
       (s, t)
     };
 
-    let profile_json: serde_json::Value = serde_json::from_str(&content)?;
+    let mut profile_json: InstallProfile = serde_json::from_str(&content)?;
+
+    let mut args_map = HashMap::<String, String>::new();
+    args_map.insert(
+      "{MINECRAFT_JAR}".into(),
+      instance
+        .version_path
+        .join(format!("{}.jar", instance.name))
+        .to_string_lossy()
+        .to_string(),
+    );
+    args_map.insert("{BINPATCH}".into(), bin_patch.to_string_lossy().to_string());
+    args_map.insert(
+      "{INSTALLER}".into(),
+      installer_path.to_string_lossy().to_string(),
+    );
+    args_map.insert("{SIDE}".into(), "client".to_string());
+    args_map.insert("{ROOT}".into(), root_dir.to_string_lossy().to_string());
+    for (key, value) in profile_json.data.iter() {
+      if args_map.contains_key(&format!("{{{key}}}")) {
+        continue;
+      }
+      let mut value_client = value.client.clone();
+      if value_client.starts_with("[") && value_client.ends_with("]") {
+        value_client = value_client
+          .trim_start_matches('[')
+          .trim_end_matches(']')
+          .to_string();
+        value_client = lib_dir
+          .join(convert_library_name_to_path(&value_client, None)?)
+          .to_string_lossy()
+          .to_string();
+      }
+      args_map.insert(format!("{{{key}}}"), value_client);
+    }
+
+    for processor in profile_json.processors.iter_mut() {
+      if processor.args.contains(&"DOWNLOAD_MOJMAPS".to_string()) {
+        if let Some(mojmaps) = args_map.get("{MOJMAPS}") {
+          if let Some(client_mappings) = client_info.downloads.get("client_mappings") {
+            task_params.push(PTaskParam::Download(DownloadParam {
+              src: client_mappings.url.parse()?,
+              dest: lib_dir.join(mojmaps),
+              filename: None,
+              sha1: Some(client_mappings.sha1.clone()),
+            }));
+          }
+        }
+        processor.args.clear();
+        continue;
+      }
+
+      processor.jar = lib_dir
+        .join(convert_library_name_to_path(&processor.jar, None)?)
+        .to_string_lossy()
+        .to_string();
+
+      for class in processor.classpath.iter_mut() {
+        *class = lib_dir
+          .join(convert_library_name_to_path(class, None)?)
+          .to_string_lossy()
+          .to_string();
+      }
+
+      for arg in processor.args.iter_mut() {
+        if arg.starts_with("[") && arg.ends_with("]") {
+          *arg = arg
+            .trim_start_matches('[')
+            .trim_end_matches(']')
+            .to_string();
+          *arg = lib_dir
+            .join(convert_library_name_to_path(arg, None)?)
+            .to_string_lossy()
+            .to_string();
+        }
+        for (key, value) in &args_map {
+          *arg = arg.replace(key, value);
+        }
+      }
+    }
+
+    profile_json.processors.retain(|processor| {
+      if let Some(sides) = &processor.sides {
+        sides.contains(&"client".to_string())
+      } else {
+        !processor.args.is_empty()
+      }
+    });
+
+    fs::write(
+      instance.version_path.join("install_profile.json"),
+      &serde_json::to_vec_pretty(&profile_json)?,
+    )?;
+
     let forge_info: McClientInfo = serde_json::from_str(&version)?;
 
     let main_class = forge_info.main_class;
     client_info.main_class = main_class.to_string();
 
-    let libraries: Vec<LibrariesValue> = serde_json::from_value(profile_json["libraries"].clone())
-      .map_err(|_| InstanceError::InstallProfileParseError)?;
-
-    let mut task_params = vec![];
     let feature = FeaturesInfo::default();
 
     for lib in forge_info.libraries.iter() {
@@ -407,7 +516,7 @@ pub async fn download_forge_libraries(
       }
 
       let name = &lib.name;
-      add_library_entry(&mut client_info.libraries, name, Some(lib.clone()), true)?;
+      add_library_entry(&mut client_info.libraries, name, Some(lib.clone()))?;
 
       let url = lib
         .downloads
@@ -439,7 +548,7 @@ pub async fn download_forge_libraries(
       jvm: [nf_args.jvm, v_args.jvm].concat(),
     };
     client_info.arguments = Some(new_args.clone());
-    let mut new_patch = PatchesInfo {
+    client_info.patches.push(PatchesInfo {
       id: "forge".to_string(),
       version: forge_info.id.clone(),
       priority: 30000,
@@ -447,9 +556,9 @@ pub async fn download_forge_libraries(
       main_class: main_class.clone(),
       arguments: new_args,
       ..Default::default()
-    };
+    });
 
-    for lib in libraries {
+    for lib in profile_json.libraries.iter() {
       if !lib.is_allowed(&feature).unwrap_or(false) {
         continue;
       }
@@ -460,9 +569,6 @@ pub async fn download_forge_libraries(
         .as_ref()
         .and_then(|d| d.artifact.as_ref())
         .map_or("https://libraries.minecraft.net/", |a| a.url.as_str());
-
-      add_library_entry(&mut client_info.libraries, name, Some(lib.clone()), false)?;
-      add_library_entry(&mut new_patch.libraries, name, Some(lib.clone()), false)?;
 
       if url.is_empty() {
         continue;
@@ -476,15 +582,6 @@ pub async fn download_forge_libraries(
         sha1: None,
       }));
     }
-    client_info.patches.push(new_patch.clone());
-
-    schedule_progressive_task_group(
-      app.clone(),
-      format!("forge-libraries?{}", instance.id),
-      task_params,
-      true,
-    )
-    .await?;
   } else {
     let file = File::open(&installer_path)?;
     let mut archive = ZipArchive::new(file)?;
@@ -555,8 +652,8 @@ pub async fn download_forge_libraries(
           .ok_or(InstanceError::InstallProfileParseError)?
       };
 
-      add_library_entry(&mut client_info.libraries, name, None, true)?;
-      add_library_entry(&mut new_patch.libraries, name, None, true)?;
+      add_library_entry(&mut client_info.libraries, name, None)?;
+      add_library_entry(&mut new_patch.libraries, name, None)?;
 
       let rel = convert_library_name_to_path(&name.to_string(), None)?;
 
@@ -594,8 +691,8 @@ pub async fn download_forge_libraries(
           .ok_or(InstanceError::InstallProfileParseError)?
       };
 
-      add_library_entry(&mut client_info.libraries, name, None, true)?;
-      add_library_entry(&mut new_patch.libraries, name, None, true)?;
+      add_library_entry(&mut client_info.libraries, name, None)?;
+      add_library_entry(&mut new_patch.libraries, name, None)?;
 
       let rel = convert_library_name_to_path(&name.to_string(), None)?;
       let src = url::Url::parse(url)?.join(&rel)?;
@@ -607,15 +704,14 @@ pub async fn download_forge_libraries(
       }));
     }
     client_info.patches.push(new_patch);
-
-    schedule_progressive_task_group(
-      app.clone(),
-      format!("forge-libraries?{}", instance.id),
-      task_params,
-      true,
-    )
-    .await?;
   }
+  schedule_progressive_task_group(
+    app.clone(),
+    format!("forge-libraries?{}", instance.id),
+    task_params,
+    true,
+  )
+  .await?;
 
   let vjson_path = instance
     .version_path
@@ -682,7 +778,7 @@ pub async fn download_neoforge_libraries(
     }
 
     let name = &lib.name;
-    add_library_entry(&mut client_info.libraries, name, Some(lib.clone()), true)?;
+    add_library_entry(&mut client_info.libraries, name, Some(lib.clone()))?;
 
     let url = lib
       .downloads
@@ -737,10 +833,6 @@ pub async fn download_neoforge_libraries(
     if url.is_empty() {
       continue;
     }
-    println!("[neoforge] lib: {}, url: {}", name, url);
-
-    add_library_entry(&mut client_info.libraries, name, Some(lib.clone()), false)?;
-    add_library_entry(&mut new_patch.libraries, name, Some(lib.clone()), false)?;
 
     let rel = convert_library_name_to_path(&name.to_string(), None)?;
     task_params.push(PTaskParam::Download(DownloadParam {
@@ -764,5 +856,105 @@ pub async fn download_neoforge_libraries(
     .version_path
     .join(format!("{}.json", instance.name));
   fs::write(vjson_path, serde_json::to_vec_pretty(&client_info)?)?;
+  Ok(())
+}
+
+pub async fn execute_processors(
+  app: &AppHandle,
+  instance: &Instance,
+  client_info: &McClientInfo,
+  install_profile: &InstallProfile,
+) -> SJMCLResult<()> {
+  println!("Executing processors");
+  let javas_state = app.state::<Mutex<Vec<JavaInfo>>>();
+  let javas = javas_state.lock()?.clone();
+
+  let game_config = get_instance_game_config(app, instance);
+
+  let selected_java = select_java_runtime(
+    app,
+    &game_config.game_java,
+    &javas,
+    instance,
+    client_info.java_version.major_version,
+  )
+  .await?;
+  println!("Java: {}", selected_java.exec_path.clone());
+
+  for processor in &install_profile.processors {
+    println!("[{}] Processing: {}", instance.name, processor.jar);
+    let mut archive = ZipArchive::new(File::open(processor.jar.clone())?)?;
+    let mut manifest = archive.by_name("META-INF/MANIFEST.MF")?;
+    let mut manifest_content = String::new();
+    manifest.read_to_string(&mut manifest_content)?;
+    let main_class = manifest_content
+      .lines()
+      .find_map(|line| {
+        if line.starts_with("Main-Class: ") {
+          Some(line.trim_start_matches("Main-Class: ").trim())
+        } else {
+          None
+        }
+      })
+      .ok_or(InstanceError::MainClassNotFound)?;
+    let mut cmd_base = Command::new(selected_java.exec_path.clone());
+    #[cfg(target_os = "windows")]
+    {
+      use std::os::windows::process::CommandExt;
+      cmd_base.creation_flags(0x08000000);
+    }
+
+    let processor_path = instance.version_path.join(&processor.jar);
+    let mut classpath_arr = processor.classpath.clone();
+    classpath_arr.push(processor_path.to_string_lossy().to_string());
+
+    #[cfg(target_os = "windows")]
+    let classpath = classpath_arr.join(";");
+    #[cfg(not(target_os = "windows"))]
+    let classpath = classpath_arr.join(":");
+
+    let args = &processor.args;
+
+    cmd_base.arg("-cp").arg(&classpath).arg(main_class);
+
+    for arg in args {
+      cmd_base.arg(arg);
+    }
+
+    println!(
+      "[{}] Executing processor: {} with args: {:?}",
+      instance.name,
+      processor_path.display(),
+      cmd_base
+    );
+
+    let output = cmd_base.output()?;
+
+    if !output.stdout.is_empty() {
+      println!(
+        "[{}] Processor stdout: {}",
+        instance.name,
+        String::from_utf8_lossy(&output.stdout)
+      );
+    }
+
+    if !output.stderr.is_empty() {
+      println!(
+        "[{}] Processor stderr: {}",
+        instance.name,
+        String::from_utf8_lossy(&output.stderr)
+      );
+    }
+
+    if !output.status.success() {
+      println!(
+        "[{}] Processor failed with exit code: {:?}",
+        instance.name,
+        output.status.code()
+      );
+      return Err(InstanceError::ProcessorExecutionFailed.into());
+    }
+  }
+
   Ok(())
 }

@@ -368,10 +368,10 @@ export class InstanceService {
    * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("instance")
-  static async markModLoaderLibraryDownloaded(
+  static async finishModLoaderInstall(
     instanceId: string
   ): Promise<InvokeResponse<void>> {
-    return await invoke("mark_mod_loader_library_downloaded", {
+    return await invoke("finish_mod_loader_install", {
       instanceId,
     });
   }

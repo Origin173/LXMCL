@@ -25,7 +25,10 @@ use crate::{
   error::SJMCLResult,
   instance::{
     helpers::{
-      client_json::McClientInfo, misc::get_instance_subdir_paths, mod_loader::install_mod_loader,
+      client_json::McClientInfo,
+      misc::get_instance_subdir_paths,
+      mod_loader::{execute_processors, install_mod_loader},
+      mods::forge::InstallProfile,
     },
     models::misc::{AssetIndex, ModLoader},
   },
@@ -39,7 +42,7 @@ use crate::{
     helpers::misc::get_source_priority_list,
     models::{GameClientResourceInfo, ModLoaderResourceInfo},
   },
-  storage::Storage,
+  storage::{load_json_async, Storage},
   tasks::{commands::schedule_progressive_task_group, download::DownloadParam, PTaskParam},
   utils::{fs::create_url_shortcut, image::ImageWrapper},
 };
@@ -816,7 +819,7 @@ pub async fn create_instance(
     version_path,
     mod_loader: ModLoader {
       loader_type: mod_loader.loader_type.clone(),
-      library_downloaded: matches!(
+      installed: matches!(
         mod_loader.loader_type,
         ModLoaderType::Unknown | ModLoaderType::Fabric
       ),
@@ -834,6 +837,16 @@ pub async fn create_instance(
     .save_json_cfg()
     .await
     .map_err(|_| InstanceError::FileCreationFailed)?;
+
+  let subdirs = get_instance_subdir_paths(
+    &app,
+    &instance,
+    &[&InstanceSubdirType::Libraries, &InstanceSubdirType::Assets],
+  )
+  .ok_or(InstanceError::InstanceNotFoundByID)?;
+  let [libraries_dir, assets_dir] = subdirs.as_slice() else {
+    return Err(InstanceError::InstanceNotFoundByID.into());
+  };
 
   // Download version info
   let mut version_info = client
@@ -869,22 +882,10 @@ pub async fn create_instance(
   task_params.push(PTaskParam::Download(DownloadParam {
     src: Url::parse(&client_download_info.url.clone())
       .map_err(|_| InstanceError::ClientJsonParseError)?,
-    dest: directory
-      .dir
-      .join(format!("versions/{}/{}.jar", name, name)),
+    dest: instance.version_path.join(format!("{}.jar", name)),
     filename: None,
     sha1: Some(client_download_info.sha1.clone()),
   }));
-
-  let subdirs = get_instance_subdir_paths(
-    &app,
-    &instance,
-    &[&InstanceSubdirType::Libraries, &InstanceSubdirType::Assets],
-  )
-  .ok_or(InstanceError::InstanceNotFoundByID)?;
-  let [libraries_dir, assets_dir] = subdirs.as_slice() else {
-    return Err(InstanceError::InstanceNotFoundByID.into());
-  };
 
   // We only download libraries if they are invalid (not already downloaded)
   task_params.extend(
@@ -945,18 +946,34 @@ pub async fn create_instance(
 }
 
 #[tauri::command]
-pub async fn mark_mod_loader_library_downloaded(
-  app: AppHandle,
-  instance_id: String,
-) -> SJMCLResult<()> {
+pub async fn finish_mod_loader_install(app: AppHandle, instance_id: String) -> SJMCLResult<()> {
   let instance = {
     let binding = app.state::<Mutex<HashMap<String, Instance>>>();
-    let mut state = binding.lock().unwrap();
+    let state = binding.lock()?;
+    state
+      .get(&instance_id)
+      .ok_or(InstanceError::InstanceNotFoundByID)?
+      .clone()
+  };
+
+  let client_info_dir = instance
+    .version_path
+    .join(format!("{}.json", instance.name));
+  let client_info = load_json_async::<McClientInfo>(&client_info_dir).await?;
+
+  let install_profile_dir = instance.version_path.join("install_profile.json");
+  if install_profile_dir.exists() {
+    let install_profile = load_json_async::<InstallProfile>(&install_profile_dir).await?;
+    execute_processors(&app, &instance, &client_info, &install_profile).await?;
+  }
+
+  let instance = {
+    let binding = app.state::<Mutex<HashMap<String, Instance>>>();
+    let mut state = binding.lock()?;
     let instance = state
       .get_mut(&instance_id)
       .ok_or(InstanceError::InstanceNotFoundByID)?;
-
-    instance.mod_loader.library_downloaded = true;
+    instance.mod_loader.installed = true;
     instance.clone()
   };
   instance.save_json_cfg().await?;

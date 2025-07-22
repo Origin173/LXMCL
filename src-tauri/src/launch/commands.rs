@@ -22,7 +22,12 @@ use crate::{
     },
     models::misc::{AssetIndex, Instance, InstanceError, InstanceSubdirType},
   },
-  launch::{helpers::file_validator::get_invalid_assets, models::LaunchError},
+  launch::{
+    helpers::{
+      command_generator::LaunchCommand, file_validator::get_invalid_assets, misc::get_separator,
+    },
+    models::LaunchError,
+  },
   launcher_config::models::{FileValidatePolicy, JavaInfo, LauncherConfig, LauncherVisiablity},
   resource::helpers::misc::get_source_priority_list,
   storage::load_json_async,
@@ -227,20 +232,18 @@ pub async fn launch_game(
   };
 
   // generate launch command
-  let cmd_args = generate_launch_command(&app)?;
+  let LaunchCommand {
+    class_paths,
+    args: cmd_args,
+  } = generate_launch_command(&app)?;
   let mut cmd_base = Command::new(selected_java.exec_path.clone());
-
-  // let full_cmd = std::iter::once(selected_java.exec_path.clone())
-  // .chain(cmd_args.iter().cloned())
-  // .collect::<Vec<_>>()
-  // .join(" ");
-  // println!("[Launch Command] {}", full_cmd);
 
   // execute launch command
   #[cfg(target_os = "windows")]
   cmd_base.creation_flags(0x08000000);
 
   let child = cmd_base
+    .env("CLASSPATH", class_paths.join(get_separator()))
     .args(cmd_args)
     .stdout(Stdio::piped())
     .stderr(Stdio::piped())
