@@ -68,17 +68,60 @@ jobs:
       SJMCL_MICROSOFT_CLIENT_SECRET: ${{ secrets.SJMCL_MICROSOFT_CLIENT_SECRET }}
       SJMCL_CURSEFORGE_API_KEY: ${{ secrets.SJMCL_CURSEFORGE_API_KEY }}
 
-  Create-Release:
+  Code-Sign-macOS:
     needs: [Version-Check, Build-and-Release]
+    uses: ./.github/workflows/sign-macos.yml
+    with:
+      version: ${{ needs.Version-Check.outputs.version }}
+    secrets:
+      CERT_P12_BASE64: ${{ secrets.CERT_P12_BASE64 }}
+      CERT_P12_PASSWORD: ${{ secrets.CERT_P12_PASSWORD }}
+      SIGNING_IDENTITY: ${{ secrets.SIGNING_IDENTITY }}
+      NOTARY_APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
+      NOTARY_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
+      NOTARY_TEAM_ID: ${{ secrets.NOTARY_TEAM_ID }}
+
+  Create-Release:
+    needs: [Version-Check, Build-and-Release, Code-Sign-macOS]
     runs-on: ubuntu-latest
     
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download all artifacts
+      - name: Download non-macOS artifacts
         uses: actions/download-artifact@v4
         with:
+          pattern: 'SJMCL_${{ needs.Version-Check.outputs.version }}_*'
           path: artifacts
+          merge-multiple: true
+
+      - name: Download signed macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 'SJMCL_${{ needs.Version-Check.outputs.version }}_macos_*_signed'
+          path: artifacts-signed
+          merge-multiple: true
+
+      - name: Organize release artifacts
+        env:
+          VERSION: ${{ needs.Version-Check.outputs.version }}
+        run: |
+          mkdir -p release-artifacts
+          
+          # Copy non-macOS artifacts
+          find artifacts -name "SJMCL_${{ env.VERSION }}_windows_*" -exec cp {} release-artifacts/ \;
+          find artifacts -name "SJMCL_${{ env.VERSION }}_linux_*" -exec cp {} release-artifacts/ \;
+          
+          # Copy signed macOS artifacts (rename to remove _signed suffix)
+          find artifacts-signed -name "SJMCL_${{ env.VERSION }}_macos_*" -type f | while read file; do
+            basename=$(basename "$file")
+            # Remove _signed suffix before the file extension
+            newname=$(echo "$basename" | sed 's/_signed\./\./')
+            cp "$file" "release-artifacts/$newname"
+          done
+          
+          echo "Final release artifacts:"
+          ls -la release-artifacts/
 
       - name: Create Release
         env:
@@ -86,12 +129,10 @@ jobs:
           VERSION: ${{ needs.Version-Check.outputs.version }}
         run: |
           RELEASE_TAG="${{ env.VERSION }}"
-
-          ls -la ./artifacts/*/*
           
           # Create the release
           gh release create "$GITHUB_REF_NAME" \
             --title "SJMCL ${{ env.VERSION }}" \
             --draft \
             $PRERELEASE \
-            ./artifacts/*/*
+            ./release-artifacts/*
