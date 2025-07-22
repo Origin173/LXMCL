@@ -61,7 +61,7 @@ export const DiscoverSourcesPage = () => {
   return (
     <Section
       className="content-full-y"
-      title={t("DiscoverPage.button.sources")}
+      title={t("DiscoverPage.sources")}
       withBackButton
       headExtra={
         <Button
