@@ -1,9 +1,7 @@
-use super::super::super::utils::fs::get_app_resource_filepath;
-use super::super::models::misc::Instance;
-use crate::instance::helpers::game_version::compare_game_versions;
+use super::super::{super::utils::fs::get_app_resource_filepath, models::misc::Instance};
 use crate::{
   error::{SJMCLError, SJMCLResult},
-  instance::{self, models::misc::ModLoaderType},
+  instance::{self, helpers::game_version::compare_game_versions, models::misc::ModLoaderType},
 };
 use rand::rand_core::le;
 use regex::RegexBuilder;
@@ -397,10 +395,16 @@ pub async fn replace_libraries(
   for lib in &mut client_info.libraries {
     let key = lib.name.clone();
 
-    if let Some(new_lib_opt) = platform_map.get(&key) {
-      if let Some(new_lib) = new_lib_opt {
+    if lib.natives.is_some() {
+      let natives_key = format!("{key}:natives");
+      if let Some(Some(new_lib)) = platform_map.get(&natives_key) {
         *lib = new_lib.clone();
+        continue;
       }
+    }
+
+    if let Some(Some(new_lib_opt)) = platform_map.get(&key) {
+      *lib = new_lib_opt.clone();
     }
   }
   Ok(())
