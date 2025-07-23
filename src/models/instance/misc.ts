@@ -14,6 +14,7 @@ export interface InstanceSummary {
   modLoader: {
     loaderType: ModLoaderType;
     version?: string;
+    installed: boolean;
   };
   useSpecGameConfig: boolean;
 }

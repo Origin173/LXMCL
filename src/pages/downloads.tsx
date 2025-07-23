@@ -196,7 +196,7 @@ export const DownloadTasksPage = () => {
                     )}
 
                     {(group.status === GTaskEventStatusEnums.Failed ||
-                      group.reason) && (
+                      group.status === GTaskEventStatusEnums.Cancelled) && (
                       <Tooltip label={t("DownloadTasksPage.button.retry")}>
                         <IconButton
                           aria-label="retry"

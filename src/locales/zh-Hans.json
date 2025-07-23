@@ -749,7 +749,7 @@
       "MIXIN_APPLY_MOD_FAILED": "当前游戏由于 Mixin 无法应用于模组 {{param1}}，无法继续运行。你可以尝试删除或更新该模组以解决问题。",
       "FORGE_ERROR": "Forge/NeoForge 提供了错误信息：{{param1}}",
       "MOD_RESOLUTION0": "当前游戏由于一些模组出现问题，无法继续运行。你可以查看日志寻找出错模组。",
-      "FORGE_REPEAT_INSTALLATION": "当前游戏由于 Forge 重复安装，无法继续运行。",
+      "FORGE_REPEAT_INSTALLATION": "当前游戏由于 Forge / NeoForge 重复安装，无法继续运行。",
       "OPTIFINE_REPEAT_INSTALLATION": "当前游戏由于 OptiFine 重复安装，无法继续运行。",
       "JAVA_VERSION_IS_TOO_HIGH": "当前游戏由于 Java 版本过高，无法继续运行。请使用 Java 8 或更低版本。",
       "INSTALL_MIXINBOOTSTRAP": "当前游戏由于 MixinBootstrap 未安装，无法继续运行。请安装 MixinBootstrap 并重试。",
@@ -1849,6 +1849,7 @@
           "title": "选择合适 Java 运行时失败",
           "description": {
             "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在",
+            "MOD_LOADER_NOT_INSTALLED": "模组加载器未完成安装",
             "NO_SUITABLE_JAVA": "没有合适的 Java 运行时可供选择"
           }
         }
@@ -2136,6 +2137,18 @@
           "description": {
             "SHORTCUT_CREATION_FAILED": "命令执行失败",
             "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在"
+          }
+        }
+      },
+      "finishModLoaderInstall": {
+        "loading": "正在为 {{instanceName}} 安装模组加载器...",
+        "success": "模组加载器安装完成",
+        "error": {
+          "title": "模组加载器安装失败",
+          "description": {
+            "INSTANCE_NOT_FOUND_BY_ID": "实例 ID 不存在",
+            "MAIN_CLASS_NOT_FOUND": "主类未找到",
+            "PROCESSOR_EXECUTION_FAILED": "安装任务执行失败"
           }
         }
       }
