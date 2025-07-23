@@ -1,7 +1,11 @@
-use super::super::{super::utils::fs::get_app_resource_filepath, models::misc::Instance};
 use crate::{
   error::{SJMCLError, SJMCLResult},
-  instance::{self, helpers::game_version::compare_game_versions, models::misc::ModLoaderType},
+  instance::{
+    self, helpers::game_version::compare_game_versions, models::misc::Instance,
+    models::misc::ModLoaderType,
+  },
+  launcher_config::models::LauncherConfig,
+  utils::fs::get_app_resource_filepath,
 };
 use rand::rand_core::le;
 use regex::RegexBuilder;
@@ -11,8 +15,9 @@ use serde_with::{formats::PreferMany, serde_as, OneOrMany};
 use std::cmp::Ordering;
 use std::fs;
 use std::path::PathBuf;
+use std::sync::Mutex;
 use std::{collections::HashMap, str::FromStr};
-use tauri::AppHandle;
+use tauri::{AppHandle, Manager};
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 #[serde(rename_all = "camelCase", default)]
@@ -364,24 +369,30 @@ pub async fn replace_libraries(
   app: &AppHandle,
   client_info: &mut McClientInfo,
   instance: &Instance,
-  os: &str,
-  arch: &str,
 ) -> SJMCLResult<()> {
-  let is_x86 = arch.contains("86");
-  if is_x86 && matches!(os, "linux" | "macos") {
+  #[cfg(any(
+    all(
+      any(target_arch = "x86", target_arch = "x86_64"),
+      any(target_os = "linux", target_os = "macos")
+    ),
+    target_os = "windows"
+  ))]
+  {
     return Ok(());
   }
 
-  if matches!(os, "windows") {
-    return Ok(());
-  }
-
-  let is_arm64 = arch == "arm64" || arch == "aarch64";
-  if is_arm64 && matches!(os, "macos") {
+  #[cfg(all(target_arch = "aarch64", target_os = "macos"))]
+  {
     if compare_game_versions(app, instance.version.as_str(), "1.19").await != Ordering::Less {
       return Ok(());
     }
   }
+
+  let (os, arch) = {
+    let launcher_config_state = app.state::<Mutex<LauncherConfig>>();
+    let cfg = launcher_config_state.lock().unwrap();
+    (cfg.basic_info.os_type.clone(), cfg.basic_info.arch.clone())
+  };
   let path = get_app_resource_filepath(app, "assets/game/natives.json")?;
   let system_info = format!("{}-{}", os.to_lowercase(), arch.to_lowercase());
   let replace_map_all = load_replace_map(path)?;

@@ -888,12 +888,7 @@ pub async fn create_instance(
     return Err(InstanceError::InstanceNotFoundByID.into());
   };
 
-  let (os, arch) = {
-    let cfg = launcher_config_state.lock().unwrap();
-    (cfg.basic_info.os_type.clone(), cfg.basic_info.arch.clone())
-  };
-
-  replace_libraries(&app, &mut version_info, &instance, &os, &arch)
+  replace_libraries(&app, &mut version_info, &instance)
     .await
     .map_err(|_| InstanceError::ClientJsonParseError)?;
 
