@@ -145,7 +145,7 @@ pub fn convert_library_name_to_path(name: &str, native: Option<String>) -> SJMCL
     pack_version,
     classifier,
     extension: file_ext,
-  } = parse_library_name(&name, native)?;
+  } = parse_library_name(name, native)?;
 
   let file_name = [
     pack_name.clone(),

@@ -1,3 +1,4 @@
+import { useToast as useChakraToast } from "@chakra-ui/react";
 import React, {
   createContext,
   useCallback,
@@ -46,6 +47,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const toast = useToast();
+  const { close: closeToast } = useChakraToast();
   const { getInstanceList } = useGlobalData();
   const [tasks, setTasks] = useState<TaskGroupDesc[]>([]);
   const [generalPercent, setGeneralPercent] = useState<number>();
@@ -424,9 +426,19 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
               break;
             case "forge-libraries":
             case "neoforge-libraries":
-              version &&
+              if (version) {
+                let instanceName = getInstanceList()?.find(
+                  (i) => i.id === version
+                )?.name;
+                let loadingToast = toast({
+                  title: t("Services.instance.finishModLoaderInstall.loading", {
+                    instanceName,
+                  }),
+                  status: "loading",
+                });
                 InstanceService.finishModLoaderInstall(version).then(
                   (response) => {
+                    closeToast(loadingToast);
                     if (response.status === "success") {
                       toast({
                         title: response.message,
@@ -441,6 +453,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
                     }
                   }
                 );
+              }
               break;
             default:
               break;

@@ -63,6 +63,9 @@ pub async fn select_suitable_jre(
     .get(&instance_id)
     .ok_or(InstanceError::InstanceNotFoundByID)?
     .clone();
+  if !instance.mod_loader.installed {
+    return Err(LaunchError::ModLoaderNotInstalled.into());
+  }
   let game_config = get_instance_game_config(&app, &instance);
 
   let client_path = instance
