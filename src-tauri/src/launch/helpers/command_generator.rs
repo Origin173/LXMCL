@@ -288,9 +288,17 @@ pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<LaunchCommand> {
     // specified jvm params
     let mut client_jvm_args = client_args.to_jvm_arguments(&launch_feature)?;
     if let Some(classpath_pos) = client_jvm_args.iter().position(|s| s == "-cp") {
-      // remove -cp and "${classpath}" to make command shorter
+      // remove -cp and "${classpath}" and move them to the env to make command shorter
       client_jvm_args.remove(classpath_pos);
       client_jvm_args.remove(classpath_pos);
+    }
+    if client_info.main_class == "cpw.mods.bootstraplauncher.BootstrapLauncher" {
+      // fix strange module conflict problem in Minecraft 1.17+ with Forge
+      client_jvm_args.iter_mut().for_each(|arg| {
+        if arg.starts_with("-DignoreList=") {
+          arg.push_str(",${version_name}.jar");
+        }
+      });
     }
     cmd.extend(replace_arguments(client_jvm_args, &map));
   } else {
