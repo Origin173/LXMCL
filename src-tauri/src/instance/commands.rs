@@ -810,13 +810,13 @@ pub async fn create_instance(
   if version_path.exists() {
     return Err(InstanceError::ConflictNameError.into());
   }
-  fs::create_dir_all(&version_path).map_err(|_| InstanceError::FolderCreationFailed)?;
+
   // Create instance config
   let instance = Instance {
     id: format!("{}:{}", directory.name, name.clone()),
     name: name.clone(),
     version: game.id.clone(),
-    version_path,
+    version_path: version_path.clone(),
     mod_loader: ModLoader {
       loader_type: mod_loader.loader_type.clone(),
       installed: matches!(
@@ -833,10 +833,6 @@ pub async fn create_instance(
     use_spec_game_config: false,
     spec_game_config: None,
   };
-  instance
-    .save_json_cfg()
-    .await
-    .map_err(|_| InstanceError::FileCreationFailed)?;
 
   let subdirs = get_instance_subdir_paths(
     &app,
@@ -861,16 +857,6 @@ pub async fn create_instance(
   version_info.id = name.clone();
   version_info.jar = Some(name.clone());
 
-  let version_info_path = directory
-    .dir
-    .join(format!("versions/{}/{}.json", name, name));
-
-  fs::write(
-    &version_info_path,
-    serde_json::to_vec_pretty(&version_info)?,
-  )
-  .map_err(|_| InstanceError::FileCreationFailed)?;
-
   let mut task_params = Vec::<PTaskParam>::new();
 
   // Download client (use task)
@@ -893,27 +879,18 @@ pub async fn create_instance(
   );
 
   // Download asset index
-  let asset_index_raw = client
+  let asset_index = client
     .get(version_info.asset_index.url.clone())
     .send()
     .await
     .map_err(|_| InstanceError::NetworkError)?
-    .json::<serde_json::Value>()
+    .json::<AssetIndex>()
     .await
     .map_err(|_| InstanceError::AssetIndexParseError)?;
 
   let asset_index_path = assets_dir.join("indexes");
 
-  fs::create_dir_all(&asset_index_path).map_err(|_| InstanceError::FolderCreationFailed)?;
-  fs::write(
-    asset_index_path.join(format!("{}.json", version_info.asset_index.id)),
-    asset_index_raw.to_string(),
-  )
-  .map_err(|_| InstanceError::FileCreationFailed)?;
-
   // We only download assets if they are invalid (not already downloaded)
-  let asset_index: AssetIndex =
-    serde_json::from_value(asset_index_raw).map_err(|_| InstanceError::AssetIndexParseError)?;
   task_params.extend(get_invalid_assets(priority_list[0], assets_dir, &asset_index, false).await?);
 
   if instance.mod_loader.loader_type != ModLoaderType::Unknown {
@@ -927,12 +904,6 @@ pub async fn create_instance(
       &mut task_params,
     )
     .await?;
-
-    fs::write(
-      &version_info_path,
-      serde_json::to_vec_pretty(&version_info)?,
-    )
-    .map_err(|_| InstanceError::FileCreationFailed)?;
   }
   schedule_progressive_task_group(
     app.clone(),
@@ -941,6 +912,27 @@ pub async fn create_instance(
     true,
   )
   .await?;
+
+  fs::create_dir_all(&version_path).map_err(|_| InstanceError::FolderCreationFailed)?;
+  instance
+    .save_json_cfg()
+    .await
+    .map_err(|_| InstanceError::FileCreationFailed)?;
+  let version_info_path = directory
+    .dir
+    .join(format!("versions/{}/{}.json", name, name));
+
+  fs::write(
+    &version_info_path,
+    serde_json::to_vec_pretty(&version_info)?,
+  )
+  .map_err(|_| InstanceError::FileCreationFailed)?;
+  fs::create_dir_all(&asset_index_path).map_err(|_| InstanceError::FolderCreationFailed)?;
+  fs::write(
+    asset_index_path.join(format!("{}.json", version_info.asset_index.id)),
+    serde_json::to_vec_pretty(&asset_index)?,
+  )
+  .map_err(|_| InstanceError::FileCreationFailed)?;
 
   Ok(())
 }

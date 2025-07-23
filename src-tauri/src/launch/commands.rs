@@ -238,6 +238,12 @@ pub async fn launch_game(
   } = generate_launch_command(&app)?;
   let mut cmd_base = Command::new(selected_java.exec_path.clone());
 
+  let full_cmd = std::iter::once(selected_java.exec_path.clone())
+    .chain(cmd_args.iter().cloned())
+    .collect::<Vec<_>>()
+    .join(" ");
+  println!("[Launch Command] {}", full_cmd);
+
   // execute launch command
   #[cfg(target_os = "windows")]
   cmd_base.creation_flags(0x08000000);

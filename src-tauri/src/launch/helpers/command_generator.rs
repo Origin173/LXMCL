@@ -161,7 +161,7 @@ pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<LaunchCommand> {
     assets_index_name: client_info.asset_index.id,
     game_directory: root_dir.to_string_lossy().to_string(),
 
-    version_name: selected_instance.version.clone(),
+    version_name: selected_instance.name.clone(),
     version_type: if !game_config.game_window.custom_info.is_empty() {
       game_config.game_window.custom_info.clone()
     } else {
@@ -291,14 +291,6 @@ pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<LaunchCommand> {
       // remove -cp and "${classpath}" and move them to the env to make command shorter
       client_jvm_args.remove(classpath_pos);
       client_jvm_args.remove(classpath_pos);
-    }
-    if client_info.main_class == "cpw.mods.bootstraplauncher.BootstrapLauncher" {
-      // fix strange module conflict problem in Minecraft 1.17+ with Forge
-      client_jvm_args.iter_mut().for_each(|arg| {
-        if arg.starts_with("-DignoreList=") {
-          arg.push_str(",${version_name}.jar");
-        }
-      });
     }
     cmd.extend(replace_arguments(client_jvm_args, &map));
   } else {
