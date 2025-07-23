@@ -749,7 +749,7 @@
       "MIXIN_APPLY_MOD_FAILED": "Mixin failed to apply to mod {{param1}}. Try deleting or updating this mod.",
       "FORGE_ERROR": "Forge/NeoForge provided the following error message: {{param1}}",
       "MOD_RESOLUTION0": "Issues detected with some mods. Check the logs to find the problematic mod.",
-      "FORGE_REPEAT_INSTALLATION": "Repeated installation of Forge detected.",
+      "FORGE_REPEAT_INSTALLATION": "Repeated installation of Forge / NeoForge detected.",
       "OPTIFINE_REPEAT_INSTALLATION": "Repeated installation of OptiFine detected.",
       "JAVA_VERSION_IS_TOO_HIGH": "Java version is too high. Please use Java 8 or lower.",
       "INSTALL_MIXINBOOTSTRAP": "MixinBootstrap is not installed. Please install MixinBootstrap and try again.",
@@ -1849,6 +1849,7 @@
           "title": "Failed to select suitable JRE",
           "description": {
             "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist",
+            "MOD_LOADER_NOT_INSTALLED": "Mod loader installation not completed",
             "NO_SUITABLE_JAVA": "No suitable Java version found"
           }
         }
@@ -2136,6 +2137,18 @@
           "description": {
             "SHORTCUT_CREATION_FAILED": "Command execution failed",
             "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist"
+          }
+        }
+      },
+      "finishModLoaderInstall": {
+        "loading": "Installing mod loader for {{instanceId}}...",
+        "success": "Mod loader installed successfully",
+        "error": {
+          "title": "Failed to install mod loader",
+          "description": {
+            "INSTANCE_NOT_FOUND_BY_ID": "Instance ID does not exist",
+            "MAIN_CLASS_NOT_FOUND": "Main class not found in the mod loader version",
+            "PROCESSOR_EXECUTION_FAILED": "Failed to execute the install process"
           }
         }
       }

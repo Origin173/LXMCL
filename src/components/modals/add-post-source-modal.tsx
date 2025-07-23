@@ -20,18 +20,26 @@ const AddDiscoverSourceModal: React.FC<Omit<ModalProps, "children">> = ({
   ...props
 }) => {
   const { t } = useTranslation();
-  const { config } = useLauncherConfig();
+  const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
-
   const [endpointUrl, setEndpointUrl] = useState<string>("");
 
-  const handleCloseModal = async () => {
+  const handleCloseModal = () => {
     setEndpointUrl("");
     props.onClose();
   };
 
+  const handleConfirm = () => {
+    const trimmed = endpointUrl.trim();
+    const current = config.discoverSourceEndpoints;
+    if (!trimmed || current.includes(trimmed)) return;
+    const updated = [...current, trimmed];
+    update("discoverSourceEndpoints", updated);
+    handleCloseModal();
+  };
+
   return (
-    <Modal {...props}>
+    <Modal {...props} onClose={handleCloseModal}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{t("AddDiscoverSourceModal.modal.header")}</ModalHeader>
@@ -56,7 +64,7 @@ const AddDiscoverSourceModal: React.FC<Omit<ModalProps, "children">> = ({
           </Button>
           <Button
             colorScheme={primaryColor}
-            onClick={handleCloseModal}
+            onClick={handleConfirm}
             isDisabled={!endpointUrl.trim()}
           >
             {t("General.confirm")}

@@ -34,9 +34,11 @@ const WelcomeAndTermsModal: React.FC<Omit<ModalProps, "children">> = ({
   };
 
   const unstableVersionLabels = ["dev", "nightly", "beta"];
-  const matchedVersionLabel = unstableVersionLabels.find((k) =>
-    config.basicInfo.launcherVersion.includes(k)
-  );
+  const launcherVersion = config.basicInfo.launcherVersion;
+
+  const matchedVersionLabel =
+    unstableVersionLabels.find((k) => launcherVersion.includes(k)) ||
+    (launcherVersion.startsWith("0.") ? "beta" : undefined);
 
   return (
     <Modal

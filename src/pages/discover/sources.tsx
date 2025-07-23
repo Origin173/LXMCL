@@ -23,7 +23,7 @@ import { DiscoverService } from "@/services/discover";
 
 export const DiscoverSourcesPage = () => {
   const { t } = useTranslation();
-  const { config } = useLauncherConfig();
+  const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const sources = config.discoverSourceEndpoints;
 
@@ -45,6 +45,13 @@ export const DiscoverSourcesPage = () => {
       // no toast here, keep slient if no internet connection or etc.
     });
   }, [setSourcesInfo]);
+
+  const handleRemoveSource = (urlToRemove: string) => {
+    const updated = sources.filter((url) => url !== urlToRemove);
+    update("discoverSourceEndpoints", updated);
+    setSourcesInfo(updated.map((url) => ({ endpointUrl: url })));
+    handleFetchPostSourcesInfo();
+  };
 
   useEffect(() => {
     if (sources.length === 0) return;
@@ -117,6 +124,7 @@ export const DiscoverSourcesPage = () => {
                     icon={<LuTrash />}
                     variant="ghost"
                     colorScheme="red"
+                    onClick={() => handleRemoveSource(source.endpointUrl)}
                   />
                 </Tooltip>
               </HStack>

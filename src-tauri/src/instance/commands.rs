@@ -27,7 +27,8 @@ use crate::{
     helpers::{
       client_json::{replace_libraries, McClientInfo},
       misc::get_instance_subdir_paths,
-      mod_loader::install_mod_loader,
+      mod_loader::{execute_processors, install_mod_loader},
+      mods::forge::InstallProfile,
     },
     models::misc::{AssetIndex, ModLoader},
   },
@@ -41,7 +42,7 @@ use crate::{
     helpers::misc::get_source_priority_list,
     models::{GameClientResourceInfo, ModLoaderResourceInfo},
   },
-  storage::Storage,
+  storage::{load_json_async, Storage},
   tasks::{commands::schedule_progressive_task_group, download::DownloadParam, PTaskParam},
   utils::{fs::create_url_shortcut, image::ImageWrapper},
 };
@@ -809,16 +810,16 @@ pub async fn create_instance(
   if version_path.exists() {
     return Err(InstanceError::ConflictNameError.into());
   }
-  fs::create_dir_all(&version_path).map_err(|_| InstanceError::FolderCreationFailed)?;
+
   // Create instance config
   let instance = Instance {
     id: format!("{}:{}", directory.name, name.clone()),
     name: name.clone(),
     version: game.id.clone(),
-    version_path,
+    version_path: version_path.clone(),
     mod_loader: ModLoader {
       loader_type: mod_loader.loader_type.clone(),
-      library_downloaded: matches!(
+      installed: matches!(
         mod_loader.loader_type,
         ModLoaderType::Unknown | ModLoaderType::Fabric
       ),
@@ -832,10 +833,16 @@ pub async fn create_instance(
     use_spec_game_config: false,
     spec_game_config: None,
   };
-  instance
-    .save_json_cfg()
-    .await
-    .map_err(|_| InstanceError::FileCreationFailed)?;
+
+  let subdirs = get_instance_subdir_paths(
+    &app,
+    &instance,
+    &[&InstanceSubdirType::Libraries, &InstanceSubdirType::Assets],
+  )
+  .ok_or(InstanceError::InstanceNotFoundByID)?;
+  let [libraries_dir, assets_dir] = subdirs.as_slice() else {
+    return Err(InstanceError::InstanceNotFoundByID.into());
+  };
 
   // Download version info
   let mut version_info = client
@@ -850,16 +857,6 @@ pub async fn create_instance(
   version_info.id = name.clone();
   version_info.jar = Some(name.clone());
 
-  let version_info_path = directory
-    .dir
-    .join(format!("versions/{}/{}.json", name, name));
-
-  fs::write(
-    &version_info_path,
-    serde_json::to_vec_pretty(&version_info)?,
-  )
-  .map_err(|_| InstanceError::FileCreationFailed)?;
-
   let mut task_params = Vec::<PTaskParam>::new();
 
   // Download client (use task)
@@ -871,13 +868,10 @@ pub async fn create_instance(
   task_params.push(PTaskParam::Download(DownloadParam {
     src: Url::parse(&client_download_info.url.clone())
       .map_err(|_| InstanceError::ClientJsonParseError)?,
-    dest: directory
-      .dir
-      .join(format!("versions/{}/{}.jar", name, name)),
+    dest: instance.version_path.join(format!("{}.jar", name)),
     filename: None,
     sha1: Some(client_download_info.sha1.clone()),
   }));
-
   let subdirs = get_instance_subdir_paths(
     &app,
     &instance,
@@ -898,27 +892,18 @@ pub async fn create_instance(
   );
 
   // Download asset index
-  let asset_index_raw = client
+  let asset_index = client
     .get(version_info.asset_index.url.clone())
     .send()
     .await
     .map_err(|_| InstanceError::NetworkError)?
-    .json::<serde_json::Value>()
+    .json::<AssetIndex>()
     .await
     .map_err(|_| InstanceError::AssetIndexParseError)?;
 
   let asset_index_path = assets_dir.join("indexes");
 
-  fs::create_dir_all(&asset_index_path).map_err(|_| InstanceError::FolderCreationFailed)?;
-  fs::write(
-    asset_index_path.join(format!("{}.json", version_info.asset_index.id)),
-    asset_index_raw.to_string(),
-  )
-  .map_err(|_| InstanceError::FileCreationFailed)?;
-
   // We only download assets if they are invalid (not already downloaded)
-  let asset_index: AssetIndex =
-    serde_json::from_value(asset_index_raw).map_err(|_| InstanceError::AssetIndexParseError)?;
   task_params.extend(get_invalid_assets(priority_list[0], assets_dir, &asset_index, false).await?);
 
   if instance.mod_loader.loader_type != ModLoaderType::Unknown {
@@ -932,12 +917,6 @@ pub async fn create_instance(
       &mut task_params,
     )
     .await?;
-
-    fs::write(
-      &version_info_path,
-      serde_json::to_vec_pretty(&version_info)?,
-    )
-    .map_err(|_| InstanceError::FileCreationFailed)?;
   }
   schedule_progressive_task_group(
     app.clone(),
@@ -947,22 +926,59 @@ pub async fn create_instance(
   )
   .await?;
 
+  fs::create_dir_all(&version_path).map_err(|_| InstanceError::FolderCreationFailed)?;
+  instance
+    .save_json_cfg()
+    .await
+    .map_err(|_| InstanceError::FileCreationFailed)?;
+  let version_info_path = directory
+    .dir
+    .join(format!("versions/{}/{}.json", name, name));
+
+  fs::write(
+    &version_info_path,
+    serde_json::to_vec_pretty(&version_info)?,
+  )
+  .map_err(|_| InstanceError::FileCreationFailed)?;
+  fs::create_dir_all(&asset_index_path).map_err(|_| InstanceError::FolderCreationFailed)?;
+  fs::write(
+    asset_index_path.join(format!("{}.json", version_info.asset_index.id)),
+    serde_json::to_vec_pretty(&asset_index)?,
+  )
+  .map_err(|_| InstanceError::FileCreationFailed)?;
+
   Ok(())
 }
 
 #[tauri::command]
-pub async fn mark_mod_loader_library_downloaded(
-  app: AppHandle,
-  instance_id: String,
-) -> SJMCLResult<()> {
+pub async fn finish_mod_loader_install(app: AppHandle, instance_id: String) -> SJMCLResult<()> {
   let instance = {
     let binding = app.state::<Mutex<HashMap<String, Instance>>>();
-    let mut state = binding.lock().unwrap();
+    let state = binding.lock()?;
+    state
+      .get(&instance_id)
+      .ok_or(InstanceError::InstanceNotFoundByID)?
+      .clone()
+  };
+
+  let client_info_dir = instance
+    .version_path
+    .join(format!("{}.json", instance.name));
+  let client_info = load_json_async::<McClientInfo>(&client_info_dir).await?;
+
+  let install_profile_dir = instance.version_path.join("install_profile.json");
+  if install_profile_dir.exists() {
+    let install_profile = load_json_async::<InstallProfile>(&install_profile_dir).await?;
+    execute_processors(&app, &instance, &client_info, &install_profile).await?;
+  }
+
+  let instance = {
+    let binding = app.state::<Mutex<HashMap<String, Instance>>>();
+    let mut state = binding.lock()?;
     let instance = state
       .get_mut(&instance_id)
       .ok_or(InstanceError::InstanceNotFoundByID)?;
-
-    instance.mod_loader.library_downloaded = true;
+    instance.mod_loader.installed = true;
     instance.clone()
   };
   instance.save_json_cfg().await?;
