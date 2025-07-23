@@ -353,9 +353,9 @@ pub fn load_replace_map(
   path: PathBuf,
 ) -> SJMCLResult<HashMap<String, HashMap<String, Option<LibrariesValue>>>> {
   let txt =
-    fs::read_to_string(path).map_err(|e| SJMCLError(format!("读取 natives.json 失败: {e}")))?;
-  let map: HashMap<String, HashMap<String, Option<LibrariesValue>>> =
-    serde_json::from_str(&txt).map_err(|e| SJMCLError(format!("解析 natives.json 失败: {e}")))?;
+    fs::read_to_string(path).map_err(|e| SJMCLError(format!("read natives.json failed: {e}")))?;
+  let map: HashMap<String, HashMap<String, Option<LibrariesValue>>> = serde_json::from_str(&txt)
+    .map_err(|e| SJMCLError(format!("parse natives.json failed: {e}")))?;
 
   Ok(map)
 }
