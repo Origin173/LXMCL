@@ -24,22 +24,22 @@ const AddDiscoverSourceModal: React.FC<Omit<ModalProps, "children">> = ({
   const primaryColor = config.appearance.theme.primaryColor;
   const [endpointUrl, setEndpointUrl] = useState<string>("");
 
-  const handleConfirm = () => {
-    const trimmed = endpointUrl.trim();
-    const current = config.discoverSourceEndpoints;
-
-    if (!trimmed || current.includes(trimmed)) {
-      return;
-    }
-
-    const updated = [...current, trimmed];
-    update("discoverSourceEndpoints", updated);
+  const handleCloseModal = () => {
     setEndpointUrl("");
     props.onClose();
   };
 
+  const handleConfirm = () => {
+    const trimmed = endpointUrl.trim();
+    const current = config.discoverSourceEndpoints;
+    if (!trimmed || current.includes(trimmed)) return;
+    const updated = [...current, trimmed];
+    update("discoverSourceEndpoints", updated);
+    handleCloseModal();
+  };
+
   return (
-    <Modal {...props}>
+    <Modal {...props} onClose={handleCloseModal}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{t("AddDiscoverSourceModal.modal.header")}</ModalHeader>
