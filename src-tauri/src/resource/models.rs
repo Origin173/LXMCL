@@ -1,6 +1,7 @@
 use crate::instance::models::misc::ModLoaderType;
 use serde::{Deserialize, Serialize};
-use strum_macros::Display;
+use strum::IntoEnumIterator;
+use strum_macros::{Display, EnumIter};
 
 #[derive(Eq, Hash, PartialEq, Clone, Copy, Debug)]
 pub enum ResourceType {
@@ -28,7 +29,7 @@ pub enum ResourceType {
   QuiltMeta,
 }
 
-#[derive(Eq, Hash, PartialEq, Clone, Copy, Debug)]
+#[derive(Eq, Hash, PartialEq, Clone, Copy, Debug, EnumIter)]
 pub enum SourceType {
   Official,
   BMCLAPIMirror,

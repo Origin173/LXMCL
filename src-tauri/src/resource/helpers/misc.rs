@@ -1,5 +1,6 @@
 use crate::resource::models::{ResourceError, ResourceType, SourceType};
 use crate::{error::SJMCLResult, launcher_config::models::LauncherConfig};
+use strum::IntoEnumIterator;
 use url::Url;
 
 pub fn get_source_priority_list(launcher_config: &LauncherConfig) -> Vec<SourceType> {
@@ -82,4 +83,32 @@ pub fn convert_url_source_type(
   } else {
     Err(ResourceError::NoDownloadApi.into())
   }
+}
+
+pub fn convert_url_to_target_source(
+  url: &Url,
+  resource_type: &ResourceType,
+  dst_type: &SourceType,
+) -> SJMCLResult<Url> {
+  let url_str = url.as_str();
+  let dst_api = match get_download_api(*dst_type, *resource_type) {
+    Ok(api) => api,
+    Err(_) => return Ok(url.clone()), // If destination API is not available, return the original URL
+  };
+
+  for src_type in SourceType::iter() {
+    if &src_type == dst_type {
+      continue;
+    }
+
+    if let Ok(src_api) = get_download_api(src_type, *resource_type) {
+      if url_str.starts_with(src_api.as_str()) {
+        let new_url_str = url_str.replacen(src_api.as_str(), dst_api.as_str(), 1);
+        return Ok(Url::parse(&new_url_str)?);
+      }
+    }
+  }
+
+  // If no replacement occurred, return the original URL
+  Ok(url.clone())
 }
