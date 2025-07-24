@@ -25,7 +25,7 @@ use crate::{
   error::SJMCLResult,
   instance::{
     helpers::{
-      client_json::{replace_libraries, McClientInfo},
+      client_json::{replace_native_libraries, McClientInfo},
       misc::get_instance_subdir_paths,
       mod_loader::{execute_processors, install_mod_loader},
       mods::forge::InstallProfile,
@@ -834,16 +834,6 @@ pub async fn create_instance(
     spec_game_config: None,
   };
 
-  let subdirs = get_instance_subdir_paths(
-    &app,
-    &instance,
-    &[&InstanceSubdirType::Libraries, &InstanceSubdirType::Assets],
-  )
-  .ok_or(InstanceError::InstanceNotFoundByID)?;
-  let [libraries_dir, assets_dir] = subdirs.as_slice() else {
-    return Err(InstanceError::InstanceNotFoundByID.into());
-  };
-
   // Download version info
   let mut version_info = client
     .get(&game.url)
@@ -882,7 +872,7 @@ pub async fn create_instance(
     return Err(InstanceError::InstanceNotFoundByID.into());
   };
 
-  replace_libraries(&app, &mut version_info, &instance)
+  replace_native_libraries(&app, &mut version_info, &instance)
     .await
     .map_err(|_| InstanceError::ClientJsonParseError)?;
 

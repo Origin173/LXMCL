@@ -1,20 +1,18 @@
 use crate::{
   error::{SJMCLError, SJMCLResult},
   instance::{
-    self, helpers::game_version::compare_game_versions, models::misc::Instance,
+    helpers::game_version::compare_game_versions, models::misc::Instance,
     models::misc::ModLoaderType,
   },
   launcher_config::models::LauncherConfig,
   utils::fs::get_app_resource_filepath,
 };
-use rand::rand_core::le;
 use regex::RegexBuilder;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 use serde_with::{formats::PreferMany, serde_as, OneOrMany};
 use std::cmp::Ordering;
 use std::fs;
-use std::path::PathBuf;
 use std::sync::Mutex;
 use std::{collections::HashMap, str::FromStr};
 use tauri::{AppHandle, Manager};
@@ -354,18 +352,21 @@ impl LaunchArgumentTemplate {
   }
 }
 
-pub fn load_replace_map(
-  path: PathBuf,
+// The following two functions are adapted from HMCL.
+// They replace libraries such as LWJGL in version JSONs for older Minecraft versions and specific platforms, using replacement resources contributed by the HMCL community.
+// ref: https://github.com/HMCL-dev/HMCL/blob/main/HMCL/src/main/resources/assets/natives.json
+pub fn load_native_libraries_replace_map(
+  app: &AppHandle,
 ) -> SJMCLResult<HashMap<String, HashMap<String, Option<LibrariesValue>>>> {
+  let path = get_app_resource_filepath(app, "assets/game/natives.json")?;
   let txt =
-    fs::read_to_string(path).map_err(|e| SJMCLError(format!("read natives.json failed: {e}")))?;
+    fs::read_to_string(&path).map_err(|e| SJMCLError(format!("read natives.json failed: {e}")))?;
   let map: HashMap<String, HashMap<String, Option<LibrariesValue>>> = serde_json::from_str(&txt)
     .map_err(|e| SJMCLError(format!("parse natives.json failed: {e}")))?;
-
   Ok(map)
 }
 
-pub async fn replace_libraries(
+pub async fn replace_native_libraries(
   app: &AppHandle,
   client_info: &mut McClientInfo,
   instance: &Instance,
@@ -388,15 +389,15 @@ pub async fn replace_libraries(
     }
   }
 
+  let all_replace_map = load_native_libraries_replace_map(app)?;
+
   let (os, arch) = {
     let launcher_config_state = app.state::<Mutex<LauncherConfig>>();
     let cfg = launcher_config_state.lock().unwrap();
     (cfg.basic_info.os_type.clone(), cfg.basic_info.arch.clone())
   };
-  let path = get_app_resource_filepath(app, "assets/game/natives.json")?;
-  let system_info = format!("{}-{}", os.to_lowercase(), arch.to_lowercase());
-  let replace_map_all = load_replace_map(path)?;
-  let platform_map = match replace_map_all.get(system_info.as_str()) {
+  let platform_key = format!("{}-{}", os.to_lowercase(), arch.to_lowercase());
+  let platform_map = match all_replace_map.get(platform_key.as_str()) {
     Some(m) if !m.is_empty() => m,
     _ => {
       return Ok(());
