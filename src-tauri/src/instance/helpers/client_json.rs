@@ -1,12 +1,23 @@
 use crate::{
   error::{SJMCLError, SJMCLResult},
-  instance::models::misc::ModLoaderType,
+  instance::{
+    self, helpers::game_version::compare_game_versions, models::misc::Instance,
+    models::misc::ModLoaderType,
+  },
+  launcher_config::models::LauncherConfig,
+  utils::fs::get_app_resource_filepath,
 };
+use rand::rand_core::le;
 use regex::RegexBuilder;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 use serde_with::{formats::PreferMany, serde_as, OneOrMany};
+use std::cmp::Ordering;
+use std::fs;
+use std::path::PathBuf;
+use std::sync::Mutex;
 use std::{collections::HashMap, str::FromStr};
+use tauri::{AppHandle, Manager};
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 #[serde(rename_all = "camelCase", default)]
@@ -341,4 +352,71 @@ impl LaunchArgumentTemplate {
     }
     Ok(arguments)
   }
+}
+
+pub fn load_replace_map(
+  path: PathBuf,
+) -> SJMCLResult<HashMap<String, HashMap<String, Option<LibrariesValue>>>> {
+  let txt =
+    fs::read_to_string(path).map_err(|e| SJMCLError(format!("read natives.json failed: {e}")))?;
+  let map: HashMap<String, HashMap<String, Option<LibrariesValue>>> = serde_json::from_str(&txt)
+    .map_err(|e| SJMCLError(format!("parse natives.json failed: {e}")))?;
+
+  Ok(map)
+}
+
+pub async fn replace_libraries(
+  app: &AppHandle,
+  client_info: &mut McClientInfo,
+  instance: &Instance,
+) -> SJMCLResult<()> {
+  #[cfg(any(
+    all(
+      any(target_arch = "x86", target_arch = "x86_64"),
+      any(target_os = "linux", target_os = "macos")
+    ),
+    target_os = "windows"
+  ))]
+  {
+    return Ok(());
+  }
+
+  #[cfg(all(target_arch = "aarch64", target_os = "macos"))]
+  {
+    if compare_game_versions(app, instance.version.as_str(), "1.19").await != Ordering::Less {
+      return Ok(());
+    }
+  }
+
+  let (os, arch) = {
+    let launcher_config_state = app.state::<Mutex<LauncherConfig>>();
+    let cfg = launcher_config_state.lock().unwrap();
+    (cfg.basic_info.os_type.clone(), cfg.basic_info.arch.clone())
+  };
+  let path = get_app_resource_filepath(app, "assets/game/natives.json")?;
+  let system_info = format!("{}-{}", os.to_lowercase(), arch.to_lowercase());
+  let replace_map_all = load_replace_map(path)?;
+  let platform_map = match replace_map_all.get(system_info.as_str()) {
+    Some(m) if !m.is_empty() => m,
+    _ => {
+      return Ok(());
+    }
+  };
+
+  for lib in &mut client_info.libraries {
+    let key = lib.name.clone();
+
+    if lib.natives.is_some() {
+      let natives_key = format!("{key}:natives");
+      if let Some(Some(new_lib)) = platform_map.get(&natives_key) {
+        *lib = new_lib.clone();
+        continue;
+      }
+    }
+
+    if let Some(Some(new_lib_opt)) = platform_map.get(&key) {
+      *lib = new_lib_opt.clone();
+    }
+  }
+  Ok(())
 }

@@ -25,7 +25,7 @@ use crate::{
   error::SJMCLResult,
   instance::{
     helpers::{
-      client_json::McClientInfo,
+      client_json::{replace_libraries, McClientInfo},
       misc::get_instance_subdir_paths,
       mod_loader::{execute_processors, install_mod_loader},
       mods::forge::InstallProfile,
@@ -872,6 +872,19 @@ pub async fn create_instance(
     filename: None,
     sha1: Some(client_download_info.sha1.clone()),
   }));
+  let subdirs = get_instance_subdir_paths(
+    &app,
+    &instance,
+    &[&InstanceSubdirType::Libraries, &InstanceSubdirType::Assets],
+  )
+  .ok_or(InstanceError::InstanceNotFoundByID)?;
+  let [libraries_dir, assets_dir] = subdirs.as_slice() else {
+    return Err(InstanceError::InstanceNotFoundByID.into());
+  };
+
+  replace_libraries(&app, &mut version_info, &instance)
+    .await
+    .map_err(|_| InstanceError::ClientJsonParseError)?;
 
   // We only download libraries if they are invalid (not already downloaded)
   task_params.extend(
