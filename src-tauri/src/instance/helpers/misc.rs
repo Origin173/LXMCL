@@ -196,21 +196,12 @@ pub async fn refresh_instances(
             }
             _ => Ok(()),
           },
-          ModLoaderStatus::Downloading => {
-            // skip
-            Ok(())
-          }
           ModLoaderStatus::NotInstalled => {
             finish_mod_loader_install(app.clone(), cfg_read.id.clone()).await
           }
-          ModLoaderStatus::Installing => {
-            // skip
-            Ok(())
-          }
-          ModLoaderStatus::Installed => {
-            // already installed
-            Ok(())
-          }
+          ModLoaderStatus::Downloading
+          | ModLoaderStatus::Installing
+          | ModLoaderStatus::Installed => Ok(()),
         }
       } {
         eprintln!("Failed to install mod loader for {}: {:?}", name, e);
