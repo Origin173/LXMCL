@@ -71,9 +71,9 @@ impl FromStr for ModLoaderType {
 impl ModLoaderType {
   pub fn to_icon_path(&self) -> &str {
     match self {
-      &ModLoaderType::Unknown => "/images/icons/GrassBlock.png",
+      &ModLoaderType::Unknown => "/images/icons/JEIcon_Release.png",
       &ModLoaderType::Fabric => "/images/icons/Fabric.png",
-      &ModLoaderType::Forge | &ModLoaderType::LegacyForge => "/images/icons/Forge.png",
+      &ModLoaderType::Forge | &ModLoaderType::LegacyForge => "/images/icons/Anvil.png",
       &ModLoaderType::NeoForge => "/images/icons/NeoForge.png",
       &ModLoaderType::LiteLoader => "/images/icons/LiteLoader.png",
       &ModLoaderType::Quilt => "/images/icons/Quilt.png",

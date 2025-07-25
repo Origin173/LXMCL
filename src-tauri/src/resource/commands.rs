@@ -168,7 +168,7 @@ pub async fn update_mods(
     let file_path = mods_dir.join(&query.file_name);
     let download_param = DownloadParam {
       src: url::Url::parse(&query.url).map_err(|_| ResourceError::ParseError)?,
-      dest: file_path.into(),
+      dest: file_path,
       filename: None,
       sha1: Some(query.sha1.clone()),
     };
@@ -183,7 +183,7 @@ pub async fn update_mods(
 
     if old_file_path != &new_file_path.to_string_lossy().to_string() {
       let old_backup_path = format!("{}.old", old_file_path);
-      if let Err(e) = std::fs::rename(&old_file_path, &old_backup_path) {
+      if let Err(e) = std::fs::rename(old_file_path, &old_backup_path) {
         log::error!("Failed to rename old mod file: {}", e);
         return Err(ResourceError::FileOperationError.into());
       }
