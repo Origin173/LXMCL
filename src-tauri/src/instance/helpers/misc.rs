@@ -7,14 +7,13 @@ use super::{
   client_jar::load_game_version_from_jar,
 };
 use crate::error::SJMCLResult;
-use crate::instance::commands::finish_mod_loader_install;
 use crate::instance::helpers::mod_loader::{download_forge_libraries, download_neoforge_libraries};
 use crate::instance::models::misc::{ModLoaderStatus, ModLoaderType};
 use crate::launcher_config::{helpers::misc::get_global_game_config, models::GameConfig};
 use crate::resource::helpers::misc::get_source_priority_list;
 use crate::storage::load_json_async;
 use crate::{
-  instance::helpers::client_json::patchs_to_info,
+  instance::helpers::client_json::patches_to_info,
   launcher_config::models::{GameDirectory, LauncherConfig},
 };
 use sanitize_filename;
@@ -134,6 +133,7 @@ pub fn unify_instance_name(src_version_path: &PathBuf, tgt_name: &String) -> SJM
 pub async fn refresh_instances(
   app: &AppHandle,
   game_directory: &GameDirectory,
+  is_first_run: bool,
 ) -> SJMCLResult<Vec<Instance>> {
   let mut instances = vec![];
   // traverse the "versions" directory
@@ -178,8 +178,8 @@ pub async fn refresh_instances(
       .unwrap_or_default();
 
     if cfg_read.mod_loader.status != ModLoaderStatus::Installed {
-      let launcher_config_state = app.state::<Mutex<LauncherConfig>>();
       let priority_list = {
+        let launcher_config_state = app.state::<Mutex<LauncherConfig>>();
         let launcher_config = launcher_config_state.lock()?;
         get_source_priority_list(&launcher_config)
       };
@@ -196,12 +196,14 @@ pub async fn refresh_instances(
             }
             _ => Ok(()),
           },
-          ModLoaderStatus::NotInstalled => {
-            finish_mod_loader_install(app.clone(), cfg_read.id.clone()).await
+          ModLoaderStatus::Downloading | ModLoaderStatus::Installing => {
+            if is_first_run {
+              // if it's the first run, reset the status and wait for download
+              cfg_read.mod_loader.status = ModLoaderStatus::NotDownloaded;
+            }
+            Ok(())
           }
-          ModLoaderStatus::Downloading
-          | ModLoaderStatus::Installing
-          | ModLoaderStatus::Installed => Ok(()),
+          ModLoaderStatus::Installed => Ok(()),
         }
       } {
         eprintln!("Failed to install mod loader for {}: {:?}", name, e);
@@ -211,7 +213,7 @@ pub async fn refresh_instances(
       }
     }
 
-    let (mut game_version, loader_version, loader_type) = patchs_to_info(&client_data.patches);
+    let (mut game_version, loader_version, loader_type) = patches_to_info(&client_data.patches);
     // TODO: patches related logic
     if game_version.is_none() {
       let file = Cursor::new(tokio::fs::read(jar_path).await?);
@@ -252,12 +254,13 @@ pub async fn refresh_instances(
 pub async fn refresh_all_instances(
   app: &AppHandle,
   game_directories: &[GameDirectory],
+  is_first_run: bool,
 ) -> HashMap<String, Instance> {
   let mut instance_map = HashMap::new();
 
   for game_directory in game_directories {
     let dir_name = game_directory.name.clone();
-    match refresh_instances(app, game_directory).await {
+    match refresh_instances(app, game_directory, is_first_run).await {
       Ok(vs) => {
         for mut instance in vs {
           let composed_id = format!("{}:{}", dir_name, instance.name);
@@ -272,14 +275,14 @@ pub async fn refresh_all_instances(
   instance_map
 }
 
-pub async fn refresh_and_update_instances(app: &AppHandle) {
+pub async fn refresh_and_update_instances(app: &AppHandle, is_first_run: bool) {
   // get launcher config -> local game directories
   let local_game_directories = {
     let binding = app.state::<Mutex<LauncherConfig>>();
     let state = binding.lock().unwrap();
     state.local_game_directories.clone()
   };
-  let instances = refresh_all_instances(app, &local_game_directories).await;
+  let instances = refresh_all_instances(app, &local_game_directories, is_first_run).await;
   // update the instances in the app state
   let binding = app.state::<Mutex<HashMap<String, Instance>>>();
   let mut state = binding.lock().unwrap();

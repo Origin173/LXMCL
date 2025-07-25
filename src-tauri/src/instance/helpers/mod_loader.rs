@@ -1,6 +1,5 @@
 use reqwest::redirect::Policy;
 use reqwest::{Client, Error};
-use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
@@ -18,6 +17,7 @@ use crate::instance::helpers::client_json::{
 };
 use crate::instance::helpers::misc::{get_instance_game_config, get_instance_subdir_paths};
 use crate::instance::helpers::mods::forge::InstallProfile;
+use crate::instance::helpers::mods::legacy_forge::LegacyInstallProfile;
 use crate::instance::models::misc::{Instance, InstanceError, InstanceSubdirType, ModLoaderStatus};
 use crate::launch::helpers::file_validator::{parse_library_name, LibraryParts};
 use crate::launch::helpers::{
@@ -27,7 +27,6 @@ use crate::launcher_config::models::JavaInfo;
 use crate::resource::helpers::misc::convert_url_to_target_source;
 use crate::{
   error::{SJMCLError, SJMCLResult},
-  instance::helpers::game_version::compare_game_versions,
   instance::models::misc::{ModLoader, ModLoaderType},
   resource::{
     helpers::misc::get_download_api,
@@ -71,27 +70,6 @@ pub fn add_library_entry(
   }
 
   Ok(())
-}
-
-pub fn convert_client_info_to_patch(client_info: &McClientInfo) -> PatchesInfo {
-  PatchesInfo {
-    id: "game".to_string(),
-    version: client_info.id.clone(),
-    priority: 0,
-    arguments: client_info.arguments.clone().unwrap_or_default(),
-    main_class: client_info.main_class.clone(),
-    asset_index: client_info.asset_index.clone(),
-    assets: client_info.assets.clone(),
-    libraries: client_info.libraries.clone(),
-    downloads: client_info.downloads.clone(),
-    logging: client_info.logging.clone(),
-    java_version: Some(client_info.java_version.clone()),
-    type_: client_info.type_.clone(),
-    time: client_info.time.clone(),
-    release_time: client_info.release_time.clone(),
-    minimum_launcher_version: client_info.minimum_launcher_version,
-    inherits_from: None,
-  }
 }
 
 async fn fetch_bmcl_forge_installer_url(
@@ -161,10 +139,6 @@ async fn install_fabric_loader(
 ) -> SJMCLResult<()> {
   let client = app.state::<reqwest::Client>();
   let loader_ver = &loader.version;
-
-  client_info
-    .patches
-    .push(convert_client_info_to_patch(client_info));
 
   let meta_url = get_download_api(priority[0], ResourceType::FabricMeta)?
     .join(&format!("v2/versions/loader/{game_version}/{loader_ver}"))?;
@@ -255,23 +229,34 @@ async fn install_neoforge_loader(
 ) -> SJMCLResult<()> {
   let loader_ver = &loader.version;
 
-  let root = get_download_api(priority[0], ResourceType::NeoforgeInstall)?;
-
-  let installer_url = match priority.first().unwrap_or(&SourceType::Official) {
-    SourceType::Official => {
-      let path = format!(
-        "net/neoforged/neoforge/{v}/neoforge-{v}-installer.jar",
+  let (installer_url, installer_coord) = if loader_ver.starts_with("1.20.1-") {
+    (
+      get_download_api(SourceType::Official, ResourceType::NeoforgeInstall)?.join(&format!(
+        "net/neoforged/forge/{v}/forge-{v}-installer.jar",
         v = loader_ver
-      );
-      root.join(&path)?
-    }
-    SourceType::BMCLAPIMirror => {
-      let path = format!("{v}/download/installer", v = loader_ver);
-      root.join(&path)?
-    }
+      ))?,
+      format!("net.neoforged:forge:{}-installer", loader.version),
+    )
+  } else {
+    let root = get_download_api(priority[0], ResourceType::NeoforgeInstall)?;
+    (
+      match priority.first().unwrap_or(&SourceType::Official) {
+        SourceType::Official => {
+          let path = format!(
+            "net/neoforged/neoforge/{v}/neoforge-{v}-installer.jar",
+            v = loader_ver
+          );
+          root.join(&path)?
+        }
+        SourceType::BMCLAPIMirror => {
+          let path = format!("{v}/download/installer", v = loader_ver);
+          root.join(&path)?
+        }
+      },
+      format!("net.neoforged:neoforge:{}-installer", loader.version),
+    )
   };
 
-  let installer_coord = format!("net.neoforged:neoforge:{}-installer", loader.version);
   let installer_rel = convert_library_name_to_path(&installer_coord, None)?;
   let installer_path = lib_dir.join(&installer_rel);
 
@@ -348,9 +333,6 @@ pub async fn download_forge_libraries(
   let mut task_params = vec![];
 
   let mut client_info = client_info.clone();
-  client_info
-    .patches
-    .push(convert_client_info_to_patch(&client_info));
 
   let installer_coord = format!(
     "net.minecraftforge:forge:{}-installer",
@@ -358,7 +340,6 @@ pub async fn download_forge_libraries(
   );
   let installer_rel = convert_library_name_to_path(&installer_coord, None)?;
   let installer_path = lib_dir.join(&installer_rel);
-  let comparison = compare_game_versions(app, &instance.version, "1.13").await;
   let bin_patch = lib_dir.join(convert_library_name_to_path(
     &format!(
       "net.minecraftforge:forge:{}:clientdata@lzma",
@@ -366,62 +347,66 @@ pub async fn download_forge_libraries(
     ),
     None,
   )?);
-  if comparison != Ordering::Less {
-    let (content, version) = {
-      let file = File::open(&installer_path)?;
-      let mut archive = ZipArchive::new(file)?;
-
-      // Extract maven folder contents to lib_dir
-      for i in 0..archive.len() {
-        let mut file = archive.by_index(i)?;
-        let outpath = match file.enclosed_name() {
-          Some(path) => {
-            if path.starts_with("maven/") {
-              // Remove "maven/" prefix and join with lib_dir
-              let relative_path = path.strip_prefix("maven/").unwrap();
-              lib_dir.join(relative_path)
-            } else if path == PathBuf::from("data/client.lzma") {
-              bin_patch.clone()
-            } else {
-              continue;
-            }
+  let file = File::open(&installer_path)?;
+  let mut archive = ZipArchive::new(file)?;
+  let (install_profile, version) = {
+    // Extract maven folder contents to lib_dir
+    for i in 0..archive.len() {
+      let mut file = archive.by_index(i)?;
+      let outpath = match file.enclosed_name() {
+        Some(path) => {
+          if path.starts_with("maven/") {
+            // Remove "maven/" prefix and join with lib_dir
+            let relative_path = path.strip_prefix("maven/").unwrap();
+            lib_dir.join(relative_path)
+          } else if path == PathBuf::from("data/client.lzma") {
+            bin_patch.clone()
+          } else {
+            continue;
           }
-          None => continue,
-        };
-
-        if file.name().ends_with('/') {
-          // Create directory
-          fs::create_dir_all(&outpath)?;
-        } else {
-          // Create parent directories if they don't exist
-          if let Some(p) = outpath.parent() {
-            if !p.exists() {
-              fs::create_dir_all(p)?;
-            }
-          }
-
-          // Extract file
-          let mut outfile = File::create(&outpath)?;
-          std::io::copy(&mut file, &mut outfile)?;
         }
+        None => continue,
+      };
+
+      if file.name().ends_with('/') {
+        // Create directory
+        fs::create_dir_all(&outpath)?;
+      } else {
+        // Create parent directories if they don't exist
+        if let Some(p) = outpath.parent() {
+          if !p.exists() {
+            fs::create_dir_all(p)?;
+          }
+        }
+
+        // Extract file
+        let mut outfile = File::create(&outpath)?;
+        std::io::copy(&mut file, &mut outfile)?;
       }
+    }
 
-      let mut s = String::new();
-      {
-        let mut install_profile = archive.by_name("install_profile.json")?;
-        install_profile.read_to_string(&mut s)?;
-      }
+    let mut s = String::new();
+    if let Ok(mut install_profile) = archive.by_name("install_profile.json") {
+      install_profile.read_to_string(&mut s)?;
+    }
 
-      let mut t = String::new();
-      {
-        let mut version_file = archive.by_name("version.json")?;
-        version_file.read_to_string(&mut t)?;
-      }
+    let mut t = String::new();
+    if let Ok(mut version_file) = archive.by_name("version.json") {
+      version_file.read_to_string(&mut t)?;
+    }
 
-      (s, t)
-    };
+    (s, t)
+  };
 
-    let mut profile_json: InstallProfile = serde_json::from_str(&content)?;
+  if install_profile.is_empty() {
+    return Err(InstanceError::InstallProfileParseError.into());
+  }
+
+  if !version.is_empty() {
+    // It's modern version Forge installer
+
+    let mut profile: InstallProfile = serde_json::from_str(&install_profile)
+      .map_err(|_| InstanceError::InstallProfileParseError)?;
 
     let mut args_map = HashMap::<String, String>::new();
     args_map.insert(
@@ -439,7 +424,7 @@ pub async fn download_forge_libraries(
     );
     args_map.insert("{SIDE}".into(), "client".to_string());
     args_map.insert("{ROOT}".into(), root_dir.to_string_lossy().to_string());
-    for (key, value) in profile_json.data.iter() {
+    for (key, value) in profile.data.iter() {
       if args_map.contains_key(&format!("{{{key}}}")) {
         continue;
       }
@@ -457,7 +442,7 @@ pub async fn download_forge_libraries(
       args_map.insert(format!("{{{key}}}"), value_client);
     }
 
-    for processor in profile_json.processors.iter_mut() {
+    for processor in profile.processors.iter_mut() {
       if processor.args.contains(&"DOWNLOAD_MOJMAPS".to_string()) {
         if let Some(mojmaps) = args_map.get("{MOJMAPS}") {
           if let Some(client_mappings) = client_info.downloads.get("client_mappings") {
@@ -502,7 +487,7 @@ pub async fn download_forge_libraries(
       }
     }
 
-    profile_json.processors.retain(|processor| {
+    profile.processors.retain(|processor| {
       if let Some(sides) = &processor.sides {
         sides.contains(&"client".to_string())
       } else {
@@ -512,7 +497,7 @@ pub async fn download_forge_libraries(
 
     fs::write(
       instance.version_path.join("install_profile.json"),
-      &serde_json::to_vec_pretty(&profile_json)?,
+      &serde_json::to_vec_pretty(&profile)?,
     )?;
 
     let forge_info: McClientInfo = serde_json::from_str(&version)?;
@@ -550,29 +535,33 @@ pub async fn download_forge_libraries(
       }));
     }
 
-    let nf_args = forge_info
-      .arguments
-      .ok_or(InstanceError::ModLoaderVersionParseError)?;
-    let v_args = client_info
-      .arguments
-      .clone()
-      .ok_or(InstanceError::ClientJsonParseError)?;
-    let new_args = LaunchArgumentTemplate {
-      game: [v_args.game, nf_args.game].concat(),
-      jvm: [v_args.jvm, nf_args.jvm].concat(),
+    let (arguments, minecraft_arguments) = if let Some(v_args) = client_info.arguments {
+      let nf_args = forge_info
+        .arguments
+        .ok_or(InstanceError::ModLoaderVersionParseError)?;
+
+      let new_args = LaunchArgumentTemplate {
+        game: [v_args.game, nf_args.game].concat(),
+        jvm: [v_args.jvm, nf_args.jvm].concat(),
+      };
+      (Some(new_args), None)
+    } else {
+      (None, forge_info.minecraft_arguments)
     };
-    client_info.arguments = Some(new_args.clone());
+    client_info.arguments = arguments.clone();
+    client_info.minecraft_arguments = minecraft_arguments.clone();
     client_info.patches.push(PatchesInfo {
       id: "forge".to_string(),
       version: forge_info.id.clone(),
       priority: 30000,
       inherits_from: forge_info.inherits_from.clone(),
       main_class: main_class.clone(),
-      arguments: new_args,
+      arguments,
+      minecraft_arguments,
       ..Default::default()
     });
 
-    for lib in profile_json.libraries.iter() {
+    for lib in profile.libraries.iter() {
       let name = &lib.name;
       let url = lib
         .downloads
@@ -602,19 +591,13 @@ pub async fn download_forge_libraries(
       }));
     }
   } else {
-    let file = File::open(&installer_path)?;
-    let mut archive = ZipArchive::new(file)?;
+    // It's legacy version Forge installer
 
-    let mut content = String::new();
-    {
-      let mut install_profile = archive.by_name("install_profile.json")?;
-      install_profile.read_to_string(&mut content)?;
-    }
+    let profile: LegacyInstallProfile = serde_json::from_str(&install_profile)
+      .map_err(|_| InstanceError::InstallProfileParseError)?;
 
-    let profile_json: serde_json::Value = serde_json::from_str(&content)?;
-
-    let main_class = profile_json["versionInfo"]["mainClass"].as_str().unwrap();
-    let libraries = profile_json["versionInfo"]["libraries"].as_array().unwrap();
+    let main_class = profile.version_info.main_class;
+    let libraries = profile.version_info.libraries;
 
     client_info.main_class = main_class.to_string();
 
@@ -623,93 +606,48 @@ pub async fn download_forge_libraries(
       version: instance.mod_loader.version.clone(),
       priority: 30000,
       main_class: main_class.to_string(),
-      inherits_from: Some(
-        profile_json["versionInfo"]["inheritsFrom"]
-          .as_str()
-          .unwrap()
-          .to_string(),
-      ),
-      arguments: LaunchArgumentTemplate {
-        game: vec![],
-        jvm: vec![],
-      },
-      release_time: profile_json["versionInfo"]["releaseTime"]
-        .as_str()
-        .ok_or(InstanceError::InstallProfileParseError)?
-        .to_string(),
-      time: profile_json["versionInfo"]["time"]
-        .as_str()
-        .ok_or(InstanceError::InstallProfileParseError)?
-        .to_string(),
-      type_: profile_json["versionInfo"]["type"]
-        .as_str()
-        .ok_or(InstanceError::InstallProfileParseError)?
-        .to_string(),
-      assets: profile_json["versionInfo"]["assets"]
-        .as_str()
-        .ok_or(InstanceError::InstallProfileParseError)?
-        .to_string(),
+      inherits_from: Some(profile.version_info.inherits_from),
+      arguments: None,
+      minecraft_arguments: Some(profile.version_info.minecraft_arguments.clone()),
+      release_time: profile.version_info.release_time,
+      time: profile.version_info.time,
+      type_: profile.version_info.type_,
+      assets: profile.version_info.assets,
 
       ..Default::default()
     };
 
-    let install_arguments = profile_json["versionInfo"]["minecraftArguments"]
-      .as_str()
-      .ok_or(InstanceError::InstallProfileParseError)?;
+    client_info.minecraft_arguments = Some(profile.version_info.minecraft_arguments.clone());
 
-    client_info.minecraft_arguments = Some(install_arguments.to_string());
+    let mut file = archive.by_name(&profile.install.file_path)?;
+    let dest_path = lib_dir.join(convert_library_name_to_path(&profile.install.path, None)?);
+    if let Some(parent) = dest_path.parent() {
+      if !parent.exists() {
+        fs::create_dir_all(parent)?;
+      }
+    }
+    let mut output = File::create(&dest_path)?;
+    std::io::copy(&mut file, &mut output)?;
 
-    if let Some(first_lib) = libraries.first() {
-      let name = first_lib["name"]
-        .as_str()
-        .ok_or(InstanceError::InstallProfileParseError)?;
+    for lib in libraries.iter() {
+      let name = lib.name.clone();
 
-      add_library_entry(&mut client_info.libraries, name, None)?;
-      add_library_entry(&mut new_patch.libraries, name, None)?;
+      add_library_entry(&mut client_info.libraries, &name, None)?;
+      add_library_entry(&mut new_patch.libraries, &name, None)?;
 
-      let rel = convert_library_name_to_path(name, None)?;
-
-      let parts: Vec<&str> = name.split(':').collect();
-      let artifact_id = parts[1];
-      let version = parts[2];
-
-      let file_name = format!("{}-{}-universal.jar", artifact_id, version);
-      let mut file = archive.by_name(&file_name)?;
-      let dest_path = lib_dir.join(&rel);
-
-      if let Some(parent) = dest_path.parent() {
-        if !parent.exists() {
-          fs::create_dir_all(parent)?;
-        }
+      if name == profile.install.path {
+        continue;
       }
 
-      let mut output = File::create(&dest_path)?;
-
-      std::io::copy(&mut file, &mut output)?;
-    } else {
-      return Err(InstanceError::InstallProfileParseError.into());
-    }
-
-    let mut task_params = vec![];
-    for lib in libraries.iter().skip(1) {
-      let name = lib["name"]
-        .as_str()
-        .ok_or(InstanceError::InstallProfileParseError)?;
-
-      add_library_entry(&mut client_info.libraries, name, None)?;
-      add_library_entry(&mut new_patch.libraries, name, None)?;
-
-      let url = if lib["url"].is_null() {
+      let url = if lib.url.is_none() {
         continue;
       } else {
-        lib["url"]
-          .as_str()
-          .ok_or(InstanceError::InstallProfileParseError)?
+        lib.url.clone().unwrap()
       };
 
-      let rel = convert_library_name_to_path(name, None)?;
+      let rel = convert_library_name_to_path(&name, None)?;
       let src = convert_url_to_target_source(
-        &Url::parse(url)?.join(&rel)?,
+        &Url::parse(&url)?.join(&rel)?,
         &[
           ResourceType::ForgeMaven,
           ResourceType::ForgeMavenNew,
@@ -760,19 +698,22 @@ pub async fn download_neoforge_libraries(
   let mut task_params = vec![];
 
   let mut client_info = client_info.clone();
-  client_info
-    .patches
-    .push(convert_client_info_to_patch(&client_info));
+
+  let name = if instance.mod_loader.version.starts_with("1.20.1-") {
+    "forge"
+  } else {
+    "neoforge"
+  };
 
   let installer_coord = format!(
-    "net.neoforged:neoforge:{}-installer",
+    "net.neoforged:{name}:{}-installer",
     instance.mod_loader.version
   );
   let installer_rel = convert_library_name_to_path(&installer_coord, None)?;
   let installer_path = lib_dir.join(&installer_rel);
   let bin_patch = lib_dir.join(convert_library_name_to_path(
     &format!(
-      "net.neoforged:neoforge:{}:clientdata@lzma",
+      "net.neoforged:{name}:{}:clientdata@lzma",
       instance.mod_loader.version
     ),
     None,
@@ -831,7 +772,7 @@ pub async fn download_neoforge_libraries(
     (s, t)
   };
 
-  let mut profile_json: InstallProfile = serde_json::from_str(&content)?;
+  let mut profile: InstallProfile = serde_json::from_str(&content)?;
 
   let mut args_map = HashMap::<String, String>::new();
   args_map.insert(
@@ -849,7 +790,7 @@ pub async fn download_neoforge_libraries(
   );
   args_map.insert("{SIDE}".into(), "client".to_string());
   args_map.insert("{ROOT}".into(), root_dir.to_string_lossy().to_string());
-  for (key, value) in profile_json.data.iter() {
+  for (key, value) in profile.data.iter() {
     if args_map.contains_key(&format!("{{{key}}}")) {
       continue;
     }
@@ -867,7 +808,7 @@ pub async fn download_neoforge_libraries(
     args_map.insert(format!("{{{key}}}"), value_client);
   }
 
-  for processor in profile_json.processors.iter_mut() {
+  for processor in profile.processors.iter_mut() {
     if processor.args.contains(&"DOWNLOAD_MOJMAPS".to_string()) {
       if let Some(mojmaps) = args_map.get("{MOJMAPS}") {
         if let Some(client_mappings) = client_info.downloads.get("client_mappings") {
@@ -912,7 +853,7 @@ pub async fn download_neoforge_libraries(
     }
   }
 
-  profile_json.processors.retain(|processor| {
+  profile.processors.retain(|processor| {
     if let Some(sides) = &processor.sides {
       sides.contains(&"client".to_string())
     } else {
@@ -922,7 +863,7 @@ pub async fn download_neoforge_libraries(
 
   fs::write(
     instance.version_path.join("install_profile.json"),
-    &serde_json::to_vec_pretty(&profile_json)?,
+    &serde_json::to_vec_pretty(&profile)?,
   )?;
 
   let neoforge_info: McClientInfo = serde_json::from_str(&version)?;
@@ -974,11 +915,11 @@ pub async fn download_neoforge_libraries(
     priority: 30000,
     inherits_from: neoforge_info.inherits_from.clone(),
     main_class: main_class.clone(),
-    arguments: new_args,
+    arguments: Some(new_args.clone()),
     ..Default::default()
   });
 
-  for lib in profile_json.libraries.iter() {
+  for lib in profile.libraries.iter() {
     let name = &lib.name;
     let url = lib
       .downloads

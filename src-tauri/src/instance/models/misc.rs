@@ -85,7 +85,6 @@ impl ModLoaderType {
 pub enum ModLoaderStatus {
   NotDownloaded,
   Downloading,
-  NotInstalled,
   Installing,
   #[default]
   Installed,
