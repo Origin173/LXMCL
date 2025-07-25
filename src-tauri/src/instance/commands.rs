@@ -25,7 +25,7 @@ use crate::{
   error::SJMCLResult,
   instance::{
     helpers::{
-      client_json::{replace_native_libraries, McClientInfo},
+      client_json::{replace_native_libraries, McClientInfo, PatchesInfo},
       misc::get_instance_subdir_paths,
       mod_loader::{execute_processors, install_mod_loader},
       mods::forge::InstallProfile,
@@ -60,7 +60,7 @@ use zip::read::ZipArchive;
 
 #[tauri::command]
 pub async fn retrieve_instance_list(app: AppHandle) -> SJMCLResult<Vec<InstanceSummary>> {
-  refresh_and_update_instances(&app).await; // firstly refresh and update
+  refresh_and_update_instances(&app, false).await; // firstly refresh and update
   let binding = app.state::<Mutex<HashMap<String, Instance>>>();
   let instances = binding.lock().unwrap().clone();
   let mut summary_list = Vec::new();
@@ -850,6 +850,25 @@ pub async fn create_instance(
 
   version_info.id = name.clone();
   version_info.jar = Some(name.clone());
+  version_info.patches.push(PatchesInfo {
+    id: "game".to_string(),
+    version: game.id.clone(),
+    priority: 0,
+    inherits_from: None,
+    arguments: version_info.arguments.clone(),
+    minecraft_arguments: version_info.minecraft_arguments.clone(),
+    main_class: version_info.main_class.clone(),
+    asset_index: version_info.asset_index.clone(),
+    assets: version_info.assets.clone(),
+    downloads: version_info.downloads.clone(),
+    libraries: version_info.libraries.clone(),
+    logging: version_info.logging.clone(),
+    java_version: Some(version_info.java_version.clone()),
+    type_: version_info.type_.clone(),
+    time: version_info.time.clone(),
+    release_time: version_info.release_time.clone(),
+    minimum_launcher_version: version_info.minimum_launcher_version,
+  });
 
   let mut task_params = Vec::<PTaskParam>::new();
 

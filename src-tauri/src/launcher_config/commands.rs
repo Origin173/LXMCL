@@ -251,6 +251,7 @@ pub async fn check_game_directory(app: AppHandle, dir: String) -> SJMCLResult<St
       dir: directory.clone(),
       name: "".to_string(),
     },
+    false,
   )
   .await
   .unwrap_or_default()
@@ -272,6 +273,7 @@ pub async fn check_game_directory(app: AppHandle, dir: String) -> SJMCLResult<St
         dir: sub_dir.clone(),
         name: "".to_string(),
       },
+      false,
     )
     .await
     .unwrap_or_default()

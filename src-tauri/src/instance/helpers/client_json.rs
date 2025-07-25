@@ -49,7 +49,8 @@ pub struct PatchesInfo {
   pub version: String,
   pub priority: i64,
   pub inherits_from: Option<String>,
-  pub arguments: LaunchArgumentTemplate,
+  pub arguments: Option<LaunchArgumentTemplate>,
+  pub minecraft_arguments: Option<String>,
   pub main_class: String,
   pub asset_index: AssetIndexInfo,
   pub assets: String,
@@ -287,7 +288,7 @@ structstruck::strike! {
   }
 }
 
-pub fn patchs_to_info(patches: &[PatchesInfo]) -> (Option<String>, Option<String>, ModLoaderType) {
+pub fn patches_to_info(patches: &[PatchesInfo]) -> (Option<String>, Option<String>, ModLoaderType) {
   let mut loader_type = ModLoaderType::Unknown;
   let mut game_version = None;
   let mut loader_version = None;
