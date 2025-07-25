@@ -522,7 +522,7 @@
     "label": {
       "paused": "已暂停",
       "completed": "已完成",
-      "error": "错误",
+      "error": "失败",
       "cancelled": "已取消"
     },
     "task": {

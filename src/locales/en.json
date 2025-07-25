@@ -522,7 +522,7 @@
     "label": {
       "paused": "Paused",
       "completed": "Completed",
-      "error": "Error",
+      "error": "Failed",
       "cancelled": "Cancelled"
     },
     "task": {
