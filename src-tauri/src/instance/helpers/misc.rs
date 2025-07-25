@@ -199,7 +199,9 @@ pub async fn refresh_instances(
           ModLoaderStatus::NotInstalled => {
             finish_mod_loader_install(app.clone(), cfg_read.id.clone()).await
           }
-          _ => Ok(()),
+          ModLoaderStatus::Downloading
+          | ModLoaderStatus::Installing
+          | ModLoaderStatus::Installed => Ok(()),
         }
       } {
         eprintln!("Failed to install mod loader for {}: {:?}", name, e);
