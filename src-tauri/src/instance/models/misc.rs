@@ -83,11 +83,11 @@ impl ModLoaderType {
 
 #[derive(Debug, PartialEq, Eq, Deserialize, Clone, Serialize, Default)]
 pub enum ModLoaderStatus {
-  #[default]
   NotDownloaded,
   Downloading,
   NotInstalled,
   Installing,
+  #[default]
   Installed,
 }
 
