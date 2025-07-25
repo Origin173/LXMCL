@@ -62,8 +62,6 @@ async fn get_neoforge_meta_by_game_version_official(
                     branch: None,
                   },
                 ));
-              } else {
-                println!("NEOFORGE VERSION CAPTURE ERROR!");
               }
             }
             results.sort_by(|a, b| b.0.cmp(&a.0));
@@ -100,8 +98,6 @@ async fn get_neoforge_meta_by_game_version_official(
                     },
                   ));
                 }
-              } else {
-                println!("NEOFORGE VERSION CAPTURE ERROR!");
               }
             }
             results.sort_by(|a, b| b.0.cmp(&a.0));

@@ -31,5 +31,10 @@ export const createWindow = (
   return newWindow;
 };
 
-export const parseIdFromWindowLabel = (label: string): number =>
-  parseInt(label.split("_").pop() || "0");
+export const parseIdFromWindowLabel = (label: string): number => {
+  const match = label.match(/(game_error|game_log)_(\d+)/);
+  if (match) {
+    return parseInt(match[2], 10);
+  }
+  return -1; // or throw an error if preferred
+};

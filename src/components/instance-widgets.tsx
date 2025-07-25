@@ -48,6 +48,7 @@ import {
   formatRelativeTime,
   formatTimeInterval,
 } from "@/utils/datetime";
+import { parseModLoaderVersion } from "@/utils/instance";
 import { base64ImgSrc } from "@/utils/string";
 
 // All these widgets are used in InstanceContext with WarpCard wrapped.
@@ -121,7 +122,7 @@ export const InstanceBasicInfoWidget = () => {
             {summary?.version && <Text>{summary.version}</Text>}
             {summary?.modLoader.loaderType &&
               summary?.modLoader.loaderType !== "Unknown" && (
-                <Text>{`${summary?.modLoader.loaderType} ${summary?.modLoader.version}`}</Text>
+                <Text>{`${summary?.modLoader.loaderType} ${parseModLoaderVersion(summary?.modLoader.version || "")}`}</Text>
               )}
           </VStack>
         }

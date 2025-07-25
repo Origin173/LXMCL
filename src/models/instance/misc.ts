@@ -3,7 +3,6 @@ import { ModLoaderType } from "@/enums/instance";
 export enum ModLoaderStatus {
   NotDownloaded = "NotDownloaded",
   Downloading = "Downloading",
-  NotInstalled = "NotInstalled",
   Installing = "Installing",
   Installed = "Installed",
 }

@@ -7,7 +7,6 @@ use super::{
   client_jar::load_game_version_from_jar,
 };
 use crate::error::SJMCLResult;
-use crate::instance::commands::finish_mod_loader_install;
 use crate::instance::helpers::mod_loader::{download_forge_libraries, download_neoforge_libraries};
 use crate::instance::models::misc::{ModLoaderStatus, ModLoaderType};
 use crate::launcher_config::{helpers::misc::get_global_game_config, models::GameConfig};
@@ -179,8 +178,8 @@ pub async fn refresh_instances(
       .unwrap_or_default();
 
     if cfg_read.mod_loader.status != ModLoaderStatus::Installed {
-      let launcher_config_state = app.state::<Mutex<LauncherConfig>>();
       let priority_list = {
+        let launcher_config_state = app.state::<Mutex<LauncherConfig>>();
         let launcher_config = launcher_config_state.lock()?;
         get_source_priority_list(&launcher_config)
       };
@@ -197,20 +196,10 @@ pub async fn refresh_instances(
             }
             _ => Ok(()),
           },
-          ModLoaderStatus::Downloading => {
+          ModLoaderStatus::Downloading | ModLoaderStatus::Installing => {
             if is_first_run {
               // if it's the first run, reset the status and wait for download
               cfg_read.mod_loader.status = ModLoaderStatus::NotDownloaded;
-            }
-            Ok(())
-          }
-          ModLoaderStatus::NotInstalled => {
-            finish_mod_loader_install(app.clone(), cfg_read.id.clone()).await
-          }
-          ModLoaderStatus::Installing => {
-            if is_first_run {
-              // if it's the first run, reset the status and wait for installation
-              cfg_read.mod_loader.status = ModLoaderStatus::NotInstalled;
             }
             Ok(())
           }

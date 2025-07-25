@@ -401,6 +401,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
                     t.status = TaskDescStatusEnums.Completed;
                     t.current = t.total;
                   } else if (t.status === TaskDescStatusEnums.Failed) {
+                    task.status = GTaskEventStatusEnums.Failed;
                     payload.event.status = GTaskEventStatusEnums.Failed;
                   }
                 });

@@ -229,23 +229,34 @@ async fn install_neoforge_loader(
 ) -> SJMCLResult<()> {
   let loader_ver = &loader.version;
 
-  let root = get_download_api(priority[0], ResourceType::NeoforgeInstall)?;
-
-  let installer_url = match priority.first().unwrap_or(&SourceType::Official) {
-    SourceType::Official => {
-      let path = format!(
-        "net/neoforged/neoforge/{v}/neoforge-{v}-installer.jar",
+  let (installer_url, installer_coord) = if loader_ver.starts_with("1.20.1-") {
+    (
+      get_download_api(SourceType::Official, ResourceType::NeoforgeInstall)?.join(&format!(
+        "net/neoforged/forge/{v}/forge-{v}-installer.jar",
         v = loader_ver
-      );
-      root.join(&path)?
-    }
-    SourceType::BMCLAPIMirror => {
-      let path = format!("{v}/download/installer", v = loader_ver);
-      root.join(&path)?
-    }
+      ))?,
+      format!("net.neoforged:forge:{}-installer", loader.version),
+    )
+  } else {
+    let root = get_download_api(priority[0], ResourceType::NeoforgeInstall)?;
+    (
+      match priority.first().unwrap_or(&SourceType::Official) {
+        SourceType::Official => {
+          let path = format!(
+            "net/neoforged/neoforge/{v}/neoforge-{v}-installer.jar",
+            v = loader_ver
+          );
+          root.join(&path)?
+        }
+        SourceType::BMCLAPIMirror => {
+          let path = format!("{v}/download/installer", v = loader_ver);
+          root.join(&path)?
+        }
+      },
+      format!("net.neoforged:neoforge:{}-installer", loader.version),
+    )
   };
 
-  let installer_coord = format!("net.neoforged:neoforge:{}-installer", loader.version);
   let installer_rel = convert_library_name_to_path(&installer_coord, None)?;
   let installer_path = lib_dir.join(&installer_rel);
 
@@ -688,15 +699,21 @@ pub async fn download_neoforge_libraries(
 
   let mut client_info = client_info.clone();
 
+  let name = if instance.mod_loader.version.starts_with("1.20.1-") {
+    "forge"
+  } else {
+    "neoforge"
+  };
+
   let installer_coord = format!(
-    "net.neoforged:neoforge:{}-installer",
+    "net.neoforged:{name}:{}-installer",
     instance.mod_loader.version
   );
   let installer_rel = convert_library_name_to_path(&installer_coord, None)?;
   let installer_path = lib_dir.join(&installer_rel);
   let bin_patch = lib_dir.join(convert_library_name_to_path(
     &format!(
-      "net.neoforged:neoforge:{}:clientdata@lzma",
+      "net.neoforged:{name}:{}:clientdata@lzma",
       instance.mod_loader.version
     ),
     None,
