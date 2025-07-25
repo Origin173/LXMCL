@@ -36,5 +36,5 @@ export const parseIdFromWindowLabel = (label: string): number => {
   if (match) {
     return parseInt(match[2], 10);
   }
-  return -1; // or throw an error if preferred
+  return 0; // or throw an error if preferred
 };
