@@ -9,7 +9,7 @@ export const generateInstanceDesc = (instance: InstanceSummary) => {
   }
   return [
     instance.version,
-    `${instance.modLoader.loaderType} ${instance.modLoader.version}`,
+    `${instance.modLoader.loaderType} ${parseModLoaderVersion(instance.modLoader.version || "")}`,
   ]
     .filter(Boolean)
     .join(", ");
@@ -34,4 +34,9 @@ export const getGameDirName = (dir: string | GameDirectory) => {
         `GlobalGameSettingsPage.directories.settings.directories.special.${name}`
       )
     : name;
+};
+
+export const parseModLoaderVersion = (version: string): string => {
+  let identifiers = version.split("-");
+  return identifiers[identifiers.length - 1];
 };
