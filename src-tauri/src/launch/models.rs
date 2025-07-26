@@ -13,6 +13,7 @@ pub enum LaunchError {
   NoSuitableJava,
   GameFilesIncomplete,
   SetProcessPriorityFailed,
+  ChangeWindowTitleFailed,
   KillProcessFailed,
   LaunchingStateNotFound,
 }
