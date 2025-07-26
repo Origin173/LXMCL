@@ -21,7 +21,7 @@ use crate::{
       client_json::McClientInfo,
       misc::{get_instance_game_config, get_instance_subdir_paths},
     },
-    models::misc::{AssetIndex, Instance, InstanceError, InstanceSubdirType, ModLoaderStatus},
+    models::misc::{Instance, InstanceError, InstanceSubdirType, ModLoaderStatus},
   },
   launch::{
     helpers::{
@@ -73,11 +73,6 @@ pub async fn select_suitable_jre(
     .join(format!("{}.json", instance.name));
   let client_info = load_json_async::<McClientInfo>(&client_path).await?;
 
-  let asset_index_path = get_instance_subdir_paths(&app, &instance, &[&InstanceSubdirType::Assets])
-    .ok_or(InstanceError::InstanceNotFoundByID)?[0]
-    .join(format!("indexes/{}.json", client_info.asset_index.id));
-  let asset_index = load_json_async::<AssetIndex>(&asset_index_path).await?;
-
   let javas = javas_state.lock()?.clone();
   let selected_java = select_java_runtime(
     &app,
@@ -94,7 +89,6 @@ pub async fn select_suitable_jre(
     id: timestamp,
     game_config,
     client_info,
-    asset_index,
     selected_java,
     selected_instance: instance,
     ..LaunchingState::default()
@@ -110,7 +104,7 @@ pub async fn validate_game_files(
   launcher_config_state: State<'_, Mutex<LauncherConfig>>,
   launching_queue_state: State<'_, Mutex<Vec<LaunchingState>>>,
 ) -> SJMCLResult<()> {
-  let (instance, client_info, asset_index, validate_policy) = {
+  let (instance, client_info, validate_policy) = {
     let mut launching_queue = launching_queue_state.lock()?;
     let launching = launching_queue
       .last_mut()
@@ -119,7 +113,6 @@ pub async fn validate_game_files(
     (
       launching.selected_instance.clone(),
       launching.client_info.clone(),
-      launching.asset_index.clone(),
       launching
         .game_config
         .advanced
@@ -155,12 +148,12 @@ pub async fn validate_game_files(
     FileValidatePolicy::Disable => return Ok(()), // skip
     FileValidatePolicy::Normal => [
       get_invalid_library_files(priority_list[0], libraries_dir, &client_info, false).await?,
-      get_invalid_assets(priority_list[0], assets_dir, &asset_index, false).await?,
+      get_invalid_assets(&app, &client_info, priority_list[0], assets_dir, false).await?,
     ]
     .concat(),
     FileValidatePolicy::Full => [
       get_invalid_library_files(priority_list[0], libraries_dir, &client_info, true).await?,
-      get_invalid_assets(priority_list[0], assets_dir, &asset_index, true).await?,
+      get_invalid_assets(&app, &client_info, priority_list[0], assets_dir, true).await?,
     ]
     .concat(),
   };

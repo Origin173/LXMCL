@@ -1,14 +1,18 @@
 use crate::{
   error::SJMCLResult,
   instance::{
-    helpers::client_json::{DownloadsArtifact, FeaturesInfo, IsAllowed, McClientInfo},
-    models::misc::{AssetIndex, InstanceError},
+    helpers::{
+      asset_index::AssetIndex,
+      client_json::{DownloadsArtifact, FeaturesInfo, IsAllowed, McClientInfo},
+    },
+    models::misc::InstanceError,
   },
   launch::models::LaunchError,
   resource::{
     helpers::misc::{convert_url_to_target_source, get_download_api},
     models::{ResourceType, SourceType},
   },
+  storage::{load_json_async, save_json_async},
   tasks::{download::DownloadParam, PTaskParam},
   utils::fs::validate_sha1,
 };
@@ -16,6 +20,8 @@ use futures;
 use std::collections::HashSet;
 use std::io::Cursor;
 use std::path::{Path, PathBuf};
+use tauri::{AppHandle, Manager};
+use tauri_plugin_http::reqwest;
 use tokio::fs;
 use zip::ZipArchive;
 
@@ -248,12 +254,36 @@ pub async fn extract_native_libraries(
 }
 
 pub async fn get_invalid_assets(
+  app: &AppHandle,
+  client_info: &McClientInfo,
   source: SourceType,
   asset_path: &Path,
-  asset_index: &AssetIndex,
   check_hash: bool,
 ) -> SJMCLResult<Vec<PTaskParam>> {
   let assets_download_api = get_download_api(source, ResourceType::Assets)?;
+
+  let asset_index_path = asset_path.join(format!("indexes/{}.json", client_info.asset_index.id));
+  let asset_index = if asset_index_path.exists() {
+    load_json_async::<AssetIndex>(&asset_index_path)
+      .await
+      .map_err(|_| InstanceError::AssetIndexParseError)?
+  } else {
+    let client = app.state::<reqwest::Client>().clone();
+
+    // Download asset index
+    let asset_index = client
+      .get(client_info.asset_index.url.clone())
+      .send()
+      .await
+      .map_err(|_| InstanceError::NetworkError)?
+      .json::<AssetIndex>()
+      .await
+      .map_err(|_| InstanceError::AssetIndexParseError)?;
+
+    save_json_async(&asset_index, &asset_index_path).await?;
+
+    asset_index
+  };
 
   Ok(
     asset_index
