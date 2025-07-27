@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { InvokeResponse } from "@/models/response";
 import {
   GTaskEventPayload,
@@ -6,7 +7,6 @@ import {
   TaskGroupDesc,
   TaskParam,
 } from "@/models/task";
-import { safeListen } from "@/utils/event";
 import { responseHandler } from "@/utils/response";
 
 /**
@@ -126,20 +126,34 @@ export class TaskService {
   static onProgressiveTaskUpdate(
     callback: (payload: PTaskEventPayload) => void
   ): () => void {
-    return safeListen<PTaskEventPayload>("task:progress-update", (event) => {
-      callback(event.payload);
-    });
+    const unlisten = getCurrentWebview().listen<PTaskEventPayload>(
+      "task:progress-update",
+      (event) => {
+        callback(event.payload);
+      }
+    );
+
+    return () => {
+      unlisten.then((f) => f());
+    };
   }
 
   /**
    * Listen for task group updates.
    * @param callback - The callback to be invoked when a task group update occurs.
    */
+
   static onTaskGroupUpdate(
     callback: (payload: GTaskEventPayload) => void
   ): () => void {
-    return safeListen<GTaskEventPayload>("task:group-update", (event) => {
-      callback(event.payload);
-    });
+    const unlisten = getCurrentWebview().listen<GTaskEventPayload>(
+      "task:group-update",
+      (event) => {
+        callback(event.payload);
+      }
+    );
+    return () => {
+      unlisten.then((f) => f());
+    };
   }
 }
