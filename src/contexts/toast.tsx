@@ -1,10 +1,12 @@
 import {
+  Center,
   ToastId,
   UseToastOptions,
   useToast as chakraUseToast,
   useColorModeValue,
 } from "@chakra-ui/react";
 import React, { ReactNode, createContext, useContext } from "react";
+import { BeatLoader } from "react-spinners";
 
 interface ToastContextProviderProps {
   children: ReactNode;
@@ -26,6 +28,12 @@ export const ToastContextProvider: React.FC<ToastContextProviderProps> = ({
     let id = chakraToast({
       position: "bottom-left",
       duration: options.status === "loading" ? null : 3000,
+      icon:
+        options.status === "loading" ? (
+          <Center h="100%" mt={0.5}>
+            <BeatLoader size={4} />
+          </Center>
+        ) : null,
       variant: toastVariant,
       isClosable: true,
       containerStyle: {
