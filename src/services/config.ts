@@ -1,8 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
-import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { LauncherConfig } from "@/models/config";
 import { InvokeResponse } from "@/models/response";
 import { JavaInfo } from "@/models/system-info";
+import { safeListen } from "@/utils/event";
 import { responseHandler } from "@/utils/response";
 
 /**
@@ -149,16 +149,12 @@ export class ConfigService {
    */
   static onConfigPartialUpdate(
     callback: (payload: { path: string; value: any }) => void
-  ) {
-    const unlisten = getCurrentWebview().listen<{ path: string; value: any }>(
+  ): () => void {
+    return safeListen<{ path: string; value: any }>(
       "config:partial-update",
       (event) => {
         callback(event.payload);
       }
     );
-
-    return () => {
-      unlisten.then((f) => f());
-    };
   }
 }
