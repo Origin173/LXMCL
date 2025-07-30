@@ -5,8 +5,10 @@ use super::{
   models::{GameDirectory, JavaInfo, LauncherConfig, LauncherConfigError},
 };
 use crate::{
-  error::SJMCLResult, instance::helpers::misc::refresh_instances, tasks::monitor::TaskMonitor,
-  utils::string::camel_to_snake_case,
+  error::SJMCLResult,
+  instance::helpers::misc::refresh_instances,
+  tasks::monitor::TaskMonitor,
+  utils::{fs::generate_unique_filename, string::camel_to_snake_case},
 };
 use crate::{storage::Storage, utils::fs::get_subdirectories};
 use std::path::{Path, PathBuf};
@@ -189,10 +191,10 @@ pub fn add_custom_background(app: AppHandle, source_src: String) -> SJMCLResult<
   }
 
   let file_name = source_path.file_name().unwrap();
-  let dest_path = custom_bg_dir.join(file_name);
+  let dest_path = generate_unique_filename(&custom_bg_dir, file_name);
   fs::copy(source_path, &dest_path)?;
 
-  Ok(file_name.to_string_lossy().to_string())
+  Ok(dest_path.file_name().unwrap().to_string_lossy().to_string())
 }
 
 #[tauri::command]

@@ -54,6 +54,7 @@ const AppearanceSettingsPage = () => {
   const [customBgList, setCustomBgList] = useState<Record<string, string>[]>(
     []
   );
+  const [bgCacheKey, setBgCacheKey] = useState(0);
 
   const handleRetrieveCustomBackgroundList = useCallback(() => {
     appDataDir()
@@ -66,6 +67,7 @@ const AppearanceSettingsPage = () => {
               fullPath: `${_appDataDir}/UserContent/Backgrounds/${bg}`,
             }));
             setCustomBgList(updatedList);
+            setBgCacheKey((k) => k + 1);
           } else {
             toast({
               title: response.message,
@@ -370,7 +372,7 @@ const AppearanceSettingsPage = () => {
           <WrapItem key={bg.fileName}>
             <BackgroundCard
               bgAlt={bg.fileName}
-              bgSrc={convertFileSrc(bg.fullPath)}
+              bgSrc={convertFileSrc(bg.fullPath) + "?v=" + bgCacheKey}
               selected={selectedBgKey === bg.fileName}
               onSelect={() =>
                 update("appearance.background.choice", bg.fileName)
