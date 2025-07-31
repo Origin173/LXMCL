@@ -233,7 +233,7 @@ pub async fn launch_game(
   app: AppHandle,
   launching_queue_state: State<'_, Mutex<Vec<LaunchingState>>>,
 ) -> SJMCLResult<()> {
-  let (id, selected_java, game_config, instance_id) = {
+  let (id, selected_java, game_config, instance) = {
     let mut launching_queue = launching_queue_state.lock()?;
     let launching = launching_queue
       .last_mut()
@@ -243,9 +243,16 @@ pub async fn launch_game(
       launching.id,
       launching.selected_java.clone(),
       launching.game_config.clone(),
-      launching.selected_instance.id.clone(),
+      launching.selected_instance.clone(),
     )
   };
+
+  let instance_id = instance.id.clone();
+  let work_dir = get_instance_subdir_paths(&app, &instance, &[&InstanceSubdirType::Root])
+    .ok_or(InstanceError::InstanceNotFoundByID)?
+    .first()
+    .ok_or(InstanceError::InstanceNotFoundByID)?
+    .clone();
 
   // generate launch command
   let LaunchCommand {
@@ -262,6 +269,7 @@ pub async fn launch_game(
   cmd_base.creation_flags(0x08000000);
 
   let child = cmd_base
+    .current_dir(&work_dir)
     .env("CLASSPATH", class_paths.join(get_separator()))
     .args(cmd_args)
     .stdout(Stdio::piped())
