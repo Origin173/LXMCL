@@ -453,3 +453,39 @@ pub async fn fetch_remote_resource_by_local_curseforge(
     Err(ResourceError::ParseError.into())
   }
 }
+
+pub async fn fetch_remote_resource_by_id_curseforge(
+  app: &AppHandle,
+  resource_id: &String,
+) -> SJMCLResult<OtherResourceInfo> {
+  let url = format!("https://api.curseforge.com/v1/mods/{}", resource_id);
+  let client = app.state::<reqwest::Client>();
+
+  let response = client
+    .get(&url)
+    .send()
+    .await
+    .map_err(|_| ResourceError::NetworkError)?;
+
+  if !response.status().is_success() {
+    return Err(ResourceError::NetworkError.into());
+  }
+
+  let results = response
+    .json::<CurseForgeProject>()
+    .await
+    .map_err(|_| ResourceError::ParseError)?;
+
+  Ok(OtherResourceInfo {
+    id: results.id.to_string(),
+    _type: cvt_class_id_to_type(results.class_id),
+    name: results.name,
+    description: results.summary,
+    icon_src: results.logo.unwrap_or_else(default_logo).url,
+    website_url: results.links.website_url,
+    tags: results.categories.iter().map(|c| c.name.clone()).collect(),
+    last_updated: results.date_modified,
+    downloads: results.download_count,
+    source: "CurseForge".to_string(),
+  })
+}

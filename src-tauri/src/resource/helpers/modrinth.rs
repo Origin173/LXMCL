@@ -27,6 +27,19 @@ pub struct ModrinthProject {
 }
 
 #[derive(Deserialize, Debug)]
+pub struct ModrinthGetProjectRes {
+  pub id: String,
+  pub project_type: String,
+  pub slug: String,
+  pub title: String,
+  pub description: String,
+  pub categories: Vec<String>,
+  pub downloads: u32,
+  pub icon_url: String,
+  pub updated: String,
+}
+
+#[derive(Deserialize, Debug)]
 pub struct ModrinthSearchRes {
   pub hits: Vec<ModrinthProject>,
   pub total_hits: u32,
@@ -344,5 +357,41 @@ pub async fn fetch_remote_resource_by_local_modrinth(
     } else {
       Some(version_pack.loaders[0].clone())
     },
+  })
+}
+
+pub async fn fetch_remote_resource_by_id_modrinth(
+  app: &AppHandle,
+  resource_id: &String,
+) -> SJMCLResult<OtherResourceInfo> {
+  let url = format!("https://api.modrinth.com/v2/project/{}", resource_id);
+  let client = app.state::<reqwest::Client>();
+
+  let response = client
+    .get(&url)
+    .send()
+    .await
+    .map_err(|_| ResourceError::NetworkError)?;
+
+  if !response.status().is_success() {
+    return Err(ResourceError::NetworkError.into());
+  }
+
+  let results = response
+    .json::<ModrinthGetProjectRes>()
+    .await
+    .map_err(|_| ResourceError::ParseError)?;
+
+  Ok(OtherResourceInfo {
+    id: results.id,
+    _type: results.project_type,
+    name: results.title,
+    description: results.description,
+    icon_src: results.icon_url,
+    website_url: format!("https://modrinth.com/mod/{}", results.slug),
+    tags: results.categories,
+    last_updated: results.updated,
+    downloads: results.downloads,
+    source: "Modrinth".to_string(),
   })
 }
