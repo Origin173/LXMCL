@@ -1093,6 +1093,10 @@
       "error-1": "例項名稱不能為空",
       "error-2": "例項名稱不合法",
       "error-3": "例項名稱太長"
+    },
+    "tipsToGlobal": {
+      "part-1": "當前例項未啟用特定遊戲設定，",
+      "part-2": "前往全域性遊戲設定"
     }
   },
   "InstanceShaderPacksPage": {
@@ -1182,7 +1186,8 @@
   },
   "LaunchPage": {
     "button": {
-      "launch": "啟動遊戲"
+      "launch": "啟動遊戲",
+      "instanceSettings": "例項設定"
     },
     "SwitchButton": {
       "tooltip": {
@@ -1851,8 +1856,8 @@
           "title": "選擇合適 Java 執行時失敗",
           "description": {
             "INSTANCE_NOT_FOUND_BY_ID": "例項 ID 不存在",
-            "MOD_LOADER_NOT_INSTALLED": "模組載入器未完成安裝",
-            "NO_SUITABLE_JAVA": "沒有合適的 Java 執行時可供選擇"
+            "NO_SUITABLE_JAVA": "沒有合適的 Java 執行時可供選擇",
+            "SELECTED_JAVA_UNAVAILABLE": "手動選擇的 Java 執行時已移除或不可用"
           }
         }
       },
@@ -1860,6 +1865,7 @@
         "error": {
           "title": "驗證遊戲檔案失敗",
           "description": {
+            "MOD_LOADER_NOT_INSTALLED": "模組載入器未完成安裝",
             "MOD_LOADER_LIB_NOT_DOWNLOADED": "模組載入器庫檔案未下載",
             "INSTANCE_NOT_FOUND_BY_ID": "例項 ID 不存在",
             "GAME_FILES_INCOMPLETE": "遊戲檔案不完整或缺失",
@@ -2203,11 +2209,22 @@
     },
     "tip": "集中一處搜尋本地內容與線上遊戲資源",
     "empty": "無搜尋結果",
+    "resource": {
+      "mod": "搜尋關於 {{query}} 的模組",
+      "world": "搜尋關於 {{query}} 的存檔",
+      "resourcepack": "搜尋關於 {{query}} 的資源包",
+      "shader": "搜尋關於 {{query}} 的光影",
+      "modpack": "搜尋關於 {{query}} 的整合包",
+      "curseforge": "在 CurseForge 上",
+      "modrinth": "在 Modrinth 上"
+    },
     "result": {
       "page": "頁面",
       "recentViewed": "最近訪問過",
       "instance": "例項",
-      "player": "角色"
+      "player": "角色",
+      "curseforge": "在 CurseForge 上搜索",
+      "modrinth": "在 Modrinth 上搜索"
     }
   },
   "StarUsModal": {
