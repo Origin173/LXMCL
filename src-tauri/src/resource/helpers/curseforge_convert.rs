@@ -210,3 +210,14 @@ pub fn cvt_id_to_release_type(release_type: u32) -> String {
     _ => "alpha".to_string(),
   }
 }
+
+pub fn cvt_id_to_dependency_type(dependency_type: u32) -> String {
+  match dependency_type {
+    1 => "embedded".to_string(),
+    2 => "optional".to_string(),
+    3 => "required".to_string(),
+    4 => "tool".to_string(),
+    5 => "incompatible".to_string(),
+    _ => "include".to_string(),
+  }
+}

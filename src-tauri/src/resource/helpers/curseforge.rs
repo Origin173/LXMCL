@@ -7,10 +7,10 @@ use std::io::{BufReader, Read};
 use std::path::Path;
 
 use crate::error::SJMCLResult;
-use crate::resource::helpers::curseforge_convert::cvt_category_to_id;
+use crate::resource::helpers::curseforge_convert::{cvt_category_to_id, cvt_id_to_dependency_type};
 use crate::resource::models::{
-  OtherResourceFileInfo, OtherResourceInfo, OtherResourceSearchQuery, OtherResourceSearchRes,
-  OtherResourceVersionPack, OtherResourceVersionPackQuery, ResourceError,
+  OtherResourceDependency, OtherResourceFileInfo, OtherResourceInfo, OtherResourceSearchQuery,
+  OtherResourceSearchRes, OtherResourceVersionPack, OtherResourceVersionPackQuery, ResourceError,
 };
 use serde::Deserialize;
 use tauri::{AppHandle, Manager};
@@ -82,6 +82,13 @@ pub struct CurseForgeFileHash {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+pub struct CurseForgeFileDependency {
+  pub mod_id: u32,
+  pub relation_type: u32,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct CurseForgeFileInfo {
   pub mod_id: u32,
   pub display_name: String,
@@ -92,6 +99,7 @@ pub struct CurseForgeFileInfo {
   pub download_url: Option<String>,
   pub download_count: u32,
   pub game_versions: Vec<String>,
+  pub dependencies: Vec<CurseForgeFileDependency>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -198,6 +206,14 @@ pub fn map_curseforge_file_to_version_pack(
             .find(|h| h.algo == 1)
             .map_or("".to_string(), |h| h.value.clone()),
           file_name: cf_file.file_name.clone(),
+          dependencies: cf_file
+            .dependencies
+            .iter()
+            .map(|dep| OtherResourceDependency {
+              resource_id: dep.mod_id.to_string(),
+              relation: cvt_id_to_dependency_type(dep.relation_type),
+            })
+            .collect(),
           loader: if loader.is_empty() {
             None
           } else {
@@ -423,6 +439,14 @@ pub async fn fetch_remote_resource_by_local_curseforge(
         .find(|h| h.algo == 1)
         .map_or("".to_string(), |h| h.value.clone()),
       file_name: cf_file.file_name.clone(),
+      dependencies: cf_file
+        .dependencies
+        .iter()
+        .map(|dep| OtherResourceDependency {
+          resource_id: dep.mod_id.to_string(),
+          relation: cvt_id_to_dependency_type(dep.relation_type),
+        })
+        .collect(),
       loader: None,
     })
   } else {

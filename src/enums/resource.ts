@@ -254,3 +254,12 @@ export enum OtherResourceType {
   ModPack = "modpack",
   DataPack = "datapack",
 }
+
+export enum DependencyType {
+  Required = "required",
+  Optional = "optional",
+  Incompatible = "incompatible",
+  Embedded = "embedded",
+  Tool = "tool",
+  Include = "include",
+}

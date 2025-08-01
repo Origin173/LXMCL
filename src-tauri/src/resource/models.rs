@@ -90,7 +90,15 @@ pub struct OtherResourceFileInfo {
   pub download_url: String,
   pub sha1: String,
   pub file_name: String,
+  pub dependencies: Vec<OtherResourceDependency>,
   pub loader: Option<String>,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct OtherResourceDependency {
+  pub resource_id: String,
+  pub relation: String,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]

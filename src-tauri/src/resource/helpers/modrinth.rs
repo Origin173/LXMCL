@@ -1,7 +1,7 @@
 use crate::error::SJMCLResult;
 use crate::resource::models::{
-  OtherResourceFileInfo, OtherResourceInfo, OtherResourceSearchQuery, OtherResourceSearchRes,
-  OtherResourceVersionPack, OtherResourceVersionPackQuery, ResourceError,
+  OtherResourceDependency, OtherResourceFileInfo, OtherResourceInfo, OtherResourceSearchQuery,
+  OtherResourceSearchRes, OtherResourceVersionPack, OtherResourceVersionPackQuery, ResourceError,
 };
 use hex;
 use serde::Deserialize;
@@ -40,22 +40,29 @@ pub struct ModrinthFileHash {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct ModrinthFile {
+pub struct ModrinthFileInfo {
   pub url: String,
   pub filename: String,
   pub hashes: ModrinthFileHash,
 }
 
 #[derive(Deserialize, Debug)]
+pub struct ModrinthFileDependency {
+  pub project_id: String,
+  pub dependency_type: String,
+}
+
+#[derive(Deserialize, Debug)]
 pub struct ModrinthVersionPack {
   pub project_id: String,
+  pub dependencies: Vec<ModrinthFileDependency>,
   pub game_versions: Vec<String>,
   pub loaders: Vec<String>,
   pub name: String,
   pub date_published: String,
   pub downloads: u32,
   pub version_type: String,
-  pub files: Vec<ModrinthFile>,
+  pub files: Vec<ModrinthFileInfo>,
 }
 
 pub fn map_modrinth_to_resource_info(res: ModrinthSearchRes) -> OtherResourceSearchRes {
@@ -132,6 +139,14 @@ pub fn map_modrinth_file_to_version_pack(
             download_url: file.url.clone(),
             sha1: file.hashes.sha1.clone(),
             file_name: file.filename.clone(),
+            dependencies: version
+              .dependencies
+              .iter()
+              .map(|dep| OtherResourceDependency {
+                resource_id: dep.project_id.clone(),
+                relation: dep.dependency_type.clone(),
+              })
+              .collect(),
             loader: if loader.is_empty() || loader == "minecraft" {
               None
             } else {
@@ -316,6 +331,14 @@ pub async fn fetch_remote_resource_by_local_modrinth(
     download_url: file_info.url.clone(),
     sha1: file_info.hashes.sha1.clone(),
     file_name: file_info.filename.clone(),
+    dependencies: version_pack
+      .dependencies
+      .iter()
+      .map(|dep| OtherResourceDependency {
+        resource_id: dep.project_id.clone(),
+        relation: dep.dependency_type.clone(),
+      })
+      .collect(),
     loader: if version_pack.loaders.is_empty() {
       None
     } else {

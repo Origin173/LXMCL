@@ -1,5 +1,5 @@
 import { ModLoaderType } from "@/enums/instance";
-import { OtherResourceType } from "@/enums/resource";
+import { DependencyType, OtherResourceType } from "@/enums/resource";
 
 export interface GameResourceInfo {
   id: string;
@@ -38,7 +38,13 @@ export interface OtherResourceFileInfo {
   downloadUrl: string;
   sha1: string;
   fileName: string;
+  dependencies: OtherResourceDependency[];
   loader?: string; // "forge", "fabric", "iris", "optifine", etc.
+}
+
+export interface OtherResourceDependency {
+  resourceId: string;
+  relation: DependencyType;
 }
 
 export interface OtherResourceVersionPack {
