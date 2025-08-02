@@ -23,7 +23,7 @@ use serde::{self, Deserialize, Serialize};
 use serde_json::Value;
 use shlex::try_quote;
 use std::borrow::Cow;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
 
@@ -156,6 +156,8 @@ pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<LaunchCommand> {
   };
 
   let mut class_paths: Vec<String> = get_nonnative_library_paths(&client_info, libraries_dir)?
+    .into_iter()
+    .collect::<HashSet<_>>()
     .into_iter()
     .map(|p| p.to_string_lossy().to_string())
     .collect();
