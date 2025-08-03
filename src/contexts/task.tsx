@@ -485,6 +485,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
                   path: group.taskDescs[0].payload.dest,
                 });
               }
+              break;
             default:
               break;
           }

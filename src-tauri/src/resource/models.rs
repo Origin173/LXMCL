@@ -51,7 +51,7 @@ impl FromStr for ResourceDownloadType {
     match input.to_lowercase().as_str() {
       "curseforge" => Ok(ResourceDownloadType::CurseForge),
       "modrinth" => Ok(ResourceDownloadType::Modrinth),
-      _ => Ok(ResourceDownloadType::Unknown),
+      _ => Err(format!("Unknown resource download type: {}", input)),
     }
   }
 }
