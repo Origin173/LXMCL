@@ -11,7 +11,11 @@ import {
   ShaderPackInfo,
 } from "@/models/instance/misc";
 import { LevelData, WorldInfo } from "@/models/instance/world";
-import { GameResourceInfo, ModLoaderResourceInfo } from "@/models/resource";
+import {
+  GameResourceInfo,
+  ModLoaderResourceInfo,
+  ModpackResourceInfo,
+} from "@/models/resource";
 import { InvokeResponse } from "@/models/response";
 import { responseHandler } from "@/utils/response";
 
@@ -38,6 +42,7 @@ export class InstanceService {
    * @param {string} iconSrc - The icon source of the instance.
    * @param {GameResourceInfo} game - The game resource info of the instance.
    * @param {ModLoaderResourceInfo} modLoader - The mod loader info of the instance.
+   * @param {string} [modpackPath] - Optional path to the modpack archive file.
    * @returns {Promise<InvokeResponse<null>>}
    */
   @responseHandler("instance")
@@ -47,7 +52,8 @@ export class InstanceService {
     description: string,
     iconSrc: string,
     game: GameResourceInfo,
-    modLoader: ModLoaderResourceInfo
+    modLoader: ModLoaderResourceInfo,
+    modpackPath?: string
   ): Promise<InvokeResponse<null>> {
     return await invoke("create_instance", {
       directory,
@@ -56,6 +62,7 @@ export class InstanceService {
       iconSrc,
       game,
       modLoader,
+      modpackPath,
     });
   }
 
@@ -373,6 +380,20 @@ export class InstanceService {
   ): Promise<InvokeResponse<void>> {
     return await invoke("finish_mod_loader_install", {
       instanceId,
+    });
+  }
+
+  /**
+   * GET the modpack resource info from a given path.
+   * @param {string} path - The path to the modpack archive file.
+   * @returns {Promise<InvokeResponse<ModpackResourceInfo>>}
+   */
+  @responseHandler("instance")
+  static async getModpackResourceInfo(
+    path: string
+  ): Promise<InvokeResponse<ModpackResourceInfo>> {
+    return await invoke("get_modpack_resource_info", {
+      path,
     });
   }
 }

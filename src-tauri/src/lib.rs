@@ -113,6 +113,7 @@ pub async fn run() {
       instance::commands::toggle_mod_by_extension,
       instance::commands::create_launch_desktop_shortcut,
       instance::commands::finish_mod_loader_install,
+      instance::commands::get_modpack_resource_info,
       launch::commands::select_suitable_jre,
       launch::commands::validate_game_files,
       launch::commands::validate_selected_player,

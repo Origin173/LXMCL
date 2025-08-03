@@ -113,8 +113,8 @@ export default function App({ Component, pageProps }: AppProps) {
         <RoutingHistoryContextProvider>
           <LauncherConfigContextProvider>
             <GlobalDataContextProvider>
-              <TaskContextProvider>
-                <SharedModalsProvider>
+              <SharedModalsProvider>
+                <TaskContextProvider>
                   <GlobalEventHandler>
                     <MainLayout>
                       <Fade key={router.pathname.split("/")[1] || ""} in>
@@ -124,8 +124,8 @@ export default function App({ Component, pageProps }: AppProps) {
                       </Fade>
                     </MainLayout>
                   </GlobalEventHandler>
-                </SharedModalsProvider>
-              </TaskContextProvider>
+                </TaskContextProvider>
+              </SharedModalsProvider>
             </GlobalDataContextProvider>
           </LauncherConfigContextProvider>
         </RoutingHistoryContextProvider>

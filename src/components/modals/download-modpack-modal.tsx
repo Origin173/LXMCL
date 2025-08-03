@@ -12,16 +12,16 @@ import {
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import ResourceDownloader from "@/components/resource-downloader";
-import { OtherResourceType } from "@/enums/resource";
+import { OtherResourceType, ResourceDownloadType } from "@/enums/resource";
 
 interface DownloadModpackModalProps extends Omit<ModalProps, "children"> {
   initialSearchQuery?: string;
-  initialDownloadSource?: "CurseForge" | "Modrinth";
+  initialDownloadSource?: ResourceDownloadType;
 }
 
 export const DownloadModpackModal: React.FC<DownloadModpackModalProps> = ({
   initialSearchQuery = "",
-  initialDownloadSource = "CurseForge",
+  initialDownloadSource = ResourceDownloadType.CurseForge,
   ...modalProps
 }) => {
   const { t } = useTranslation();

@@ -254,3 +254,8 @@ export enum OtherResourceType {
   ModPack = "modpack",
   DataPack = "datapack",
 }
+
+export enum ResourceDownloadType {
+  CurseForge = "CurseForge",
+  Modrinth = "Modrinth",
+}

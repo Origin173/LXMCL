@@ -10,6 +10,7 @@ import {
   VStack,
   useDisclosure,
 } from "@chakra-ui/react";
+import { open } from "@tauri-apps/plugin-dialog";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { LuArrowRight, LuCloudDownload, LuFolderPlus } from "react-icons/lu";
@@ -20,10 +21,14 @@ import {
 import { CreateInstanceModal } from "@/components/modals/create-instance-modal";
 import { DownloadGameServerModal } from "@/components/modals/download-game-server-modal";
 import DownloadModpackModal from "@/components/modals/download-modpack-modal";
+import { useSharedModals } from "@/contexts/shared-modal";
+import { useToast } from "@/contexts/toast";
 
 const AddAndImportInstancePage = () => {
   const { t } = useTranslation();
   const router = useRouter();
+  const { openSharedModal } = useSharedModals();
+  const toast = useToast();
 
   const {
     isOpen: isCreateInstanceModalOpen,
@@ -41,6 +46,23 @@ const AddAndImportInstancePage = () => {
     onClose: onCloseDownloadGameServerModal,
   } = useDisclosure();
 
+  const handleImportModpackFromDisk = async () => {
+    let filePath = await open({
+      multiple: false,
+      filters: [
+        {
+          name: t("General.dialog.filterName.modpack"),
+          extensions: ["zip", "mrpack"],
+        },
+      ],
+    });
+    if (filePath) {
+      openSharedModal("import-modpack", {
+        path: filePath,
+      });
+    }
+  };
+
   const addAndImportOptions: Record<string, () => void> = {
     new: onOpenCreateInstanceModal,
     modpack: () => {},
@@ -55,7 +77,9 @@ const AddAndImportInstancePage = () => {
     {
       icon: LuFolderPlus,
       label: t("AddAndImportInstancePage.modpackOperations.fromdisk"),
-      onClick: () => {},
+      onClick: () => {
+        handleImportModpackFromDisk();
+      },
     },
     {
       icon: LuCloudDownload,

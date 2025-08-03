@@ -29,6 +29,7 @@ import { useToast } from "@/contexts/toast";
 import { ModLoaderType } from "@/enums/instance";
 import {
   OtherResourceType,
+  ResourceDownloadType,
   datapackTagList,
   modTagList,
   modpackTagList,
@@ -47,7 +48,7 @@ import { formatDisplayCount } from "@/utils/string";
 interface ResourceDownloaderProps {
   resourceType: OtherResourceType;
   initialSearchQuery?: string;
-  initialDownloadSource?: "CurseForge" | "Modrinth";
+  initialDownloadSource?: ResourceDownloadType;
 }
 
 interface ResourceDownloaderMenuProps {
@@ -75,13 +76,16 @@ const tagLists: Record<string, any> = {
   datapack: datapackTagList,
 };
 
-const downloadSourceLists: Record<string, string[]> = {
-  mod: ["CurseForge", "Modrinth"],
-  world: ["CurseForge"],
-  resourcepack: ["CurseForge", "Modrinth"],
-  shader: ["CurseForge", "Modrinth"],
-  modpack: ["CurseForge", "Modrinth"],
-  datapack: ["CurseForge", "Modrinth"],
+const downloadSourceLists: Record<string, ResourceDownloadType[]> = {
+  mod: [ResourceDownloadType.CurseForge, ResourceDownloadType.Modrinth],
+  world: [ResourceDownloadType.CurseForge],
+  resourcepack: [
+    ResourceDownloadType.CurseForge,
+    ResourceDownloadType.Modrinth,
+  ],
+  shader: [ResourceDownloadType.CurseForge, ResourceDownloadType.Modrinth],
+  modpack: [ResourceDownloadType.CurseForge, ResourceDownloadType.Modrinth],
+  datapack: [ResourceDownloadType.CurseForge, ResourceDownloadType.Modrinth],
 };
 
 const ResourceDownloaderMenu: React.FC<ResourceDownloaderMenuProps> = ({
@@ -147,9 +151,9 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
   const translateTag = (
     tag: string,
     resourceType: string,
-    downloadSource?: string
+    downloadSource?: ResourceDownloadType
   ) => {
-    if (downloadSource === "CurseForge" || downloadSource === "Modrinth") {
+    if (downloadSource) {
       const tagList = (tagLists[resourceType] || modpackTagList)[
         downloadSource
       ];
@@ -181,7 +185,7 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
     title: (
       <Text fontSize="xs-sm" className="ellipsis-text">
         {item.translatedName
-          ? `${item.translatedName}｜${item.name}`
+          ? `${item.translatedName} | ${item.name}`
           : item.name}
       </Text>
     ),
@@ -189,20 +193,17 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
       <HStack spacing={1}>
         {(() => {
           const translatedTags = item.tags
-            .map((t) => ({
-              raw: t,
-              translated: translateTag(t, item.type, item.source),
-            }))
-            .filter((t) => t.translated);
+            .map((t) => translateTag(t, item.type, item.source))
+            .filter((t) => t);
 
           const visibleTags = translatedTags.slice(0, 3);
           const extraCount = translatedTags.length - visibleTags.length;
 
           return (
             <>
-              {visibleTags.map((t) => (
-                <Tag key={t.raw} colorScheme={primaryColor} className="tag-xs">
-                  {t.translated}
+              {visibleTags.map((t, index) => (
+                <Tag key={index} colorScheme={primaryColor} className="tag-xs">
+                  {t}
                 </Tag>
               ))}
               {extraCount > 0 && (
@@ -302,7 +303,7 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
 const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   resourceType,
   initialSearchQuery = "",
-  initialDownloadSource = "CurseForge",
+  initialDownloadSource = ResourceDownloadType.CurseForge,
 }) => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
@@ -324,11 +325,13 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   const [gameVersion, setGameVersion] = useState<string>("All");
   const [selectedTag, setSelectedTag] = useState<string>("All");
   const [sortBy, setSortBy] = useState<string>(
-    initialDownloadSource === "CurseForge" ? "Popularity" : "relevance"
+    initialDownloadSource === ResourceDownloadType.CurseForge
+      ? "Popularity"
+      : "relevance"
   );
-  const [downloadSource, setDownloadSource] = useState<
-    "CurseForge" | "Modrinth"
-  >(initialDownloadSource);
+  const [downloadSource, setDownloadSource] = useState<ResourceDownloadType>(
+    initialDownloadSource
+  );
 
   const searchQueryRef = useRef(searchQuery);
   const pageRef = useRef(0);
@@ -337,7 +340,11 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   const sortByList = sortByLists[downloadSource];
 
   const onDownloadSourceChange = (e: string) => {
-    setDownloadSource(e === "CurseForge" ? "CurseForge" : "Modrinth");
+    setDownloadSource(
+      e === "CurseForge"
+        ? ResourceDownloadType.CurseForge
+        : ResourceDownloadType.Modrinth
+    );
     setSelectedTag("All");
     setSortBy(e === "CurseForge" ? "Popularity" : "relevance");
   };
@@ -457,7 +464,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
       resourceType &&
       !(downloadSourceLists[resourceType] || []).includes(downloadSource)
     ) {
-      onDownloadSourceChange("CurseForge");
+      onDownloadSourceChange(ResourceDownloadType.CurseForge);
     }
     setSelectedTag("All");
   }, [resourceType, downloadSource]);
@@ -488,9 +495,9 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
         ),
         ...(Array.isArray(tags)
           ? tags
-              .filter((item: string) => item !== "All")
-              .map((item: string) => (
-                <MenuItemOption key={item} value={item} fontSize="xs" pl={6}>
+              .filter((item) => item !== "All")
+              .map((item, index) => (
+                <MenuItemOption key={index} value={item} fontSize="xs" pl={6}>
                   {t(
                     `ResourceDownloader.${resourceType}TagList.${downloadSource}.${item}`
                   ) || item}
@@ -528,8 +535,8 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           defaultValue={"All"}
           options={
             gameVersionList ? (
-              gameVersionList.map((item) => (
-                <MenuItemOption key={item} value={item} fontSize="xs">
+              gameVersionList.map((item, index) => (
+                <MenuItemOption key={index} value={item} fontSize="xs">
                   {item === "All"
                     ? t("ResourceDownloader.versionList.All")
                     : item}
@@ -549,9 +556,9 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           displayText={downloadSource}
           onChange={onDownloadSourceChange}
           value={downloadSource}
-          defaultValue={"CurseForge"}
-          options={downloadSourceLists[resourceType].map((item) => (
-            <MenuItemOption key={item} value={item} fontSize="xs">
+          defaultValue={ResourceDownloadType.CurseForge}
+          options={downloadSourceLists[resourceType].map((item, index) => (
+            <MenuItemOption key={index} value={item} fontSize="xs">
               {item}
             </MenuItemOption>
           ))}
@@ -566,10 +573,12 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           onChange={setSortBy}
           value={sortBy}
           defaultValue={
-            downloadSource === "CurseForge" ? "Popularity" : "relevance"
+            downloadSource === ResourceDownloadType.CurseForge
+              ? "Popularity"
+              : "relevance"
           }
-          options={sortByList.map((item) => (
-            <MenuItemOption key={item} value={item} fontSize="xs">
+          options={sortByList.map((item, index) => (
+            <MenuItemOption key={index} value={item} fontSize="xs">
               {t(`ResourceDownloader.sortByList.${downloadSource}.${item}`)}
             </MenuItemOption>
           ))}

@@ -42,6 +42,7 @@ import { useToast } from "@/contexts/toast";
 import { InstanceSubdirType, ModLoaderType } from "@/enums/instance";
 import {
   OtherResourceType,
+  ResourceDownloadType,
   datapackTagList,
   modTagList,
   modpackTagList,
@@ -126,9 +127,12 @@ const DownloadSpecificResourceModal: React.FC<
   const translateTag = (
     tag: string,
     resourceType: string,
-    downloadSource?: string
+    downloadSource?: ResourceDownloadType
   ) => {
-    if (downloadSource === "CurseForge" || downloadSource === "Modrinth") {
+    if (
+      downloadSource === ResourceDownloadType.CurseForge ||
+      downloadSource === ResourceDownloadType.Modrinth
+    ) {
       const tagList = (tagLists[resourceType] || modpackTagList)[
         downloadSource
       ];
@@ -149,7 +153,7 @@ const DownloadSpecificResourceModal: React.FC<
   const versionLabelToParam = useCallback(
     (label: string) => {
       if (label === "All") return ["All"];
-      if (resource.source === "Modrinth")
+      if (resource.source === ResourceDownloadType.Modrinth)
         return gameVersionList.filter((version) => version.startsWith(label));
       return [label];
     },
@@ -212,7 +216,7 @@ const DownloadSpecificResourceModal: React.FC<
       defaultPath: dir + "/" + item.fileName,
     });
     if (!savepath) return;
-    handleScheduleProgressiveTaskGroup(`game-resource?type:${resource.type}`, [
+    handleScheduleProgressiveTaskGroup(resource.type, [
       {
         src: item.downloadUrl,
         dest: savepath,
@@ -220,6 +224,7 @@ const DownloadSpecificResourceModal: React.FC<
         taskType: TaskTypeEnums.Download,
       },
     ]);
+    router.push("/downloads");
   };
 
   const getRecommendedFiles = useMemo((): OtherResourceFileInfo[] => {
@@ -306,7 +311,7 @@ const DownloadSpecificResourceModal: React.FC<
       resourceId: string,
       modLoader: ModLoaderType | "All",
       gameVersions: string[],
-      downloadSource: string
+      downloadSource: ResourceDownloadType
     ) => {
       setIsLoadingVersionPacks(true);
       ResourceService.fetchResourceVersionPacks(

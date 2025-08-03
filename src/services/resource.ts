@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { ModLoaderType } from "@/enums/instance";
+import { ResourceDownloadType } from "@/enums/resource";
 import {
   GameResourceInfo,
   ModLoaderResourceInfo,
@@ -79,7 +80,7 @@ export class ResourceService {
     resourceId: string,
     modLoader: ModLoaderType | "All",
     gameVersions: string[],
-    downloadSource: string
+    downloadSource: ResourceDownloadType
   ): Promise<InvokeResponse<OtherResourceVersionPack[]>> {
     return await invoke("fetch_resource_version_packs", {
       downloadSource,
@@ -116,7 +117,7 @@ export class ResourceService {
    */
   @responseHandler("resource")
   static async fetchRemoteResourceByLocal(
-    downloadSource: string,
+    downloadSource: ResourceDownloadType,
     filePath: string
   ): Promise<InvokeResponse<OtherResourceFileInfo>> {
     return await invoke("fetch_remote_resource_by_local", {
