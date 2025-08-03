@@ -1,4 +1,4 @@
-import { OtherResourceType } from "@/enums/resource";
+import { OtherResourceType, ResourceDownloadType } from "@/enums/resource";
 import { OtherResourceInfo } from "@/models/resource";
 
 // from https://bmclapi2.bangbang93.com/forge/minecraft/1.21
