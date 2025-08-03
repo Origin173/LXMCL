@@ -21,6 +21,7 @@ import { BeatLoader } from "react-spinners";
 import { OptionItem } from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
 import { useSharedModals } from "@/contexts/shared-modal";
+import { ModLoaderType } from "@/enums/instance";
 import { OtherResourceDependency } from "@/models/resource";
 import { ResourceService } from "@/services/resource";
 import { ISOToDate } from "@/utils/datetime";
@@ -29,16 +30,22 @@ import { formatDisplayCount } from "@/utils/string";
 interface AlertResourceDependencyModalProps
   extends Omit<ModalProps, "children"> {
   dependencies: OtherResourceDependency[];
-  downloadOriginalResource: () => void;
   downloadSource: "CurseForge" | "Modrinth";
+  curInstanceMajorVersion?: string;
+  curInstanceVersion?: string;
+  curInstanceModLoader?: ModLoaderType;
+  downloadOriginalResource: () => void;
 }
 
 const AlertResourceDependencyModal: React.FC<
   AlertResourceDependencyModalProps
 > = ({
   dependencies,
-  downloadOriginalResource,
   downloadSource,
+  curInstanceMajorVersion,
+  curInstanceVersion,
+  curInstanceModLoader,
+  downloadOriginalResource,
   ...modalProps
 }) => {
   const { t } = useTranslation();
@@ -179,6 +186,9 @@ const AlertResourceDependencyModal: React.FC<
           modalProps.onClose();
           openSharedModal("download-specific-resource", {
             resource,
+            curInstanceMajorVersion,
+            curInstanceVersion,
+            curInstanceModLoader,
           });
         }}
         fontWeight={400}
@@ -199,14 +209,22 @@ const AlertResourceDependencyModal: React.FC<
           flex="1"
           display="flex"
           flexDirection="column"
-          overflow="hidden"
+          overflowY="auto"
         >
           {isLoading ? (
             <VStack mt={8}>
               <BeatLoader size={16} color="gray" />
             </VStack>
           ) : (
-            <VStack spacing={2} align="stretch" maxH="60vh" overflowY="auto">
+            <VStack
+              spacing={2}
+              align="stretch"
+              maxH={{ base: "sm", md: "md", lg: "lg" }}
+              overflowY="auto"
+            >
+              <Text className="secondary-text" mb={2}>
+                {t("AlertResourceDependencyModal.description")}
+              </Text>
               {dependencyList.map((dependency) =>
                 renderDependencyItem(dependency)
               )}

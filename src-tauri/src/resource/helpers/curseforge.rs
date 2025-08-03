@@ -126,6 +126,12 @@ pub struct CurseForgeFingerprintRes {
   pub data: CurseForgeFingerprintData,
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CurseForgeGetProjectRes {
+  pub data: CurseForgeProject,
+}
+
 pub fn map_curseforge_to_resource_info(res: CurseForgeSearchRes) -> OtherResourceSearchRes {
   let list = res
     .data
@@ -474,20 +480,22 @@ pub async fn fetch_remote_resource_by_id_curseforge(
   }
 
   let results = response
-    .json::<CurseForgeProject>()
+    .json::<CurseForgeGetProjectRes>()
     .await
     .map_err(|_| ResourceError::ParseError)?;
 
+  let resource = results.data;
+
   Ok(OtherResourceInfo {
-    id: results.id.to_string(),
-    _type: cvt_class_id_to_type(results.class_id),
-    name: results.name,
-    description: results.summary,
-    icon_src: results.logo.unwrap_or_else(default_logo).url,
-    website_url: results.links.website_url,
-    tags: results.categories.iter().map(|c| c.name.clone()).collect(),
-    last_updated: results.date_modified,
-    downloads: results.download_count,
+    id: resource.id.to_string(),
+    _type: cvt_class_id_to_type(resource.class_id),
+    name: resource.name,
+    description: resource.summary,
+    icon_src: resource.logo.unwrap_or_else(default_logo).url,
+    website_url: resource.links.website_url,
+    tags: resource.categories.iter().map(|c| c.name.clone()).collect(),
+    last_updated: resource.date_modified,
+    downloads: resource.download_count,
     source: "CurseForge".to_string(),
   })
 }

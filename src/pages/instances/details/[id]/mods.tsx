@@ -441,6 +441,8 @@ const InstanceModsPage = () => {
           isOpen={isModInfoModalOpen}
           onClose={onModInfoModalClose}
           mod={modInfoSelectedMod}
+          curInstanceMajorVersion={summary?.majorVersion}
+          curInstanceVersion={summary?.version}
         />
       )}
     </>

@@ -197,6 +197,7 @@
     "header": {
       "title": "Exist Dependency Resource"
     },
+    "description": "Please confirm that all required resources are installed, or continue downloading the original resource.",
     "button": {
       "continue": "Download original resource",
       "cancel": "Cancel"

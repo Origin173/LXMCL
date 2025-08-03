@@ -197,6 +197,7 @@
     "header": {
       "title": "存在前置资源"
     },
+    "description": "请确认已安装所有前置资源，或继续下载原资源",
     "button": {
       "continue": "继续下载原资源",
       "cancel": "取消"

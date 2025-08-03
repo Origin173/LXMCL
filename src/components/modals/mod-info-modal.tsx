@@ -25,9 +25,16 @@ import { base64ImgSrc } from "@/utils/string";
 
 interface ModInfoModalProps extends Omit<ModalProps, "children"> {
   mod: LocalModInfo;
+  curInstanceMajorVersion?: string;
+  curInstanceVersion?: string;
 }
 
-const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
+const ModInfoModal: React.FC<ModInfoModalProps> = ({
+  mod,
+  curInstanceMajorVersion,
+  curInstanceVersion,
+  ...modalProps
+}) => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
@@ -51,8 +58,8 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({ mod, ...modalProps }) => {
         downloads: 0,
         source: downloadSource,
       },
-      curInstanceMajorVersion: undefined,
-      curInstanceVersion: undefined,
+      curInstanceMajorVersion,
+      curInstanceVersion,
       curInstanceModLoader: mod.loaderType,
     });
   };
