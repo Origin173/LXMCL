@@ -37,6 +37,7 @@ import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
+import { useSharedModals } from "@/contexts/shared-modal";
 import { useTaskContext } from "@/contexts/task";
 import { useToast } from "@/contexts/toast";
 import { InstanceSubdirType, ModLoaderType } from "@/enums/instance";
@@ -124,6 +125,7 @@ const DownloadSpecificResourceModal: React.FC<
 
   const { getGameVersionList, isGameVersionListLoading } = useGlobalData();
   const { handleScheduleProgressiveTaskGroup } = useTaskContext();
+  const { openSharedModal } = useSharedModals();
 
   const translateTag = (
     tag: string,
@@ -441,7 +443,17 @@ const DownloadSpecificResourceModal: React.FC<
                   )
                 }
                 isFullClickZone
-                onClick={() => startDownload(item)}
+                onClick={() => {
+                  if (item.dependencies.length > 0) {
+                    openSharedModal("alert-resource-dependency", {
+                      dependencies: item.dependencies,
+                      downloadOriginalResource: () => startDownload(item),
+                      downloadSource: resource.source as
+                        | "CurseForge"
+                        | "Modrinth",
+                    });
+                  } else startDownload(item);
+                }}
               />
             ))}
           />

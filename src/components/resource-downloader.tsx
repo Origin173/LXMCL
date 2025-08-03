@@ -181,7 +181,7 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
     title: (
       <Text fontSize="xs-sm" className="ellipsis-text">
         {item.translatedName
-          ? `${item.translatedName}｜${item.name}`
+          ? `${item.translatedName} | ${item.name}`
           : item.name}
       </Text>
     ),

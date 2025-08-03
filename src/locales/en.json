@@ -193,6 +193,27 @@
       "usePasswordLogin": "Account & Password Login"
     }
   },
+  "AlertResourceDependencyModal": {
+    "header": {
+      "title": "Exist Dependency Resource"
+    },
+    "button": {
+      "continue": "Download original resource",
+      "cancel": "Cancel"
+    },
+    "fallback": {
+      "title": "Resource ID: {{resourceId}}",
+      "description": "Failed to fetch this resource from remote, please check your network connection or try again later."
+    },
+    "dependencyType": {
+      "required": "Required",
+      "optional": "Optional",
+      "incompatible": "Incompatible",
+      "embedded": "Embedded",
+      "tool": "Tool",
+      "include": "Include"
+    }
+  },
   "AllInstancesPage": {
     "button": {
       "addAndImport": "Add & Import",

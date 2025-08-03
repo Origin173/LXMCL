@@ -463,6 +463,8 @@ pub async fn fetch_remote_resource_by_id_curseforge(
 
   let response = client
     .get(&url)
+    .header("x-api-key", env!("SJMCL_CURSEFORGE_API_KEY"))
+    .header("accept", "application/json")
     .send()
     .await
     .map_err(|_| ResourceError::NetworkError)?;

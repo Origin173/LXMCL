@@ -45,6 +45,7 @@ export interface OtherResourceFileInfo {
 export interface OtherResourceDependency {
   resourceId: string;
   relation: DependencyType;
+  resource?: OtherResourceInfo;
 }
 
 export interface OtherResourceVersionPack {
