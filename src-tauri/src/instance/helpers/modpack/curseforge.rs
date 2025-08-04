@@ -50,13 +50,6 @@ structstruck::strike! {
   }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct CurseForgeFileHashInfo {
-  pub value: String,
-  pub algo: u64,
-}
-
 structstruck::strike! {
 #[strikethrough[derive(Deserialize, Serialize, Debug, Clone)]]
 #[strikethrough[serde(rename_all = "camelCase")]]
@@ -64,7 +57,10 @@ structstruck::strike! {
     pub data: struct {
       pub download_url: Option<String>,
       pub file_name: String,
-      pub hashes: Option<Vec<CurseForgeFileHashInfo>>,
+      pub hashes: Option<Vec<pub struct {
+        pub value: String,
+        pub algo: u64,
+      }>>,
     }
   }
 }

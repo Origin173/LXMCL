@@ -23,10 +23,10 @@ pub struct ModrinthFile {
     pub sha1: String,
     pub sha512: String,
   },
-  pub env: struct {
+  pub env: Option<pub struct {
     pub client: String,
     pub server: String,
-  },
+  }>,
   pub downloads: Vec<String>,
   pub file_size: u64,
 }
