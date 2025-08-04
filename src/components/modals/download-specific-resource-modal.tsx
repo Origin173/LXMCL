@@ -37,7 +37,6 @@ import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
-import { useTaskContext } from "@/contexts/task";
 import { useToast } from "@/contexts/toast";
 import { InstanceSubdirType, ModLoaderType } from "@/enums/instance";
 import {
@@ -58,9 +57,10 @@ import {
   OtherResourceInfo,
   OtherResourceVersionPack,
 } from "@/models/resource";
-import { TaskTypeEnums } from "@/models/task";
+import { TaskParam, TaskTypeEnums } from "@/models/task";
 import { InstanceService } from "@/services/instance";
 import { ResourceService } from "@/services/resource";
+import { TaskService } from "@/services/task";
 import { ISOToDate } from "@/utils/datetime";
 import { formatDisplayCount } from "@/utils/string";
 
@@ -122,7 +122,24 @@ const DownloadSpecificResourceModal: React.FC<
   );
 
   const { getGameVersionList, isGameVersionListLoading } = useGlobalData();
-  const { handleScheduleProgressiveTaskGroup } = useTaskContext();
+
+  const handleScheduleProgressiveTaskGroup = useCallback(
+    (taskGroup: string, params: TaskParam[]) => {
+      TaskService.scheduleProgressiveTaskGroup(taskGroup, params).then(
+        (response) => {
+          // success toast will now be called by task context group listener
+          if (response.status !== "success") {
+            toast({
+              title: response.message,
+              description: response.details,
+              status: "error",
+            });
+          }
+        }
+      );
+    },
+    [toast]
+  ); // this is because TaskContext is now inside the SharedModalContext, use a separated function to avoid circular dependency
 
   const translateTag = (
     tag: string,
