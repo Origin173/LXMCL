@@ -299,7 +299,9 @@ const InstanceWorldsPage = () => {
                   />
                 }
               >
-                {server.isQueried && (
+                {!server.isQueried ? (
+                  <BeatLoader size={6} color="gray" />
+                ) : (
                   <HStack>
                     {server.online && (
                       <Text fontSize="xs-sm" color="gray.500">
