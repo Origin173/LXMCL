@@ -353,7 +353,7 @@ pub async fn generate_launch_command(
 
   // quick into server (for old version)
   if !quickplay_server_url.is_empty()
-    && compare_game_versions(app, &selected_instance.name, "23w14a", false)
+    && compare_game_versions(app, &selected_instance.version, "23w14a", false)
       .await
       .is_lt()
   {

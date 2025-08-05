@@ -392,7 +392,9 @@ pub async fn replace_native_libraries(
 
   #[cfg(all(target_arch = "aarch64", target_os = "macos"))]
   {
-    if compare_game_versions(app, instance.version.as_str(), "1.20.1").await == Ordering::Greater {
+    if compare_game_versions(app, instance.version.as_str(), "1.20.1", true).await
+      == Ordering::Greater
+    {
       return Ok(());
     }
   }

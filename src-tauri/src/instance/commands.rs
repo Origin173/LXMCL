@@ -3,7 +3,7 @@ use super::{
     copy_whole_dir, generate_unique_filename, get_files_with_regex, get_subdirectories,
   },
   helpers::{
-    game_version::get_major_game_version,
+    game_version::{compare_game_versions, get_major_game_version},
     misc::{
       get_instance_game_config, get_instance_subdir_path_by_id, refresh_and_update_instances,
       unify_instance_name,
@@ -85,10 +85,15 @@ pub async fn retrieve_instance_list(app: AppHandle) -> SJMCLResult<Vec<InstanceS
       icon_src: instance.icon_src.clone(),
       starred: instance.starred,
       play_time: instance.play_time,
-      version: instance.version.clone(),
-      major_version: get_major_game_version(&app, &instance.version).await,
       version_path: instance.version_path.clone(),
+      version: instance.version.clone(),
       mod_loader: instance.mod_loader.clone(),
+      // skip fallback remote fetch in `get_major_game_version` and `compare_game_versions` to avoid instance list load delay.
+      // ref: https://github.com/UNIkeEN/SJMCL/pull/799
+      major_version: get_major_game_version(&app, &instance.version, false).await,
+      support_quick_play: compare_game_versions(&app, &instance.version, "23w14a", false)
+        .await
+        .is_ge(),
       use_spec_game_config: instance.use_spec_game_config,
       is_version_isolated,
     });

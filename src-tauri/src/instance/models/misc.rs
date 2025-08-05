@@ -117,10 +117,11 @@ pub struct InstanceSummary {
   pub icon_src: String,
   pub starred: bool,
   pub play_time: u128,
+  pub version_path: PathBuf,
   pub version: String,
   pub major_version: String,
-  pub version_path: PathBuf,
   pub mod_loader: ModLoader,
+  pub support_quick_play: bool,
   pub use_spec_game_config: bool,
   pub is_version_isolated: bool,
 }
