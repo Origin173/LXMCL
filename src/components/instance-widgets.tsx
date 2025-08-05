@@ -399,27 +399,29 @@ export const InstanceLastPlayedWidget = () => {
               </VStack>
             </Box>
           </HStack>
-          <HStack spacing={1.5} position="absolute" left={2} bottom={2}>
-            <Button
-              size="xs"
-              variant="ghost"
-              colorScheme={primaryColor}
-              justifyContent="flex-start"
-              onClick={() => {
-                openSharedModal("launch", {
-                  instanceId: summary?.id,
-                  ...(lastPlayedWorld?.dirPath && {
-                    quickPlaySingleplayer: lastPlayedWorld.dirPath,
-                  }),
-                });
-              }}
-            >
-              <HStack spacing={1.5}>
-                <Icon as={LuArrowRight} />
-                <Text>{t("InstanceWidgets.lastPlayed.continuePlaying")}</Text>
-              </HStack>
-            </Button>
-          </HStack>
+          {summary?.supportQuickPlay && (
+            <HStack spacing={1.5} position="absolute" left={2} bottom={2}>
+              <Button
+                size="xs"
+                variant="ghost"
+                colorScheme={primaryColor}
+                justifyContent="flex-start"
+                onClick={() => {
+                  openSharedModal("launch", {
+                    instanceId: summary?.id,
+                    ...(lastPlayedWorld?.dirPath && {
+                      quickPlaySingleplayer: lastPlayedWorld.dirPath,
+                    }),
+                  });
+                }}
+              >
+                <HStack spacing={1.5}>
+                  <Icon as={LuArrowRight} />
+                  <Text>{t("InstanceWidgets.lastPlayed.continuePlaying")}</Text>
+                </HStack>
+              </Button>
+            </HStack>
+          )}
         </VStack>
       ) : (
         <Empty withIcon={false} size="sm" />
