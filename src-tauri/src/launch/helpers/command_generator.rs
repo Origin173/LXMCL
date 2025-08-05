@@ -1,6 +1,7 @@
 use crate::error::{SJMCLError, SJMCLResult};
 use crate::instance::{
   helpers::client_json::FeaturesInfo,
+  helpers::game_version::compare_game_versions,
   helpers::misc::get_instance_subdir_paths,
   models::misc::{InstanceError, InstanceSubdirType},
 };
@@ -99,9 +100,10 @@ pub struct LaunchCommand {
   pub args: Vec<String>,
 }
 
-pub fn generate_launch_command(
+pub async fn generate_launch_command(
   app: &AppHandle,
   quick_play_singleplayer: Option<String>,
+  quick_play_multiplayer: Option<String>,
 ) -> SJMCLResult<LaunchCommand> {
   let launcher_config = { app.state::<Mutex<LauncherConfig>>().lock()?.clone() };
   let launching_queue = { app.state::<Mutex<Vec<LaunchingState>>>().lock()?.clone() };
@@ -166,6 +168,12 @@ pub fn generate_launch_command(
     .collect();
   class_paths.push(client_jar_path.clone());
 
+  let quickplay_server_url = match quick_play_multiplayer {
+    Some(ref url) if !url.is_empty() => url.clone(),
+    None if game_config.game_server.auto_join => game_config.game_server.server_url.clone(),
+    _ => String::new(),
+  };
+
   let arguments_value = LaunchArguments {
     assets_root: assets_dir.to_string_lossy().to_string(),
     assets_index_name: client_info.asset_index.id,
@@ -196,7 +204,7 @@ pub fn generate_launch_command(
     resolution_width: game_config.game_window.resolution.width,
     quick_play_path: String::new(),
     quick_play_singleplayer: quick_play_singleplayer.unwrap_or_default(),
-    quick_play_multiplayer: game_config.game_server.server_url,
+    quick_play_multiplayer: quickplay_server_url.clone(),
     quick_play_realms: String::new(),
   };
 
@@ -290,7 +298,7 @@ pub fn generate_launch_command(
     is_demo_user: Some(false),
     has_custom_resolution: Some(true),
     has_quick_plays_support: Some(true),
-    is_quick_play_multiplayer: Some(game_config.game_server.auto_join),
+    is_quick_play_multiplayer: Some(true),
     is_quick_play_singleplayer: Some(true),
     is_quick_play_realms: Some(false), // unsupported
   };
@@ -343,6 +351,21 @@ pub fn generate_launch_command(
     return Err(InstanceError::ClientJsonParseError.into());
   }
 
+  // quick into server (for old version)
+  if !quickplay_server_url.is_empty()
+    && compare_game_versions(app, &selected_instance.name, "23w14a", false)
+      .await
+      .is_lt()
+  {
+    let (host, port) = quickplay_server_url
+      .split_once(':')
+      .map(|(h, p)| (h.to_string(), p.to_string()))
+      .unwrap_or((quickplay_server_url.clone(), "25565".to_string()));
+
+    cmd.extend(["--server".into(), host, "--port".into(), port]);
+  }
+
+  // fullscreen
   if game_config.game_window.resolution.fullscreen {
     cmd.push("--fullscreen".to_string());
   }
