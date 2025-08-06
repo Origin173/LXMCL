@@ -349,42 +349,40 @@ pub async fn download_forge_libraries(
   )?);
   let file = File::open(&installer_path)?;
   let mut archive = ZipArchive::new(file)?;
-  let (install_profile, version) = {
-    // Extract maven folder contents to lib_dir
-    for i in 0..archive.len() {
-      let mut file = archive.by_index(i)?;
-      let outpath = match file.enclosed_name() {
-        Some(path) => {
-          if path.starts_with("maven/") {
-            // Remove "maven/" prefix and join with lib_dir
-            let relative_path = path.strip_prefix("maven/").unwrap();
-            lib_dir.join(relative_path)
-          } else if path == PathBuf::from("data/client.lzma") {
-            bin_patch.clone()
-          } else {
-            continue;
-          }
-        }
-        None => continue,
-      };
 
-      if file.name().ends_with('/') {
-        // Create directory
-        fs::create_dir_all(&outpath)?;
-      } else {
-        // Create parent directories if they don't exist
-        if let Some(p) = outpath.parent() {
-          if !p.exists() {
-            fs::create_dir_all(p)?;
-          }
+  // Extract maven folder contents to lib_dir
+  for i in 0..archive.len() {
+    let mut file = archive.by_index(i)?;
+    let outpath = match file.enclosed_name() {
+      Some(path) => {
+        if path.starts_with("maven/") {
+          // Remove "maven/" prefix and join with lib_dir
+          let relative_path = path.strip_prefix("maven/").unwrap();
+          lib_dir.join(relative_path)
+        } else if path == PathBuf::from("data/client.lzma") {
+          bin_patch.clone()
+        } else {
+          continue;
         }
-
-        // Extract file
-        let mut outfile = File::create(&outpath)?;
-        std::io::copy(&mut file, &mut outfile)?;
       }
-    }
+      None => continue,
+    };
 
+    if file.is_file() {
+      // Create parent directories if they don't exist
+      if let Some(p) = outpath.parent() {
+        if !p.exists() {
+          fs::create_dir_all(p)?;
+        }
+      }
+
+      // Extract file
+      let mut outfile = File::create(&outpath)?;
+      std::io::copy(&mut file, &mut outfile)?;
+    }
+  }
+
+  let (install_profile, version) = {
     let mut s = String::new();
     if let Ok(mut install_profile) = archive.by_name("install_profile.json") {
       install_profile.read_to_string(&mut s)?;

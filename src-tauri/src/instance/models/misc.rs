@@ -229,6 +229,8 @@ pub enum InstanceError {
   AssetIndexParseError,
   InstallProfileParseError,
   ModLoaderVersionParseError,
+  ModpackManifestParseError,
+  CurseForgeFileManifestParseError,
   NetworkError,
   UnsupportedModLoader,
   MainClassNotFound,

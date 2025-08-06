@@ -1,4 +1,5 @@
 import { ModLoaderType } from "@/enums/instance";
+import { OtherResourceSource } from "@/enums/resource";
 
 export enum ModLoaderStatus {
   NotDownloaded = "NotDownloaded",
@@ -25,6 +26,19 @@ export interface InstanceSummary {
   supportQuickPlay: boolean;
   useSpecGameConfig: boolean;
   isVersionIsolated: boolean;
+}
+
+export interface ModpackMetaInfo {
+  name: string;
+  version: string;
+  author?: string;
+  description?: string;
+  modpackType: OtherResourceSource;
+  clientVersion: string;
+  modLoader: {
+    loaderType: ModLoaderType;
+    version: string;
+  };
 }
 
 export interface GameServerInfo {

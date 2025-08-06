@@ -28,6 +28,9 @@ use crate::{
       client_json::{replace_native_libraries, McClientInfo, PatchesInfo},
       misc::get_instance_subdir_paths,
       mod_loader::{execute_processors, install_mod_loader},
+      modpack::{
+        curseforge::CurseForgeManifest, misc::ModpackMetaInfo, modrinth::ModrinthManifest,
+      },
       mods::forge::InstallProfile,
     },
     models::misc::{ModLoader, ModLoaderStatus},
@@ -801,6 +804,7 @@ pub async fn create_instance(
   icon_src: String,
   game: GameClientResourceInfo,
   mod_loader: ModLoaderResourceInfo,
+  modpack_path: Option<String>,
 ) -> SJMCLResult<()> {
   let client = app.state::<reqwest::Client>();
   let launcher_config_state = app.state::<Mutex<LauncherConfig>>();
@@ -909,8 +913,6 @@ pub async fn create_instance(
     get_invalid_library_files(priority_list[0], libraries_dir, &version_info, false).await?,
   );
 
-  // Download asset index
-
   // We only download assets if they are invalid (not already downloaded)
   task_params
     .extend(get_invalid_assets(&app, &version_info, priority_list[0], assets_dir, false).await?);
@@ -927,6 +929,22 @@ pub async fn create_instance(
     )
     .await?;
   }
+
+  // If modpack path is provided, install it
+  if let Some(modpack_path) = modpack_path {
+    let path = PathBuf::from(modpack_path);
+    let file = fs::File::open(&path).map_err(|_| InstanceError::FileNotFoundError)?;
+    if let Ok(manifest) = CurseForgeManifest::from_archive(&file) {
+      task_params.extend(manifest.get_download_params(&app, &version_path).await?);
+      manifest.extract_overrides(&file, &version_path)?;
+    } else if let Ok(manifest) = ModrinthManifest::from_archive(&file) {
+      task_params.extend(manifest.get_download_params(&version_path)?);
+      manifest.extract_overrides(&file, &version_path)?;
+    } else {
+      return Err(InstanceError::ModpackManifestParseError.into());
+    }
+  }
+
   schedule_progressive_task_group(
     app.clone(),
     format!("game-client?{}", name),
@@ -993,4 +1011,11 @@ pub async fn finish_mod_loader_install(app: AppHandle, instance_id: String) -> S
   instance.save_json_cfg().await?;
 
   Ok(())
+}
+
+#[tauri::command]
+pub async fn retrieve_modpack_meta_info(path: String) -> SJMCLResult<ModpackMetaInfo> {
+  let path = PathBuf::from(path);
+  let file = fs::File::open(&path).map_err(|_| InstanceError::FileNotFoundError)?;
+  ModpackMetaInfo::from_archive(&file).await
 }

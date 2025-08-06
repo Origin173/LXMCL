@@ -25,7 +25,7 @@ use crate::{
       curseforge::fetch_remote_resource_by_local_curseforge,
       modrinth::fetch_remote_resource_by_local_modrinth,
     },
-    models::{ModUpdateQuery, OtherResourceFileInfo},
+    models::{ModUpdateQuery, OtherResourceFileInfo, OtherResourceSource},
   },
   tasks::{commands::schedule_progressive_task_group, download::DownloadParam, PTaskParam},
 };
@@ -43,6 +43,20 @@ pub async fn fetch_game_version_list(
     get_source_priority_list(&state)
   };
   get_game_version_manifest(&app, &priority_list).await
+}
+
+#[tauri::command]
+pub async fn fetch_game_version_specific(
+  app: AppHandle,
+  state: State<'_, Mutex<LauncherConfig>>,
+  game_version: String,
+) -> SJMCLResult<GameClientResourceInfo> {
+  let all_versions = fetch_game_version_list(app.clone(), state).await?;
+
+  all_versions
+    .into_iter()
+    .find(|item| item.id == game_version)
+    .ok_or_else(|| ResourceError::ClientVersionNotFound.into())
 }
 
 #[tauri::command]
@@ -74,12 +88,14 @@ pub async fn fetch_mod_loader_version_list(
 #[tauri::command]
 pub async fn fetch_resource_list_by_name(
   app: AppHandle,
-  download_source: String,
+  download_source: OtherResourceSource,
   query: OtherResourceSearchQuery,
 ) -> SJMCLResult<OtherResourceSearchRes> {
-  match download_source.as_str() {
-    "CurseForge" => Ok(fetch_resource_list_by_name_curseforge(&app, &query).await?),
-    "Modrinth" => Ok(fetch_resource_list_by_name_modrinth(&app, &query).await?),
+  match download_source {
+    OtherResourceSource::CurseForge => {
+      Ok(fetch_resource_list_by_name_curseforge(&app, &query).await?)
+    }
+    OtherResourceSource::Modrinth => Ok(fetch_resource_list_by_name_modrinth(&app, &query).await?),
     _ => Err(ResourceError::NoDownloadApi.into()),
   }
 }
@@ -87,12 +103,14 @@ pub async fn fetch_resource_list_by_name(
 #[tauri::command]
 pub async fn fetch_resource_version_packs(
   app: AppHandle,
-  download_source: String,
+  download_source: OtherResourceSource,
   query: OtherResourceVersionPackQuery,
 ) -> SJMCLResult<Vec<OtherResourceVersionPack>> {
-  match download_source.as_str() {
-    "CurseForge" => Ok(fetch_resource_version_packs_curseforge(&app, &query).await?),
-    "Modrinth" => Ok(fetch_resource_version_packs_modrinth(&app, &query).await?),
+  match download_source {
+    OtherResourceSource::CurseForge => {
+      Ok(fetch_resource_version_packs_curseforge(&app, &query).await?)
+    }
+    OtherResourceSource::Modrinth => Ok(fetch_resource_version_packs_modrinth(&app, &query).await?),
     _ => Err(ResourceError::NoDownloadApi.into()),
   }
 }
@@ -137,12 +155,16 @@ pub async fn download_game_server(
 #[tauri::command]
 pub async fn fetch_remote_resource_by_local(
   app: AppHandle,
-  download_source: String,
+  download_source: OtherResourceSource,
   file_path: String,
 ) -> SJMCLResult<OtherResourceFileInfo> {
-  match download_source.as_str() {
-    "CurseForge" => Ok(fetch_remote_resource_by_local_curseforge(&app, &file_path).await?),
-    "Modrinth" => Ok(fetch_remote_resource_by_local_modrinth(&app, &file_path).await?),
+  match download_source {
+    OtherResourceSource::CurseForge => {
+      Ok(fetch_remote_resource_by_local_curseforge(&app, &file_path).await?)
+    }
+    OtherResourceSource::Modrinth => {
+      Ok(fetch_remote_resource_by_local_modrinth(&app, &file_path).await?)
+    }
     _ => Err(ResourceError::NoDownloadApi.into()),
   }
 }
