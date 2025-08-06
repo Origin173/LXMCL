@@ -99,7 +99,7 @@ jobs:
           cat > dmg-config.json << EOF
           {
             "title": "SJMCL Installer",
-            "icon": "../src-tauri/assets/icons/icon.icns",
+            "icon": "../src-tauri/assets/icons/dmg/volume.icns",
             "background": "../src-tauri/assets/misc/dmg_bg.png",
             "format": "UDZO",
             "icon-size": 120,
