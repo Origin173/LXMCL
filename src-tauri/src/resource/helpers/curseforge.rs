@@ -7,10 +7,11 @@ use std::io::{BufReader, Read};
 use std::path::Path;
 
 use crate::error::SJMCLResult;
-use crate::resource::helpers::curseforge_convert::cvt_category_to_id;
+use crate::resource::helpers::curseforge_convert::{cvt_category_to_id, cvt_id_to_dependency_type};
 use crate::resource::models::{
-  OtherResourceFileInfo, OtherResourceInfo, OtherResourceSearchQuery, OtherResourceSearchRes,
-  OtherResourceSource, OtherResourceVersionPack, OtherResourceVersionPackQuery, ResourceError,
+  OtherResourceDependency, OtherResourceFileInfo, OtherResourceInfo, OtherResourceSearchQuery,
+  OtherResourceSearchRes, OtherResourceSource, OtherResourceVersionPack,
+  OtherResourceVersionPackQuery, ResourceError,
 };
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Manager};
@@ -82,6 +83,13 @@ pub struct CurseForgeFileHash {
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+pub struct CurseForgeFileDependency {
+  pub mod_id: u32,
+  pub relation_type: u32,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct CurseForgeFileInfo {
   pub mod_id: u32,
   pub display_name: String,
@@ -92,6 +100,7 @@ pub struct CurseForgeFileInfo {
   pub download_url: Option<String>,
   pub download_count: u32,
   pub game_versions: Vec<String>,
+  pub dependencies: Vec<CurseForgeFileDependency>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -116,6 +125,12 @@ pub struct CurseForgeFingerprintData {
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeFingerprintRes {
   pub data: CurseForgeFingerprintData,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CurseForgeGetProjectRes {
+  pub data: CurseForgeProject,
 }
 
 pub fn map_curseforge_to_resource_info(res: CurseForgeSearchRes) -> OtherResourceSearchRes {
@@ -198,6 +213,14 @@ pub fn map_curseforge_file_to_version_pack(
             .find(|h| h.algo == 1)
             .map_or("".to_string(), |h| h.value.clone()),
           file_name: cf_file.file_name.clone(),
+          dependencies: cf_file
+            .dependencies
+            .iter()
+            .map(|dep| OtherResourceDependency {
+              resource_id: dep.mod_id.to_string(),
+              relation: cvt_id_to_dependency_type(dep.relation_type),
+            })
+            .collect(),
           loader: if loader.is_empty() {
             None
           } else {
@@ -423,9 +446,57 @@ pub async fn fetch_remote_resource_by_local_curseforge(
         .find(|h| h.algo == 1)
         .map_or("".to_string(), |h| h.value.clone()),
       file_name: cf_file.file_name.clone(),
+      dependencies: cf_file
+        .dependencies
+        .iter()
+        .map(|dep| OtherResourceDependency {
+          resource_id: dep.mod_id.to_string(),
+          relation: cvt_id_to_dependency_type(dep.relation_type),
+        })
+        .collect(),
       loader: None,
     })
   } else {
     Err(ResourceError::ParseError.into())
   }
+}
+
+pub async fn fetch_remote_resource_by_id_curseforge(
+  app: &AppHandle,
+  resource_id: &String,
+) -> SJMCLResult<OtherResourceInfo> {
+  let url = format!("https://api.curseforge.com/v1/mods/{}", resource_id);
+  let client = app.state::<reqwest::Client>();
+
+  let response = client
+    .get(&url)
+    .header("x-api-key", env!("SJMCL_CURSEFORGE_API_KEY"))
+    .header("accept", "application/json")
+    .send()
+    .await
+    .map_err(|_| ResourceError::NetworkError)?;
+
+  if !response.status().is_success() {
+    return Err(ResourceError::NetworkError.into());
+  }
+
+  let results = response
+    .json::<CurseForgeGetProjectRes>()
+    .await
+    .map_err(|_| ResourceError::ParseError)?;
+
+  let resource = results.data;
+
+  Ok(OtherResourceInfo {
+    id: resource.id.to_string(),
+    _type: cvt_class_id_to_type(resource.class_id),
+    name: resource.name,
+    description: resource.summary,
+    icon_src: resource.logo.unwrap_or_else(default_logo).url,
+    website_url: resource.links.website_url,
+    tags: resource.categories.iter().map(|c| c.name.clone()).collect(),
+    last_updated: resource.date_modified,
+    downloads: resource.download_count,
+    source: OtherResourceSource::CurseForge,
+  })
 }

@@ -6,6 +6,7 @@ import {
   ModLoaderResourceInfo,
   ModUpdateQuery,
   OtherResourceFileInfo,
+  OtherResourceInfo,
   OtherResourceSearchRes,
   OtherResourceVersionPack,
 } from "@/models/resource";
@@ -154,6 +155,23 @@ export class ResourceService {
     return await invoke("update_mods", {
       instanceId,
       queries,
+    });
+  }
+
+  /**
+   * FETCH a remote resource by ID.
+   * @param downloadSource The source from which to download the resource.
+   * @param resourceId The ID of the resource.
+   * @returns {Promise<InvokeResponse<OtherResourceInfo>>}
+   */
+  @responseHandler("resource")
+  static async fetchRemoteResourceById(
+    downloadSource: OtherResourceSource,
+    resourceId: string
+  ): Promise<InvokeResponse<OtherResourceInfo>> {
+    return await invoke("fetch_remote_resource_by_id", {
+      downloadSource,
+      resourceId,
     });
   }
 }

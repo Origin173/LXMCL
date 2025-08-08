@@ -102,7 +102,7 @@ const DownloadSpecificResourceModal: React.FC<
   );
 
   const { getGameVersionList, isGameVersionListLoading } = useGlobalData();
-  const { closeSharedModal } = useSharedModals();
+  const { openSharedModal, closeSharedModal } = useSharedModals();
 
   const modLoaderLabels = [
     "All",
@@ -470,7 +470,18 @@ const DownloadSpecificResourceModal: React.FC<
                   )
                 }
                 isFullClickZone
-                onClick={() => startDownload(item)}
+                onClick={() => {
+                  if (item.dependencies.length > 0) {
+                    openSharedModal("alert-resource-dependency", {
+                      dependencies: item.dependencies,
+                      downloadSource: resource.source as OtherResourceSource,
+                      curInstanceMajorVersion,
+                      curInstanceVersion,
+                      curInstanceModLoader,
+                      downloadOriginalResource: () => startDownload(item),
+                    });
+                  } else startDownload(item);
+                }}
               />
             ))}
           />

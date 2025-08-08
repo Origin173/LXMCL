@@ -22,10 +22,12 @@ use crate::{
   launcher_config::models::LauncherConfig,
   resource::{
     helpers::{
-      curseforge::fetch_remote_resource_by_local_curseforge,
-      modrinth::fetch_remote_resource_by_local_modrinth,
+      curseforge::{
+        fetch_remote_resource_by_id_curseforge, fetch_remote_resource_by_local_curseforge,
+      },
+      modrinth::{fetch_remote_resource_by_id_modrinth, fetch_remote_resource_by_local_modrinth},
     },
-    models::{ModUpdateQuery, OtherResourceFileInfo, OtherResourceSource},
+    models::{ModUpdateQuery, OtherResourceFileInfo, OtherResourceInfo, OtherResourceSource},
   },
   tasks::{commands::schedule_progressive_task_group, download::DownloadParam, PTaskParam},
 };
@@ -213,4 +215,21 @@ pub async fn update_mods(
   }
 
   Ok(())
+}
+
+#[tauri::command]
+pub async fn fetch_remote_resource_by_id(
+  app: AppHandle,
+  download_source: OtherResourceSource,
+  resource_id: String,
+) -> SJMCLResult<OtherResourceInfo> {
+  match download_source {
+    OtherResourceSource::CurseForge => {
+      Ok(fetch_remote_resource_by_id_curseforge(&app, &resource_id).await?)
+    }
+    OtherResourceSource::Modrinth => {
+      Ok(fetch_remote_resource_by_id_modrinth(&app, &resource_id).await?)
+    }
+    _ => Err(ResourceError::NoDownloadApi.into()),
+  }
 }

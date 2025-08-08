@@ -193,6 +193,28 @@
       "usePasswordLogin": "账号密码登录"
     }
   },
+  "AlertResourceDependencyModal": {
+    "header": {
+      "title": "存在前置资源"
+    },
+    "description": "请确认已安装所有前置资源，或继续下载原资源",
+    "button": {
+      "continue": "继续下载原资源",
+      "cancel": "取消"
+    },
+    "fallback": {
+      "title": "资源 ID: {{resourceId}}",
+      "description": "无法从网络获取此资源详情，请检查您的网络连接或稍后再试。"
+    },
+    "dependencyType": {
+      "required": "必需",
+      "optional": "可选",
+      "incompatible": "冲突",
+      "embedded": "内置",
+      "tool": "工具",
+      "include": "包含"
+    }
+  },
   "AllInstancesPage": {
     "button": {
       "addAndImport": "添加与导入",

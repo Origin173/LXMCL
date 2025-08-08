@@ -337,11 +337,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   const sortByList = sortByLists[downloadSource];
 
   const onDownloadSourceChange = (e: string) => {
-    setDownloadSource(
-      e === "CurseForge"
-        ? OtherResourceSource.CurseForge
-        : OtherResourceSource.Modrinth
-    );
+    setDownloadSource(e as OtherResourceSource);
     setSelectedTag("All");
     setSortBy(e === "CurseForge" ? "Popularity" : "relevance");
   };
