@@ -39,6 +39,7 @@ import Empty from "@/components/common/empty";
 import { OptionItem } from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
 import { useInstanceSharedData } from "@/contexts/instance";
+import { useSharedModals } from "@/contexts/shared-modal";
 import { ModLoaderType } from "@/enums/instance";
 import { GetStateFlag } from "@/hooks/get-state";
 import { LocalModInfo } from "@/models/instance/misc";
@@ -329,6 +330,8 @@ export const InstanceModsWidget = () => {
 export const InstanceLastPlayedWidget = () => {
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
+  const { openSharedModal } = useSharedModals();
+  const { summary } = useInstanceSharedData();
   const { getWorldList, isWorldListLoading: isLoading } =
     useInstanceSharedData();
   const primaryColor = config.appearance.theme.primaryColor;
@@ -396,19 +399,29 @@ export const InstanceLastPlayedWidget = () => {
               </VStack>
             </Box>
           </HStack>
-          <HStack spacing={1.5} position="absolute" left={2} bottom={2}>
-            <Button
-              size="xs"
-              variant="ghost"
-              colorScheme={primaryColor}
-              justifyContent="flex-start"
-            >
-              <HStack spacing={1.5}>
-                <Icon as={LuArrowRight} />
-                <Text>{t("InstanceWidgets.lastPlayed.continuePlaying")}</Text>
-              </HStack>
-            </Button>
-          </HStack>
+          {summary?.supportQuickPlay && (
+            <HStack spacing={1.5} position="absolute" left={2} bottom={2}>
+              <Button
+                size="xs"
+                variant="ghost"
+                colorScheme={primaryColor}
+                justifyContent="flex-start"
+                onClick={() => {
+                  openSharedModal("launch", {
+                    instanceId: summary?.id,
+                    ...(lastPlayedWorld?.dirPath && {
+                      quickPlaySingleplayer: lastPlayedWorld.dirPath,
+                    }),
+                  });
+                }}
+              >
+                <HStack spacing={1.5}>
+                  <Icon as={LuArrowRight} />
+                  <Text>{t("InstanceWidgets.lastPlayed.continuePlaying")}</Text>
+                </HStack>
+              </Button>
+            </HStack>
+          )}
         </VStack>
       ) : (
         <Empty withIcon={false} size="sm" />

@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use crate::instance::models::misc::ModLoaderType;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumIter};
@@ -34,6 +36,26 @@ pub enum SourceType {
   BMCLAPIMirror,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+pub enum OtherResourceSource {
+  #[default]
+  Unknown,
+  CurseForge,
+  Modrinth,
+}
+
+impl FromStr for OtherResourceSource {
+  type Err = String;
+
+  fn from_str(input: &str) -> Result<Self, Self::Err> {
+    match input.to_lowercase().as_str() {
+      "curseforge" => Ok(OtherResourceSource::CurseForge),
+      "modrinth" => Ok(OtherResourceSource::Modrinth),
+      _ => Err(format!("Unknown resource download type: {}", input)),
+    }
+  }
+}
+
 // mod, save, resourcepack and shader
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -46,7 +68,7 @@ pub struct OtherResourceInfo {
   pub tags: Vec<String>,
   pub last_updated: String,
   pub downloads: u32,
-  pub source: String,
+  pub source: OtherResourceSource,
   pub website_url: String,
 }
 
@@ -144,6 +166,7 @@ pub enum ResourceError {
   NoDownloadApi,
   NetworkError,
   FileOperationError,
+  ClientVersionNotFound,
 }
 
 impl std::error::Error for ResourceError {}

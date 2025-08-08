@@ -33,20 +33,20 @@ import { useToast } from "@/contexts/toast";
 import { ModLoaderType } from "@/enums/instance";
 import { GameDirectory } from "@/models/config";
 import {
-  GameResourceInfo,
+  GameClientResourceInfo,
   ModLoaderResourceInfo,
   defaultModLoaderResourceInfo,
 } from "@/models/resource";
 import { InstanceService } from "@/services/instance";
 
-const gameTypesToIcon: Record<string, string> = {
+export const gameTypesToIcon: Record<string, string> = {
   release: "/images/icons/JEIcon_Release.png",
   snapshot: "/images/icons/JEIcon_Snapshot.png",
   old_beta: "/images/icons/StoneOldBeta.png",
   april_fools: "/images/icons/YellowGlazedTerracotta.png",
 };
 
-const modLoaderTypesToIcon: Record<string, string> = {
+export const modLoaderTypesToIcon: Record<string, string> = {
   Unknown: "",
   Fabric: "/images/icons/Fabric.png",
   Forge: "/images/icons/Anvil.png", // differ from that in mod-loader-selector
@@ -68,7 +68,7 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   });
 
   const [selectedGameVersion, setSelectedGameVersion] =
-    useState<GameResourceInfo>();
+    useState<GameClientResourceInfo>();
   const [selectedModLoader, setSelectedModLoader] =
     useState<ModLoaderResourceInfo>(defaultModLoaderResourceInfo);
   const [instanceName, setInstanceName] = useState("");
@@ -87,10 +87,11 @@ export const CreateInstanceModal: React.FC<Omit<ModalProps, "children">> = ({
   }, [selectedGameVersion]);
 
   const handleCreateInstance = useCallback(() => {
-    if (!selectedGameVersion) return;
+    if (!selectedGameVersion || !instanceDirectory) return;
+
     setIsLoading(true);
     InstanceService.createInstance(
-      instanceDirectory!,
+      instanceDirectory,
       instanceName,
       instanceDescription,
       instanceIconSrc,

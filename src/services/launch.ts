@@ -42,11 +42,19 @@ export class LaunchService {
 
   /**
    * Launching Step 4: generate command args, launch the game instance.
+   * @param {string} [quickPlaySingleplayer] - Optional name of the singleplayer world to auto-enter.
+   * @param {string} [quickPlayMultiplayer] - Optional address of multiplayer server to auto-join.
    * @returns {Promise<InvokeResponse<void>>}
    */
   @responseHandler("launch")
-  static async launchGame(): Promise<InvokeResponse<void>> {
-    return await invoke("launch_game");
+  static async launchGame(
+    quickPlaySingleplayer?: string,
+    quickPlayMultiplayer?: string
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("launch_game", {
+      quickPlaySingleplayer,
+      quickPlayMultiplayer,
+    });
   }
 
   /**

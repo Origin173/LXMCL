@@ -550,7 +550,12 @@
     "task": {
       "game-client": "Game Client {{param}}",
       "game-server": "Game Server {{param}}",
-      "game-resource": "Game Resource",
+      "mod": "Mod",
+      "world": "World",
+      "resourcepack": "Resourcepack",
+      "shader": "Shaderpack",
+      "modpack": "Modpack",
+      "datapack": "Datapack",
       "patch-files": "Patch Game Files {{param}}",
       "mod-update": "Update Mod",
       "retry": "Retry Task",
@@ -836,7 +841,8 @@
     "delete": "Delete",
     "dialog": {
       "filterName": {
-        "image": "Image"
+        "image": "Image",
+        "modpack": "Modpack"
       }
     },
     "disable": "Disable",
@@ -1042,6 +1048,23 @@
           "url": "https://mc.sjtu.cn/sjmcl/en/docs"
         }
       }
+    }
+  },
+  "ImportModpackModal": {
+    "header": {
+      "title": "Import Modpack"
+    },
+    "label": {
+      "instanceSettings": "Instance Settings",
+      "modpackInfo": "Modpack Information",
+      "modpackName": "Modpack Name",
+      "modpackVersion": "Modpack Version",
+      "author": "Author",
+      "modLoader": "Mod Loader",
+      "gameVersion": "Game Version"
+    },
+    "button": {
+      "import": "Import"
     }
   },
   "InstanceBasicSettings": {
@@ -1928,6 +1951,16 @@
           }
         }
       },
+      "fetchGameVersionSpecific": {
+        "error": {
+          "title": "Failed to fetch game version metadata",
+          "description": {
+            "PARSE_ERROR": "The server returned data in an incorrect format",
+            "NETWORK_ERROR": "Failed to connect to the server",
+            "CLIENT_VERSION_NOT_FOUND": "The requested game version does not exist"
+          }
+        }
+      },
       "fetchModLoaderVersionList": {
         "error": {
           "title": "Failed to fetch mod loader version list",
@@ -2178,6 +2211,15 @@
             "INSTALLATION_DUPLICATED": "Another installation process is already in progress",
             "MAIN_CLASS_NOT_FOUND": "Main class not found in the mod loader version",
             "PROCESSOR_EXECUTION_FAILED": "Failed to execute the install process"
+          }
+        }
+      },
+      "retrieveModpackMetaInfo": {
+        "error": {
+          "title": "Failed to retrieve modpack resource info",
+          "description": {
+            "FILE_NOT_FOUND_ERROR": "Modpack file not found, it may have been renamed, moved or deleted",
+            "MODPACK_MANIFEST_PARSE_ERROR": "Modpack manifest file parse error"
           }
         }
       }

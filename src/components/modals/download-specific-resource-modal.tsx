@@ -38,10 +38,10 @@ import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
 import { useSharedModals } from "@/contexts/shared-modal";
-import { useTaskContext } from "@/contexts/task";
 import { useToast } from "@/contexts/toast";
 import { InstanceSubdirType, ModLoaderType } from "@/enums/instance";
 import {
+  OtherResourceSource,
   OtherResourceType,
   datapackTagList,
   modTagList,
@@ -53,14 +53,15 @@ import {
 import { GetStateFlag } from "@/hooks/get-state";
 import { useThemedCSSStyle } from "@/hooks/themed-css";
 import {
-  GameResourceInfo,
+  GameClientResourceInfo,
   OtherResourceFileInfo,
   OtherResourceInfo,
   OtherResourceVersionPack,
 } from "@/models/resource";
-import { TaskTypeEnums } from "@/models/task";
+import { TaskParam, TaskTypeEnums } from "@/models/task";
 import { InstanceService } from "@/services/instance";
 import { ResourceService } from "@/services/resource";
+import { TaskService } from "@/services/task";
 import { ISOToDate } from "@/utils/datetime";
 import { formatDisplayCount } from "@/utils/string";
 
@@ -81,6 +82,28 @@ const DownloadSpecificResourceModal: React.FC<
   curInstanceModLoader,
   ...modalProps
 }) => {
+  const { t } = useTranslation();
+  const { config } = useLauncherConfig();
+  const router = useRouter();
+  const toast = useToast();
+  const themedStyles = useThemedCSSStyle();
+  const primaryColor = config.appearance.theme.primaryColor;
+
+  const [gameVersionList, setGameVersionList] = useState<string[]>([]);
+  const [versionLabels, setVersionLabels] = useState<string[]>([]);
+  const [selectedVersionLabel, setSelectedVersionLabel] = useState<string>("");
+  const [selectedModLoader, setSelectedModLoader] = useState<
+    ModLoaderType | "All"
+  >(curInstanceModLoader || "All");
+  const [isVersionPacksLoading, setIsLoadingVersionPacks] =
+    useState<boolean>(true);
+  const [versionPacks, setVersionPacks] = useState<OtherResourceVersionPack[]>(
+    []
+  );
+
+  const { getGameVersionList, isGameVersionListLoading } = useGlobalData();
+  const { openSharedModal, closeSharedModal } = useSharedModals();
+
   const modLoaderLabels = [
     "All",
     ModLoaderType.Fabric,
@@ -102,37 +125,33 @@ const DownloadSpecificResourceModal: React.FC<
     release: "green.500",
   };
 
-  const { t } = useTranslation();
-  const { config } = useLauncherConfig();
-  const router = useRouter();
-  const toast = useToast();
-  const themedStyles = useThemedCSSStyle();
-  const primaryColor = config.appearance.theme.primaryColor;
-
-  const [gameVersionList, setGameVersionList] = useState<string[]>([]);
-  const [versionLabels, setVersionLabels] = useState<string[]>([]);
-  const [selectedVersionLabel, setSelectedVersionLabel] = useState<string>(
-    curInstanceMajorVersion || "All"
-  );
-  const [selectedModLoader, setSelectedModLoader] = useState<
-    ModLoaderType | "All"
-  >(curInstanceModLoader || "All");
-  const [isVersionPacksLoading, setIsLoadingVersionPacks] =
-    useState<boolean>(true);
-  const [versionPacks, setVersionPacks] = useState<OtherResourceVersionPack[]>(
-    []
-  );
-
-  const { getGameVersionList, isGameVersionListLoading } = useGlobalData();
-  const { handleScheduleProgressiveTaskGroup } = useTaskContext();
-  const { openSharedModal } = useSharedModals();
+  const handleScheduleProgressiveTaskGroup = useCallback(
+    (taskGroup: string, params: TaskParam[]) => {
+      TaskService.scheduleProgressiveTaskGroup(taskGroup, params).then(
+        (response) => {
+          // success toast will now be called by task context group listener
+          if (response.status !== "success") {
+            toast({
+              title: response.message,
+              description: response.details,
+              status: "error",
+            });
+          }
+        }
+      );
+    },
+    [toast]
+  ); // this is because TaskContext is now inside the SharedModalContext, use a separated function to avoid circular dependency
 
   const translateTag = (
     tag: string,
     resourceType: string,
-    downloadSource?: string
+    downloadSource?: OtherResourceSource
   ) => {
-    if (downloadSource === "CurseForge" || downloadSource === "Modrinth") {
+    if (
+      downloadSource === OtherResourceSource.CurseForge ||
+      downloadSource === OtherResourceSource.Modrinth
+    ) {
       const tagList = (tagLists[resourceType] || modpackTagList)[
         downloadSource
       ];
@@ -153,7 +172,7 @@ const DownloadSpecificResourceModal: React.FC<
   const versionLabelToParam = useCallback(
     (label: string) => {
       if (label === "All") return ["All"];
-      if (resource.source === "Modrinth")
+      if (resource.source === OtherResourceSource.Modrinth)
         return gameVersionList.filter((version) => version.startsWith(label));
       return [label];
     },
@@ -216,7 +235,7 @@ const DownloadSpecificResourceModal: React.FC<
       defaultPath: dir + "/" + item.fileName,
     });
     if (!savepath) return;
-    handleScheduleProgressiveTaskGroup(`game-resource?type:${resource.type}`, [
+    handleScheduleProgressiveTaskGroup(resource.type, [
       {
         src: item.downloadUrl,
         dest: savepath,
@@ -224,6 +243,12 @@ const DownloadSpecificResourceModal: React.FC<
         taskType: TaskTypeEnums.Download,
       },
     ]);
+
+    if (resource.type === OtherResourceType.ModPack) {
+      closeSharedModal("download-specific-resource");
+      closeSharedModal("download-modpack");
+      router.push("/downloads");
+    }
   };
 
   const getRecommendedFiles = useMemo((): OtherResourceFileInfo[] => {
@@ -290,8 +315,10 @@ const DownloadSpecificResourceModal: React.FC<
     getGameVersionList().then((list) => {
       if (list && list !== GetStateFlag.Cancelled) {
         const versionList = list
-          .filter((version: GameResourceInfo) => version.gameType === "release")
-          .map((version: GameResourceInfo) => version.id);
+          .filter(
+            (version: GameClientResourceInfo) => version.gameType === "release"
+          )
+          .map((version: GameClientResourceInfo) => version.id);
         setGameVersionList(versionList);
         const majorVersions = [
           ...new Set(
@@ -310,7 +337,7 @@ const DownloadSpecificResourceModal: React.FC<
       resourceId: string,
       modLoader: ModLoaderType | "All",
       gameVersions: string[],
-      downloadSource: string
+      downloadSource: OtherResourceSource
     ) => {
       setIsLoadingVersionPacks(true);
       ResourceService.fetchResourceVersionPacks(
@@ -340,7 +367,7 @@ const DownloadSpecificResourceModal: React.FC<
   );
 
   const reFetchVersionPacks = useCallback(() => {
-    if (!resource.id || !resource.source) return;
+    if (!resource.id || !resource.source || !selectedVersionLabel) return;
 
     handleFetchResourceVersionPacks(
       resource.id,
@@ -469,8 +496,16 @@ const DownloadSpecificResourceModal: React.FC<
 
   useEffect(() => {
     setSelectedModLoader(curInstanceModLoader || "All");
-    setSelectedVersionLabel(curInstanceMajorVersion || "All");
-  }, [curInstanceModLoader, curInstanceMajorVersion]);
+  }, [curInstanceModLoader]);
+
+  useEffect(() => {
+    const initialVersion = curInstanceMajorVersion || "All";
+    if (versionLabels.length > 0 && versionLabels.includes(initialVersion)) {
+      setSelectedVersionLabel(initialVersion);
+    } else {
+      setSelectedVersionLabel("All");
+    }
+  }, [curInstanceMajorVersion, versionLabels]);
 
   useEffect(() => {
     fetchVersionLabels();

@@ -1,7 +1,11 @@
 import { ModLoaderType } from "@/enums/instance";
-import { DependencyType, OtherResourceType } from "@/enums/resource";
+import {
+  DependencyType,
+  OtherResourceSource,
+  OtherResourceType,
+} from "@/enums/resource";
 
-export interface GameResourceInfo {
+export interface GameClientResourceInfo {
   id: string;
   gameType: string;
   releaseTime: string;
@@ -19,7 +23,7 @@ export interface OtherResourceInfo {
   tags: string[];
   lastUpdated: string;
   downloads: number;
-  source?: string; // CurseForge, Modrinth, etc.
+  source?: OtherResourceSource;
 }
 
 export interface OtherResourceSearchRes {

@@ -1,7 +1,8 @@
 use crate::error::SJMCLResult;
 use crate::resource::models::{
   OtherResourceDependency, OtherResourceFileInfo, OtherResourceInfo, OtherResourceSearchQuery,
-  OtherResourceSearchRes, OtherResourceVersionPack, OtherResourceVersionPackQuery, ResourceError,
+  OtherResourceSearchRes, OtherResourceSource, OtherResourceVersionPack,
+  OtherResourceVersionPackQuery, ResourceError,
 };
 use hex;
 use serde::Deserialize;
@@ -92,7 +93,7 @@ pub fn map_modrinth_to_resource_info(res: ModrinthSearchRes) -> OtherResourceSea
       tags: p.display_categories,
       last_updated: p.date_modified,
       downloads: p.downloads,
-      source: "Modrinth".to_string(),
+      source: OtherResourceSource::Modrinth,
     })
     .collect();
 
@@ -392,6 +393,6 @@ pub async fn fetch_remote_resource_by_id_modrinth(
     tags: results.categories,
     last_updated: results.updated,
     downloads: results.downloads,
-    source: "Modrinth".to_string(),
+    source: OtherResourceSource::Modrinth,
   })
 }

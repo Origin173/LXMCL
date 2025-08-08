@@ -10,9 +10,10 @@ use crate::error::SJMCLResult;
 use crate::resource::helpers::curseforge_convert::{cvt_category_to_id, cvt_id_to_dependency_type};
 use crate::resource::models::{
   OtherResourceDependency, OtherResourceFileInfo, OtherResourceInfo, OtherResourceSearchQuery,
-  OtherResourceSearchRes, OtherResourceVersionPack, OtherResourceVersionPackQuery, ResourceError,
+  OtherResourceSearchRes, OtherResourceSource, OtherResourceVersionPack,
+  OtherResourceVersionPackQuery, ResourceError,
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
@@ -22,19 +23,19 @@ use super::curseforge_convert::{
 };
 use super::sort::version_pack_sort;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeCategory {
   pub name: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeLink {
   pub website_url: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeLogo {
   pub url: String,
@@ -46,7 +47,7 @@ fn default_logo() -> CurseForgeLogo {
   }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeProject {
   pub id: u32,
@@ -60,7 +61,7 @@ pub struct CurseForgeProject {
   pub date_modified: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgePagination {
   pub index: u32,
@@ -68,26 +69,26 @@ pub struct CurseForgePagination {
   pub total_count: u32,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct CurseForgeSearchRes {
   pub data: Vec<CurseForgeProject>,
   pub pagination: CurseForgePagination,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct CurseForgeFileHash {
   pub value: String,
   pub algo: u32,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeFileDependency {
   pub mod_id: u32,
   pub relation_type: u32,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeFileInfo {
   pub mod_id: u32,
@@ -102,31 +103,31 @@ pub struct CurseForgeFileInfo {
   pub dependencies: Vec<CurseForgeFileDependency>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct CurseForgeVersionPackSearchRes {
   pub data: Vec<CurseForgeFileInfo>,
   pub pagination: CurseForgePagination,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeExactMatches {
   pub file: CurseForgeFileInfo,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeFingerprintData {
   pub exact_matches: Vec<CurseForgeExactMatches>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeFingerprintRes {
   pub data: CurseForgeFingerprintData,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeGetProjectRes {
   pub data: CurseForgeProject,
@@ -146,7 +147,7 @@ pub fn map_curseforge_to_resource_info(res: CurseForgeSearchRes) -> OtherResourc
       tags: p.categories.iter().map(|c| c.name.clone()).collect(),
       last_updated: p.date_modified,
       downloads: p.download_count,
-      source: "CurseForge".to_string(),
+      source: OtherResourceSource::CurseForge,
     })
     .collect();
 
@@ -496,6 +497,6 @@ pub async fn fetch_remote_resource_by_id_curseforge(
     tags: resource.categories.iter().map(|c| c.name.clone()).collect(),
     last_updated: resource.date_modified,
     downloads: resource.download_count,
-    source: "CurseForge".to_string(),
+    source: OtherResourceSource::CurseForge,
   })
 }

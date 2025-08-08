@@ -28,6 +28,7 @@ import { InstanceService } from "@/services/instance";
 import { TaskService } from "@/services/task";
 import { parseTaskGroup } from "@/utils/task";
 import { useGlobalData } from "./global-data";
+import { useSharedModals } from "./shared-modal";
 
 interface TaskContextType {
   tasks: TaskGroupDesc[];
@@ -51,6 +52,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const toast = useToast();
   const { close: closeToast } = useChakraToast();
   const { getInstanceList } = useGlobalData();
+  const { openSharedModal } = useSharedModals();
   const [tasks, setTasks] = useState<TaskGroupDesc[]>([]);
   const [generalPercent, setGeneralPercent] = useState<number>();
   const { t } = useTranslation();
@@ -476,6 +478,14 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             case "mod-update":
               emit(REFRESH_RESOURCE_LIST_EVENT, { resourceType: "mod" });
               break;
+            case "modpack":
+              let group = tasks.find((t) => t.taskGroup === payload.taskGroup);
+              if (group && group.taskDescs.length > 0) {
+                openSharedModal("import-modpack", {
+                  path: group.taskDescs[0].payload.dest,
+                });
+              }
+              break;
             default:
               break;
           }
@@ -485,7 +495,15 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => {
       unlisten();
     };
-  }, [closeToast, getInstanceList, t, toast, updateGroupInfo]);
+  }, [
+    closeToast,
+    getInstanceList,
+    t,
+    toast,
+    updateGroupInfo,
+    tasks,
+    openSharedModal,
+  ]);
 
   useEffect(() => {
     if (!tasks || !tasks.length) setGeneralPercent(undefined);

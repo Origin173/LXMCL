@@ -3,7 +3,7 @@ use super::{
     copy_whole_dir, generate_unique_filename, get_files_with_regex, get_subdirectories,
   },
   helpers::{
-    game_version::get_major_game_version,
+    game_version::{compare_game_versions, get_major_game_version},
     misc::{
       get_instance_game_config, get_instance_subdir_path_by_id, refresh_and_update_instances,
       unify_instance_name,
@@ -28,6 +28,9 @@ use crate::{
       client_json::{replace_native_libraries, McClientInfo, PatchesInfo},
       misc::get_instance_subdir_paths,
       mod_loader::{execute_processors, install_mod_loader},
+      modpack::{
+        curseforge::CurseForgeManifest, misc::ModpackMetaInfo, modrinth::ModrinthManifest,
+      },
       mods::forge::InstallProfile,
     },
     models::misc::{ModLoader, ModLoaderStatus},
@@ -85,10 +88,15 @@ pub async fn retrieve_instance_list(app: AppHandle) -> SJMCLResult<Vec<InstanceS
       icon_src: instance.icon_src.clone(),
       starred: instance.starred,
       play_time: instance.play_time,
-      version: instance.version.clone(),
-      major_version: get_major_game_version(&app, &instance.version).await,
       version_path: instance.version_path.clone(),
+      version: instance.version.clone(),
       mod_loader: instance.mod_loader.clone(),
+      // skip fallback remote fetch in `get_major_game_version` and `compare_game_versions` to avoid instance list load delay.
+      // ref: https://github.com/UNIkeEN/SJMCL/pull/799
+      major_version: get_major_game_version(&app, &instance.version, false).await,
+      support_quick_play: compare_game_versions(&app, &instance.version, "23w14a", false)
+        .await
+        .is_ge(),
       use_spec_game_config: instance.use_spec_game_config,
       is_version_isolated,
     });
@@ -796,6 +804,7 @@ pub async fn create_instance(
   icon_src: String,
   game: GameClientResourceInfo,
   mod_loader: ModLoaderResourceInfo,
+  modpack_path: Option<String>,
 ) -> SJMCLResult<()> {
   let client = app.state::<reqwest::Client>();
   let launcher_config_state = app.state::<Mutex<LauncherConfig>>();
@@ -904,8 +913,6 @@ pub async fn create_instance(
     get_invalid_library_files(priority_list[0], libraries_dir, &version_info, false).await?,
   );
 
-  // Download asset index
-
   // We only download assets if they are invalid (not already downloaded)
   task_params
     .extend(get_invalid_assets(&app, &version_info, priority_list[0], assets_dir, false).await?);
@@ -922,6 +929,22 @@ pub async fn create_instance(
     )
     .await?;
   }
+
+  // If modpack path is provided, install it
+  if let Some(modpack_path) = modpack_path {
+    let path = PathBuf::from(modpack_path);
+    let file = fs::File::open(&path).map_err(|_| InstanceError::FileNotFoundError)?;
+    if let Ok(manifest) = CurseForgeManifest::from_archive(&file) {
+      task_params.extend(manifest.get_download_params(&app, &version_path).await?);
+      manifest.extract_overrides(&file, &version_path)?;
+    } else if let Ok(manifest) = ModrinthManifest::from_archive(&file) {
+      task_params.extend(manifest.get_download_params(&version_path)?);
+      manifest.extract_overrides(&file, &version_path)?;
+    } else {
+      return Err(InstanceError::ModpackManifestParseError.into());
+    }
+  }
+
   schedule_progressive_task_group(
     app.clone(),
     format!("game-client?{}", name),
@@ -988,4 +1011,11 @@ pub async fn finish_mod_loader_install(app: AppHandle, instance_id: String) -> S
   instance.save_json_cfg().await?;
 
   Ok(())
+}
+
+#[tauri::command]
+pub async fn retrieve_modpack_meta_info(path: String) -> SJMCLResult<ModpackMetaInfo> {
+  let path = PathBuf::from(path);
+  let file = fs::File::open(&path).map_err(|_| InstanceError::FileNotFoundError)?;
+  ModpackMetaInfo::from_archive(&file).await
 }

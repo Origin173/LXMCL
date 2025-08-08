@@ -18,7 +18,7 @@ import { OptionItem } from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { ModLoaderType } from "@/enums/instance";
-import { OtherResourceType } from "@/enums/resource";
+import { OtherResourceSource, OtherResourceType } from "@/enums/resource";
 import { LocalModInfo } from "@/models/instance/misc";
 import { ResourceService } from "@/services/resource";
 import { base64ImgSrc } from "@/utils/string";
@@ -46,7 +46,10 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({
   const openDownloadModal = (downloadSource: string) => {
     openSharedModal("download-specific-resource", {
       resource: {
-        id: downloadSource === "CurseForge" ? cfRemoteModId : mrRemoteModId,
+        id:
+          downloadSource === OtherResourceSource.CurseForge
+            ? cfRemoteModId
+            : mrRemoteModId,
         websiteUrl: "",
         type: OtherResourceType.Mod,
         name: mod.name || mod.fileName,
@@ -65,25 +68,27 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({
   };
 
   const handleCurseForgeInfo = useCallback(async () => {
-    ResourceService.fetchRemoteResourceByLocal("CurseForge", mod.filePath).then(
-      (response) => {
-        if (response.status === "success") {
-          const modId = response.data.resourceId;
-          setCfRemoteModId(modId);
-        }
+    ResourceService.fetchRemoteResourceByLocal(
+      OtherResourceSource.CurseForge,
+      mod.filePath
+    ).then((response) => {
+      if (response.status === "success") {
+        const modId = response.data.resourceId;
+        setCfRemoteModId(modId);
       }
-    );
+    });
   }, [mod.filePath, setCfRemoteModId]);
 
   const handleModrinthInfo = useCallback(async () => {
-    ResourceService.fetchRemoteResourceByLocal("Modrinth", mod.filePath).then(
-      (response) => {
-        if (response.status === "success") {
-          const modId = response.data.resourceId;
-          setMrRemoteModId(modId);
-        }
+    ResourceService.fetchRemoteResourceByLocal(
+      OtherResourceSource.Modrinth,
+      mod.filePath
+    ).then((response) => {
+      if (response.status === "success") {
+        const modId = response.data.resourceId;
+        setMrRemoteModId(modId);
       }
-    );
+    });
   }, [mod.filePath, setMrRemoteModId]);
 
   useEffect(() => {
@@ -152,7 +157,7 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({
                 colorScheme={primaryColor}
                 onClick={() => {
                   modalProps.onClose();
-                  openDownloadModal("CurseForge");
+                  openDownloadModal(OtherResourceSource.CurseForge);
                 }}
                 fontSize="sm"
                 variant="link"
@@ -167,7 +172,7 @@ const ModInfoModal: React.FC<ModInfoModalProps> = ({
                 colorScheme={primaryColor}
                 onClick={() => {
                   modalProps.onClose();
-                  openDownloadModal("Modrinth");
+                  openDownloadModal(OtherResourceSource.Modrinth);
                 }}
                 fontSize="sm"
                 variant="link"

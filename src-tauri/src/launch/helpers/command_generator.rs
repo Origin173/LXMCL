@@ -1,6 +1,7 @@
 use crate::error::{SJMCLError, SJMCLResult};
 use crate::instance::{
   helpers::client_json::FeaturesInfo,
+  helpers::game_version::compare_game_versions,
   helpers::misc::get_instance_subdir_paths,
   models::misc::{InstanceError, InstanceSubdirType},
 };
@@ -23,7 +24,7 @@ use serde::{self, Deserialize, Serialize};
 use serde_json::Value;
 use shlex::try_quote;
 use std::borrow::Cow;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
 
@@ -99,7 +100,11 @@ pub struct LaunchCommand {
   pub args: Vec<String>,
 }
 
-pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<LaunchCommand> {
+pub async fn generate_launch_command(
+  app: &AppHandle,
+  quick_play_singleplayer: Option<String>,
+  quick_play_multiplayer: Option<String>,
+) -> SJMCLResult<LaunchCommand> {
   let launcher_config = { app.state::<Mutex<LauncherConfig>>().lock()?.clone() };
   let launching_queue = { app.state::<Mutex<Vec<LaunchingState>>>().lock()?.clone() };
 
@@ -157,9 +162,17 @@ pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<LaunchCommand> {
 
   let mut class_paths: Vec<String> = get_nonnative_library_paths(&client_info, libraries_dir)?
     .into_iter()
+    .collect::<HashSet<_>>()
+    .into_iter()
     .map(|p| p.to_string_lossy().to_string())
     .collect();
   class_paths.push(client_jar_path.clone());
+
+  let quickplay_server_url = match quick_play_multiplayer {
+    Some(ref url) if !url.is_empty() => url.clone(),
+    None if game_config.game_server.auto_join => game_config.game_server.server_url.clone(),
+    _ => String::new(),
+  };
 
   let arguments_value = LaunchArguments {
     assets_root: assets_dir.to_string_lossy().to_string(),
@@ -190,8 +203,8 @@ pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<LaunchCommand> {
     resolution_height: game_config.game_window.resolution.height,
     resolution_width: game_config.game_window.resolution.width,
     quick_play_path: String::new(),
-    quick_play_singleplayer: String::new(),
-    quick_play_multiplayer: game_config.game_server.server_url,
+    quick_play_singleplayer: quick_play_singleplayer.unwrap_or_default(),
+    quick_play_multiplayer: quickplay_server_url.clone(),
     quick_play_realms: String::new(),
   };
 
@@ -284,10 +297,10 @@ pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<LaunchCommand> {
   let launch_feature = FeaturesInfo {
     is_demo_user: Some(false),
     has_custom_resolution: Some(true),
-    has_quick_plays_support: Some(false), // TODO
-    is_quick_play_multiplayer: Some(game_config.game_server.auto_join),
-    is_quick_play_singleplayer: Some(false), // TODO
-    is_quick_play_realms: Some(false),       // unsupported
+    has_quick_plays_support: Some(true),
+    is_quick_play_multiplayer: Some(true),
+    is_quick_play_singleplayer: Some(true),
+    is_quick_play_realms: Some(false), // unsupported
   };
 
   if let Some(client_args) = &client_info.arguments {
@@ -338,6 +351,21 @@ pub fn generate_launch_command(app: &AppHandle) -> SJMCLResult<LaunchCommand> {
     return Err(InstanceError::ClientJsonParseError.into());
   }
 
+  // quick into server (for old version)
+  if !quickplay_server_url.is_empty()
+    && compare_game_versions(app, &selected_instance.version, "23w14a", false)
+      .await
+      .is_lt()
+  {
+    let (host, port) = quickplay_server_url
+      .split_once(':')
+      .map(|(h, p)| (h.to_string(), p.to_string()))
+      .unwrap_or((quickplay_server_url.clone(), "25565".to_string()));
+
+    cmd.extend(["--server".into(), host, "--port".into(), port]);
+  }
+
+  // fullscreen
   if game_config.game_window.resolution.fullscreen {
     cmd.push("--fullscreen".to_string());
   }
