@@ -117,7 +117,6 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
       };
       return level(a) - level(b);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleRetrieveProgressTasks = useCallback(() => {
@@ -390,7 +389,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
       (payload: GTaskEventPayload) => {
         console.log(`Received task group update: ${payload.event}`);
         setTasks((prevTasks) => {
-          return prevTasks.map((task) => {
+          let newTasks = prevTasks.map((task) => {
             if (task.taskGroup === payload.taskGroup) {
               task.status = payload.event;
               if (payload.event === GTaskEventStatusEnums.Completed) {
@@ -410,100 +409,102 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             }
             return task;
           });
-        });
 
-        const { name, version } = parseTaskGroup(payload.taskGroup);
+          const { name, version } = parseTaskGroup(payload.taskGroup);
 
-        toast({
-          status:
-            payload.event === GTaskEventStatusEnums.Failed
-              ? "error"
-              : "success",
-          title: t(`Services.task.onTaskGroupUpdate.status.${payload.event}`, {
-            param: t(`DownloadTasksPage.task.${name}`, {
-              param: version || "",
-            }),
-          }),
-        });
-
-        if (payload.event === GTaskEventStatusEnums.Completed) {
-          switch (name) {
-            case "game-client":
-              getInstanceList(true);
-              break;
-            case "forge-libraries":
-            case "neoforge-libraries":
-              if (version) {
-                let instanceName = getInstanceList()?.find(
-                  (i) => i.id === version
-                )?.name;
-                if (loadingToastRef.current) return;
-                loadingToastRef.current = toast({
-                  title: t("Services.instance.finishModLoaderInstall.loading", {
-                    instanceName,
-                  }),
-                  status: "loading",
-                });
-                InstanceService.finishModLoaderInstall(version).then(
-                  (response) => {
-                    if (loadingToastRef.current) {
-                      closeToast(loadingToastRef.current);
-                      loadingToastRef.current = null;
-                    }
-                    if (response.status === "success") {
-                      toast({
-                        title: response.message,
-                        status: "success",
-                      });
-                    } else {
-                      toast({
-                        title: response.message,
-                        description: response.details,
-                        status: "error",
-                      });
-                    }
-                  }
-                );
+          toast({
+            status:
+              payload.event === GTaskEventStatusEnums.Failed
+                ? "error"
+                : "success",
+            title: t(
+              `Services.task.onTaskGroupUpdate.status.${payload.event}`,
+              {
+                param: t(`DownloadTasksPage.task.${name}`, {
+                  param: version || "",
+                }),
               }
-              break;
-            case "game-resource":
-              if (version) {
-                const resourceTypeMatch = version.match(/type:(\w+)/);
-                if (resourceTypeMatch) {
-                  const resourceType = resourceTypeMatch[1];
-                  emit(REFRESH_RESOURCE_LIST_EVENT, { resourceType });
+            ),
+          });
+
+          if (payload.event === GTaskEventStatusEnums.Completed) {
+            switch (name) {
+              case "game-client":
+                getInstanceList(true);
+                break;
+              case "forge-libraries":
+              case "neoforge-libraries":
+                if (version) {
+                  let instanceName = getInstanceList()?.find(
+                    (i) => i.id === version
+                  )?.name;
+                  if (loadingToastRef.current) return newTasks;
+                  loadingToastRef.current = toast({
+                    title: t(
+                      "Services.instance.finishModLoaderInstall.loading",
+                      {
+                        instanceName,
+                      }
+                    ),
+                    status: "loading",
+                  });
+                  InstanceService.finishModLoaderInstall(version).then(
+                    (response) => {
+                      if (loadingToastRef.current) {
+                        closeToast(loadingToastRef.current);
+                        loadingToastRef.current = null;
+                      }
+                      if (response.status === "success") {
+                        toast({
+                          title: response.message,
+                          status: "success",
+                        });
+                      } else {
+                        toast({
+                          title: response.message,
+                          description: response.details,
+                          status: "error",
+                        });
+                      }
+                    }
+                  );
                 }
-              }
-              break;
-            case "mod-update":
-              emit(REFRESH_RESOURCE_LIST_EVENT, { resourceType: "mod" });
-              break;
-            case "modpack":
-              let group = tasks.find((t) => t.taskGroup === payload.taskGroup);
-              if (group && group.taskDescs.length > 0) {
-                openSharedModal("import-modpack", {
-                  path: group.taskDescs[0].payload.dest,
-                });
-              }
-              break;
-            default:
-              break;
+                break;
+              case "game-resource":
+                if (version) {
+                  const resourceTypeMatch = version.match(/type:(\w+)/);
+                  if (resourceTypeMatch) {
+                    const resourceType = resourceTypeMatch[1];
+                    emit(REFRESH_RESOURCE_LIST_EVENT, { resourceType });
+                  }
+                }
+                break;
+              case "mod-update":
+                emit(REFRESH_RESOURCE_LIST_EVENT, { resourceType: "mod" });
+                break;
+              case "modpack":
+                let group = newTasks.find(
+                  (t) => t.taskGroup === payload.taskGroup
+                );
+                if (group && group.taskDescs.length > 0) {
+                  openSharedModal("import-modpack", {
+                    path: group.taskDescs[0].payload.dest,
+                  });
+                }
+                break;
+              default:
+                break;
+            }
           }
-        }
+
+          return newTasks;
+        });
       }
     );
     return () => {
       unlisten();
     };
-  }, [
-    closeToast,
-    getInstanceList,
-    t,
-    toast,
-    updateGroupInfo,
-    tasks,
-    openSharedModal,
-  ]);
+  }, [closeToast, getInstanceList, t, toast, updateGroupInfo, openSharedModal]);
 
   useEffect(() => {
     if (!tasks || !tasks.length) setGeneralPercent(undefined);
