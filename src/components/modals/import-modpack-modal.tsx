@@ -47,6 +47,8 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
   const router = useRouter();
   const toast = useToast();
   const primaryColor = config.appearance.theme.primaryColor;
+  const { onClose } = modalProps;
+
   const [modpack, setModpack] = useState<ModpackMetaInfo>();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -230,7 +232,7 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
             description: response.details,
             status: "error",
           });
-          modalProps.onClose?.();
+          onClose();
         }
       })
       .catch((error) => {
@@ -239,7 +241,7 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
       .finally(() => {
         setIsPageLoading(false);
       });
-  }, [path, toast, modalProps]);
+  }, [path, toast, onClose]);
 
   return (
     <Modal
