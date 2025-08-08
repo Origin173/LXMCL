@@ -220,12 +220,16 @@ pub async fn update_mods(
 #[tauri::command]
 pub async fn fetch_remote_resource_by_id(
   app: AppHandle,
-  download_source: String,
+  download_source: OtherResourceSource,
   resource_id: String,
 ) -> SJMCLResult<OtherResourceInfo> {
-  match download_source.as_str() {
-    "CurseForge" => Ok(fetch_remote_resource_by_id_curseforge(&app, &resource_id).await?),
-    "Modrinth" => Ok(fetch_remote_resource_by_id_modrinth(&app, &resource_id).await?),
+  match download_source {
+    OtherResourceSource::CurseForge => {
+      Ok(fetch_remote_resource_by_id_curseforge(&app, &resource_id).await?)
+    }
+    OtherResourceSource::Modrinth => {
+      Ok(fetch_remote_resource_by_id_modrinth(&app, &resource_id).await?)
+    }
     _ => Err(ResourceError::NoDownloadApi.into()),
   }
 }

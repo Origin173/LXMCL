@@ -474,9 +474,7 @@ const DownloadSpecificResourceModal: React.FC<
                   if (item.dependencies.length > 0) {
                     openSharedModal("alert-resource-dependency", {
                       dependencies: item.dependencies,
-                      downloadSource: resource.source as
-                        | "CurseForge"
-                        | "Modrinth",
+                      downloadSource: resource.source as OtherResourceSource,
                       curInstanceMajorVersion,
                       curInstanceVersion,
                       curInstanceModLoader,

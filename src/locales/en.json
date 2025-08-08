@@ -195,7 +195,7 @@
   },
   "AlertResourceDependencyModal": {
     "header": {
-      "title": "Exist Dependency Resource"
+      "title": "Dependency Resources Exist"
     },
     "description": "Please confirm that all required resources are installed, or continue downloading the original resource.",
     "button": {

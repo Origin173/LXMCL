@@ -22,6 +22,7 @@ import { OptionItem } from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { ModLoaderType } from "@/enums/instance";
+import { OtherResourceSource } from "@/enums/resource";
 import { OtherResourceDependency } from "@/models/resource";
 import { ResourceService } from "@/services/resource";
 import { ISOToDate } from "@/utils/datetime";
@@ -30,7 +31,7 @@ import { formatDisplayCount } from "@/utils/string";
 interface AlertResourceDependencyModalProps
   extends Omit<ModalProps, "children"> {
   dependencies: OtherResourceDependency[];
-  downloadSource: "CurseForge" | "Modrinth";
+  downloadSource: OtherResourceSource;
   curInstanceMajorVersion?: string;
   curInstanceVersion?: string;
   curInstanceModLoader?: ModLoaderType;

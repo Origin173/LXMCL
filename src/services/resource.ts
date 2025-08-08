@@ -166,7 +166,7 @@ export class ResourceService {
    */
   @responseHandler("resource")
   static async fetchRemoteResourceById(
-    downloadSource: string,
+    downloadSource: OtherResourceSource,
     resourceId: string
   ): Promise<InvokeResponse<OtherResourceInfo>> {
     return await invoke("fetch_remote_resource_by_id", {
