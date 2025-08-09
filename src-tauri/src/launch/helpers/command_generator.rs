@@ -294,16 +294,19 @@ pub async fn generate_launch_command(
   let map = arguments_value.into_hashmap()?;
 
   // some feature rules defined in client json, add to jvm/game arg templates
+  let has_quickplay_single = quick_play_singleplayer
+    .as_deref()
+    .map(|s| s.trim())
+    .is_some_and(|s| !s.is_empty());
+
   let launch_feature = FeaturesInfo {
     is_demo_user: Some(false),
     has_custom_resolution: Some(true),
     has_quick_plays_support: Some(true),
-    is_quick_play_multiplayer: Some(!quickplay_server_url.is_empty()),
-    is_quick_play_singleplayer: Some(
-      quick_play_singleplayer
-        .as_ref()
-        .is_some_and(|s| !s.is_empty()),
+    is_quick_play_multiplayer: Some(
+      !has_quickplay_single && !quickplay_server_url.trim().is_empty(),
     ),
+    is_quick_play_singleplayer: Some(has_quickplay_single),
     is_quick_play_realms: Some(false), // unsupported
   };
 

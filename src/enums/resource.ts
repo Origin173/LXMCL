@@ -12,6 +12,15 @@ export enum OtherResourceSource {
   Modrinth = "Modrinth",
 }
 
+export enum DependencyType {
+  Required = "required",
+  Optional = "optional",
+  Incompatible = "incompatible",
+  Embedded = "embedded",
+  Tool = "tool",
+  Include = "include",
+}
+
 export const modTagList = {
   CurseForge: {
     All: ["All"],
@@ -259,12 +268,3 @@ export const sortByLists = {
   ],
   Modrinth: ["relevance", "downloads", "follows", "updated", "newest"],
 };
-
-export enum DependencyType {
-  Required = "required",
-  Optional = "optional",
-  Incompatible = "incompatible",
-  Embedded = "embedded",
-  Tool = "tool",
-  Include = "include",
-}

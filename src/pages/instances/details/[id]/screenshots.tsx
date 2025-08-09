@@ -44,6 +44,12 @@ const InstanceScreenshotsPage: React.FC = () => {
     getScreenshotListWrapper();
   }, [getScreenshotListWrapper]);
 
+  useEffect(() => {
+    // This page does not have a refresh button, so we need to fetch the screenshot list when the page is mounted
+    getScreenshotListWrapper(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const {
     isOpen: isScreenshotPreviewModalOpen,
     onOpen: onScreenshotPreviewModalOpen,
