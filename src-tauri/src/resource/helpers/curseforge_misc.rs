@@ -78,6 +78,7 @@ pub struct CurseForgeFileDependency {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeFileInfo {
+  pub id: u32,
   pub mod_id: u32,
   pub display_name: String,
   pub file_name: String,
@@ -382,8 +383,8 @@ pub fn map_curseforge_file_info_to_other_resource_file_info(
       // We try to find its download url.
       format!(
         "https://edge.forgecdn.net/files/{}/{}/{}",
-        cf_file.mod_id / 1000,
-        cf_file.mod_id % 1000,
+        cf_file.id / 1000,
+        cf_file.id % 1000,
         cf_file.file_name
       )
     }
