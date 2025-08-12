@@ -1,8 +1,7 @@
 use crate::error::SJMCLResult;
 use crate::resource::models::{
-  OtherResourceDependency, OtherResourceFileInfo, OtherResourceInfo, OtherResourceSearchQuery,
-  OtherResourceSearchRes, OtherResourceSource, OtherResourceVersionPack,
-  OtherResourceVersionPackQuery, ResourceError,
+  OtherResourceFileInfo, OtherResourceInfo, OtherResourceSearchQuery, OtherResourceSearchRes,
+  OtherResourceVersionPack, OtherResourceVersionPackQuery, ResourceError,
 };
 use hex;
 use sha1::{Digest, Sha1};
@@ -12,9 +11,8 @@ use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
 use super::modrinth_misc::{
-  get_modrinth_api, map_modrinth_file_to_version_pack, map_modrinth_to_resource_info,
-  map_modrinth_version_pack_to_other_resource_file_info, ModrinthApiEndpoint,
-  ModrinthGetProjectRes, ModrinthSearchRes, ModrinthVersionPack,
+  get_modrinth_api, map_modrinth_file_to_version_pack, ModrinthApiEndpoint, ModrinthProject,
+  ModrinthSearchRes, ModrinthVersionPack,
 };
 
 pub async fn fetch_resource_list_by_name_modrinth(
@@ -53,7 +51,7 @@ pub async fn fetch_resource_list_by_name_modrinth(
   if let Ok(response) = client.get(&url).query(&params).send().await {
     if response.status().is_success() {
       match response.json::<ModrinthSearchRes>().await {
-        Ok(results) => Ok(map_modrinth_to_resource_info(results)),
+        Ok(results) => Ok(results.into()),
         Err(_) => Err(ResourceError::ParseError.into()),
       }
     } else {
@@ -154,15 +152,18 @@ pub async fn fetch_remote_resource_by_local_modrinth(
     .or_else(|| version_pack.files.first())
     .ok_or(ResourceError::ParseError)?;
 
-  Ok(map_modrinth_version_pack_to_other_resource_file_info(
-    &version_pack,
-    file_info,
-    if version_pack.loaders.is_empty() {
-      None
-    } else {
-      Some(version_pack.loaders[0].clone())
-    },
-  ))
+  Ok(
+    (
+      &version_pack,
+      file_info,
+      if version_pack.loaders.is_empty() {
+        None
+      } else {
+        Some(version_pack.loaders[0].clone())
+      },
+    )
+      .into(),
+  )
 }
 
 pub async fn fetch_remote_resource_by_id_modrinth(
@@ -183,20 +184,9 @@ pub async fn fetch_remote_resource_by_id_modrinth(
   }
 
   let results = response
-    .json::<ModrinthGetProjectRes>()
+    .json::<ModrinthProject>()
     .await
     .map_err(|_| ResourceError::ParseError)?;
 
-  Ok(OtherResourceInfo {
-    id: results.id,
-    _type: results.project_type,
-    name: results.title,
-    description: results.description,
-    icon_src: results.icon_url,
-    website_url: format!("https://modrinth.com/mod/{}", results.slug),
-    tags: results.categories,
-    last_updated: results.updated,
-    downloads: results.downloads,
-    source: OtherResourceSource::Modrinth,
-  })
+  Ok(results.into())
 }

@@ -7,30 +7,21 @@ use serde::Deserialize;
 
 use super::misc::version_pack_sort;
 
+// A unified struct for both search projects and get project by id responses
 #[derive(Deserialize, Debug)]
 pub struct ModrinthProject {
+  #[serde(alias = "id")]
   pub project_id: String,
   pub project_type: String,
   pub slug: String,
   pub title: String,
   pub description: String,
+  #[serde(alias = "categories")]
   pub display_categories: Vec<String>,
   pub downloads: u32,
   pub icon_url: String,
+  #[serde(alias = "updated")]
   pub date_modified: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct ModrinthGetProjectRes {
-  pub id: String,
-  pub project_type: String,
-  pub slug: String,
-  pub title: String,
-  pub description: String,
-  pub categories: Vec<String>,
-  pub downloads: u32,
-  pub icon_url: String,
-  pub updated: String,
 }
 
 #[derive(Deserialize, Debug)]
@@ -41,35 +32,33 @@ pub struct ModrinthSearchRes {
   pub limit: u32,
 }
 
-#[derive(Deserialize, Debug)]
-pub struct ModrinthFileHash {
-  pub sha1: String,
+structstruck::strike! {
+#[strikethrough[derive(Deserialize, Debug)]]
+  pub struct ModrinthFileInfo {
+    pub url: String,
+    pub filename: String,
+    pub hashes: pub struct {
+      pub sha1: String,
+    },
+  }
 }
 
-#[derive(Deserialize, Debug)]
-pub struct ModrinthFileInfo {
-  pub url: String,
-  pub filename: String,
-  pub hashes: ModrinthFileHash,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct ModrinthFileDependency {
-  pub project_id: String,
-  pub dependency_type: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct ModrinthVersionPack {
-  pub project_id: String,
-  pub dependencies: Vec<ModrinthFileDependency>,
-  pub game_versions: Vec<String>,
-  pub loaders: Vec<String>,
-  pub name: String,
-  pub date_published: String,
-  pub downloads: u32,
-  pub version_type: String,
-  pub files: Vec<ModrinthFileInfo>,
+structstruck::strike! {
+#[strikethrough[derive(Deserialize, Debug)]]
+  pub struct ModrinthVersionPack {
+    pub project_id: String,
+    pub dependencies: Vec<pub struct {
+      pub project_id: String,
+      pub dependency_type: String,
+    }>,
+    pub game_versions: Vec<String>,
+    pub loaders: Vec<String>,
+    pub name: String,
+    pub date_published: String,
+    pub downloads: u32,
+    pub version_type: String,
+    pub files: Vec<ModrinthFileInfo>,
+  }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -102,32 +91,6 @@ pub fn get_modrinth_api(endpoint: ModrinthApiEndpoint, param: Option<&str>) -> S
   Ok(url_str)
 }
 
-pub fn map_modrinth_version_pack_to_other_resource_file_info(
-  version: &ModrinthVersionPack,
-  file: &ModrinthFileInfo,
-  loader: Option<String>,
-) -> OtherResourceFileInfo {
-  OtherResourceFileInfo {
-    resource_id: version.project_id.clone(),
-    name: version.name.clone(),
-    release_type: version.version_type.clone(),
-    downloads: version.downloads,
-    file_date: version.date_published.clone(),
-    download_url: file.url.clone(),
-    sha1: file.hashes.sha1.clone(),
-    file_name: file.filename.clone(),
-    dependencies: version
-      .dependencies
-      .iter()
-      .map(|dep| OtherResourceDependency {
-        resource_id: dep.project_id.clone(),
-        relation: dep.dependency_type.clone(),
-      })
-      .collect(),
-    loader,
-  }
-}
-
 fn normalize_modrinth_loader(loader: &str) -> Option<String> {
   if loader.is_empty() || loader == "minecraft" {
     None
@@ -142,32 +105,6 @@ fn normalize_modrinth_loader(loader: &str) -> Option<String> {
       "optifine" => Some("OptiFine".to_string()),
       _ => Some(loader.to_string()),
     }
-  }
-}
-
-pub fn map_modrinth_to_resource_info(res: ModrinthSearchRes) -> OtherResourceSearchRes {
-  let list = res
-    .hits
-    .into_iter()
-    .map(|p| OtherResourceInfo {
-      id: p.project_id,
-      _type: p.project_type,
-      name: p.title,
-      description: p.description,
-      icon_src: p.icon_url,
-      website_url: format!("https://modrinth.com/mod/{}", p.slug),
-      tags: p.display_categories,
-      last_updated: p.date_modified,
-      downloads: p.downloads,
-      source: OtherResourceSource::Modrinth,
-    })
-    .collect();
-
-  OtherResourceSearchRes {
-    list,
-    total: res.total_hits,
-    page: res.offset / res.limit,
-    page_size: res.limit,
   }
 }
 
@@ -210,13 +147,7 @@ pub fn map_modrinth_file_to_version_pack(
         let file_infos = version
           .files
           .iter()
-          .map(|file| {
-            map_modrinth_version_pack_to_other_resource_file_info(
-              &version,
-              file,
-              normalize_modrinth_loader(loader),
-            )
-          })
+          .map(|file| (&version, file, normalize_modrinth_loader(loader)).into())
           .collect::<Vec<_>>();
 
         version_packs
@@ -235,4 +166,60 @@ pub fn map_modrinth_file_to_version_pack(
   list.sort_by(version_pack_sort);
 
   list
+}
+
+impl From<ModrinthProject> for OtherResourceInfo {
+  fn from(project: ModrinthProject) -> Self {
+    Self {
+      id: project.project_id,
+      _type: project.project_type,
+      name: project.title,
+      description: project.description,
+      icon_src: project.icon_url,
+      website_url: format!("https://modrinth.com/mod/{}", project.slug),
+      tags: project.display_categories,
+      last_updated: project.date_modified,
+      downloads: project.downloads,
+      source: OtherResourceSource::Modrinth,
+    }
+  }
+}
+
+impl From<(&ModrinthVersionPack, &ModrinthFileInfo, Option<String>)> for OtherResourceFileInfo {
+  fn from(
+    (version, file, loader): (&ModrinthVersionPack, &ModrinthFileInfo, Option<String>),
+  ) -> Self {
+    Self {
+      resource_id: version.project_id.clone(),
+      name: version.name.clone(),
+      release_type: version.version_type.clone(),
+      downloads: version.downloads,
+      file_date: version.date_published.clone(),
+      download_url: file.url.clone(),
+      sha1: file.hashes.sha1.clone(),
+      file_name: file.filename.clone(),
+      dependencies: version
+        .dependencies
+        .iter()
+        .map(|d| OtherResourceDependency {
+          resource_id: d.project_id.clone(),
+          relation: d.dependency_type.clone(),
+        })
+        .collect(),
+      loader,
+    }
+  }
+}
+
+impl From<ModrinthSearchRes> for OtherResourceSearchRes {
+  fn from(res: ModrinthSearchRes) -> Self {
+    let list = res.hits.into_iter().map(OtherResourceInfo::from).collect();
+
+    Self {
+      list,
+      total: res.total_hits,
+      page: res.offset / res.limit,
+      page_size: res.limit,
+    }
+  }
 }

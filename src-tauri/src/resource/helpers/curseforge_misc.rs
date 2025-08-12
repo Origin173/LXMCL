@@ -10,42 +10,26 @@ use serde::{Deserialize, Serialize};
 
 use super::misc::version_pack_sort;
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct CurseForgeCategory {
-  pub name: String,
-}
-
-#[derive(Deserialize, Serialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct CurseForgeLink {
-  pub website_url: String,
-}
-
-#[derive(Deserialize, Serialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct CurseForgeLogo {
-  pub url: String,
-}
-
-pub fn default_logo() -> CurseForgeLogo {
-  CurseForgeLogo {
-    url: "".to_string(),
+structstruck::strike! {
+#[strikethrough[derive(Deserialize, Serialize, Debug, Clone)]]
+#[strikethrough[serde(rename_all = "camelCase")]]
+  pub struct CurseForgeProject {
+    pub id: u32,
+    pub class_id: u32,
+    pub links: pub struct {
+      pub website_url: String,
+    },
+    pub name: String,
+    pub summary: String,
+    pub categories: Vec<pub struct {
+      pub name: String,
+    }>,
+    pub download_count: u32,
+    pub logo: Option<pub struct {
+      pub url: String,
+    }>,
+    pub date_modified: String,
   }
-}
-
-#[derive(Deserialize, Serialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct CurseForgeProject {
-  pub id: u32,
-  pub class_id: u32,
-  pub links: CurseForgeLink,
-  pub name: String,
-  pub summary: String,
-  pub categories: Vec<CurseForgeCategory>,
-  pub download_count: u32,
-  pub logo: Option<CurseForgeLogo>, // In some old projects, logo is null
-  pub date_modified: String,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -62,33 +46,28 @@ pub struct CurseForgeSearchRes {
   pub pagination: CurseForgePagination,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct CurseForgeFileHash {
-  pub value: String,
-  pub algo: u32,
-}
-
-#[derive(Deserialize, Serialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct CurseForgeFileDependency {
-  pub mod_id: u32,
-  pub relation_type: u32,
-}
-
-#[derive(Deserialize, Serialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct CurseForgeFileInfo {
-  pub id: u32,
-  pub mod_id: u32,
-  pub display_name: String,
-  pub file_name: String,
-  pub release_type: u32,
-  pub hashes: Vec<CurseForgeFileHash>,
-  pub file_date: String,
-  pub download_url: Option<String>,
-  pub download_count: u32,
-  pub game_versions: Vec<String>,
-  pub dependencies: Vec<CurseForgeFileDependency>,
+structstruck::strike! {
+#[strikethrough[derive(Deserialize, Serialize, Debug, Clone)]]
+#[strikethrough[serde(rename_all = "camelCase")]]
+  pub struct CurseForgeFileInfo {
+    pub id: u32,
+    pub mod_id: u32,
+    pub display_name: String,
+    pub file_name: String,
+    pub release_type: u32,
+    pub hashes: Vec<pub struct {
+      pub value: String,
+      pub algo: u32,
+    }>,
+    pub file_date: String,
+    pub download_url: Option<String>,
+    pub download_count: u32,
+    pub game_versions: Vec<String>,
+    pub dependencies: Vec<pub struct {
+      pub mod_id: u32,
+      pub relation_type: u32,
+    }>,
+  }
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -97,22 +76,16 @@ pub struct CurseForgeVersionPackSearchRes {
   pub pagination: CurseForgePagination,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct CurseForgeExactMatches {
-  pub file: CurseForgeFileInfo,
-}
-
-#[derive(Deserialize, Serialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct CurseForgeFingerprintData {
-  pub exact_matches: Vec<CurseForgeExactMatches>,
-}
-
-#[derive(Deserialize, Serialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct CurseForgeFingerprintRes {
-  pub data: CurseForgeFingerprintData,
+structstruck::strike! {
+#[strikethrough[derive(Deserialize, Serialize, Debug, Clone)]]
+#[strikethrough[serde(rename_all = "camelCase")]]
+  pub struct CurseForgeFingerprintRes {
+    pub data: pub struct {
+      pub exact_matches: Vec<pub struct {
+        pub file: CurseForgeFileInfo,
+      }>,
+    }
+  }
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -372,75 +345,6 @@ pub fn cvt_id_to_dependency_type(dependency_type: u32) -> String {
   }
 }
 
-pub fn map_curseforge_file_info_to_other_resource_file_info(
-  cf_file: &CurseForgeFileInfo,
-  loader: Option<String>,
-) -> OtherResourceFileInfo {
-  let download_url = match &cf_file.download_url {
-    Some(url) => url.clone(),
-    None => {
-      // This addon is not allowed for distribution, and downloadUrl will be null.
-      // We try to find its download url.
-      format!(
-        "https://edge.forgecdn.net/files/{}/{}/{}",
-        cf_file.id / 1000,
-        cf_file.id % 1000,
-        cf_file.file_name
-      )
-    }
-  };
-
-  OtherResourceFileInfo {
-    resource_id: cf_file.mod_id.to_string(),
-    name: cf_file.display_name.clone(),
-    release_type: cvt_id_to_release_type(cf_file.release_type),
-    downloads: cf_file.download_count,
-    file_date: cf_file.file_date.clone(),
-    download_url,
-    sha1: cf_file
-      .hashes
-      .iter()
-      .find(|h| h.algo == 1)
-      .map_or("".to_string(), |h| h.value.clone()),
-    file_name: cf_file.file_name.clone(),
-    dependencies: cf_file
-      .dependencies
-      .iter()
-      .map(|dep| OtherResourceDependency {
-        resource_id: dep.mod_id.to_string(),
-        relation: cvt_id_to_dependency_type(dep.relation_type),
-      })
-      .collect(),
-    loader,
-  }
-}
-
-pub fn map_curseforge_to_resource_info(res: CurseForgeSearchRes) -> OtherResourceSearchRes {
-  let list = res
-    .data
-    .into_iter()
-    .map(|p| OtherResourceInfo {
-      id: p.id.to_string(),
-      _type: cvt_class_id_to_type(p.class_id),
-      name: p.name,
-      description: p.summary,
-      icon_src: p.logo.unwrap_or_else(default_logo).url,
-      website_url: p.links.website_url,
-      tags: p.categories.iter().map(|c| c.name.clone()).collect(),
-      last_updated: p.date_modified,
-      downloads: p.download_count,
-      source: OtherResourceSource::CurseForge,
-    })
-    .collect();
-
-  OtherResourceSearchRes {
-    list,
-    total: res.pagination.total_count,
-    page: res.pagination.index / res.pagination.page_size,
-    page_size: res.pagination.page_size,
-  }
-}
-
 fn extract_versions_and_loaders(game_versions: &[String]) -> (Vec<String>, Vec<String>) {
   let mut versions = Vec::new();
   let mut loaders = Vec::new();
@@ -482,14 +386,15 @@ pub fn map_curseforge_file_to_version_pack(
 
     for version in &versions {
       for loader in &loaders {
-        let file_info = map_curseforge_file_info_to_other_resource_file_info(
+        let file_info = (
           &cf_file,
           if loader.is_empty() {
             None
           } else {
             Some(loader.to_string())
           },
-        );
+        )
+          .into();
 
         version_packs
           .entry(version.clone())
@@ -507,4 +412,67 @@ pub fn map_curseforge_file_to_version_pack(
   list.sort_by(version_pack_sort);
 
   list
+}
+
+impl From<CurseForgeProject> for OtherResourceInfo {
+  fn from(project: CurseForgeProject) -> Self {
+    Self {
+      id: project.id.to_string(),
+      _type: cvt_class_id_to_type(project.class_id),
+      name: project.name,
+      description: project.summary,
+      icon_src: project.logo.map_or("".to_string(), |logo| logo.url),
+      website_url: project.links.website_url,
+      tags: project.categories.iter().map(|c| c.name.clone()).collect(),
+      last_updated: project.date_modified,
+      downloads: project.download_count,
+      source: OtherResourceSource::CurseForge,
+    }
+  }
+}
+
+impl From<(&CurseForgeFileInfo, Option<String>)> for OtherResourceFileInfo {
+  fn from((cf_file, loader): (&CurseForgeFileInfo, Option<String>)) -> Self {
+    Self {
+      resource_id: cf_file.mod_id.to_string(),
+      name: cf_file.display_name.clone(),
+      release_type: cvt_id_to_release_type(cf_file.release_type),
+      downloads: cf_file.download_count,
+      file_date: cf_file.file_date.clone(),
+      download_url: cf_file.download_url.clone().unwrap_or(format!(
+        "https://edge.forgecdn.net/files/{}/{}/{}",
+        cf_file.id / 1000,
+        cf_file.id % 1000,
+        cf_file.file_name.clone()
+      )),
+      sha1: cf_file
+        .hashes
+        .iter()
+        .find(|h| h.algo == 1)
+        .map_or("".to_string(), |h| h.value.clone()),
+      file_name: cf_file.file_name.clone(),
+      dependencies: cf_file
+        .dependencies
+        .iter()
+        .map(|dep| OtherResourceDependency {
+          resource_id: dep.mod_id.to_string(),
+          relation: cvt_id_to_dependency_type(dep.relation_type),
+        })
+        .collect(),
+      loader,
+    }
+  }
+}
+
+impl From<CurseForgeSearchRes> for OtherResourceSearchRes {
+  fn from(res: CurseForgeSearchRes) -> Self {
+    let list = res.data.into_iter().map(OtherResourceInfo::from).collect();
+
+    Self {
+      list,
+      total: res.pagination.total_count,
+      page: res.pagination.index / res.pagination.page_size,
+      page_size: res.pagination.page_size,
+    }
+  }
 }

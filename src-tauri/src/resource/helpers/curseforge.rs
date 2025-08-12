@@ -18,8 +18,7 @@ use tauri_plugin_http::reqwest;
 use super::curseforge_misc::{
   cvt_category_to_id, cvt_class_id_to_type, cvt_id_to_dependency_type, cvt_id_to_release_type,
   cvt_mod_loader_to_id, cvt_sort_by_to_id, cvt_type_to_class_id, cvt_version_to_type_id,
-  default_logo, get_curseforge_api, map_curseforge_file_info_to_other_resource_file_info,
-  map_curseforge_file_to_version_pack, map_curseforge_to_resource_info, CurseForgeApiEndpoint,
+  get_curseforge_api, map_curseforge_file_to_version_pack, CurseForgeApiEndpoint,
   CurseForgeFileInfo, CurseForgeFingerprintRes, CurseForgeGetProjectRes, CurseForgeSearchRes,
   CurseForgeVersionPackSearchRes,
 };
@@ -84,7 +83,7 @@ pub async fn fetch_resource_list_by_name_curseforge(
     .await
     .map_err(|_| ResourceError::ParseError)?;
 
-  Ok(map_curseforge_to_resource_info(results))
+  Ok(results.into())
 }
 
 pub async fn fetch_resource_version_packs_curseforge(
@@ -209,9 +208,7 @@ pub async fn fetch_remote_resource_by_local_curseforge(
 
   if let Some(exact_match) = fingerprint_response.data.exact_matches.first() {
     let cf_file = &exact_match.file;
-    Ok(map_curseforge_file_info_to_other_resource_file_info(
-      cf_file, None,
-    ))
+    Ok((cf_file, None).into())
   } else {
     Err(ResourceError::ParseError.into())
   }
@@ -241,18 +238,5 @@ pub async fn fetch_remote_resource_by_id_curseforge(
     .await
     .map_err(|_| ResourceError::ParseError)?;
 
-  let resource = results.data;
-
-  Ok(OtherResourceInfo {
-    id: resource.id.to_string(),
-    _type: cvt_class_id_to_type(resource.class_id),
-    name: resource.name,
-    description: resource.summary,
-    icon_src: resource.logo.unwrap_or_else(default_logo).url,
-    website_url: resource.links.website_url,
-    tags: resource.categories.iter().map(|c| c.name.clone()).collect(),
-    last_updated: resource.date_modified,
-    downloads: resource.download_count,
-    source: OtherResourceSource::CurseForge,
-  })
+  Ok(results.data.into())
 }
