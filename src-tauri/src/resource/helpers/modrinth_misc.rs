@@ -180,7 +180,7 @@ pub fn map_modrinth_file_to_version_pack(
     let game_versions = if version.game_versions.is_empty() {
       vec!["".to_string()]
     } else {
-      version.game_versions
+      version.game_versions.clone()
     };
 
     const ALLOWED_LOADERS: &[&str] = &[

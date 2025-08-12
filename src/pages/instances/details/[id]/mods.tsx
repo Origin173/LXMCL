@@ -206,7 +206,9 @@ const InstanceModsPage = () => {
     {
       icon: LuClockArrowUp,
       label: t("InstanceModsPage.modList.menu.update"),
-      onClick: onCheckUpdateModalOpen,
+      onClick: () => {
+        if (!isLoading) onCheckUpdateModalOpen();
+      },
     },
     {
       icon: "refresh",
