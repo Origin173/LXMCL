@@ -101,6 +101,8 @@ export const GuidedTourProvider: React.FC<TourProviderProps> = ({
     p: "bottom",
   });
 
+  const [animate, setAnimate] = useState(true);
+
   const STEPS: TourStep[] = [
     {
       id: "head-navbar-tab-instances",
@@ -271,18 +273,53 @@ export const GuidedTourProvider: React.FC<TourProviderProps> = ({
     schedule(() => computeLayout());
   }, [isOpen, current, index, schedule, computeLayout]);
 
+  // robust resize/scroll handling
   useEffect(() => {
     if (!isOpen) return;
-    const onResize = () => schedule(() => computeLayout());
-    const onScroll = () => schedule(() => computeLayout());
-    window.addEventListener("resize", onResize, { passive: true });
-    window.addEventListener("scroll", onScroll, true);
+
+    let debounceId: number | null = null;
+
+    const handleResizeSync = () => {
+      if (debounceId) window.clearTimeout(debounceId);
+      if (animate) setAnimate(false);
+      computeLayout();
+      debounceId = window.setTimeout(() => {
+        setAnimate(true);
+        computeLayout();
+        debounceId = null;
+      }, 120);
+    };
+
+    const handleScroll = () => {
+      schedule(() => computeLayout());
+    };
+
+    window.addEventListener("resize", handleResizeSync);
+    window.addEventListener("scroll", handleScroll, true);
+
+    const vv = window.visualViewport;
+    vv?.addEventListener("resize", handleResizeSync);
+    vv?.addEventListener("scroll", handleResizeSync);
+
     return () => {
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", handleResizeSync);
+      window.removeEventListener("scroll", handleScroll, true);
+      vv?.removeEventListener("resize", handleResizeSync);
+      vv?.removeEventListener("scroll", handleResizeSync);
+      if (debounceId) window.clearTimeout(debounceId);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [isOpen, schedule, computeLayout]);
+  }, [isOpen, computeLayout, schedule, animate]);
+
+  // observe target and modal size changes
+  useEffect(() => {
+    if (!isOpen) return;
+    const target = getTarget();
+    const ro = new ResizeObserver(() => computeLayout());
+    if (target) ro.observe(target);
+    if (contentRef.current) ro.observe(contentRef.current);
+    return () => ro.disconnect();
+  }, [isOpen, getTarget, computeLayout]);
 
   const ctx = useMemo<TourContextType>(
     () => ({ startGuidedTour: start, next, prev, close, isOpen, index }),
@@ -309,7 +346,7 @@ export const GuidedTourProvider: React.FC<TourProviderProps> = ({
           holeRect={holeRect}
           cornerRadius={current?.radius ?? defaultRadius}
           overlayColor={overlayColor}
-          transitionMs={transitionMs}
+          transitionMs={animate ? transitionMs : 0}
         />
 
         {showModal && (
@@ -325,7 +362,7 @@ export const GuidedTourProvider: React.FC<TourProviderProps> = ({
             _focusVisible={{ outline: "none" }}
             sx={{
               transitionProperty: "top, left",
-              transitionDuration: `${transitionMs}ms`,
+              transitionDuration: `${animate ? transitionMs : 0}ms`,
               transitionTimingFunction: "cubic-bezier(.2,.8,.2,1)",
             }}
           >
@@ -338,11 +375,7 @@ export const GuidedTourProvider: React.FC<TourProviderProps> = ({
             </ModalBody>
 
             <ModalFooter w="100%">
-              <DotStepper
-                total={STEPS.length}
-                active={index}
-                colorScheme={primaryColor}
-              />
+              <DotStepper total={STEPS.length} active={index} />
 
               <HStack spacing={2} ml="auto">
                 {index !== lastIndex && (
@@ -438,7 +471,6 @@ const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
 type DotStepperProps = {
   total: number;
   active: number;
-  colorScheme?: string;
 };
 
 const DotStepper: React.FC<DotStepperProps> = ({ total, active }) => {
@@ -461,6 +493,6 @@ const DotStepper: React.FC<DotStepperProps> = ({ total, active }) => {
 
 export const useGuidedTour = () => {
   const ctx = useContext(TourContext);
-  if (!ctx) throw new Error("useTour must be used within <TourProvider>");
+  if (!ctx) throw new Error("useTour must be used within <GuidedTourProvider>");
   return ctx;
 };
