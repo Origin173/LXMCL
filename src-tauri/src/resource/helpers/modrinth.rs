@@ -11,9 +11,11 @@ use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
 use super::modrinth_misc::{
-  get_modrinth_api, map_modrinth_file_to_version_pack, ModrinthApiEndpoint, ModrinthProject,
-  ModrinthSearchRes, ModrinthVersionPack,
+  get_modrinth_api, make_modrinth_request, map_modrinth_file_to_version_pack, ModrinthApiEndpoint,
+  ModrinthProject, ModrinthRequestType, ModrinthSearchRes, ModrinthVersionPack,
 };
+
+const ALL_FILTER: &str = "All";
 
 pub async fn fetch_resource_list_by_name_modrinth(
   app: &AppHandle,
@@ -32,34 +34,31 @@ pub async fn fetch_resource_list_by_name_modrinth(
   } = query;
 
   let mut facets = vec![vec![format!("project_type:{}", resource_type)]];
-  if !game_version.is_empty() && game_version != "All" {
+  if !game_version.is_empty() && game_version != ALL_FILTER {
     facets.push(vec![format!("versions:{}", game_version)]);
   }
-  if !selected_tag.is_empty() && selected_tag != "All" {
+  if !selected_tag.is_empty() && selected_tag != ALL_FILTER {
     facets.push(vec![format!("categories:{}", selected_tag)]);
   }
 
   let mut params = HashMap::new();
-  params.insert("query", search_query.to_string());
-  params.insert("facets", serde_json::to_string(&facets).unwrap());
-  params.insert("offset", (page * page_size).to_string());
-  params.insert("limit", page_size.to_string());
-  params.insert("index", sort_by.to_string());
+  params.insert("query".to_string(), search_query.to_string());
+  params.insert(
+    "facets".to_string(),
+    serde_json::to_string(&facets).unwrap_or_default(),
+  );
+  params.insert("offset".to_string(), (page * page_size).to_string());
+  params.insert("limit".to_string(), page_size.to_string());
+  params.insert("index".to_string(), sort_by.to_string());
 
   let client = app.state::<reqwest::Client>();
-
-  if let Ok(response) = client.get(&url).query(&params).send().await {
-    if response.status().is_success() {
-      match response.json::<ModrinthSearchRes>().await {
-        Ok(results) => Ok(results.into()),
-        Err(_) => Err(ResourceError::ParseError.into()),
-      }
-    } else {
-      Err(ResourceError::NetworkError.into())
-    }
-  } else {
-    Err(ResourceError::NetworkError.into())
-  }
+  let results = make_modrinth_request::<ModrinthSearchRes, ()>(
+    &client,
+    &url,
+    ModrinthRequestType::GetWithParams(&params),
+  )
+  .await?;
+  Ok(results.into())
 }
 
 pub async fn fetch_resource_version_packs_modrinth(
@@ -75,46 +74,42 @@ pub async fn fetch_resource_version_packs_modrinth(
   let url = get_modrinth_api(ModrinthApiEndpoint::ProjectVersions, Some(resource_id))?;
 
   let mut params = HashMap::new();
-  if mod_loader != "All" {
-    params.insert("loaders", format!("[\"{}\"]", mod_loader.to_lowercase()));
-  }
-  if game_versions.first() != Some(&"All".to_string()) {
-    let versions_json = format!(
-      "[{}]",
-      game_versions
-        .iter()
-        .map(|v| format!("\"{}\"", v))
-        .collect::<Vec<_>>()
-        .join(",")
+  if mod_loader != ALL_FILTER {
+    params.insert(
+      "loaders".to_string(),
+      format!("[\"{}\"]", mod_loader.to_lowercase()),
     );
+  }
+  if let Some(first_version) = game_versions.first() {
+    if first_version != ALL_FILTER {
+      let versions_json = format!(
+        "[{}]",
+        game_versions
+          .iter()
+          .map(|v| format!("\"{}\"", v))
+          .collect::<Vec<_>>()
+          .join(",")
+      );
 
-    params.insert("game_versions", versions_json);
+      params.insert("game_versions".to_string(), versions_json);
+    }
   }
 
   let client = app.state::<reqwest::Client>();
 
-  let response = client
-    .get(&url)
-    .query(&params)
-    .send()
-    .await
-    .map_err(|_| ResourceError::NetworkError)?;
-
-  if !response.status().is_success() {
-    return Err(ResourceError::NetworkError.into());
-  }
-
-  let results = response
-    .json::<Vec<ModrinthVersionPack>>()
-    .await
-    .map_err(|_| ResourceError::ParseError)?;
+  let results = make_modrinth_request::<Vec<ModrinthVersionPack>, ()>(
+    &client,
+    &url,
+    ModrinthRequestType::GetWithParams(&params),
+  )
+  .await?;
 
   Ok(map_modrinth_file_to_version_pack(results))
 }
 
 pub async fn fetch_remote_resource_by_local_modrinth(
   app: &AppHandle,
-  file_path: &String,
+  file_path: &str,
 ) -> SJMCLResult<OtherResourceFileInfo> {
   let file_content = fs::read(file_path).map_err(|_| ResourceError::ParseError)?;
 
@@ -124,26 +119,17 @@ pub async fn fetch_remote_resource_by_local_modrinth(
   let hash_string = hex::encode(hash);
 
   let mut params = HashMap::new();
-  params.insert("algorithm", "sha1");
+  params.insert("algorithm".to_string(), "sha1".to_string());
 
   let url = get_modrinth_api(ModrinthApiEndpoint::VersionFile, Some(&hash_string))?;
   let client = app.state::<reqwest::Client>();
 
-  let response = client
-    .get(&url)
-    .query(&params)
-    .send()
-    .await
-    .map_err(|_| ResourceError::NetworkError)?;
-
-  if !response.status().is_success() {
-    return Err(ResourceError::NetworkError.into());
-  }
-
-  let version_pack = response
-    .json::<ModrinthVersionPack>()
-    .await
-    .map_err(|_| ResourceError::ParseError)?;
+  let version_pack = make_modrinth_request::<ModrinthVersionPack, ()>(
+    &client,
+    &url,
+    ModrinthRequestType::GetWithParams(&params),
+  )
+  .await?;
 
   let file_info = version_pack
     .files
@@ -168,25 +154,13 @@ pub async fn fetch_remote_resource_by_local_modrinth(
 
 pub async fn fetch_remote_resource_by_id_modrinth(
   app: &AppHandle,
-  resource_id: &String,
+  resource_id: &str,
 ) -> SJMCLResult<OtherResourceInfo> {
   let url = get_modrinth_api(ModrinthApiEndpoint::Project, Some(resource_id))?;
   let client = app.state::<reqwest::Client>();
 
-  let response = client
-    .get(&url)
-    .send()
-    .await
-    .map_err(|_| ResourceError::NetworkError)?;
-
-  if !response.status().is_success() {
-    return Err(ResourceError::NetworkError.into());
-  }
-
-  let results = response
-    .json::<ModrinthProject>()
-    .await
-    .map_err(|_| ResourceError::ParseError)?;
+  let results =
+    make_modrinth_request::<ModrinthProject, ()>(&client, &url, ModrinthRequestType::Get).await?;
 
   Ok(results.into())
 }

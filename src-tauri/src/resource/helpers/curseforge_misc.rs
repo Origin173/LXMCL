@@ -1,5 +1,6 @@
 use lazy_static::lazy_static;
 use std::collections::HashMap;
+use std::env;
 
 use crate::error::SJMCLResult;
 use crate::resource::models::{
@@ -7,8 +8,80 @@ use crate::resource::models::{
   OtherResourceSource, OtherResourceVersionPack, ResourceError,
 };
 use serde::{Deserialize, Serialize};
+use tauri_plugin_http::reqwest;
 
 use super::misc::version_pack_sort;
+
+const CURSEFORGE_API_KEY: &str = env!("SJMCL_CURSEFORGE_API_KEY");
+
+// Enum to represent different request types
+pub enum CurseForgeRequestType<'a, P> {
+  GetWithParams(&'a HashMap<String, String>),
+  Get,
+  Post(&'a P),
+}
+
+pub async fn make_curseforge_request<T, P>(
+  client: &reqwest::Client,
+  url: &str,
+  request_type: CurseForgeRequestType<'_, P>,
+) -> SJMCLResult<T>
+where
+  T: serde::de::DeserializeOwned,
+  P: serde::Serialize,
+{
+  let request_builder = match request_type {
+    CurseForgeRequestType::GetWithParams(params) => client.get(url).query(params),
+    CurseForgeRequestType::Get => client.get(url),
+    CurseForgeRequestType::Post(payload) => client.post(url).json(payload),
+  };
+
+  let response = request_builder
+    .header("x-api-key", CURSEFORGE_API_KEY)
+    .header("accept", "application/json")
+    .send()
+    .await
+    .map_err(|_| ResourceError::NetworkError)?;
+
+  if !response.status().is_success() {
+    return Err(ResourceError::NetworkError.into());
+  }
+
+  response
+    .json::<T>()
+    .await
+    .map_err(|_| ResourceError::ParseError.into())
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum CurseForgeApiEndpoint {
+  Search,
+  ModFiles,
+  Fingerprints,
+  Project,
+}
+
+pub fn get_curseforge_api(
+  endpoint: CurseForgeApiEndpoint,
+  id: Option<&str>,
+) -> SJMCLResult<String> {
+  let base_url = "https://api.curseforge.com/v1";
+
+  let url_str = match endpoint {
+    CurseForgeApiEndpoint::Search => format!("{}/mods/search", base_url),
+    CurseForgeApiEndpoint::ModFiles => {
+      let mod_id = id.ok_or(ResourceError::ParseError)?;
+      format!("{}/mods/{}/files", base_url, mod_id)
+    }
+    CurseForgeApiEndpoint::Fingerprints => format!("{}/fingerprints/432", base_url),
+    CurseForgeApiEndpoint::Project => {
+      let mod_id = id.ok_or(ResourceError::ParseError)?;
+      format!("{}/mods/{}", base_url, mod_id)
+    }
+  };
+
+  Ok(url_str)
+}
 
 structstruck::strike! {
 #[strikethrough[derive(Deserialize, Serialize, Debug, Clone)]]
@@ -94,34 +167,136 @@ pub struct CurseForgeGetProjectRes {
   pub data: CurseForgeProject,
 }
 
-#[derive(Debug, Clone, Copy)]
-pub enum CurseForgeApiEndpoint {
-  Search,
-  ModFiles,
-  Fingerprints,
-  Project,
+fn extract_versions_and_loaders(game_versions: &[String]) -> (Vec<String>, Vec<String>) {
+  let mut versions = Vec::new();
+  let mut loaders = Vec::new();
+
+  const ALLOWED_LOADERS: &[&str] = &[
+    "Forge", "Fabric", "NeoForge", "Vanilla", "Iris", "Canvas", "OptiFine",
+  ];
+
+  for v in game_versions {
+    if v.starts_with(|c: char| c.is_ascii_digit()) {
+      versions.push(v.clone());
+    } else if ALLOWED_LOADERS.contains(&v.as_str()) {
+      loaders.push(v.clone());
+    }
+  }
+
+  (versions, loaders)
 }
 
-pub fn get_curseforge_api(
-  endpoint: CurseForgeApiEndpoint,
-  id: Option<&str>,
-) -> SJMCLResult<String> {
-  let base_url = "https://api.curseforge.com/v1";
+pub fn map_curseforge_file_to_version_pack(
+  res: Vec<CurseForgeFileInfo>,
+) -> Vec<OtherResourceVersionPack> {
+  let mut version_packs = std::collections::HashMap::new();
 
-  let url_str = match endpoint {
-    CurseForgeApiEndpoint::Search => format!("{}/mods/search", base_url),
-    CurseForgeApiEndpoint::ModFiles => {
-      let mod_id = id.ok_or(ResourceError::ParseError)?;
-      format!("{}/mods/{}/files", base_url, mod_id)
-    }
-    CurseForgeApiEndpoint::Fingerprints => format!("{}/fingerprints/432", base_url),
-    CurseForgeApiEndpoint::Project => {
-      let mod_id = id.ok_or(ResourceError::ParseError)?;
-      format!("{}/mods/{}", base_url, mod_id)
-    }
-  };
+  for cf_file in res {
+    let (versions, loaders) = extract_versions_and_loaders(&cf_file.game_versions);
 
-  Ok(url_str)
+    let versions = if versions.is_empty() {
+      vec!["".to_string()]
+    } else {
+      versions
+    };
+
+    let loaders = if loaders.is_empty() {
+      vec![""]
+    } else {
+      loaders.iter().map(|s| s.as_str()).collect::<Vec<_>>()
+    };
+
+    for version in &versions {
+      for loader in &loaders {
+        let file_info = (
+          &cf_file,
+          if loader.is_empty() {
+            None
+          } else {
+            Some(loader.to_string())
+          },
+        )
+          .into();
+
+        version_packs
+          .entry(version.clone())
+          .or_insert_with(|| OtherResourceVersionPack {
+            name: version.clone(),
+            items: Vec::new(),
+          })
+          .items
+          .push(file_info);
+      }
+    }
+  }
+
+  let mut list: Vec<OtherResourceVersionPack> = version_packs.into_values().collect();
+  list.sort_by(version_pack_sort);
+
+  list
+}
+
+impl From<CurseForgeProject> for OtherResourceInfo {
+  fn from(project: CurseForgeProject) -> Self {
+    Self {
+      id: project.id.to_string(),
+      _type: cvt_class_id_to_type(project.class_id),
+      name: project.name,
+      description: project.summary,
+      icon_src: project.logo.map_or("".to_string(), |logo| logo.url),
+      website_url: project.links.website_url,
+      tags: project.categories.iter().map(|c| c.name.clone()).collect(),
+      last_updated: project.date_modified,
+      downloads: project.download_count,
+      source: OtherResourceSource::CurseForge,
+    }
+  }
+}
+
+impl From<(&CurseForgeFileInfo, Option<String>)> for OtherResourceFileInfo {
+  fn from((cf_file, loader): (&CurseForgeFileInfo, Option<String>)) -> Self {
+    Self {
+      resource_id: cf_file.mod_id.to_string(),
+      name: cf_file.display_name.clone(),
+      release_type: cvt_id_to_release_type(cf_file.release_type),
+      downloads: cf_file.download_count,
+      file_date: cf_file.file_date.clone(),
+      download_url: cf_file.download_url.clone().unwrap_or(format!(
+        "https://edge.forgecdn.net/files/{}/{}/{}",
+        cf_file.id / 1000,
+        cf_file.id % 1000,
+        cf_file.file_name.clone()
+      )),
+      sha1: cf_file
+        .hashes
+        .iter()
+        .find(|h| h.algo == 1)
+        .map_or("".to_string(), |h| h.value.clone()),
+      file_name: cf_file.file_name.clone(),
+      dependencies: cf_file
+        .dependencies
+        .iter()
+        .map(|dep| OtherResourceDependency {
+          resource_id: dep.mod_id.to_string(),
+          relation: cvt_id_to_dependency_type(dep.relation_type),
+        })
+        .collect(),
+      loader,
+    }
+  }
+}
+
+impl From<CurseForgeSearchRes> for OtherResourceSearchRes {
+  fn from(res: CurseForgeSearchRes) -> Self {
+    let list = res.data.into_iter().map(OtherResourceInfo::from).collect();
+
+    Self {
+      list,
+      total: res.pagination.total_count,
+      page: res.pagination.index / res.pagination.page_size,
+      page_size: res.pagination.page_size,
+    }
+  }
 }
 
 lazy_static! {
@@ -342,137 +517,5 @@ pub fn cvt_id_to_dependency_type(dependency_type: u32) -> String {
     4 => "tool".to_string(),
     5 => "incompatible".to_string(),
     _ => "include".to_string(),
-  }
-}
-
-fn extract_versions_and_loaders(game_versions: &[String]) -> (Vec<String>, Vec<String>) {
-  let mut versions = Vec::new();
-  let mut loaders = Vec::new();
-
-  const ALLOWED_LOADERS: &[&str] = &[
-    "Forge", "Fabric", "NeoForge", "Vanilla", "Iris", "Canvas", "OptiFine",
-  ];
-
-  for v in game_versions {
-    if v.starts_with(|c: char| c.is_ascii_digit()) {
-      versions.push(v.clone());
-    } else if ALLOWED_LOADERS.contains(&v.as_str()) {
-      loaders.push(v.clone());
-    }
-  }
-
-  (versions, loaders)
-}
-
-pub fn map_curseforge_file_to_version_pack(
-  res: Vec<CurseForgeFileInfo>,
-) -> Vec<OtherResourceVersionPack> {
-  let mut version_packs = std::collections::HashMap::new();
-
-  for cf_file in res {
-    let (versions, loaders) = extract_versions_and_loaders(&cf_file.game_versions);
-
-    let versions = if versions.is_empty() {
-      vec!["".to_string()]
-    } else {
-      versions
-    };
-
-    let loaders = if loaders.is_empty() {
-      vec![""]
-    } else {
-      loaders.iter().map(|s| s.as_str()).collect::<Vec<_>>()
-    };
-
-    for version in &versions {
-      for loader in &loaders {
-        let file_info = (
-          &cf_file,
-          if loader.is_empty() {
-            None
-          } else {
-            Some(loader.to_string())
-          },
-        )
-          .into();
-
-        version_packs
-          .entry(version.clone())
-          .or_insert_with(|| OtherResourceVersionPack {
-            name: version.clone(),
-            items: Vec::new(),
-          })
-          .items
-          .push(file_info);
-      }
-    }
-  }
-
-  let mut list: Vec<OtherResourceVersionPack> = version_packs.into_values().collect();
-  list.sort_by(version_pack_sort);
-
-  list
-}
-
-impl From<CurseForgeProject> for OtherResourceInfo {
-  fn from(project: CurseForgeProject) -> Self {
-    Self {
-      id: project.id.to_string(),
-      _type: cvt_class_id_to_type(project.class_id),
-      name: project.name,
-      description: project.summary,
-      icon_src: project.logo.map_or("".to_string(), |logo| logo.url),
-      website_url: project.links.website_url,
-      tags: project.categories.iter().map(|c| c.name.clone()).collect(),
-      last_updated: project.date_modified,
-      downloads: project.download_count,
-      source: OtherResourceSource::CurseForge,
-    }
-  }
-}
-
-impl From<(&CurseForgeFileInfo, Option<String>)> for OtherResourceFileInfo {
-  fn from((cf_file, loader): (&CurseForgeFileInfo, Option<String>)) -> Self {
-    Self {
-      resource_id: cf_file.mod_id.to_string(),
-      name: cf_file.display_name.clone(),
-      release_type: cvt_id_to_release_type(cf_file.release_type),
-      downloads: cf_file.download_count,
-      file_date: cf_file.file_date.clone(),
-      download_url: cf_file.download_url.clone().unwrap_or(format!(
-        "https://edge.forgecdn.net/files/{}/{}/{}",
-        cf_file.id / 1000,
-        cf_file.id % 1000,
-        cf_file.file_name.clone()
-      )),
-      sha1: cf_file
-        .hashes
-        .iter()
-        .find(|h| h.algo == 1)
-        .map_or("".to_string(), |h| h.value.clone()),
-      file_name: cf_file.file_name.clone(),
-      dependencies: cf_file
-        .dependencies
-        .iter()
-        .map(|dep| OtherResourceDependency {
-          resource_id: dep.mod_id.to_string(),
-          relation: cvt_id_to_dependency_type(dep.relation_type),
-        })
-        .collect(),
-      loader,
-    }
-  }
-}
-
-impl From<CurseForgeSearchRes> for OtherResourceSearchRes {
-  fn from(res: CurseForgeSearchRes) -> Self {
-    let list = res.data.into_iter().map(OtherResourceInfo::from).collect();
-
-    Self {
-      list,
-      total: res.pagination.total_count,
-      page: res.pagination.index / res.pagination.page_size,
-      page_size: res.pagination.page_size,
-    }
   }
 }

@@ -1,27 +1,27 @@
 use murmur2::murmur2;
 use serde_json::json;
 use std::collections::HashMap;
-use std::env;
-use std::fs::File;
-use std::io::{BufReader, Read};
 use std::path::Path;
 
 use crate::error::SJMCLResult;
 use crate::resource::models::{
-  OtherResourceDependency, OtherResourceFileInfo, OtherResourceInfo, OtherResourceSearchQuery,
-  OtherResourceSearchRes, OtherResourceSource, OtherResourceVersionPack,
-  OtherResourceVersionPackQuery, ResourceError,
+  OtherResourceFileInfo, OtherResourceInfo, OtherResourceSearchQuery, OtherResourceSearchRes,
+  OtherResourceVersionPack, OtherResourceVersionPackQuery, ResourceError,
 };
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
 use super::curseforge_misc::{
-  cvt_category_to_id, cvt_class_id_to_type, cvt_id_to_dependency_type, cvt_id_to_release_type,
-  cvt_mod_loader_to_id, cvt_sort_by_to_id, cvt_type_to_class_id, cvt_version_to_type_id,
-  get_curseforge_api, map_curseforge_file_to_version_pack, CurseForgeApiEndpoint,
-  CurseForgeFileInfo, CurseForgeFingerprintRes, CurseForgeGetProjectRes, CurseForgeSearchRes,
+  cvt_category_to_id, cvt_mod_loader_to_id, cvt_sort_by_to_id, cvt_type_to_class_id,
+  cvt_version_to_type_id, get_curseforge_api, make_curseforge_request,
+  map_curseforge_file_to_version_pack, CurseForgeApiEndpoint, CurseForgeFileInfo,
+  CurseForgeFingerprintRes, CurseForgeGetProjectRes, CurseForgeRequestType, CurseForgeSearchRes,
   CurseForgeVersionPackSearchRes,
 };
+
+const MINECRAFT_GAME_ID: &str = "432";
+const ALL_FILTER: &str = "All";
+
 pub async fn fetch_resource_list_by_name_curseforge(
   app: &AppHandle,
   query: &OtherResourceSearchQuery,
@@ -46,43 +46,30 @@ pub async fn fetch_resource_list_by_name_curseforge(
   };
 
   let mut params = HashMap::new();
-  params.insert("gameId", "432".to_string());
-  params.insert("classId", class_id.to_string());
-  params.insert("searchFilter", search_query.to_string());
-  if game_version != "All" {
-    params.insert("gameVersion", game_version.to_string());
+  params.insert("gameId".to_string(), MINECRAFT_GAME_ID.to_string());
+  params.insert("classId".to_string(), class_id.to_string());
+  params.insert("searchFilter".to_string(), search_query.to_string());
+  if game_version != ALL_FILTER {
+    params.insert("gameVersion".to_string(), game_version.to_string());
   }
-  if selected_tag != "All" {
+  if selected_tag != ALL_FILTER {
     params.insert(
-      "categoryId",
+      "categoryId".to_string(),
       cvt_category_to_id(selected_tag, class_id).to_string(),
     );
   }
-  params.insert("sortField", sort_field.to_string());
-  params.insert("sortOrder", sort_order.to_string());
-  params.insert("index", (page * page_size).to_string());
-  params.insert("pageSize", page_size.to_string());
+  params.insert("sortField".to_string(), sort_field.to_string());
+  params.insert("sortOrder".to_string(), sort_order.to_string());
+  params.insert("index".to_string(), (page * page_size).to_string());
+  params.insert("pageSize".to_string(), page_size.to_string());
 
   let client = app.state::<reqwest::Client>();
-
-  let response = client
-    .get(&url)
-    .query(&params)
-    .header("x-api-key", env!("SJMCL_CURSEFORGE_API_KEY"))
-    .header("accept", "application/json")
-    .send()
-    .await
-    .map_err(|_| ResourceError::NetworkError)?;
-
-  if !response.status().is_success() {
-    return Err(ResourceError::NetworkError.into());
-  }
-
-  let results = response
-    .json::<CurseForgeSearchRes>()
-    .await
-    .map_err(|_| ResourceError::ParseError)?;
-
+  let results = make_curseforge_request::<CurseForgeSearchRes, ()>(
+    &client,
+    &url,
+    CurseForgeRequestType::GetWithParams(&params),
+  )
+  .await?;
   Ok(results.into())
 }
 
@@ -104,40 +91,31 @@ pub async fn fetch_resource_version_packs_curseforge(
     let url = get_curseforge_api(CurseForgeApiEndpoint::ModFiles, Some(resource_id))?;
 
     let mut params = HashMap::new();
-    if mod_loader != "All" {
+    if mod_loader != ALL_FILTER {
       params.insert(
-        "modLoaderType",
+        "modLoaderType".to_string(),
         cvt_mod_loader_to_id(mod_loader).to_string(),
       );
     }
-    if game_versions.first() != Some(&"All".to_string()) {
-      params.insert(
-        "gameVersionTypeId",
-        cvt_version_to_type_id(game_versions.first().unwrap()).to_string(),
-      );
+    if let Some(version) = game_versions.first() {
+      if version != ALL_FILTER {
+        params.insert(
+          "gameVersionTypeId".to_string(),
+          cvt_version_to_type_id(version).to_string(),
+        );
+      }
     }
-    params.insert("index", (page * page_size).to_string());
-    params.insert("pageSize", page_size.to_string());
+    params.insert("index".to_string(), (page * page_size).to_string());
+    params.insert("pageSize".to_string(), page_size.to_string());
 
     let client = app.state::<reqwest::Client>();
 
-    let response = client
-      .get(&url)
-      .query(&params)
-      .header("x-api-key", env!("SJMCL_CURSEFORGE_API_KEY"))
-      .header("accept", "application/json")
-      .send()
-      .await
-      .map_err(|_| ResourceError::NetworkError)?;
-
-    if !response.status().is_success() {
-      return Err(ResourceError::NetworkError.into());
-    }
-
-    let results = response
-      .json::<CurseForgeVersionPackSearchRes>()
-      .await
-      .map_err(|_| ResourceError::ParseError)?;
+    let results = make_curseforge_request::<CurseForgeVersionPackSearchRes, ()>(
+      &client,
+      &url,
+      CurseForgeRequestType::GetWithParams(&params),
+    )
+    .await?;
 
     let has_more = results.pagination.total_count > (page + 1) * page_size;
 
@@ -154,31 +132,19 @@ pub async fn fetch_resource_version_packs_curseforge(
 
 pub async fn fetch_remote_resource_by_local_curseforge(
   app: &AppHandle,
-  file_path: &String,
+  file_path: &str,
 ) -> SJMCLResult<OtherResourceFileInfo> {
-  let file_path = Path::new(&file_path);
+  let file_path = Path::new(file_path);
   if !file_path.exists() {
     return Err(ResourceError::ParseError.into());
   }
 
-  let file = File::open(file_path).map_err(|_| ResourceError::ParseError)?;
-  let mut reader = BufReader::new(file);
-  let mut filtered_bytes = Vec::new();
-  let mut buffer = [0; 1024];
+  let file_content = std::fs::read(file_path).map_err(|_| ResourceError::ParseError)?;
 
-  loop {
-    match reader.read(&mut buffer) {
-      Ok(0) => break,
-      Ok(len) => {
-        for &byte in &buffer[..len] {
-          if byte != 0x09 && byte != 0x0a && byte != 0x0d && byte != 0x20 {
-            filtered_bytes.push(byte);
-          }
-        }
-      }
-      Err(_) => return Err(ResourceError::ParseError.into()),
-    }
-  }
+  let filtered_bytes: Vec<u8> = file_content
+    .into_iter()
+    .filter(|&byte| !matches!(byte, 0x09 | 0x0a | 0x0d | 0x20))
+    .collect();
 
   let hash = murmur2(&filtered_bytes, 1) as u64;
 
@@ -188,23 +154,12 @@ pub async fn fetch_remote_resource_by_local_curseforge(
   });
 
   let client = app.state::<reqwest::Client>();
-  let response = client
-    .post(&url)
-    .header("x-api-key", env!("SJMCL_CURSEFORGE_API_KEY"))
-    .header("accept", "application/json")
-    .json(&payload)
-    .send()
-    .await
-    .map_err(|_| ResourceError::NetworkError)?;
-
-  if !response.status().is_success() {
-    return Err(ResourceError::NetworkError.into());
-  }
-
-  let fingerprint_response = response
-    .json::<CurseForgeFingerprintRes>()
-    .await
-    .map_err(|_| ResourceError::ParseError)?;
+  let fingerprint_response = make_curseforge_request::<CurseForgeFingerprintRes, _>(
+    &client,
+    &url,
+    CurseForgeRequestType::Post(&payload),
+  )
+  .await?;
 
   if let Some(exact_match) = fingerprint_response.data.exact_matches.first() {
     let cf_file = &exact_match.file;
@@ -216,27 +171,17 @@ pub async fn fetch_remote_resource_by_local_curseforge(
 
 pub async fn fetch_remote_resource_by_id_curseforge(
   app: &AppHandle,
-  resource_id: &String,
+  resource_id: &str,
 ) -> SJMCLResult<OtherResourceInfo> {
   let url = get_curseforge_api(CurseForgeApiEndpoint::Project, Some(resource_id))?;
   let client = app.state::<reqwest::Client>();
 
-  let response = client
-    .get(&url)
-    .header("x-api-key", env!("SJMCL_CURSEFORGE_API_KEY"))
-    .header("accept", "application/json")
-    .send()
-    .await
-    .map_err(|_| ResourceError::NetworkError)?;
-
-  if !response.status().is_success() {
-    return Err(ResourceError::NetworkError.into());
-  }
-
-  let results = response
-    .json::<CurseForgeGetProjectRes>()
-    .await
-    .map_err(|_| ResourceError::ParseError)?;
+  let results = make_curseforge_request::<CurseForgeGetProjectRes, ()>(
+    &client,
+    &url,
+    CurseForgeRequestType::Get,
+  )
+  .await?;
 
   Ok(results.data.into())
 }

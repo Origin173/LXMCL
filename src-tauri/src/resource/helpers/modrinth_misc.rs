@@ -4,8 +4,77 @@ use crate::resource::models::{
   OtherResourceSource, OtherResourceVersionPack, ResourceError,
 };
 use serde::Deserialize;
+use tauri_plugin_http::reqwest;
 
 use super::misc::version_pack_sort;
+
+// Enum to represent different request types
+#[allow(dead_code)] // Post is not used now, but may be in the future
+pub enum ModrinthRequestType<'a, P> {
+  GetWithParams(&'a std::collections::HashMap<String, String>),
+  Get,
+  Post(&'a P),
+}
+
+pub async fn make_modrinth_request<T, P>(
+  client: &reqwest::Client,
+  url: &str,
+  request_type: ModrinthRequestType<'_, P>,
+) -> SJMCLResult<T>
+where
+  T: serde::de::DeserializeOwned,
+  P: serde::Serialize,
+{
+  let request_builder = match request_type {
+    ModrinthRequestType::GetWithParams(params) => client.get(url).query(params),
+    ModrinthRequestType::Get => client.get(url),
+    ModrinthRequestType::Post(payload) => client.post(url).json(payload),
+  };
+
+  let response = request_builder
+    .send()
+    .await
+    .map_err(|_| ResourceError::NetworkError)?;
+
+  if !response.status().is_success() {
+    return Err(ResourceError::NetworkError.into());
+  }
+
+  response
+    .json::<T>()
+    .await
+    .map_err(|_| ResourceError::ParseError.into())
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum ModrinthApiEndpoint {
+  Search,
+  ProjectVersions,
+  VersionFile,
+  Project,
+}
+
+pub fn get_modrinth_api(endpoint: ModrinthApiEndpoint, param: Option<&str>) -> SJMCLResult<String> {
+  let base_url = "https://api.modrinth.com/v2";
+
+  let url_str = match endpoint {
+    ModrinthApiEndpoint::Search => format!("{}/search", base_url),
+    ModrinthApiEndpoint::ProjectVersions => {
+      let project_id = param.ok_or(ResourceError::ParseError)?;
+      format!("{}/project/{}/version", base_url, project_id)
+    }
+    ModrinthApiEndpoint::VersionFile => {
+      let hash = param.ok_or(ResourceError::ParseError)?;
+      format!("{}/version_file/{}", base_url, hash)
+    }
+    ModrinthApiEndpoint::Project => {
+      let project_id = param.ok_or(ResourceError::ParseError)?;
+      format!("{}/project/{}", base_url, project_id)
+    }
+  };
+
+  Ok(url_str)
+}
 
 // A unified struct for both search projects and get project by id responses
 #[derive(Deserialize, Debug)]
@@ -59,36 +128,6 @@ structstruck::strike! {
     pub version_type: String,
     pub files: Vec<ModrinthFileInfo>,
   }
-}
-
-#[derive(Debug, Clone, Copy)]
-pub enum ModrinthApiEndpoint {
-  Search,
-  ProjectVersions,
-  VersionFile,
-  Project,
-}
-
-pub fn get_modrinth_api(endpoint: ModrinthApiEndpoint, param: Option<&str>) -> SJMCLResult<String> {
-  let base_url = "https://api.modrinth.com/v2";
-
-  let url_str = match endpoint {
-    ModrinthApiEndpoint::Search => format!("{}/search", base_url),
-    ModrinthApiEndpoint::ProjectVersions => {
-      let project_id = param.ok_or(ResourceError::ParseError)?;
-      format!("{}/project/{}/version", base_url, project_id)
-    }
-    ModrinthApiEndpoint::VersionFile => {
-      let hash = param.ok_or(ResourceError::ParseError)?;
-      format!("{}/version_file/{}", base_url, hash)
-    }
-    ModrinthApiEndpoint::Project => {
-      let project_id = param.ok_or(ResourceError::ParseError)?;
-      format!("{}/project/{}", base_url, project_id)
-    }
-  };
-
-  Ok(url_str)
 }
 
 fn normalize_modrinth_loader(loader: &str) -> Option<String> {
