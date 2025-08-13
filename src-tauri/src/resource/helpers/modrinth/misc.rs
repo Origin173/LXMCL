@@ -85,8 +85,7 @@ pub struct ModrinthProject {
   pub slug: String,
   pub title: String,
   pub description: String,
-  #[serde(alias = "categories")]
-  pub display_categories: Vec<String>,
+  pub categories: Vec<String>,
   pub downloads: u32,
   pub icon_url: String,
   #[serde(alias = "updated")]
@@ -216,7 +215,7 @@ impl From<ModrinthProject> for OtherResourceInfo {
       description: project.description,
       icon_src: project.icon_url,
       website_url: format!("https://modrinth.com/mod/{}", project.slug),
-      tags: project.display_categories,
+      tags: project.categories,
       last_updated: project.date_modified,
       downloads: project.downloads,
       source: OtherResourceSource::Modrinth,

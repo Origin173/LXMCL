@@ -1,3 +1,5 @@
+pub mod misc;
+
 use crate::error::SJMCLResult;
 use crate::resource::models::{
   OtherResourceFileInfo, OtherResourceInfo, OtherResourceSearchQuery, OtherResourceSearchRes,
@@ -9,8 +11,6 @@ use std::collections::HashMap;
 use std::fs;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
-
-pub mod misc;
 
 use misc::{
   get_modrinth_api, make_modrinth_request, map_modrinth_file_to_version_pack, ModrinthApiEndpoint,

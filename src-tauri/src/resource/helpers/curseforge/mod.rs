@@ -1,3 +1,5 @@
+pub mod misc;
+
 use murmur2::murmur2;
 use serde_json::json;
 use std::collections::HashMap;
@@ -10,8 +12,6 @@ use crate::resource::models::{
 };
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
-
-pub mod misc;
 
 use misc::{
   cvt_category_to_id, cvt_mod_loader_to_id, cvt_sort_by_to_id, cvt_type_to_class_id,
