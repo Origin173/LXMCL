@@ -11,7 +11,9 @@ use crate::resource::models::{
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
-use super::curseforge_misc::{
+pub mod misc;
+
+use misc::{
   cvt_category_to_id, cvt_mod_loader_to_id, cvt_sort_by_to_id, cvt_type_to_class_id,
   cvt_version_to_type_id, get_curseforge_api, make_curseforge_request,
   map_curseforge_file_to_version_pack, CurseForgeApiEndpoint, CurseForgeFileInfo,

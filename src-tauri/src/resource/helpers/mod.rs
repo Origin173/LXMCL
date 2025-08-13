@@ -1,9 +1,5 @@
 pub mod curseforge;
-pub mod curseforge_misc;
-pub mod fabric_meta;
-pub mod forge_meta;
 pub mod misc;
+pub mod mod_loader_meta;
 pub mod modrinth;
-pub mod modrinth_misc;
-pub mod neoforge_meta;
 pub mod version_manifest;

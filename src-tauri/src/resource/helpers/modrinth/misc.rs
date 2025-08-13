@@ -6,7 +6,7 @@ use crate::resource::models::{
 use serde::Deserialize;
 use tauri_plugin_http::reqwest;
 
-use super::misc::version_pack_sort;
+use super::super::misc::version_pack_sort;
 
 // Enum to represent different request types
 #[allow(dead_code)] // Post is not used now, but may be in the future

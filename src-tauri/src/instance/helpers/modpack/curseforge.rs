@@ -13,7 +13,7 @@ use zip::ZipArchive;
 use crate::{
   error::{SJMCLError, SJMCLResult},
   instance::models::misc::{InstanceError, ModLoaderType},
-  resource::helpers::curseforge_misc::CurseForgeProject,
+  resource::helpers::curseforge::misc::CurseForgeProject,
   tasks::{download::DownloadParam, PTaskParam},
 };
 

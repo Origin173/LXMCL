@@ -10,7 +10,7 @@ use crate::resource::models::{
 use serde::{Deserialize, Serialize};
 use tauri_plugin_http::reqwest;
 
-use super::misc::version_pack_sort;
+use super::super::misc::version_pack_sort;
 
 const CURSEFORGE_API_KEY: &str = env!("SJMCL_CURSEFORGE_API_KEY");
 

@@ -10,7 +10,9 @@ use std::fs;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
-use super::modrinth_misc::{
+pub mod misc;
+
+use misc::{
   get_modrinth_api, make_modrinth_request, map_modrinth_file_to_version_pack, ModrinthApiEndpoint,
   ModrinthProject, ModrinthRequestType, ModrinthSearchRes, ModrinthVersionPack,
 };
