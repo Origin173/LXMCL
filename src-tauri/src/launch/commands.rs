@@ -208,10 +208,12 @@ pub async fn validate_selected_player(
     launching.selected_player = Some(player.clone());
 
     if player.player_type == PlayerType::ThirdParty {
-      let meta =
-        authlib_injector::info::get_auth_server_info_by_url(&app, player.auth_server_url.clone())?
-          .metadata
-          .to_string();
+      let meta = authlib_injector::info::get_auth_server_info_by_url(
+        &app,
+        player.auth_server_url.clone().unwrap_or_default(),
+      )?
+      .metadata
+      .to_string();
 
       launching.auth_server_meta = meta;
     }
