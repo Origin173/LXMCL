@@ -5,6 +5,7 @@ use crate::account::models::{
 use crate::error::SJMCLResult;
 use crate::utils::image::decode_image;
 use serde_json::{json, Value};
+use std::str::FromStr;
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_clipboard_manager::ClipboardExt;
@@ -24,26 +25,45 @@ pub async fn device_authorization(app: &AppHandle) -> SJMCLResult<OAuthCodeRespo
     .await
     .map_err(|_| AccountError::ParseError)?;
 
-  let device_code = response["device_code"]
-    .as_str()
-    .ok_or(AccountError::ParseError)?
-    .to_string();
+  let device_code = response["device_code"].as_str().unwrap_or_else(|| {
+    println!("ParseError: device_code = {:?}", response["device_code"]);
+    ""
+  });
+  if device_code.is_empty() {
+    return Err(AccountError::ParseError)?;
+  }
+  let device_code = device_code.to_string();
 
-  let user_code = response["user_code"]
-    .as_str()
-    .ok_or(AccountError::ParseError)?
-    .to_string();
+  let user_code = response["user_code"].as_str().unwrap_or_else(|| {
+    println!("ParseError: user_code = {:?}", response["user_code"]);
+    ""
+  });
+  if user_code.is_empty() {
+    return Err(AccountError::ParseError)?;
+  }
+  let user_code = user_code.to_string();
 
   app.clipboard().write_text(user_code.clone())?;
 
-  let verification_uri = response["verification_uri"]
-    .as_str()
-    .ok_or(AccountError::ParseError)?
-    .to_string();
+  let verification_uri = response["verification_uri"].as_str().unwrap_or_else(|| {
+    println!(
+      "ParseError: verification_uri = {:?}",
+      response["verification_uri"]
+    );
+    ""
+  });
+  if verification_uri.is_empty() {
+    return Err(AccountError::ParseError)?;
+  }
+  let verification_uri = verification_uri.to_string();
 
-  let interval = response["interval"]
-    .as_u64()
-    .ok_or(AccountError::ParseError)?;
+  let interval = response["interval"].as_u64().unwrap_or_else(|| {
+    println!("ParseError: interval = {:?}", response["interval"]);
+    0
+  });
+  if interval == 0 {
+    return Err(AccountError::ParseError)?;
+  }
 
   Ok(OAuthCodeResponse {
     device_code,
@@ -80,7 +100,10 @@ async fn fetch_xbl_token(app: &AppHandle, microsoft_token: String) -> SJMCLResul
   Ok(
     response["Token"]
       .as_str()
-      .ok_or(AccountError::ParseError)?
+      .unwrap_or_else(|| {
+        println!("ParseError: XBL Token = {:?}", response["Token"]);
+        ""
+      })
       .to_string(),
   )
 }
@@ -112,13 +135,26 @@ async fn fetch_xsts_token(app: &AppHandle, xbl_token: String) -> SJMCLResult<(St
 
   let xsts_userhash = response["DisplayClaims"]["xui"][0]["uhs"]
     .as_str()
-    .ok_or(AccountError::ParseError)?
-    .to_string();
+    .unwrap_or_else(|| {
+      println!(
+        "ParseError: xsts_userhash = {:?}",
+        response["DisplayClaims"]["xui"][0]["uhs"]
+      );
+      ""
+    });
+  if xsts_userhash.is_empty() {
+    return Err(AccountError::ParseError)?;
+  }
+  let xsts_userhash = xsts_userhash.to_string();
 
-  let xsts_token = response["Token"]
-    .as_str()
-    .ok_or(AccountError::ParseError)?
-    .to_string();
+  let xsts_token = response["Token"].as_str().unwrap_or_else(|| {
+    println!("ParseError: xsts_token = {:?}", response["Token"]);
+    ""
+  });
+  if xsts_token.is_empty() {
+    return Err(AccountError::ParseError)?;
+  }
+  let xsts_token = xsts_token.to_string();
 
   Ok((xsts_userhash, xsts_token))
 }
@@ -145,24 +181,50 @@ async fn fetch_minecraft_token(
   Ok(
     response["access_token"]
       .as_str()
-      .ok_or(AccountError::ParseError)?
+      .unwrap_or_else(|| {
+        println!(
+          "ParseError: minecraft access_token = {:?}",
+          response["access_token"]
+        );
+        ""
+      })
       .to_string(),
   )
 }
 
-async fn fetch_minecraft_profile(app: &AppHandle, minecraft_token: String) -> SJMCLResult<Value> {
+#[derive(serde::Deserialize)]
+struct MinecraftProfile {
+  id: String,
+  name: String,
+  skins: Option<Vec<TextureEntry>>,
+  capes: Option<Vec<TextureEntry>>,
+}
+
+#[derive(serde::Deserialize)]
+struct TextureEntry {
+  state: String,
+  url: String,
+  variant: Option<String>,
+}
+
+async fn fetch_minecraft_profile(
+  app: &AppHandle,
+  minecraft_token: String,
+) -> SJMCLResult<MinecraftProfile> {
   let client = app.state::<reqwest::Client>();
 
+  let response = client
+    .get("https://api.minecraftservices.com/minecraft/profile")
+    .header("Authorization", format!("Bearer {}", minecraft_token))
+    .send()
+    .await
+    .map_err(|_| AccountError::NetworkError)?;
+
   Ok(
-    client
-      .get("https://api.minecraftservices.com/minecraft/profile")
-      .header("Authorization", format!("Bearer {}", minecraft_token))
-      .send()
+    response
+      .json::<MinecraftProfile>()
       .await
-      .map_err(|_| AccountError::NetworkError)?
-      .json::<Value>()
-      .await
-      .map_err(|_| AccountError::ParseError)?,
+      .map_err(|_| AccountError::NoMinecraftProfile)?,
   )
 }
 
@@ -175,52 +237,58 @@ async fn parse_profile(
   let (xsts_userhash, xsts_token) = fetch_xsts_token(app, xbl_token).await?;
   let minecraft_token = fetch_minecraft_token(app, xsts_userhash, xsts_token).await?;
   let profile = fetch_minecraft_profile(app, minecraft_token.clone()).await?;
-
-  let uuid = Uuid::parse_str(profile["id"].as_str().unwrap_or_default())
-    .map_err(|_| AccountError::ParseError)?;
-  let name = profile["name"].as_str().unwrap_or_default().to_string();
-
   let mut textures: Vec<Texture> = vec![];
-  const TEXTURE_MAP: [(&str, &str); 2] = [("skins", "SKIN"), ("capes", "CAPE")];
-
   let client = app.state::<reqwest::Client>();
 
-  for (key, val) in TEXTURE_MAP {
-    if let Some(skin) = profile[key]
-      .as_array()
-      .ok_or(AccountError::ParseError)?
-      .iter()
-      .find(|skin| skin["state"] == "ACTIVE")
-    {
-      let model = skin["variant"].as_str().unwrap_or("default").to_string();
-      let img_url = skin["url"].as_str().unwrap_or_default();
-      if img_url.is_empty() {
-        continue;
-      }
-      let img_bytes = client
-        .get(img_url)
-        .send()
-        .await
-        .map_err(|_| AccountError::NetworkError)?
-        .bytes()
-        .await
-        .map_err(|_| AccountError::ParseError)?;
-      textures.push(Texture {
-        texture_type: val.to_string(),
-        image: decode_image(img_bytes.to_vec())?.into(),
-        model,
-        preset: None,
-      });
-    }
+  if let Some(skin) = profile
+    .skins
+    .as_ref()
+    .and_then(|arr| arr.iter().find(|skin| skin.state == "ACTIVE"))
+  {
+    let img_bytes = client
+      .get(skin.url.clone())
+      .send()
+      .await
+      .map_err(|_| AccountError::NetworkError)?
+      .bytes()
+      .await
+      .map_err(|_| AccountError::ParseError)?;
+    textures.push(Texture {
+      texture_type: "SKIN".to_string(),
+      image: decode_image(img_bytes.to_vec())?.into(),
+      model: skin.variant.clone().unwrap_or("default".to_string()),
+      preset: None,
+    });
+  }
+
+  if let Some(cape) = profile
+    .capes
+    .as_ref()
+    .and_then(|arr| arr.iter().find(|cape| cape.state == "ACTIVE"))
+  {
+    let img_bytes = client
+      .get(cape.url.clone())
+      .send()
+      .await
+      .map_err(|_| AccountError::NetworkError)?
+      .bytes()
+      .await
+      .map_err(|_| AccountError::ParseError)?;
+    textures.push(Texture {
+      texture_type: "CAPE".to_string(),
+      image: decode_image(img_bytes.to_vec())?.into(),
+      model: "default".to_string(),
+      preset: None,
+    });
   }
 
   Ok(
     PlayerInfo {
       id: "".to_string(),
-      uuid,
-      name: name.clone(),
+      uuid: Uuid::from_str(&profile.id).map_err(|_| AccountError::ParseError)?,
+      name: profile.name.clone(),
       player_type: PlayerType::Microsoft,
-      auth_account: name,
+      auth_account: profile.name,
       access_token: minecraft_token,
       refresh_token: microsoft_refresh_token,
       textures,
@@ -333,15 +401,29 @@ pub async fn refresh(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<Player
     .await
     .map_err(|_| AccountError::ParseError)?;
 
-  let microsoft_token = token_data["access_token"]
-    .as_str()
-    .ok_or(AccountError::ParseError)?
-    .to_string();
+  let microsoft_token = token_data["access_token"].as_str().unwrap_or_else(|| {
+    println!(
+      "ParseError: refresh access_token = {:?}",
+      token_data["access_token"]
+    );
+    ""
+  });
+  if microsoft_token.is_empty() {
+    return Err(AccountError::ParseError)?;
+  }
+  let microsoft_token = microsoft_token.to_string();
 
-  let microsoft_refresh_token = token_data["refresh_token"]
-    .as_str()
-    .ok_or(AccountError::ParseError)?
-    .to_string();
+  let microsoft_refresh_token = token_data["refresh_token"].as_str().unwrap_or_else(|| {
+    println!(
+      "ParseError: refresh refresh_token = {:?}",
+      token_data["refresh_token"]
+    );
+    ""
+  });
+  if microsoft_refresh_token.is_empty() {
+    return Err(AccountError::ParseError)?;
+  }
+  let microsoft_refresh_token = microsoft_refresh_token.to_string();
 
   parse_profile(app, microsoft_token, microsoft_refresh_token).await
 }

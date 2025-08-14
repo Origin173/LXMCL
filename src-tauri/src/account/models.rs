@@ -248,6 +248,7 @@ pub enum AccountError {
   Cancelled,
   NoDownloadApi,
   SaveError,
+  NoMinecraftProfile,
 }
 
 impl std::error::Error for AccountError {}

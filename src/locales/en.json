@@ -1788,7 +1788,8 @@
             "PARSE_ERROR": "The server returned data in an incorrect format",
             "NOT_FOUND": "The authentication server does not exist",
             "CANCELLED": "OAuth login cancelled",
-            "INVALID": "The server type is invalid"
+            "INVALID": "The server type is invalid",
+            "NO_MINECRAFT_PROFILE": "No Minecraft profile found"
           }
         }
       },
@@ -1802,7 +1803,8 @@
             "PARSE_ERROR": "The server returned data in an incorrect format",
             "NETWORK_ERROR": "Failed to connect to the server",
             "INVALID": "The player type is invalid",
-            "CANCELLED": "OAuth re-login cancelled"
+            "CANCELLED": "OAuth re-login cancelled",
+            "NO_MINECRAFT_PROFILE": "No Minecraft profile found"
           }
         }
       },
