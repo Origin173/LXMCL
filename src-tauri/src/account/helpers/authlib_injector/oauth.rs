@@ -69,7 +69,9 @@ pub async fn device_authorization(
 
   let device_code = response.device_code;
   let user_code = response.user_code;
-  let verification_uri = response.verification_uri;
+  let verification_uri = response
+    .verification_uri_complete
+    .unwrap_or(response.verification_uri);
   let interval = response.interval;
 
   app.clipboard().write_text(user_code.clone())?;

@@ -17,6 +17,7 @@ pub struct OAuthCode {
   pub device_code: String,
   pub user_code: String,
   pub verification_uri: String,
+  pub verification_uri_complete: Option<String>,
   pub interval: u64,
 }
 
