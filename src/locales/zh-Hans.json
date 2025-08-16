@@ -1797,7 +1797,8 @@
             "PARSE_ERROR": "服务器返回数据格式错误",
             "NOT_FOUND": "认证服务器不存在",
             "CANCELLED": "已取消",
-            "INVALID": "无效的认证服务器地址"
+            "INVALID": "无效的认证服务器地址",
+            "NO_MINECRAFT_PROFILE": "未找到角色，请确认是否已购买 Minecraft"
           }
         }
       },
@@ -1811,7 +1812,8 @@
             "PARSE_ERROR": "服务器返回数据格式错误",
             "NETWORK_ERROR": "无法连接至认证服务器",
             "INVALID": "不支持离线角色刷新",
-            "CANCELLED": "已取消"
+            "CANCELLED": "已取消",
+            "NO_MINECRAFT_PROFILE": "未找到角色，请确认是否已购买 Minecraft"
           }
         }
       },
