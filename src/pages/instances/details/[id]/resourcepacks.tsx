@@ -96,6 +96,14 @@ const InstanceResourcePacksPage = () => {
           },
         },
         {
+          icon: "download",
+          onClick: () => {
+            openSharedModal("download-resource", {
+              initialResourceType: OtherResourceType.ResourcePack,
+            });
+          },
+        },
+        {
           icon: "add",
           onClick: () => {
             handleImportResource({
@@ -106,14 +114,6 @@ const InstanceResourcePacksPage = () => {
               tgtDirType: InstanceSubdirType.ResourcePacks,
               decompress: false,
               onSuccessCallback: () => getResourcePackListWrapper(true),
-            });
-          },
-        },
-        {
-          icon: "download",
-          onClick: () => {
-            openSharedModal("download-resource", {
-              initialResourceType: OtherResourceType.ResourcePack,
             });
           },
         },

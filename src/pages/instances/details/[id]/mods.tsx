@@ -182,20 +182,6 @@ const InstanceModsPage = () => {
       },
     },
     {
-      icon: "add",
-      onClick: () => {
-        handleImportResource({
-          filterName: t("InstanceDetailsLayout.instanceTabList.mods"),
-          filterExt: ["zip", "jar", "disabled"],
-          tgtDirType: InstanceSubdirType.Mods,
-          decompress: false,
-          onSuccessCallback: () => {
-            getLocalModListWrapper(true);
-          },
-        });
-      },
-    },
-    {
       icon: "download",
       onClick: () => {
         openSharedModal("download-resource", {
@@ -208,6 +194,20 @@ const InstanceModsPage = () => {
       label: t("InstanceModsPage.modList.menu.update"),
       onClick: () => {
         if (!isLoading) onCheckUpdateModalOpen();
+      },
+    },
+    {
+      icon: "add",
+      onClick: () => {
+        handleImportResource({
+          filterName: t("InstanceDetailsLayout.instanceTabList.mods"),
+          filterExt: ["zip", "jar", "disabled"],
+          tgtDirType: InstanceSubdirType.Mods,
+          decompress: false,
+          onSuccessCallback: () => {
+            getLocalModListWrapper(true);
+          },
+        });
       },
     },
     {

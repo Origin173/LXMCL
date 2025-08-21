@@ -64,6 +64,14 @@ const InstanceShaderPacksPage = () => {
       },
     },
     {
+      icon: "download",
+      onClick: () => {
+        openSharedModal("download-resource", {
+          initialResourceType: OtherResourceType.ShaderPack,
+        });
+      },
+    },
+    {
       icon: "add",
       onClick: () => {
         handleImportResource({
@@ -72,14 +80,6 @@ const InstanceShaderPacksPage = () => {
           tgtDirType: InstanceSubdirType.ShaderPacks,
           decompress: false,
           onSuccessCallback: () => getShaderPackListWrapper(true),
-        });
-      },
-    },
-    {
-      icon: "download",
-      onClick: () => {
-        openSharedModal("download-resource", {
-          initialResourceType: OtherResourceType.ShaderPack,
         });
       },
     },

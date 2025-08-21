@@ -112,6 +112,14 @@ const InstanceWorldsPage = () => {
       },
     },
     {
+      icon: "download",
+      onClick: () => {
+        openSharedModal("download-resource", {
+          initialResourceType: OtherResourceType.World,
+        });
+      },
+    },
+    {
       icon: "add",
       onClick: () => {
         handleImportResource({
@@ -120,14 +128,6 @@ const InstanceWorldsPage = () => {
           tgtDirType: InstanceSubdirType.Saves,
           decompress: true,
           onSuccessCallback: () => getWorldListWrapper(true),
-        });
-      },
-    },
-    {
-      icon: "download",
-      onClick: () => {
-        openSharedModal("download-resource", {
-          initialResourceType: OtherResourceType.World,
         });
       },
     },
