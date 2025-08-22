@@ -5,9 +5,25 @@ use crate::{
   },
   error::SJMCLResult,
 };
-use serde_json::{json, Value};
+use serde::{Deserialize, Serialize};
+use serde_json::json;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct YggdrasilSession {
+  access_token: String,
+  selected_profile: Option<YggdrasilProfile>,
+  available_profiles: Option<Vec<YggdrasilProfile>>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct YggdrasilProfile {
+  id: String,
+  name: String,
+}
 
 async fn get_profile(
   app: &AppHandle,
@@ -52,18 +68,14 @@ pub async fn login(
 
   let response = client
     .post(format!("{}/authserver/authenticate", auth_server_url))
-    .header("Content-Type", "application/json")
-    .body(
-      json!({
-        "username": username,
-        "password": password,
-        "agent": {
-          "name": "Minecraft",
-          "version": 1
-        },
-      })
-      .to_string(),
-    )
+    .json(&json!({
+      "username": username,
+      "password": password,
+      "agent": {
+        "name": "Minecraft",
+        "version": 1
+      },
+    }))
     .send()
     .await
     .map_err(|_| AccountError::NetworkError)?;
@@ -73,20 +85,13 @@ pub async fn login(
   }
 
   let content = response
-    .json::<Value>()
+    .json::<YggdrasilSession>()
     .await
     .map_err(|_| AccountError::ParseError)?;
+  let access_token = content.access_token;
 
-  let access_token = content["accessToken"]
-    .as_str()
-    .unwrap_or_default()
-    .to_string();
-
-  if let Some(selected_profile) = content["selectedProfile"].as_object() {
-    let id = selected_profile["id"]
-      .as_str()
-      .ok_or(AccountError::ParseError)?
-      .to_string();
+  if let Some(selected_profile) = content.selected_profile {
+    let id = selected_profile.id;
 
     Ok(vec![
       get_profile(
@@ -100,9 +105,7 @@ pub async fn login(
       .await?,
     ])
   } else {
-    let available_profiles = content["availableProfiles"]
-      .as_array()
-      .ok_or(AccountError::ParseError)?;
+    let available_profiles = content.available_profiles.unwrap_or_default();
 
     if available_profiles.is_empty() {
       return Err(AccountError::NotFound.into());
@@ -111,16 +114,11 @@ pub async fn login(
     let mut players = vec![];
 
     for profile in available_profiles {
-      let id = profile["id"]
-        .as_str()
-        .ok_or(AccountError::ParseError)?
-        .to_string();
-
       let player = get_profile(
         app,
         auth_server_url.clone(),
         access_token.clone(),
-        id,
+        profile.id,
         username.clone(),
         password.clone(),
       )
@@ -133,7 +131,11 @@ pub async fn login(
   }
 }
 
-pub async fn refresh(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<PlayerInfo> {
+pub async fn refresh(
+  app: &AppHandle,
+  player: &PlayerInfo,
+  is_new_bind: bool,
+) -> SJMCLResult<PlayerInfo> {
   let client = app.state::<reqwest::Client>();
 
   let response = client
@@ -141,17 +143,18 @@ pub async fn refresh(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<Player
       "{}/authserver/refresh",
       player.auth_server_url.clone().unwrap_or_default()
     ))
-    .header("Content-Type", "application/json")
-    .body(
-      json!({
-        "accessToken": player.access_token,
-        "selectedProfile": {
-          "id": player.uuid.as_simple(),
-          "name": player.name
-        }
-      })
-      .to_string(),
-    )
+    .json(&YggdrasilSession {
+      access_token: player.access_token.clone().unwrap_or_default(),
+      selected_profile: if is_new_bind {
+        Some(YggdrasilProfile {
+          id: player.uuid.as_simple().to_string(),
+          name: player.name.clone(),
+        })
+      } else {
+        None
+      },
+      available_profiles: None,
+    })
     .send()
     .await
     .map_err(|_| AccountError::NetworkError)?;
@@ -161,27 +164,14 @@ pub async fn refresh(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<Player
   }
 
   let content = response
-    .json::<Value>()
+    .json::<YggdrasilSession>()
     .await
     .map_err(|_| AccountError::ParseError)?;
-
-  let access_token = content["accessToken"]
-    .as_str()
-    .ok_or(AccountError::ParseError)?
-    .to_string();
-
-  let profile = content["selectedProfile"].clone();
-
-  let id = profile["id"]
-    .as_str()
-    .ok_or(AccountError::ParseError)?
-    .to_string();
-
   get_profile(
     app,
     player.auth_server_url.clone().unwrap_or_default(),
-    access_token,
-    id,
+    content.access_token,
+    content.selected_profile.ok_or(AccountError::ParseError)?.id,
     player.auth_account.clone().unwrap_or_default(),
     player.password.clone().unwrap_or_default(),
   )
