@@ -901,10 +901,14 @@ pub async fn create_instance(
   let subdirs = get_instance_subdir_paths(
     &app,
     &instance,
-    &[&InstanceSubdirType::Libraries, &InstanceSubdirType::Assets],
+    &[
+      &InstanceSubdirType::Libraries,
+      &InstanceSubdirType::Assets,
+      &InstanceSubdirType::Mods,
+    ],
   )
   .ok_or(InstanceError::InstanceNotFoundByID)?;
-  let [libraries_dir, assets_dir] = subdirs.as_slice() else {
+  let [libraries_dir, assets_dir, mods_dir] = subdirs.as_slice() else {
     return Err(InstanceError::InstanceNotFoundByID.into());
   };
 
@@ -928,6 +932,7 @@ pub async fn create_instance(
       &instance.version,
       &instance.mod_loader,
       libraries_dir.to_path_buf(),
+      mods_dir.to_path_buf(),
       &mut version_info,
       &mut task_params,
     )
