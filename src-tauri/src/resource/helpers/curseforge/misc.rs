@@ -1,13 +1,15 @@
-use lazy_static::lazy_static;
-use std::collections::HashMap;
-use std::env;
-
 use crate::error::SJMCLResult;
+use crate::launcher_config::models::LauncherConfig;
 use crate::resource::models::{
   OtherResourceDependency, OtherResourceFileInfo, OtherResourceInfo, OtherResourceSearchRes,
   OtherResourceSource, OtherResourceVersionPack, ResourceError,
 };
+use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::env;
+use std::sync::Mutex;
+use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
 use super::super::misc::version_pack_sort;
@@ -59,6 +61,7 @@ pub enum CurseForgeApiEndpoint {
   ModFiles,
   Fingerprints,
   Project,
+  DescTranslate,
 }
 
 pub fn get_curseforge_api(
@@ -77,6 +80,10 @@ pub fn get_curseforge_api(
     CurseForgeApiEndpoint::Project => {
       let mod_id = id.ok_or(ResourceError::ParseError)?;
       format!("{}/mods/{}", base_url, mod_id)
+    }
+    CurseForgeApiEndpoint::DescTranslate => {
+      let mod_id = id.ok_or(ResourceError::ParseError)?;
+      format!("https://mod.mcimirror.top/translate/curseforge/{}", mod_id)
     }
   };
 
@@ -165,6 +172,11 @@ structstruck::strike! {
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeGetProjectRes {
   pub data: CurseForgeProject,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct CurseForgeTranslationRes {
+  pub translated: String,
 }
 
 fn extract_versions_and_loaders(game_versions: &[String]) -> (Vec<String>, Vec<String>) {
@@ -518,4 +530,55 @@ pub fn cvt_id_to_dependency_type(dependency_type: u32) -> String {
     5 => "incompatible".to_string(),
     _ => "include".to_string(),
   }
+}
+
+pub async fn translate_description_curseforge(
+  app: &AppHandle,
+  resource_id: &str,
+) -> SJMCLResult<Option<String>> {
+  let url = get_curseforge_api(CurseForgeApiEndpoint::DescTranslate, Some(resource_id))?;
+  let client = app.state::<reqwest::Client>();
+
+  // not using make_modrinth_request, to handle 404 not found
+  let response = client
+    .get(&url)
+    .header("accept", "application/json")
+    .send()
+    .await
+    .map_err(|_| ResourceError::NetworkError)?;
+
+  if response.status() == 404 {
+    return Ok(None); // translation not found, return None
+  }
+  if !response.status().is_success() {
+    return Err(ResourceError::NetworkError.into());
+  }
+
+  let translation_res = response
+    .json::<CurseForgeTranslationRes>()
+    .await
+    .map_err(|_| ResourceError::ParseError)?;
+
+  Ok(Some(translation_res.translated))
+}
+
+pub async fn apply_translation_if_needed_curseforge(
+  app: &AppHandle,
+  resource_info: &mut OtherResourceInfo,
+) -> SJMCLResult<()> {
+  let binding = app.state::<Mutex<LauncherConfig>>();
+  let language = {
+    let state = binding.lock()?;
+    state.general.general.language.clone()
+  };
+
+  if language == "zh-Hans" {
+    if let Ok(Some(translated_desc)) =
+      translate_description_curseforge(app, &resource_info.id).await
+    {
+      resource_info.description = translated_desc;
+    }
+  }
+
+  Ok(())
 }

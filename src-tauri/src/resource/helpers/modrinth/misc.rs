@@ -1,9 +1,12 @@
 use crate::error::SJMCLResult;
+use crate::launcher_config::models::LauncherConfig;
 use crate::resource::models::{
   OtherResourceDependency, OtherResourceFileInfo, OtherResourceInfo, OtherResourceSearchRes,
   OtherResourceSource, OtherResourceVersionPack, ResourceError,
 };
 use serde::Deserialize;
+use std::sync::Mutex;
+use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
 use super::super::misc::version_pack_sort;
@@ -52,6 +55,7 @@ pub enum ModrinthApiEndpoint {
   ProjectVersions,
   VersionFile,
   Project,
+  DescTranslate,
 }
 
 pub fn get_modrinth_api(endpoint: ModrinthApiEndpoint, param: Option<&str>) -> SJMCLResult<String> {
@@ -70,6 +74,13 @@ pub fn get_modrinth_api(endpoint: ModrinthApiEndpoint, param: Option<&str>) -> S
     ModrinthApiEndpoint::Project => {
       let project_id = param.ok_or(ResourceError::ParseError)?;
       format!("{}/project/{}", base_url, project_id)
+    }
+    ModrinthApiEndpoint::DescTranslate => {
+      let project_id = param.ok_or(ResourceError::ParseError)?;
+      format!(
+        "https://mod.mcimirror.top/translate/modrinth/{}",
+        project_id
+      )
     }
   };
 
@@ -127,6 +138,11 @@ structstruck::strike! {
     pub version_type: String,
     pub files: Vec<ModrinthFileInfo>,
   }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ModrinthTranslationRes {
+  pub translated: String,
 }
 
 fn normalize_modrinth_loader(loader: &str) -> Option<String> {
@@ -260,4 +276,53 @@ impl From<ModrinthSearchRes> for OtherResourceSearchRes {
       page_size: res.limit,
     }
   }
+}
+
+pub async fn translate_description_modrinth(
+  app: &AppHandle,
+  resource_id: &str,
+) -> SJMCLResult<Option<String>> {
+  let url = get_modrinth_api(ModrinthApiEndpoint::DescTranslate, Some(resource_id))?;
+  let client = app.state::<reqwest::Client>();
+
+  // not using make_modrinth_request, to handle 404 not found
+  let response = client
+    .get(&url)
+    .send()
+    .await
+    .map_err(|_| ResourceError::NetworkError)?;
+
+  if response.status() == 404 {
+    return Ok(None); // translation not found, return None
+  }
+  if !response.status().is_success() {
+    return Err(ResourceError::NetworkError.into());
+  }
+
+  let translation_res = response
+    .json::<ModrinthTranslationRes>()
+    .await
+    .map_err(|_| ResourceError::ParseError)?;
+
+  Ok(Some(translation_res.translated))
+}
+
+pub async fn apply_translation_if_needed_modrinth(
+  app: &AppHandle,
+  resource_info: &mut OtherResourceInfo,
+) -> SJMCLResult<()> {
+  let binding = app.state::<Mutex<LauncherConfig>>();
+  let language = {
+    let state = binding.lock()?;
+    state.general.general.language.clone()
+  };
+
+  if language == "zh-Hans" {
+    if let Ok(Some(translated_desc)) = translate_description_modrinth(app, &resource_info.id).await
+    {
+      resource_info.description = translated_desc;
+    }
+  }
+
+  Ok(())
 }

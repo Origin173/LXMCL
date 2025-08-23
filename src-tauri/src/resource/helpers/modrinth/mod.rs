@@ -16,8 +16,9 @@ use tauri_plugin_http::reqwest;
 use url::Url;
 
 use misc::{
-  get_modrinth_api, make_modrinth_request, map_modrinth_file_to_version_pack, ModrinthApiEndpoint,
-  ModrinthProject, ModrinthRequestType, ModrinthSearchRes, ModrinthVersionPack,
+  apply_translation_if_needed_modrinth, get_modrinth_api, make_modrinth_request,
+  map_modrinth_file_to_version_pack, ModrinthApiEndpoint, ModrinthProject, ModrinthRequestType,
+  ModrinthSearchRes, ModrinthVersionPack,
 };
 
 const ALL_FILTER: &str = "All";
@@ -63,7 +64,13 @@ pub async fn fetch_resource_list_by_name_modrinth(
     ModrinthRequestType::GetWithParams(&params),
   )
   .await?;
-  Ok(results.into())
+
+  let mut search_result: OtherResourceSearchRes = results.into();
+  for resource_info in &mut search_result.list {
+    let _ = apply_translation_if_needed_modrinth(app, resource_info).await;
+  }
+
+  Ok(search_result)
 }
 
 pub async fn fetch_resource_version_packs_modrinth(
@@ -167,7 +174,10 @@ pub async fn fetch_remote_resource_by_id_modrinth(
   let results =
     make_modrinth_request::<ModrinthProject, ()>(&client, &url, ModrinthRequestType::Get).await?;
 
-  Ok(results.into())
+  let mut resource_info: OtherResourceInfo = results.into();
+  let _ = apply_translation_if_needed_modrinth(app, &mut resource_info).await;
+
+  Ok(resource_info)
 }
 
 pub async fn get_latest_fabric_api_mod_download(
