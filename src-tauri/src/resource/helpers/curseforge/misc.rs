@@ -1,46 +1,36 @@
-use crate::error::SJMCLResult;
-use crate::launcher_config::models::LauncherConfig;
+use super::super::misc::version_pack_sort;
+use crate::error::{SJMCLError, SJMCLResult};
 use crate::resource::models::{
-  OtherResourceDependency, OtherResourceFileInfo, OtherResourceInfo, OtherResourceSearchRes,
-  OtherResourceSource, OtherResourceVersionPack, ResourceError,
+  OtherResourceApiEndpoint, OtherResourceDependency, OtherResourceFileInfo, OtherResourceInfo,
+  OtherResourceRequestType, OtherResourceSearchRes, OtherResourceSource, OtherResourceVersionPack,
+  ResourceError,
 };
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env;
-use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
-use super::super::misc::version_pack_sort;
-
 const CURSEFORGE_API_KEY: &str = env!("SJMCL_CURSEFORGE_API_KEY");
-
-// Enum to represent different request types
-pub enum CurseForgeRequestType<'a, P> {
-  GetWithParams(&'a HashMap<String, String>),
-  Get,
-  Post(&'a P),
-}
 
 pub async fn make_curseforge_request<T, P>(
   client: &reqwest::Client,
   url: &str,
-  request_type: CurseForgeRequestType<'_, P>,
+  request_type: OtherResourceRequestType<'_, P>,
 ) -> SJMCLResult<T>
 where
   T: serde::de::DeserializeOwned,
   P: serde::Serialize,
 {
   let request_builder = match request_type {
-    CurseForgeRequestType::GetWithParams(params) => client.get(url).query(params),
-    CurseForgeRequestType::Get => client.get(url),
-    CurseForgeRequestType::Post(payload) => client.post(url).json(payload),
+    OtherResourceRequestType::GetWithParams(params) => client.get(url).query(params),
+    OtherResourceRequestType::Get => client.get(url),
+    OtherResourceRequestType::Post(payload) => client.post(url).json(payload),
   };
 
   let response = request_builder
     .header("x-api-key", CURSEFORGE_API_KEY)
-    .header("accept", "application/json")
     .send()
     .await
     .map_err(|_| ResourceError::NetworkError)?;
@@ -55,33 +45,24 @@ where
     .map_err(|_| ResourceError::ParseError.into())
 }
 
-#[derive(Debug, Clone, Copy)]
-pub enum CurseForgeApiEndpoint {
-  Search,
-  ModFiles,
-  Fingerprints,
-  Project,
-  DescTranslate,
-}
-
 pub fn get_curseforge_api(
-  endpoint: CurseForgeApiEndpoint,
+  endpoint: OtherResourceApiEndpoint,
   id: Option<&str>,
 ) -> SJMCLResult<String> {
   let base_url = "https://api.curseforge.com/v1";
 
   let url_str = match endpoint {
-    CurseForgeApiEndpoint::Search => format!("{}/mods/search", base_url),
-    CurseForgeApiEndpoint::ModFiles => {
+    OtherResourceApiEndpoint::Search => format!("{}/mods/search", base_url),
+    OtherResourceApiEndpoint::VersionPack => {
       let mod_id = id.ok_or(ResourceError::ParseError)?;
       format!("{}/mods/{}/files", base_url, mod_id)
     }
-    CurseForgeApiEndpoint::Fingerprints => format!("{}/fingerprints/432", base_url),
-    CurseForgeApiEndpoint::Project => {
+    OtherResourceApiEndpoint::FromLocal => format!("{}/fingerprints/432", base_url),
+    OtherResourceApiEndpoint::ById => {
       let mod_id = id.ok_or(ResourceError::ParseError)?;
       format!("{}/mods/{}", base_url, mod_id)
     }
-    CurseForgeApiEndpoint::DescTranslate => {
+    OtherResourceApiEndpoint::TranslateDesc => {
       let mod_id = id.ok_or(ResourceError::ParseError)?;
       format!("https://mod.mcimirror.top/translate/curseforge/{}", mod_id)
     }
@@ -261,6 +242,7 @@ impl From<CurseForgeProject> for OtherResourceInfo {
       last_updated: project.date_modified,
       downloads: project.download_count,
       source: OtherResourceSource::CurseForge,
+      translated_name: None,
     }
   }
 }
@@ -536,49 +518,22 @@ pub async fn translate_description_curseforge(
   app: &AppHandle,
   resource_id: &str,
 ) -> SJMCLResult<Option<String>> {
-  let url = get_curseforge_api(CurseForgeApiEndpoint::DescTranslate, Some(resource_id))?;
-  let client = app.state::<reqwest::Client>();
+  let result = async {
+    let url = get_curseforge_api(OtherResourceApiEndpoint::TranslateDesc, Some(resource_id))?;
+    let client = app.state::<reqwest::Client>();
 
-  // not using make_modrinth_request, to handle 404 not found
-  let response = client
-    .get(&url)
-    .header("accept", "application/json")
-    .send()
-    .await
-    .map_err(|_| ResourceError::NetworkError)?;
+    let translation_res = client
+      .get(&url)
+      .header("x-api-key", CURSEFORGE_API_KEY)
+      .send()
+      .await?
+      .json::<CurseForgeTranslationRes>()
+      .await?;
 
-  if response.status() == 404 {
-    return Ok(None); // translation not found, return None
+    Ok::<_, SJMCLError>(translation_res.translated)
   }
-  if !response.status().is_success() {
-    return Err(ResourceError::NetworkError.into());
-  }
+  .await;
 
-  let translation_res = response
-    .json::<CurseForgeTranslationRes>()
-    .await
-    .map_err(|_| ResourceError::ParseError)?;
-
-  Ok(Some(translation_res.translated))
-}
-
-pub async fn apply_translation_if_needed_curseforge(
-  app: &AppHandle,
-  resource_info: &mut OtherResourceInfo,
-) -> SJMCLResult<()> {
-  let binding = app.state::<Mutex<LauncherConfig>>();
-  let language = {
-    let state = binding.lock()?;
-    state.general.general.language.clone()
-  };
-
-  if language == "zh-Hans" {
-    if let Ok(Some(translated_desc)) =
-      translate_description_curseforge(app, &resource_info.id).await
-    {
-      resource_info.description = translated_desc;
-    }
-  }
-
-  Ok(())
+  // Only return Ok(None) when translation fails, to avoid blocking major functionality
+  Ok(result.ok())
 }
