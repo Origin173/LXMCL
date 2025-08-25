@@ -5,6 +5,7 @@ use crate::resource::models::{
   OtherResourceInfo, OtherResourceSource, OtherResourceVersionPack, ResourceError, ResourceType,
   SourceType,
 };
+use crate::utils::fs::get_app_resource_filepath;
 use crate::{error::SJMCLResult, launcher_config::models::LauncherConfig};
 use rusqlite::{Connection, OptionalExtension};
 use std::cmp::Ordering;
@@ -183,14 +184,14 @@ pub fn version_pack_sort(a: &OtherResourceVersionPack, b: &OtherResourceVersionP
 }
 
 pub async fn get_translated_name_from_db(
+  app: &AppHandle,
   resource_id: &str,
   source: &OtherResourceSource,
 ) -> SJMCLResult<Option<String>> {
   let result = async {
-    let db_path = std::env::current_dir()?
-      .join("src")
-      .join("resource")
-      .join("zh-Hans_resource.sqlite");
+    let db_path = get_app_resource_filepath(app, "assets/db/resource_CN_translation.sqlite")
+      .ok()
+      .unwrap_or_default();
 
     let conn = Connection::open(&db_path)?;
     let query = match source {
@@ -229,7 +230,7 @@ pub async fn apply_translation_if_needed(
   if language == "zh-Hans" {
     // Get translated name from local database
     resource_info.translated_name =
-      get_translated_name_from_db(&resource_info.id, &resource_info.source).await?;
+      get_translated_name_from_db(app, &resource_info.id, &resource_info.source).await?;
 
     // Get translated description
     let translated_desc = match resource_info.source {
