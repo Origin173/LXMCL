@@ -77,8 +77,10 @@ pub enum OtherResourceApiEndpoint {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct OtherResourceInfo {
   pub id: String,
+  pub mcmod_id: u32,
   pub _type: String,
   pub name: String,
+  pub slug: String,
   pub translated_name: Option<String>,
   pub description: String,
   pub icon_src: String,

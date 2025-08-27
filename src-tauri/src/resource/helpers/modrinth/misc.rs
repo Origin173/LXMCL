@@ -210,11 +210,13 @@ impl From<ModrinthProject> for OtherResourceInfo {
   fn from(project: ModrinthProject) -> Self {
     Self {
       id: project.project_id,
+      mcmod_id: 0,
       _type: project.project_type,
       name: project.title,
+      slug: project.slug.to_string(),
       description: project.description,
       icon_src: project.icon_url,
-      website_url: format!("https://modrinth.com/mod/{}", project.slug),
+      website_url: format!("https://modrinth.com/mod/{}", project.slug.to_string()),
       tags: project.categories,
       last_updated: project.date_modified,
       downloads: project.downloads,

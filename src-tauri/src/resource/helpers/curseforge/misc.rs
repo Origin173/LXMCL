@@ -81,6 +81,7 @@ structstruck::strike! {
       pub website_url: String,
     },
     pub name: String,
+    pub slug: String,
     pub summary: String,
     pub categories: Vec<pub struct {
       pub name: String,
@@ -233,8 +234,10 @@ impl From<CurseForgeProject> for OtherResourceInfo {
   fn from(project: CurseForgeProject) -> Self {
     Self {
       id: project.id.to_string(),
+      mcmod_id: 0,
       _type: cvt_class_id_to_type(project.class_id),
       name: project.name,
+      slug: project.slug,
       description: project.summary,
       icon_src: project.logo.map_or("".to_string(), |logo| logo.url),
       website_url: project.links.website_url,

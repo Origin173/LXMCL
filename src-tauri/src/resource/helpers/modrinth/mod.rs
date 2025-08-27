@@ -1,6 +1,6 @@
 pub mod misc;
 
-use super::misc::apply_translation_if_needed;
+use super::misc::apply_other_resource_enhancements;
 use crate::error::SJMCLResult;
 use crate::resource::models::{
   OtherResourceApiEndpoint, OtherResourceFileInfo, OtherResourceInfo, OtherResourceRequestType,
@@ -67,7 +67,7 @@ pub async fn fetch_resource_list_by_name_modrinth(
 
   let mut search_result: OtherResourceSearchRes = results.into();
   for resource_info in &mut search_result.list {
-    let _ = apply_translation_if_needed(app, resource_info).await;
+    let _ = apply_other_resource_enhancements(app, resource_info).await;
   }
 
   Ok(search_result)
@@ -176,7 +176,7 @@ pub async fn fetch_remote_resource_by_id_modrinth(
       .await?;
 
   let mut resource_info: OtherResourceInfo = results.into();
-  let _ = apply_translation_if_needed(app, &mut resource_info).await;
+  let _ = apply_other_resource_enhancements(app, &mut resource_info).await;
 
   Ok(resource_info)
 }

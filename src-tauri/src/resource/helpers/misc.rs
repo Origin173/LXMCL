@@ -1,4 +1,3 @@
-use crate::error::SJMCLError;
 use crate::resource::helpers::curseforge::misc::translate_description_curseforge;
 use crate::resource::helpers::modrinth::misc::translate_description_modrinth;
 use crate::resource::models::{
@@ -7,12 +6,148 @@ use crate::resource::models::{
 };
 use crate::utils::fs::get_app_resource_filepath;
 use crate::{error::SJMCLResult, launcher_config::models::LauncherConfig};
-use rusqlite::{Connection, OptionalExtension};
 use std::cmp::Ordering;
+use std::collections::HashMap;
 use std::sync::Mutex;
 use strum::IntoEnumIterator;
 use tauri::{AppHandle, Manager};
 use url::Url;
+
+#[derive(Debug)]
+pub struct ModDataBase {
+  modrinth_to_name: HashMap<String, String>,
+  curseforge_to_name: HashMap<String, String>,
+  modrinth_to_mcmod_id: HashMap<String, u32>,
+  curseforge_to_mcmod_id: HashMap<String, u32>,
+  initialized: bool,
+}
+
+impl ModDataBase {
+  pub fn new() -> Self {
+    Self {
+      modrinth_to_name: HashMap::new(),
+      curseforge_to_name: HashMap::new(),
+      modrinth_to_mcmod_id: HashMap::new(),
+      curseforge_to_mcmod_id: HashMap::new(),
+      initialized: false,
+    }
+  }
+
+  pub fn get_translated_name(
+    &self,
+    resource_slug: &str,
+    source: &OtherResourceSource,
+  ) -> Option<String> {
+    if !self.initialized {
+      return None;
+    }
+    match source {
+      OtherResourceSource::Modrinth => self.modrinth_to_name.get(resource_slug).cloned(),
+      OtherResourceSource::CurseForge => self.curseforge_to_name.get(resource_slug).cloned(),
+      _ => None,
+    }
+  }
+
+  pub fn get_mcmod_id(&self, resource_slug: &str, source: &OtherResourceSource) -> Option<u32> {
+    if !self.initialized {
+      return None;
+    }
+    match source {
+      OtherResourceSource::Modrinth => self.modrinth_to_mcmod_id.get(resource_slug).cloned(),
+      OtherResourceSource::CurseForge => self.curseforge_to_mcmod_id.get(resource_slug).cloned(),
+      _ => None,
+    }
+  }
+}
+
+/// Initialize the mod database by loading CSV data into memory
+pub async fn initialize_mod_db(app: &AppHandle) -> SJMCLResult<()> {
+  let csv_path = get_app_resource_filepath(app, "assets/db/mod_data.csv")
+    .ok()
+    .unwrap_or_default();
+
+  let content = tokio::fs::read_to_string(&csv_path)
+    .await
+    .unwrap_or_default();
+
+  let state = app.state::<Mutex<ModDataBase>>();
+  let mut cache = state.lock().map_err(|_| ResourceError::ParseError)?;
+
+  if content.is_empty() {
+    // If file doesn't exist or is empty, mark as initialized but keep empty
+    cache.initialized = true;
+    return Ok(());
+  }
+
+  let mut reader = csv::Reader::from_reader(content.as_bytes());
+  let headers = reader
+    .headers()
+    .map_err(|_| ResourceError::ParseError)?
+    .clone();
+
+  // Find column indices
+  let mcmod_id_index = headers.iter().position(|h| h == "mcmod_id");
+  let modrinth_index = headers.iter().position(|h| h == "modrinth_slug");
+  let curseforge_index = headers.iter().position(|h| h == "curseforge_slug");
+  let name_index = headers
+    .iter()
+    .position(|h| h == "name")
+    .ok_or(ResourceError::ParseError)?;
+
+  for record in reader.records() {
+    let record = record.map_err(|_| ResourceError::ParseError)?;
+
+    // Parse mcmod_id if available
+    let mcmod_id_opt = mcmod_id_index.and_then(|idx| {
+      record.get(idx).and_then(|id_str| {
+        if id_str.is_empty() {
+          None
+        } else {
+          id_str.parse::<u32>().ok()
+        }
+      })
+    });
+
+    if let Some(name) = record.get(name_index) {
+      if !name.is_empty() {
+        // Add modrinth mappings if available
+        if let Some(modrinth_index) = modrinth_index {
+          if let Some(modrinth_slug) = record.get(modrinth_index) {
+            if !modrinth_slug.is_empty() {
+              cache
+                .modrinth_to_name
+                .insert(modrinth_slug.to_string(), name.to_string());
+              if let Some(mcmod_id) = mcmod_id_opt {
+                cache
+                  .modrinth_to_mcmod_id
+                  .insert(modrinth_slug.to_string(), mcmod_id);
+              }
+            }
+          }
+        }
+
+        // Add curseforge mappings if available
+        if let Some(curseforge_index) = curseforge_index {
+          if let Some(curseforge_slug) = record.get(curseforge_index) {
+            if !curseforge_slug.is_empty() {
+              cache
+                .curseforge_to_name
+                .insert(curseforge_slug.to_string(), name.to_string());
+              if let Some(mcmod_id) = mcmod_id_opt {
+                cache
+                  .curseforge_to_mcmod_id
+                  .insert(curseforge_slug.to_string(), mcmod_id);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  cache.initialized = true;
+  Ok(())
+}
 
 pub fn get_source_priority_list(launcher_config: &LauncherConfig) -> Vec<SourceType> {
   match launcher_config.download.source.strategy.as_str() {
@@ -183,41 +318,7 @@ pub fn version_pack_sort(a: &OtherResourceVersionPack, b: &OtherResourceVersionP
   compare_versions_with_suffix(&version_a, &suffix_a, &version_b, &suffix_b).reverse()
 }
 
-pub async fn get_translated_name_from_db(
-  app: &AppHandle,
-  resource_id: &str,
-  source: &OtherResourceSource,
-) -> SJMCLResult<Option<String>> {
-  let result = async {
-    let db_path = get_app_resource_filepath(app, "assets/db/resource_CN_translation.sqlite")
-      .ok()
-      .unwrap_or_default();
-
-    let conn = Connection::open(&db_path)?;
-    let query = match source {
-      OtherResourceSource::Modrinth => "SELECT name FROM project WHERE modrinthId = ?1",
-      OtherResourceSource::CurseForge => "SELECT name FROM project WHERE curseforgeId = ?1",
-      _ => return Err(ResourceError::ParseError.into()),
-    };
-    let mut stmt = conn.prepare(query)?;
-
-    let result = match source {
-      OtherResourceSource::CurseForge => {
-        let id: u32 = resource_id.parse().map_err(|_| ResourceError::ParseError)?;
-        stmt.query_row([id], |row| row.get(0)).optional()?
-      }
-      _ => stmt.query_row([resource_id], |row| row.get(0)).optional()?,
-    };
-
-    Ok::<_, SJMCLError>(result)
-  }
-  .await;
-
-  // Only return Ok(None) when translation fails, to avoid blocking major functionality
-  Ok(result.ok().flatten())
-}
-
-pub async fn apply_translation_if_needed(
+pub async fn apply_other_resource_enhancements(
   app: &AppHandle,
   resource_info: &mut OtherResourceInfo,
 ) -> SJMCLResult<()> {
@@ -227,12 +328,30 @@ pub async fn apply_translation_if_needed(
     state.general.general.language.clone()
   };
 
-  if language == "zh-Hans" {
-    // Get translated name from local database
-    resource_info.translated_name =
-      get_translated_name_from_db(app, &resource_info.id, &resource_info.source).await?;
+  // Extract data from cache in a limited scope to avoid holding lock across await
+  let (translated_name, mcmod_id) = {
+    if let Ok(cache) = app.state::<Mutex<ModDataBase>>().lock() {
+      let translated_name = if language == "zh-Hans" {
+        cache.get_translated_name(&resource_info.slug, &resource_info.source)
+      } else {
+        None
+      };
+      let mcmod_id = cache.get_mcmod_id(&resource_info.slug, &resource_info.source);
+      (translated_name, mcmod_id)
+    } else {
+      (None, None)
+    }
+  };
 
-    // Get translated description
+  if let Some(name) = translated_name {
+    resource_info.translated_name = Some(name);
+  }
+  if let Some(id) = mcmod_id {
+    resource_info.mcmod_id = id;
+  }
+
+  // Get translated description (only if language is zh-Hans)
+  if language == "zh-Hans" {
     let translated_desc = match resource_info.source {
       OtherResourceSource::Modrinth => {
         translate_description_modrinth(app, &resource_info.id).await?
@@ -243,7 +362,6 @@ pub async fn apply_translation_if_needed(
       _ => None,
     };
 
-    // Apply translated description if available
     if let Some(desc) = translated_desc {
       resource_info.description = desc;
     }
