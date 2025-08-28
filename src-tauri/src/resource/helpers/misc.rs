@@ -207,7 +207,9 @@ pub async fn apply_other_resource_enhancements(
   };
 
   if let Some(name) = translated_name {
-    resource_info.translated_name = Some(name);
+    if name.chars().any(|c| matches!(c, '\u{4e00}'..='\u{9fbb}')) {
+      resource_info.translated_name = Some(name);
+    }
   }
   if let Some(id) = mcmod_id {
     resource_info.mcmod_id = id;

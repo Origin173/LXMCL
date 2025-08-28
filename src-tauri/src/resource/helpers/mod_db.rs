@@ -5,64 +5,52 @@ use std::collections::{HashMap, HashSet};
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
 
-fn tokenize_english_words(text: &str) -> Vec<String> {
-  let mut words = Vec::new();
+fn clean_keyword(word: &str) -> Option<String> {
+  const STOP_WORDS: &[&str] = &["a", "of", "the", "for", "mod", "with", "and", "ftb"];
 
-  let initial_split: Vec<&str> = text
-    .split(|c: char| c.is_whitespace() || c == ',' || c == ';' || c == '|' || c == '/')
-    .filter(|s| !s.is_empty())
-    .collect();
+  let cleaned = word
+    .trim_start_matches(&['{', '[', '(', '"'])
+    .trim_end_matches(&['}', ']', ')', '"'])
+    .trim_matches('-')
+    .trim_matches('_')
+    .to_lowercase();
 
-  for segment in initial_split {
-    let mut normalized = String::new();
-    let mut prev_was_lower = false;
+  if cleaned.is_empty() {
+    return None;
+  }
+  if STOP_WORDS.contains(&cleaned.as_str()) {
+    return None;
+  }
+  if cleaned.parse::<f64>().is_ok() {
+    return None; // pure number
+  }
 
-    for ch in segment.chars() {
-      if ch.is_uppercase() && prev_was_lower {
-        normalized.push(' ');
-      }
-      normalized.push(ch);
-      prev_was_lower = ch.is_lowercase();
-    }
+  Some(cleaned)
+}
 
-    for word in normalized.split_whitespace() {
-      let cleaned_word = word
-        .trim_start_matches('[')
-        .trim_end_matches(']')
-        .trim_start_matches('(')
-        .trim_end_matches(')')
-        .trim_start_matches('"')
-        .trim_end_matches('"')
-        .trim_matches('-')
-        .trim_matches('_');
+fn extract_keywords_from_slug(slug: &str) -> Vec<String> {
+  let mut keywords = Vec::new();
 
-      const STOP_WORDS: &[&str] = &["a", "of", "the", "for", "mod", "with", "and"];
-      let word_lower = cleaned_word.to_lowercase();
-      if !STOP_WORDS.contains(&word_lower.as_str()) {
-        if !words.contains(&word_lower) {
-          words.push(word_lower);
-        }
-      }
+  for word in slug
+    .replace(|c: char| c == '-' || c == '/' || c == '_' || c == ',', " ")
+    .split_whitespace()
+  {
+    if let Some(cleaned) = clean_keyword(word) {
+      keywords.push(cleaned);
     }
   }
 
-  words.sort_by(|a, b| b.len().cmp(&a.len()));
-  words
+  keywords
 }
 
 fn calculate_similarity(source: &str, query: &str) -> f64 {
-  let source_clean: String = source
-    .to_lowercase()
-    .chars()
-    .filter(|c| !c.is_whitespace())
-    .collect();
-  let query_clean: String = query
-    .to_lowercase()
-    .chars()
-    .filter(|c| !c.is_whitespace())
-    .collect();
+  let source_clean: String = source.to_lowercase().replace(" ", "");
+  let query_clean: String = query.to_lowercase().replace(" ", "");
 
-  let source_chars: Vec<char> = source_clean.chars().collect();
+  let source_length = source_clean.len();
+  let query_length = query_clean.len();
+
+  let mut source_chars: Vec<char> = source_clean.chars().collect();
   let query_chars: Vec<char> = query_clean.chars().collect();
 
   if query_chars.is_empty() || source_chars.is_empty() {
@@ -71,18 +59,19 @@ fn calculate_similarity(source: &str, query: &str) -> f64 {
 
   let mut qp = 0; // query position
   let mut len_sum = 0.0;
-  let mut source_remaining = source_chars.clone();
 
+  // Process each position in query as starting point
   while qp < query_chars.len() {
+    let mut sp = 0;
     let mut len_max = 0;
     let mut sp_max = 0;
 
-    // Find the longest matching substring starting from qp
-    for sp in 0..source_remaining.len() {
+    // Find maximum substring starting from qp
+    while sp < source_chars.len() {
       let mut len = 0;
       while (qp + len) < query_chars.len()
-        && (sp + len) < source_remaining.len()
-        && source_remaining[sp + len] == query_chars[qp + len]
+        && (sp + len) < source_chars.len()
+        && source_chars[sp + len] == query_chars[qp + len]
       {
         len += 1;
       }
@@ -91,29 +80,34 @@ fn calculate_similarity(source: &str, query: &str) -> f64 {
         len_max = len;
         sp_max = sp;
       }
+
+      sp += len.max(1);
     }
 
     if len_max > 0 {
-      // Calculate weight based on match length
-      let length_weight = (1.4_f64.powi(3 + len_max as i32) - 3.6).max(0.0);
+      // Remove matched substring from source to prevent reuse
+      let mut new_source_chars = Vec::new();
+      new_source_chars.extend_from_slice(&source_chars[0..sp_max]);
+      if sp_max + len_max < source_chars.len() {
+        new_source_chars.extend_from_slice(&source_chars[sp_max + len_max..]);
+      }
+      source_chars = new_source_chars;
 
-      // Position weight: closer positions get higher scores
-      let position_weight = 1.0 + 0.3 * (3.0 - (qp as i32 - sp_max as i32).abs() as f64).max(0.0);
+      // Weight based on length and position
+      let inc_weight = (1.4_f64.powi(3 + len_max as i32) - 3.6).max(0.0);
+      let position_bonus = 1.0 + 0.3 * (3.0 - (qp as i32 - sp_max as i32).abs() as f64).max(0.0);
 
-      len_sum += length_weight * position_weight;
-
-      // Remove matched part from source
-      source_remaining.drain(sp_max..sp_max + len_max);
+      len_sum += inc_weight * position_bonus;
     }
 
     qp += len_max.max(1);
   }
 
-  // Final calculation: match quality * source length factor * short query bonus
-  let base_score = len_sum / query_chars.len() as f64;
-  let length_factor = 3.0 / (source_chars.len() as f64 + 15.0).sqrt();
-  let short_query_bonus = if query_chars.len() <= 2 {
-    3.0 - query_chars.len() as f64
+  // Final score calculation using original lengths
+  let base_score = len_sum / query_length as f64;
+  let length_factor = 3.0 / (source_length as f64 + 15.0).sqrt();
+  let short_query_bonus = if query_length <= 2 {
+    3.0 - query_length as f64
   } else {
     1.0
   };
@@ -123,12 +117,11 @@ fn calculate_similarity(source: &str, query: &str) -> f64 {
 
 fn is_absolute_match(source: &str, query: &str) -> bool {
   let query_parts: Vec<&str> = query.split_whitespace().collect();
-  let source_clean: String = source.chars().filter(|c| !c.is_whitespace()).collect();
-  let source_lower = source_clean.to_lowercase();
 
-  query_parts
-    .iter()
-    .all(|query_part| source_lower.contains(&query_part.to_lowercase()))
+  query_parts.iter().all(|query_part| {
+    let source_clean = source.replace(" ", "").to_lowercase();
+    source_clean.contains(&query_part.to_lowercase())
+  })
 }
 
 #[derive(Debug, Clone)]
@@ -254,6 +247,7 @@ impl ModDataBase {
 
     let mut search_entries = Vec::new();
 
+    // Calculate similarity for each mod
     for mod_record in &self.mods {
       let similarity = calculate_similarity(&mod_record.name, &processed_query);
       let absolute_match = is_absolute_match(&mod_record.name, &processed_query);
@@ -275,15 +269,16 @@ impl ModDataBase {
         .unwrap_or(std::cmp::Ordering::Equal),
     });
 
-    let min_similarity = match processed_query
+    // Dynamic similarity threshold based on query length
+    let query_char_count = processed_query
       .chars()
       .filter(|c| !c.is_whitespace())
-      .count()
-    {
-      1 => 0.15,     // Single character: higher threshold
-      2 => 0.12,     // Two characters: medium threshold
-      3..=4 => 0.08, // 3-4 characters: lower threshold
-      _ => 0.05,     // Long queries: very low threshold
+      .count();
+    let min_similarity = match query_char_count {
+      1 => 0.15,
+      2 => 0.12,
+      3..=4 => 0.08,
+      _ => 0.05,
     };
 
     let mut results = Vec::new();
@@ -291,24 +286,16 @@ impl ModDataBase {
 
     for entry in search_entries {
       if entry.absolute_match {
-        results.push(entry.record);
+        results.push(entry.record); // Absolute matches always included
       } else if entry.similarity >= min_similarity && blur_count < max_results {
         results.push(entry.record);
         blur_count += 1;
       }
 
       if results.len() >= max_results * 2 {
-        // Allow more absolute matches
         break;
       }
     }
-
-    println!(
-      "Search for '{}': {} results (similarity threshold: {:.3})",
-      query,
-      results.len(),
-      min_similarity
-    );
 
     results
   }
@@ -346,7 +333,6 @@ pub async fn initialize_mod_db(app: &AppHandle) -> SJMCLResult<()> {
   for record in reader.records() {
     let record = record.map_err(|_| ResourceError::ParseError)?;
 
-    // Get required fields
     let mcmod_id = record
       .get(mcmod_id_index)
       .unwrap()
@@ -355,7 +341,6 @@ pub async fn initialize_mod_db(app: &AppHandle) -> SJMCLResult<()> {
       .unwrap();
     let name = record.get(name_index).unwrap().trim().to_string();
 
-    // Get optional fields
     let curseforge_slug = record.get(curseforge_slug_index);
     let modrinth_slug = record.get(modrinth_slug_index);
     let subname = record.get(subname_index);
@@ -389,6 +374,7 @@ pub async fn initialize_mod_db(app: &AppHandle) -> SJMCLResult<()> {
 }
 
 pub async fn handle_search_query(app: &AppHandle, query: &String) -> SJMCLResult<String> {
+  // Only process Chinese queries
   if !query.chars().any(|c| matches!(c, '\u{4e00}'..='\u{9fbb}')) {
     return Ok(query.clone());
   }
@@ -398,40 +384,83 @@ pub async fn handle_search_query(app: &AppHandle, query: &String) -> SJMCLResult
     Ok(cache) => cache.get_mods_by_chinese(&query, 5),
     Err(_) => return Ok(query.clone()),
   };
+
   if search_results.is_empty() {
     return Ok(query.clone());
   }
 
-  let mut english_search_filters = HashSet::new();
-  let mut count = 0;
+  // Count keyword frequency across all found mods
+  let mut keyword_count: HashMap<String, usize> = HashMap::new();
+  let total_mods = search_results.len();
 
-  for mod_record in search_results {
-    let text_to_tokenize = if let Some(subname) = &mod_record.subname {
-      if !subname.trim().is_empty() {
-        subname
-      } else {
-        &mod_record.name
-      }
-    } else {
-      &mod_record.name
-    };
+  for mod_record in &search_results {
+    let mut mod_keywords = HashSet::new();
 
-    for english_word in tokenize_english_words(text_to_tokenize) {
-      if english_search_filters.contains(&english_word) {
-        continue;
+    if let Some(curseforge_slug) = &mod_record.curseforge_slug {
+      for keyword in extract_keywords_from_slug(curseforge_slug) {
+        mod_keywords.insert(keyword);
       }
-      english_search_filters.insert(english_word);
     }
-    count += 1;
-    if count >= 3 {
-      break;
+
+    if let Some(modrinth_slug) = &mod_record.modrinth_slug {
+      for keyword in extract_keywords_from_slug(modrinth_slug) {
+        mod_keywords.insert(keyword);
+      }
+    }
+
+    for keyword in mod_keywords {
+      *keyword_count.entry(keyword).or_insert(0) += 1;
     }
   }
 
-  if english_search_filters.is_empty() {
+  if keyword_count.is_empty() {
     return Ok(query.clone());
   }
 
-  let result_keywords: Vec<String> = english_search_filters.into_iter().collect();
-  Ok(result_keywords.join(" "))
+  // Calculate keyword scores: frequency / total_mods * length_bonus
+  let mut keyword_scores: Vec<(String, f64)> = keyword_count
+    .iter()
+    .map(|(keyword, count)| {
+      let frequency_score = *count as f64 / total_mods as f64;
+      let length_bonus = (keyword.len() as f64 / 10.0).min(1.0) + 1.0; // Prefer longer keywords
+      let score = frequency_score * length_bonus;
+      (keyword.clone(), score)
+    })
+    .collect();
+
+  keyword_scores.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+
+  // Select top keywords with high frequency (appear in >= 40% of results)
+  let min_frequency_threshold = (total_mods as f64 * 0.4).max(1.0) as usize;
+  let mut final_keywords = Vec::new();
+
+  // First priority: high-frequency keywords
+  for (keyword, _score) in &keyword_scores {
+    if keyword_count.get(keyword).unwrap_or(&0) >= &min_frequency_threshold {
+      final_keywords.push(keyword.clone());
+      if final_keywords.len() >= 3 {
+        break;
+      }
+    }
+  }
+
+  // Second priority: top-scored keywords if we need more
+  if final_keywords.len() < 3 {
+    for (keyword, _score) in &keyword_scores {
+      if !final_keywords.contains(keyword) {
+        final_keywords.push(keyword.clone());
+        if final_keywords.len() >= 5 {
+          break;
+        }
+      }
+    }
+  }
+
+  if final_keywords.is_empty() {
+    return Ok(query.clone());
+  }
+
+  let result = final_keywords.join(" ");
+
+  Ok(result)
 }

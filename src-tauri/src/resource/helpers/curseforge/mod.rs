@@ -44,8 +44,6 @@ pub async fn fetch_resource_list_by_name_curseforge(
     .await
     .unwrap_or(search_query.clone()); // Handle Chinese query
 
-  println!("Handled search query: {}", handled_search_query);
-
   let class_id = cvt_type_to_class_id(resource_type);
   let sort_field = cvt_sort_by_to_id(sort_by);
   let sort_order = match sort_field {
