@@ -194,7 +194,7 @@ pub async fn apply_other_resource_enhancements(
   // Extract data from cache in a limited scope to avoid holding lock across await
   let (translated_name, mcmod_id) = {
     if let Ok(cache) = app.state::<Mutex<ModDataBase>>().lock() {
-      let translated_name = if language == "zh-Hans" {
+      let translated_name = if language == "zh-Hans" && resource_info._type == "mod" {
         cache.get_translated_name(&resource_info.slug, &resource_info.source)
       } else {
         None
