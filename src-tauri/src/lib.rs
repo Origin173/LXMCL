@@ -20,7 +20,7 @@ use launcher_config::{
   helpers::java::refresh_and_update_javas,
   models::{JavaInfo, LauncherConfig},
 };
-use resource::helpers::misc::{initialize_mod_db, ModDataBase};
+use resource::helpers::mod_db::{initialize_mod_db, ModDataBase};
 use std::path::PathBuf;
 use std::sync::{LazyLock, Mutex};
 use std::{collections::HashMap, sync::OnceLock};

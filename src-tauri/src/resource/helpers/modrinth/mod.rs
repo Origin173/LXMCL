@@ -2,6 +2,7 @@ pub mod misc;
 
 use super::misc::apply_other_resource_enhancements;
 use crate::error::SJMCLResult;
+use crate::resource::helpers::mod_db::handle_search_query;
 use crate::resource::models::{
   OtherResourceApiEndpoint, OtherResourceFileInfo, OtherResourceInfo, OtherResourceRequestType,
   OtherResourceSearchQuery, OtherResourceSearchRes, OtherResourceVersionPack,
@@ -39,6 +40,10 @@ pub async fn fetch_resource_list_by_name_modrinth(
     page_size,
   } = query;
 
+  let handled_search_query = handle_search_query(app, search_query)
+    .await
+    .unwrap_or(search_query.clone()); // Handle Chinese query
+
   let mut facets = vec![vec![format!("project_type:{}", resource_type)]];
   if !game_version.is_empty() && game_version != ALL_FILTER {
     facets.push(vec![format!("versions:{}", game_version)]);
@@ -48,7 +53,7 @@ pub async fn fetch_resource_list_by_name_modrinth(
   }
 
   let mut params = HashMap::new();
-  params.insert("query".to_string(), search_query.to_string());
+  params.insert("query".to_string(), handled_search_query);
   params.insert(
     "facets".to_string(),
     serde_json::to_string(&facets).unwrap_or_default(),
