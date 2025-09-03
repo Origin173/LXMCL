@@ -86,7 +86,7 @@
       "assets/game/*",
       "assets/icons/icon.ico",
       "assets/icons/icon.png",
-      "assets/db/mod_data.csv"
+      "assets/db/*"
     ]
   },
   "plugins": {
