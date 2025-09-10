@@ -31,10 +31,7 @@ fn clean_keyword(word: &str) -> Option<String> {
 fn extract_keywords_from_slug(slug: &str) -> Vec<String> {
   let mut keywords = Vec::new();
 
-  for word in slug
-    .replace(|c: char| c == '-' || c == '/' || c == '_' || c == ',', " ")
-    .split_whitespace()
-  {
+  for word in slug.replace(['-', '/', '_', ','], " ").split_whitespace() {
     if let Some(cleaned) = clean_keyword(word) {
       keywords.push(cleaned);
     }
@@ -381,7 +378,7 @@ pub async fn handle_search_query(app: &AppHandle, query: &String) -> SJMCLResult
 
   let state = app.state::<Mutex<ModDataBase>>();
   let search_results = match state.lock() {
-    Ok(cache) => cache.get_mods_by_chinese(&query, 5),
+    Ok(cache) => cache.get_mods_by_chinese(query, 5),
     Err(_) => return Ok(query.clone()),
   };
 
