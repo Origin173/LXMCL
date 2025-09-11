@@ -1749,14 +1749,6 @@
           }
         }
       },
-      "checkServiceAvailability": {
-        "error": {
-          "title": "服务器不可用",
-          "description": {
-            "FETCH_ERROR": "服务器侧或未知错误"
-          }
-        }
-      },
       "clearDownloadCache": {
         "success": "下载缓存已清除",
         "error": {

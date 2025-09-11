@@ -1749,14 +1749,6 @@
           }
         }
       },
-      "checkServiceAvailability": {
-        "error": {
-          "title": "Service Unavailable",
-          "description": {
-            "FETCH_ERROR": "Failed to fetch the meta server"
-          }
-        }
-      },
       "clearDownloadCache": {
         "success": "Successfully cleared download cache",
         "error": {
