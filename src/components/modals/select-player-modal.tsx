@@ -12,7 +12,6 @@ import {
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { OptionItem } from "@/components/common/option-item";
-import { useLauncherConfig } from "@/contexts/config";
 import { Player } from "@/models/account";
 import { base64ImgSrc } from "@/utils/string";
 
@@ -27,8 +26,6 @@ const SelectPlayerModal: React.FC<SelectPlayerModalProps> = ({
   ...modalProps
 }) => {
   const { t } = useTranslation();
-  const { config } = useLauncherConfig();
-  const primaryColor = config.appearance.theme.primaryColor;
 
   return (
     <Modal size="md" {...modalProps}>
@@ -42,7 +39,7 @@ const SelectPlayerModal: React.FC<SelectPlayerModalProps> = ({
               <OptionItem
                 key={player.id}
                 title={
-                  <Text fontWeight="bold" fontSize="sm">
+                  <Text fontWeight="semibold" fontSize="sm">
                     {player.name}
                   </Text>
                 }
