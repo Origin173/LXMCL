@@ -1335,6 +1335,10 @@
       "viewSkin": "檢視皮膚",
       "delete": "刪除此角色",
       "copyUUID": "複製 UUID"
+    },
+    "toast": {
+      "refreshing": "正在重新整理角色資訊",
+      "deleting": "正在刪除角色"
     }
   },
   "PingTestPage": {
@@ -1742,14 +1746,6 @@
           "description": {
             "GAME_DIR_ALREADY_ADDED": "遊戲目錄已新增",
             "GAME_DIR_NOT_EXIST": "遊戲目錄不存在"
-          }
-        }
-      },
-      "checkServiceAvailability": {
-        "error": {
-          "title": "伺服器不可用",
-          "description": {
-            "FETCH_ERROR": "伺服器側或未知錯誤"
           }
         }
       },
