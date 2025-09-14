@@ -8,7 +8,7 @@ use super::{
       get_instance_game_config, get_instance_subdir_path_by_id, refresh_and_update_instances,
       unify_instance_name,
     },
-    mods::common::{add_mod_translations, get_mod_info_from_dir, get_mod_info_from_jar},
+    mods::common::{add_local_mod_translations, get_mod_info_from_dir, get_mod_info_from_jar},
     resourcepack::{load_resourcepack_from_dir, load_resourcepack_from_zip},
     server::{load_servers_info_from_path, query_server_status},
     world::{level_data_to_world_info, load_level_data_from_path},
@@ -510,9 +510,21 @@ pub async fn retrieve_local_mod_list(
     }
   });
 
-  // Add translations for mod names and descriptions
-  for mod_info in &mut mod_infos {
-    if let Ok(()) = add_mod_translations(&app, mod_info).await {}
+  // Add translations for mod names and descriptions concurrently
+  let mut translation_tasks = Vec::new();
+  for mut mod_info in mod_infos {
+    let app = app.clone();
+    let task = tokio::spawn(async move {
+      let _ = add_local_mod_translations(&app, &mut mod_info).await;
+      mod_info
+    });
+    translation_tasks.push(task);
+  }
+  let mut mod_infos = Vec::new();
+  for task in translation_tasks {
+    if let Ok(mod_info) = task.await {
+      mod_infos.push(mod_info);
+    }
   }
 
   // sort by name (and version)
