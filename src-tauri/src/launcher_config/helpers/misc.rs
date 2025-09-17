@@ -67,7 +67,7 @@ impl LauncherConfig {
 
       #[cfg(not(target_os = "macos"))]
       {
-        if *IS_PORTABLE {
+        if *IS_PORTABLE || cfg!(debug_assertions) {
           dirs.push(GameDirectory {
             name: "CURRENT_DIR".to_string(),
             dir: PathBuf::new(), // place holder, will be set later
