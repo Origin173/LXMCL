@@ -2,11 +2,28 @@
 
 SJMCL follows [Semantic Versioning 2.0.0](http://semver.org/).
 
+## 0.3.2
+
+`2025-09-17`
+
+- 🌟 Add zh-Hans translation for local mod names and resource descriptions. #888 @SundayChen  
+- 🌟 Support detection of mod loaders in instances created by PCL. #889 @xunying123  
+- 🌟 Support deleting local mods in the mod list page. #895 @KiloxGo  
+- 🌟 Add screenshot sharing feature on macOS, providing an experience similar to Finder. #903 @UNIkeEN  
+- 🌟 When the launcher language is zh-Hans, allow skipping accessibility options and automatically set the instance language after creation. #907 @UNIkeEN  
+- 🐛 Fix issue where canceling player selection when logging into third-party authentication sources made it impossible to add players again. #892 @Reqwey  
+- 🐛 Fix issue where operations such as refreshing the instance list were not triggered after completing download tasks with retries. #893 @Reqwey  
+- 🐛 Fix issue of incomplete downloads of legacy Forge libraries. #896 @Reqwey  
+- 🐛 Fix issue where access tokens in launch commands were not masked when exporting crash reports. #910 @Reqwey  
+- 🛠 The default file name of downloaded mod resources now includes possible zh-Hans translations. #888 @SundayChen  
+- 🛠 Editable fields such as instance settings now auto-save when losing focus. #888 @SundayChen  
+- 📦 Adjust the default game directory in development mode to be alongside the build artifacts. 
+
 ## 0.3.1
 
 `2025-09-13`
 
-- 🐛 Fix issue of possible incompleteness in device authorization response and account profile during the login flow #875 @Reqwey
+- 🐛 Fix issue of possible incompleteness in device authorization response and account profile during the login flow. #875 @Reqwey
 - 🐛 Fix issue of incomplete player information when logging in to third-party authentication sources through OAuth (Ygg Connect proposal). #882 @Reqwey
 - 🐛 Fix the issue of possible invalid access token when logging in to third-party authentication sources with email and password. #885 @Reqwey
 - 🛠 Refactor system utility functions into a service class. #883 @baiyuansjtu
