@@ -25,13 +25,13 @@ impl LauncherConfig {
       (false, v) => v.to_string(),
     };
 
-    // Set default download cache dir if not exists, create dir
-    if self.download.cache.directory == PathBuf::default() {
+    // Set the default download cache directory if unset or not writable, and create it
+    if self.download.cache.directory.as_os_str().is_empty()
+      || fs::create_dir_all(&self.download.cache.directory).is_err()
+    {
       self.download.cache.directory = app
         .path()
         .resolve::<PathBuf>("Download".into(), BaseDirectory::AppCache)?;
-    }
-    if !self.download.cache.directory.exists() {
       fs::create_dir_all(&self.download.cache.directory)?;
     }
 
