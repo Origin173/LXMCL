@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
-import { LauncherConfig } from "@/models/config";
+import { LauncherConfig, VersionMetaInfo } from "@/models/config";
 import { InvokeResponse } from "@/models/response";
 import { JavaInfo } from "@/models/system-info";
 import { responseHandler } from "@/utils/response";
@@ -145,11 +145,11 @@ export class ConfigService {
 
   /**
    * CHECK for launcher updates.
-   * @returns {Promise<InvokeResponse<string>>} The latest version string if an update is available.
+   * @returns {Promise<InvokeResponse<VersionMetaInfo>>} The latest release meta info if an update is available.
    * If the current version is up-to-date, returns "up2date", otherwise an empty string.
    */
   @responseHandler("config")
-  static async checkLauncherUpdate(): Promise<InvokeResponse<string>> {
+  static async checkLauncherUpdate(): Promise<InvokeResponse<VersionMetaInfo>> {
     return await invoke("check_launcher_update");
   }
 

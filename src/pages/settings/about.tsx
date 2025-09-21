@@ -46,12 +46,12 @@ const AboutSettingsPage = () => {
     });
     const res = await handleCheckLauncherUpdate();
     closeToast(checkingToast);
-    if (res === "up2date") {
+    if (res.version === "up2date") {
       toast({
         title: t("AboutSettingsPage.about.settings.version.checkToast.up2date"),
         status: "success",
       });
-    } else if (res === "") {
+    } else if (res.version === "") {
       toast({
         title: t("AboutSettingsPage.about.settings.version.checkToast.error"),
         status: "error",
@@ -75,10 +75,10 @@ const AboutSettingsPage = () => {
               {isValidSemanticVersion(basicInfo.launcherVersion) && (
                 <Button
                   variant="subtle"
-                  colorScheme={newerVersion ? primaryColor : "gray"}
+                  colorScheme={newerVersion.version ? primaryColor : "gray"}
                   size="xs"
                   onClick={
-                    newerVersion
+                    newerVersion.version
                       ? () => {
                           openSharedModal("notify-new-version", {
                             newVersion: newerVersion,
@@ -88,7 +88,7 @@ const AboutSettingsPage = () => {
                   }
                   isLoading={checkingUpdate}
                 >
-                  {newerVersion
+                  {newerVersion.version
                     ? t("AboutSettingsPage.about.settings.version.foundNew")
                     : t("AboutSettingsPage.about.settings.version.checkUpdate")}
                 </Button>

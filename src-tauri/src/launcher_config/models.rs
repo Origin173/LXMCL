@@ -30,6 +30,15 @@ pub struct JavaInfo {
   pub is_user_added: bool,
 }
 
+// Info about the latest release version fetched from remote, shown to the user to update.
+#[derive(Debug, Serialize, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct VersionMetaInfo {
+  pub version: String,
+  pub url: String,
+  pub file_name: String,
+}
+
 // https://github.com/HMCL-dev/HMCL/blob/d9e3816b8edf9e7275e4349d4fc67a5ef2e3c6cf/HMCLCore/src/main/java/org/jackhuang/hmcl/game/ProcessPriority.java#L20
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -321,7 +330,6 @@ impl Storage for LauncherConfig {
 #[strum(serialize_all = "SCREAMING_SNAKE_CASE")]
 pub enum LauncherConfigError {
   FetchError,
-  ParseError,
   InvalidCode,
   CodeExpired,
   VersionMismatch,

@@ -2,7 +2,9 @@ use super::helpers::java::{
   get_java_info_from_command, get_java_info_from_release_file, refresh_and_update_javas,
 };
 use super::helpers::updater::fetch_latest_version;
-use super::models::{GameDirectory, JavaInfo, LauncherConfig, LauncherConfigError};
+use super::models::{
+  GameDirectory, JavaInfo, LauncherConfig, LauncherConfigError, VersionMetaInfo,
+};
 use crate::error::SJMCLResult;
 use crate::instance::helpers::misc::refresh_instances;
 use crate::storage::Storage;
@@ -302,31 +304,37 @@ pub async fn clear_download_cache(app: AppHandle) -> SJMCLResult<()> {
 }
 
 #[tauri::command]
-pub async fn check_launcher_update(app: AppHandle) -> SJMCLResult<String> {
+pub async fn check_launcher_update(app: AppHandle) -> SJMCLResult<VersionMetaInfo> {
   let config_binding = app.state::<Mutex<LauncherConfig>>();
   let current_version = {
     let config_state = config_binding.lock()?;
     config_state.basic_info.launcher_version.clone()
   };
-  let client = app.state::<reqwest::Client>();
 
-  // skip non-semver versions (e.g. dev, nightly)
+  // skip non-semver versions
   if semver::Version::parse(&current_version).is_err() {
-    return Ok("".to_string());
+    return Ok(VersionMetaInfo::default());
   }
 
-  if let Ok(Some(new_version)) = fetch_latest_version(&client).await {
+  if let Ok(Some((new_version, url, fname))) = fetch_latest_version(&app).await {
     if let (Ok(current), Ok(latest)) = (
       semver::Version::parse(&current_version),
       semver::Version::parse(&new_version),
     ) {
-      match latest.cmp(&current) {
-        std::cmp::Ordering::Greater => return Ok(new_version),
-        std::cmp::Ordering::Equal => return Ok("up2date".to_string()),
-        std::cmp::Ordering::Less => {}
-      }
+      return Ok(match latest.cmp(&current) {
+        std::cmp::Ordering::Greater => VersionMetaInfo {
+          version: new_version,
+          url,
+          file_name: fname,
+        },
+        std::cmp::Ordering::Equal => VersionMetaInfo {
+          version: "up2date".to_string(),
+          ..Default::default()
+        },
+        std::cmp::Ordering::Less => VersionMetaInfo::default(),
+      });
     }
   }
 
-  Ok("".to_string())
+  Ok(VersionMetaInfo::default())
 }

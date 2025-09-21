@@ -9,7 +9,12 @@ import React, {
 } from "react";
 import { useToast } from "@/contexts/toast";
 import { useGetState } from "@/hooks/get-state";
-import { LauncherConfig, defaultConfig } from "@/models/config";
+import {
+  LauncherConfig,
+  VersionMetaInfo,
+  defaultConfig,
+  defaultVersionMetaInfo,
+} from "@/models/config";
 import { JavaInfo } from "@/models/system-info";
 import { ConfigService } from "@/services/config";
 import { updateByKeyPath } from "@/utils/partial";
@@ -18,11 +23,11 @@ interface LauncherConfigContextType {
   config: LauncherConfig;
   setConfig: React.Dispatch<React.SetStateAction<LauncherConfig>>;
   update: (path: string, value: any) => void;
-  newerVersion: string;
+  newerVersion: VersionMetaInfo;
   // other shared data associated with the launcher config.
   getJavaInfos: (sync?: boolean) => JavaInfo[] | undefined;
   // shared service handlers
-  handleCheckLauncherUpdate: () => Promise<string>;
+  handleCheckLauncherUpdate: () => Promise<VersionMetaInfo>;
 }
 
 const LauncherConfigContext = createContext<
@@ -39,7 +44,9 @@ export const LauncherConfigContextProvider: React.FC<{
   const userSelectedColorMode = config.appearance.theme.colorMode;
 
   const [javaInfos, setJavaInfos] = useState<JavaInfo[]>();
-  const [newerVersion, setNewerVersion] = useState<string>("");
+  const [newerVersion, setNewerVersion] = useState<VersionMetaInfo>(
+    defaultVersionMetaInfo
+  );
 
   const handleRetrieveLauncherConfig = useCallback(() => {
     ConfigService.retrieveLauncherConfig().then((response) => {
@@ -134,14 +141,19 @@ export const LauncherConfigContextProvider: React.FC<{
   const getJavaInfos = useGetState(javaInfos, handleRetrieveJavaList);
 
   // check launcher update
-  const handleCheckLauncherUpdate = useCallback(async (): Promise<string> => {
-    const response = await ConfigService.checkLauncherUpdate();
-    if (response.status === "success") {
-      setNewerVersion(response.data === "up2date" ? "" : response.data);
-      return response.data;
-    }
-    return "";
-  }, []);
+  const handleCheckLauncherUpdate =
+    useCallback(async (): Promise<VersionMetaInfo> => {
+      const response = await ConfigService.checkLauncherUpdate();
+      if (response.status === "success") {
+        setNewerVersion(
+          response.data.version == "up2date"
+            ? defaultVersionMetaInfo
+            : response.data
+        );
+        return response.data;
+      }
+      return defaultVersionMetaInfo;
+    }, []);
 
   useEffect(() => {
     handleCheckLauncherUpdate();

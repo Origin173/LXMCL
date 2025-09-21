@@ -573,7 +573,8 @@
       "mod-update": "Update Mod",
       "retry": "Retry",
       "neoforge-libraries": "NeoForge Libraries",
-      "forge-libraries": "Forge Libraries"
+      "forge-libraries": "Forge Libraries",
+      "launcher-update": "Update Launcher"
     }
   },
   "Editable": {
