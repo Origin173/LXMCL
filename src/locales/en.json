@@ -6,7 +6,12 @@
         "version": {
           "title": "Version",
           "foundNew": "New Version Available",
-          "checkUpdate": "Check for Updates"
+          "checkUpdate": "Check for Updates",
+          "checkToast": {
+            "loading": "Checking for updates",
+            "up2date": "Already up to date",
+            "error": "Failed to check for updates"
+          }
         },
         "contributors": {
           "title": "Contributors"
@@ -1341,6 +1346,9 @@
   },
   "NotFoundPage": {
     "text": "Page not found, redirecting to launch page in {{seconds}} seconds..."
+  },
+  "NotifyNewVersionModal": {
+    "title": "New Version Available"
   },
   "OptionItemGroup": {
     "button": {

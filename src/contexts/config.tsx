@@ -22,7 +22,7 @@ interface LauncherConfigContextType {
   // other shared data associated with the launcher config.
   getJavaInfos: (sync?: boolean) => JavaInfo[] | undefined;
   // shared service handlers
-  handleCheckLauncherUpdate: () => void;
+  handleCheckLauncherUpdate: () => Promise<string>;
 }
 
 const LauncherConfigContext = createContext<
@@ -134,14 +134,13 @@ export const LauncherConfigContextProvider: React.FC<{
   const getJavaInfos = useGetState(javaInfos, handleRetrieveJavaList);
 
   // check launcher update
-  const handleCheckLauncherUpdate = useCallback(() => {
-    ConfigService.checkLauncherUpdate().then((response) => {
-      if (response.status === "success") {
-        setNewerVersion(response.data === "up2date" ? "" : response.data);
-        return response.data;
-      }
-      return "";
-    });
+  const handleCheckLauncherUpdate = useCallback(async (): Promise<string> => {
+    const response = await ConfigService.checkLauncherUpdate();
+    if (response.status === "success") {
+      setNewerVersion(response.data === "up2date" ? "" : response.data);
+      return response.data;
+    }
+    return "";
   }, []);
 
   useEffect(() => {
