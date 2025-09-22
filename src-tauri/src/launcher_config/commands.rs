@@ -1,7 +1,7 @@
 use super::helpers::java::{
   get_java_info_from_command, get_java_info_from_release_file, refresh_and_update_javas,
 };
-use super::helpers::updater::fetch_latest_version;
+use super::helpers::updater::{self, fetch_latest_version};
 use super::models::{
   GameDirectory, JavaInfo, LauncherConfig, LauncherConfigError, VersionMetaInfo,
 };
@@ -337,4 +337,19 @@ pub async fn check_launcher_update(app: AppHandle) -> SJMCLResult<VersionMetaInf
   }
 
   Ok(VersionMetaInfo::default())
+}
+
+#[tauri::command]
+pub async fn install_launcher_update(
+  app: AppHandle,
+  downloaded_filename: String,
+) -> SJMCLResult<()> {
+  #[cfg(target_os = "windows")]
+  {
+    updater::install_update_windows(&app, downloaded_filename).await
+  }
+  #[cfg(target_os = "macos")]
+  {
+    updater::install_update_macos(&app, downloaded_filename).await
+  }
 }

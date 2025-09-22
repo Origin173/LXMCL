@@ -154,6 +154,18 @@ export class ConfigService {
   }
 
   /**
+   * INSTALL the launcher update.
+   * @param {string} downloadedFilename The name of the downloaded new version file.
+   * @returns {Promise<InvokeResponse<void>>} Returns void if the update process is started successfully.
+   */
+  @responseHandler("config")
+  static async installLauncherUpdate(
+    downloadedFilename: string
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("install_launcher_update", { downloadedFilename });
+  }
+
+  /**
    * Listens for backend-initiated changes to the `config` field.
    * @param callback - Callback function invoked whenever the config is updated by the backend.
    */
