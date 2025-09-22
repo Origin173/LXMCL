@@ -316,7 +316,9 @@ pub async fn check_launcher_update(app: AppHandle) -> SJMCLResult<VersionMetaInf
     return Ok(VersionMetaInfo::default());
   }
 
-  if let Ok(Some((new_version, url, fname))) = fetch_latest_version(&app).await {
+  if let Ok(Some((new_version, url, fname, release_notes, published_at))) =
+    fetch_latest_version(&app).await
+  {
     if let (Ok(current), Ok(latest)) = (
       semver::Version::parse(&current_version),
       semver::Version::parse(&new_version),
@@ -326,6 +328,8 @@ pub async fn check_launcher_update(app: AppHandle) -> SJMCLResult<VersionMetaInf
           version: new_version,
           url,
           file_name: fname,
+          release_notes,
+          published_at,
         },
         std::cmp::Ordering::Equal => VersionMetaInfo {
           version: "up2date".to_string(),
@@ -343,14 +347,15 @@ pub async fn check_launcher_update(app: AppHandle) -> SJMCLResult<VersionMetaInf
 pub async fn install_launcher_update(
   app: AppHandle,
   downloaded_filename: String,
+  restart: bool,
 ) -> SJMCLResult<()> {
   #[cfg(target_os = "windows")]
   {
-    updater::install_update_windows(&app, downloaded_filename).await
+    updater::install_update_windows(&app, downloaded_filename, restart).await
   }
   #[cfg(target_os = "macos")]
   {
-    updater::install_update_macos(&app, downloaded_filename).await
+    updater::install_update_macos(&app, downloaded_filename, restart).await
   }
   #[cfg(target_os = "linux")]
   {

@@ -503,18 +503,49 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
                 let group = newTasks.find(
                   (t) => t.taskGroup === payload.taskGroup
                 );
-                if (group && group.taskDescs.length > 0)
-                  ConfigService.installLauncherUpdate(
-                    group.taskDescs[0].payload.filename || ""
-                  ).then((response) => {
-                    if (response.status !== "success") {
-                      toast({
-                        title: response.message,
-                        description: response.details,
-                        status: "error",
+                if (group && group.taskDescs.length > 0) {
+                  const isMSI =
+                    config.basicInfo.osType === "windows" &&
+                    !config.basicInfo.isPortable;
+                  openGenericConfirmDialog({
+                    title: t("RestartForUpdateConfirmDialog.title"),
+                    body: t(
+                      `RestartForUpdateConfirmDialog.${isMSI ? "bodyMSI" : "body"}`
+                    ),
+                    btnOK: t(
+                      `RestartForUpdateConfirmDialog.button.${isMSI ? "install" : "restart"}`
+                    ),
+                    btnCancel: t("RestartForUpdateConfirmDialog.button.later"),
+                    onOKCallback: () => {
+                      ConfigService.installLauncherUpdate(
+                        group.taskDescs[0].payload.filename || "",
+                        true
+                      ).then((response) => {
+                        if (response.status !== "success") {
+                          toast({
+                            title: response.message,
+                            description: response.details,
+                            status: "error",
+                          });
+                        }
                       });
-                    }
+                    },
+                    onCancelCallback: () => {
+                      ConfigService.installLauncherUpdate(
+                        group.taskDescs[0].payload.filename || "",
+                        false
+                      ).then((response) => {
+                        if (response.status !== "success") {
+                          toast({
+                            title: response.message,
+                            description: response.details,
+                            status: "error",
+                          });
+                        }
+                      });
+                    },
                   });
+                }
                 break;
               }
               default:
@@ -529,7 +560,17 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => {
       unlisten();
     };
-  }, [closeToast, getInstanceList, t, toast, updateGroupInfo, openSharedModal]);
+  }, [
+    closeToast,
+    getInstanceList,
+    t,
+    toast,
+    updateGroupInfo,
+    openSharedModal,
+    openGenericConfirmDialog,
+    config.basicInfo.osType,
+    config.basicInfo.isPortable,
+  ]);
 
   useEffect(() => {
     if (!tasks || !tasks.length) setGeneralPercent(undefined);

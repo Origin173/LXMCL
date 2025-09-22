@@ -45,7 +45,7 @@ fn build_local_new_filename(old_name: &str, old_version: &str, new_version: &str
 
 pub async fn fetch_latest_version(
   app: &AppHandle,
-) -> SJMCLResult<Option<(String, String, String)>> {
+) -> SJMCLResult<Option<(String, String, String, String, String)>> {
   let config_binding = app.state::<Mutex<LauncherConfig>>();
   let (os, arch, is_portable) = {
     let config_state = config_binding.lock()?;
@@ -85,7 +85,19 @@ pub async fn fetch_latest_version(
           }
           let fname = build_resource_filename(&ver, os.as_str(), arch.as_str(), is_portable);
           let url = mk_url(&ver, &fname);
-          return Ok(Some((ver, url, fname)));
+
+          let release_notes = j
+            .get("body")
+            .and_then(|v| v.as_str())
+            .unwrap_or_default()
+            .to_string();
+          let published_at = j
+            .get("published_at")
+            .and_then(|v| v.as_str())
+            .unwrap_or_default()
+            .to_string();
+
+          return Ok(Some((ver, url, fname, release_notes, published_at)));
         }
       }
     }
@@ -98,6 +110,7 @@ pub async fn fetch_latest_version(
 pub async fn install_update_windows(
   app: &AppHandle,
   downloaded_filename: String,
+  restart: bool,
 ) -> SJMCLResult<()> {
   use std::os::windows::process::CommandExt;
 
@@ -160,13 +173,18 @@ del /F /Q %BACKUP% 2>nul
 if exist %TARGET% ren %TARGET% SJMCL_backup.exe
 move /Y %NEW_EXE% %TARGET%
 
-start "" %TARGET%
+{start_cmd}
 del /F /Q %BACKUP% 2>nul
 "#,
       new_exe = downloaded_path.display(),
       target = target.display(),
       backup = backup.display(),
-      pid = pid
+      pid = pid,
+      start_cmd = if restart {
+        r#"start "" "%TARGET%""#
+      } else {
+        ""
+      },
     );
 
     fs::write(&script_path, script_content.as_bytes())?;
@@ -174,19 +192,29 @@ del /F /Q %BACKUP% 2>nul
       .args(["/C", &script_path.to_string_lossy()])
       .creation_flags(0x08000000)
       .spawn()?;
+    if restart {
+      app.exit(0);
+    }
     Ok(())
   } else {
     // MSI: run installer in passive mode.
-    let _ = Command::new("msiexec.exe")
-      .args(["/i", &downloaded_path.to_string_lossy(), "/passive"])
-      .creation_flags(0x08000000)
-      .spawn()?;
+    if restart {
+      let _ = Command::new("msiexec.exe")
+        .args(["/i", &downloaded_path.to_string_lossy(), "/passive"])
+        .creation_flags(0x08000000)
+        .spawn()?;
+      app.exit(0);
+    }
     Ok(())
   }
 }
 
 #[cfg(target_os = "macos")]
-pub async fn install_update_macos(app: &AppHandle, downloaded_filename: String) -> SJMCLResult<()> {
+pub async fn install_update_macos(
+  app: &AppHandle,
+  downloaded_filename: String,
+  restart: bool,
+) -> SJMCLResult<()> {
   let config_binding = app.state::<Mutex<LauncherConfig>>();
   let (old_version, downloaded_path, new_version) = {
     let config_state = config_binding.lock()?;
@@ -255,18 +283,26 @@ rm -rf "$BACKUP_APP" || true
 if [ -e "$TARGET_APP" ]; then mv "$TARGET_APP" "$BACKUP_APP"; fi
 mv "$NEW_APP" "$TARGET_APP"
 
-open -a "$TARGET_APP"
+{open_cmd}
 rm -rf "$BACKUP_APP" || true
 rm -rf "$TMPDIR" || true
 "#,
     pid = pid,
     downloaded = downloaded_path.display(),
     target = target_app.display(),
-    backup = backup_app.display()
+    backup = backup_app.display(),
+    open_cmd = if restart {
+      r#"open -a "$TARGET_APP""#
+    } else {
+      ""
+    },
   );
 
   fs::write(&script_path, script_content.as_bytes())?;
   let _ = Command::new("chmod").arg("+x").arg(&script_path).status();
   let _ = Command::new("bash").arg(&script_path).spawn()?;
+  if restart {
+    app.exit(0);
+  }
   Ok(())
 }

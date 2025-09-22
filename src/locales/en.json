@@ -1399,6 +1399,16 @@
       "login": "Login"
     }
   },
+  "RestartForUpdateConfirmDialog": {
+    "title": "Launcher Update",
+    "body": "The new version has been downloaded. Restart SJMCL to complete the update.",
+    "bodyMSI": "The new version has been downloaded. Clicking Install will close SJMCL and run the installer.",
+    "button": {
+      "restart": "Restart",
+      "install": "Install",
+      "later": "Later"
+    }
+  },
   "ResourceDownloader": {
     "label": {
       "source": "Source",

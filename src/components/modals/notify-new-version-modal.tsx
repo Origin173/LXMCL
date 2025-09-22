@@ -12,6 +12,7 @@ import {
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { useTranslation } from "react-i18next";
 import { LuExternalLink } from "react-icons/lu";
+import MarkdownContainer from "@/components/common/markdown-container";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
 import { VersionMetaInfo } from "@/models/config";
@@ -59,16 +60,14 @@ const NotifyNewVersionModal: React.FC<NotifyNewVersionModalProps> = ({
   };
 
   return (
-    <Modal
-      scrollBehavior="inside"
-      size={{ base: "md", lg: "lg", xl: "xl" }}
-      {...props}
-    >
+    <Modal scrollBehavior="inside" size="xl" {...props}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{`${t("NotifyNewVersionModal.title")} - ${newVersion.version}`}</ModalHeader>
         <ModalCloseButton />
-        <ModalBody>{newVersion.version}</ModalBody>
+        <ModalBody>
+          <MarkdownContainer>{newVersion.releaseNotes || ""}</MarkdownContainer>
+        </ModalBody>
         <ModalFooter>
           <Button variant="ghost" onClick={props.onClose}>
             {t("General.cancel")}

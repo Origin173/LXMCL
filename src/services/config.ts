@@ -156,13 +156,18 @@ export class ConfigService {
   /**
    * INSTALL the launcher update.
    * @param {string} downloadedFilename The name of the downloaded new version file.
+   * @param {boolean} restart Whether to restart the launcher now.
    * @returns {Promise<InvokeResponse<void>>} Returns void if the update process is started successfully.
    */
   @responseHandler("config")
   static async installLauncherUpdate(
-    downloadedFilename: string
+    downloadedFilename: string,
+    restart: boolean
   ): Promise<InvokeResponse<void>> {
-    return await invoke("install_launcher_update", { downloadedFilename });
+    return await invoke("install_launcher_update", {
+      downloadedFilename,
+      restart,
+    });
   }
 
   /**

@@ -60,11 +60,16 @@ const GenericConfirmDialog: React.FC<GenericConfirmDialogProps> = ({
     onClose();
   };
 
+  const handleCancel = () => {
+    onCancelCallback?.();
+    onClose();
+  };
+
   return (
     <AlertDialog
       isOpen={isOpen}
       leastDestructiveRef={cancelRef}
-      onClose={onClose}
+      onClose={handleCancel}
       autoFocus={false}
       isCentered
     >
@@ -86,14 +91,7 @@ const GenericConfirmDialog: React.FC<GenericConfirmDialogProps> = ({
 
             <HStack spacing={3} ml="auto">
               {btnCancel && (
-                <Button
-                  ref={cancelRef}
-                  onClick={() => {
-                    onCancelCallback?.();
-                    onClose();
-                  }}
-                  variant="ghost"
-                >
+                <Button ref={cancelRef} onClick={handleCancel} variant="ghost">
                   {btnCancel}
                 </Button>
               )}
