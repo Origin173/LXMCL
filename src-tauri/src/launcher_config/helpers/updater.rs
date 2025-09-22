@@ -1,11 +1,11 @@
-use crate::error::SJMCLResult;
+use crate::error::{SJMCLError, SJMCLResult};
 use crate::launcher_config::models::{LauncherConfig, LauncherConfigError};
 use serde_json::Value;
 use std::ffi::OsStr;
+use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 use std::sync::Mutex;
-use std::{fs, io};
 use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
@@ -99,6 +99,8 @@ pub async fn install_update_windows(
   app: &AppHandle,
   downloaded_filename: String,
 ) -> SJMCLResult<()> {
+  use std::os::windows::process::CommandExt;
+
   let config_binding = app.state::<Mutex<LauncherConfig>>();
   let (old_version, downloaded_path, new_version, is_portable) = {
     let config_state = config_binding.lock()?;
@@ -120,14 +122,14 @@ pub async fn install_update_windows(
   let cur_exe = std::env::current_exe()?;
 
   if is_portable {
-    // Portable: replace current exe with the newly downloaded one via a small cmd script.
+    // Portable: replace current exe with the newly downloaded one via a temp cmd script.
     let cur_dir = cur_exe
       .parent()
-      .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "No parent dir for exe"))?;
+      .ok_or_else(|| SJMCLError("No parent dir for exe".to_string()))?;
     let old_name = cur_exe
       .file_name()
       .and_then(|s| s.to_str())
-      .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid exe name"))?
+      .ok_or_else(|| SJMCLError("Invalid exe name".to_string()))?
       .to_string();
 
     let target_name = build_local_new_filename(&old_name, &old_version, &new_version);
@@ -170,12 +172,14 @@ del /F /Q %BACKUP% 2>nul
     fs::write(&script_path, script_content.as_bytes())?;
     let _ = Command::new("cmd")
       .args(["/C", &script_path.to_string_lossy()])
+      .creation_flags(0x08000000)
       .spawn()?;
     Ok(())
   } else {
-    // MSI: run installer in passive mode and exit current app
+    // MSI: run installer in passive mode.
     let _ = Command::new("msiexec.exe")
       .args(["/i", &downloaded_path.to_string_lossy(), "/passive"])
+      .creation_flags(0x08000000)
       .spawn()?;
     Ok(())
   }
@@ -207,16 +211,16 @@ pub async fn install_update_macos(app: &AppHandle, downloaded_filename: String) 
   let app_bundle = cur_exe
     .ancestors()
     .find(|p| p.extension().and_then(OsStr::to_str) == Some("app"))
-    .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Not inside .app bundle"))?
+    .ok_or_else(|| SJMCLError("Not inside .app bundle".to_string()))?
     .to_path_buf();
   let app_dir = app_bundle
     .parent()
-    .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "No parent dir for .app"))?
+    .ok_or_else(|| SJMCLError("No parent dir for .app".to_string()))?
     .to_path_buf();
   let old_name = app_bundle
     .file_name()
     .and_then(|s| s.to_str())
-    .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid .app name"))?
+    .ok_or_else(|| SJMCLError("Invalid .app name".to_string()))?
     .to_string();
 
   let target_name = build_local_new_filename(&old_name, &old_version, &new_version);

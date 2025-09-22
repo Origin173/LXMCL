@@ -352,4 +352,8 @@ pub async fn install_launcher_update(
   {
     updater::install_update_macos(&app, downloaded_filename).await
   }
+  #[cfg(target_os = "linux")]
+  {
+    Ok(()) // No supported
+  }
 }
