@@ -148,19 +148,20 @@ pub async fn install_update_windows(
     let target_name = build_local_new_filename(&old_name, &old_version, &new_version);
     let target = cur_dir.join(target_name);
     let backup = cur_dir.join("SJMCL_backup.exe");
-    let pid = std::process::id();
+    let pid = std::process::id().to_string();
+    let restart_flag = if restart { "1" } else { "0" };
 
     // write and execute a bash script to wait -> replace -> start -> cleanup
     let script_path = app
       .path()
       .resolve::<PathBuf>("update.cmd".into(), BaseDirectory::AppCache)?;
-    let script_content = format!(
-      r#"@echo off
+    let script_content = r#"@echo off
 setlocal enableextensions
-set NEW_EXE="{new_exe}"
-set TARGET="{target}"
-set BACKUP="{backup}"
-set PID={pid}
+set PID=%1
+set DOWNLOADED=%2
+set TARGET=%3
+set OLD_EXE=%4
+set RESTART=%5
 
 :waitloop
 tasklist /FI "PID eq %PID%" | findstr /I "%PID%" >nul
@@ -169,29 +170,25 @@ if %ERRORLEVEL%==0 (
   goto waitloop
 )
 
-del /F /Q %BACKUP% 2>nul
-if exist %TARGET% ren %TARGET% SJMCL_backup.exe
-move /Y %NEW_EXE% %TARGET%
+if exist "%TARGET%" del /F /Q "%TARGET%"
+if exist "%OLD_EXE%" del /F /Q "%OLD_EXE%"
 
-{start_cmd}
-del /F /Q %BACKUP% 2>nul
-"#,
-      new_exe = downloaded_path.display(),
-      target = target.display(),
-      backup = backup.display(),
-      pid = pid,
-      start_cmd = if restart {
-        r#"start "" "%TARGET%""#
-      } else {
-        ""
-      },
-    );
+move /Y "%DOWNLOADED%" "%TARGET%"
+
+if "%RESTART%"=="1" start "" "%TARGET%"
+"#;
 
     fs::write(&script_path, script_content.as_bytes())?;
     let _ = Command::new("cmd")
       .args(["/C", &script_path.to_string_lossy()])
+      .arg(&pid)
+      .arg(&downloaded_path)
+      .arg(&target)
+      .arg(&cur_exe.clone())
+      .arg(restart_flag)
       .creation_flags(0x08000000)
       .spawn()?;
+
     if restart {
       app.exit(0);
     }
@@ -253,20 +250,21 @@ pub async fn install_update_macos(
 
   let target_name = build_local_new_filename(&old_name, &old_version, &new_version);
   let target_app = app_dir.join(target_name);
-  let backup_app = app_dir.join(".SJMCL_backup.app");
-  let pid = std::process::id();
+  let pid = std::process::id().to_string();
+  let restart_flag = if restart { "1" } else { "0" };
 
   // write and execute a bash script to wait -> replace -> start -> cleanup
   let script_path = app
     .path()
     .resolve::<PathBuf>("update.sh".to_string().into(), BaseDirectory::AppCache)?;
-  let script_content = format!(
-    r#"#!/bin/bash
+
+  let script_content = r#"#!/bin/bash
 set -e
-PID={pid}
-DOWNLOADED="{downloaded}"
-TARGET_APP="{target}"
-BACKUP_APP="{backup}"
+PID="$1"
+DOWNLOADED="$2"
+TARGET_APP="$3"
+OLD_APP="$4"
+RESTART="$5"
 
 # wait until current process exits
 while kill -0 $PID 2>/dev/null; do sleep 0.2; done
@@ -279,28 +277,28 @@ if [ -z "$NEW_APP" ]; then
   exit 1
 fi
 
-rm -rf "$BACKUP_APP" || true
-if [ -e "$TARGET_APP" ]; then mv "$TARGET_APP" "$BACKUP_APP"; fi
+rm -rf "$TARGET_APP" || true
+rm -rf "$OLD_APP" || true
 mv "$NEW_APP" "$TARGET_APP"
 
-{open_cmd}
-rm -rf "$BACKUP_APP" || true
+if [ "$RESTART" = "1" ]; then
+  open -a "$TARGET_APP"
+fi
+
 rm -rf "$TMPDIR" || true
-"#,
-    pid = pid,
-    downloaded = downloaded_path.display(),
-    target = target_app.display(),
-    backup = backup_app.display(),
-    open_cmd = if restart {
-      r#"open -a "$TARGET_APP""#
-    } else {
-      ""
-    },
-  );
+"#;
 
   fs::write(&script_path, script_content.as_bytes())?;
   let _ = Command::new("chmod").arg("+x").arg(&script_path).status();
-  let _ = Command::new("bash").arg(&script_path).spawn()?;
+  let _ = Command::new("bash")
+    .arg(&script_path)
+    .arg(&pid)
+    .arg(&downloaded_path)
+    .arg(&target_app)
+    .arg(&app_bundle)
+    .arg(restart_flag)
+    .spawn()?;
+
   if restart {
     app.exit(0);
   }
