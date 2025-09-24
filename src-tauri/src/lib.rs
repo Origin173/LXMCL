@@ -160,14 +160,6 @@ pub async fn run() {
     .setup(|app| {
       let is_dev = cfg!(debug_assertions);
 
-      // Get version and os information
-      let version = match (is_dev, app.package_info().version.to_string().as_str()) {
-        (true, _) => "dev".to_string(),
-        (false, "0.0.0") => "nightly".to_string(),
-        (false, v) => v.to_string(),
-      };
-      let os = tauri_plugin_os::platform().to_string();
-
       // init APP_DATA_DIR
       APP_DATA_DIR
         .set(app.path().resolve("", BaseDirectory::AppData).unwrap())
@@ -178,6 +170,8 @@ pub async fn run() {
       let mut launcher_config: LauncherConfig = LauncherConfig::load().unwrap_or_default();
       launcher_config.setup_with_app(app.handle()).unwrap();
       launcher_config.save().unwrap();
+      let version = launcher_config.basic_info.launcher_version.clone();
+      let os = launcher_config.basic_info.platform.clone();
       app.manage(Mutex::new(launcher_config));
 
       let account_info = AccountInfo::load().unwrap_or_default();
@@ -241,10 +235,11 @@ pub async fn run() {
 
       // On platforms other than macOS, set the menu to empty to hide the default menu.
       // On macOS, some shortcuts depend on default menu: https://github.com/tauri-apps/tauri/issues/12458
-      if os.clone() != "macos" {
+      #[cfg(not(target_os = "macos"))]
+      {
         let menu = MenuBuilder::new(app).build()?;
         app.set_menu(menu)?;
-      };
+      }
 
       // Send statistics
       tokio::spawn(async move {
