@@ -117,6 +117,25 @@ pub fn get_java_paths(app: &AppHandle) -> Vec<String> {
     paths.insert(java_path);
   }
 
+  // Scan Java runtime paths
+  if let Ok(runtime_dir) = app
+    .path()
+    .resolve("runtime", tauri::path::BaseDirectory::AppData)
+  {
+    if let Ok(entries) = fs::read_dir(runtime_dir) {
+      for entry in entries.flatten() {
+        let dir_name = entry.file_name();
+        if let Some(name) = dir_name.to_str() {
+          if name.starts_with("java-") {
+            if let Ok(java_path) = resolve_java_home(entry.path()) {
+              paths.insert(java_path);
+            }
+          }
+        }
+      }
+    }
+  }
+
   // For windows, try to get java path from registry
   #[cfg(target_os = "windows")]
   {

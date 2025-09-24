@@ -451,11 +451,24 @@
       "version": "Version",
       "type": "Type"
     },
-    "warning": "Downloading from Oracle may require login."
+    "warning": "Downloading from Oracle may require login.",
+    "error": {
+      "title": "Java Download Failed",
+      "network": "Failed to download Java runtime due to network error. Please check your connection and try again.",
+      "parse": "Failed to parse Java runtime manifest. The download source may be temporarily unavailable.",
+      "unknown": "Failed to start Java runtime download. Please try again later."
+    }
   },
   "DownloadModpackModal": {
     "header": {
-      "title": "Download Modpack"
+      "title": "Download Modpack",
+      "retry": "Retry",
+      "neoforge-libraries": "NeoForge Libraries",
+      "forge-libraries": "Forge Libraries",
+      "java-8": "Java 8 Runtime",
+      "java-11": "Java 11 Runtime",
+      "java-17": "Java 17 Runtime",
+      "java-21": "Java 21 Runtime"
     }
   },
   "DownloadResourceModal": {

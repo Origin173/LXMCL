@@ -183,6 +183,18 @@ export class ConfigService {
   }
 
   /**
+   * DOWNLOAD Mojang Java runtime.
+   * @param {string} version - Java version to download
+   * @returns {Promise<InvokeResponse<string>>}
+   */
+  @responseHandler("config")
+  static async downloadMojangJavaRuntime(
+    version: string
+  ): Promise<InvokeResponse<string>> {
+    return await invoke("download_mojang_java_runtime", { version });
+  }
+
+  /**
    * Listens for backend-initiated changes to the `config` field.
    * @param callback - Callback function invoked whenever the config is updated by the backend.
    */

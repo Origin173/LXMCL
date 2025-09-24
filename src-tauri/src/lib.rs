@@ -78,6 +78,7 @@ pub async fn run() {
       launcher_config::commands::check_launcher_update,
       launcher_config::commands::download_launcher_update,
       launcher_config::commands::install_launcher_update,
+      launcher_config::commands::download_mojang_java_runtime,
       account::commands::retrieve_player_list,
       account::commands::add_player_offline,
       account::commands::fetch_oauth_code,

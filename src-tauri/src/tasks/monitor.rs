@@ -1,7 +1,9 @@
 use super::events::{GEventStatus, PEvent};
 use super::streams::desc::PStatus;
 use crate::error::SJMCLResult;
-use crate::launcher_config::commands::retrieve_launcher_config;
+use crate::launcher_config::{
+  commands::retrieve_launcher_config, helpers::java::refresh_and_update_javas,
+};
 
 use super::download::DownloadTask;
 use async_speed_limit::Limiter;
@@ -306,7 +308,15 @@ impl TaskMonitor {
                   group.phs.remove(&future.task_id);
                   if group.phs.is_empty() {
                     group.status = GEventStatus::Completed;
-                    GEvent::emit_group_completed(&app, &group_name)
+                    GEvent::emit_group_completed(&app, &group_name);
+
+                    // Handle post-completion tasks based on task group type
+                    if group_name.starts_with("java-") {
+                      let app_handle = app.clone();
+                      tauri::async_runtime::spawn(async move {
+                        refresh_and_update_javas(&app_handle).await;
+                      });
+                    }
                   }
                 }
               }
