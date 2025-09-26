@@ -451,24 +451,14 @@
       "version": "版本",
       "type": "类型"
     },
-    "warning": "从 Oracle 源下载可能需要登录",
-    "error": {
-      "title": "Java 下载失败",
-      "network": "由于网络错误导致 Java 运行时下载失败。请检查网络连接后重试。",
-      "parse": "解析 Java 运行时清单失败。下载源可能暂时不可用。",
-      "unknown": "启动 Java 运行时下载失败。请稍后重试。"
+    "warning": {
+      "mojang": "由 Mojang 分发的 Java 运行时将由 SJMCL 安装到特定目录",
+      "oracle": "从 Oracle 源下载可能需要登录"
     }
   },
   "DownloadModpackModal": {
     "header": {
-      "title": "下载整合包",
-      "retry": "重试",
-      "neoforge-libraries": "NeoForge 库文件",
-      "forge-libraries": "Forge 库文件",
-      "java-8": "Java 8 运行时",
-      "java-11": "Java 11 运行时",
-      "java-17": "Java 17 运行时",
-      "java-21": "Java 21 运行时"
+      "title": "下载整合包"
     }
   },
   "DownloadResourceModal": {
@@ -587,7 +577,8 @@
       "retry": "重试",
       "neoforge-libraries": "NeoForge 运行库",
       "forge-libraries": "Forge 运行库",
-      "launcher-update": "更新启动器"
+      "launcher-update": "更新启动器",
+      "mojang-java": "Java {{param}} 运行时"
     }
   },
   "Editable": {
@@ -1788,6 +1779,11 @@
           "description": {
             "JAVA_EXEC_INVALID": "Java 可执行文件无效"
           }
+        }
+      },
+      "downloadMojangJava": {
+        "error": {
+          "title": "Mojang Java 运行时下载失败"
         }
       },
       "checkGameDirectory": {

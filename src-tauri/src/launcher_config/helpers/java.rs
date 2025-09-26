@@ -117,25 +117,6 @@ pub fn get_java_paths(app: &AppHandle) -> Vec<String> {
     paths.insert(java_path);
   }
 
-  // Scan Java runtime paths
-  if let Ok(runtime_dir) = app
-    .path()
-    .resolve("runtime", tauri::path::BaseDirectory::AppData)
-  {
-    if let Ok(entries) = fs::read_dir(runtime_dir) {
-      for entry in entries.flatten() {
-        let dir_name = entry.file_name();
-        if let Some(name) = dir_name.to_str() {
-          if name.starts_with("java-") {
-            if let Ok(java_path) = resolve_java_home(entry.path()) {
-              paths.insert(java_path);
-            }
-          }
-        }
-      }
-    }
-  }
-
   // For windows, try to get java path from registry
   #[cfg(target_os = "windows")]
   {
@@ -210,8 +191,12 @@ fn get_java_paths_from_windows_registry() -> Vec<String> {
 
 fn scan_java_paths_in_common_directories(app: &AppHandle) -> Vec<String> {
   let mut java_paths = Vec::new();
-  if let Ok(home) = app.path().home_dir() {
-    java_paths.extend(search_java_homes_in_directory(home.join(".jdks")));
+  if let Ok(home_dir) = app.path().home_dir() {
+    java_paths.extend(search_java_homes_in_directory(home_dir.join(".jdks")));
+  }
+  // downloaded by SJMCL itself
+  if let Ok(app_data_dir) = app.path().app_data_dir() {
+    java_paths.extend(search_java_homes_in_directory(app_data_dir.join("runtime")));
   }
   #[cfg(target_os = "windows")]
   {
@@ -276,6 +261,14 @@ fn scan_java_paths_in_common_directories(app: &AppHandle) -> Vec<String> {
             java_paths.extend(search_java_homes_in_directory(path));
           }
         }
+      }
+    }
+    // downloaded by SJMCL itself
+    if let Ok(rt) = app.path().app_data_dir().map(|p| p.join("runtime")) {
+      for v in [8, 11, 17, 21] {
+        java_paths.extend(search_java_homes_in_mac_java_virtual_machines(
+          rt.join(format!("java-{v}")),
+        ));
       }
     }
   }

@@ -11,17 +11,18 @@ import {
   ModalProps,
   Text,
   VStack,
-  useToast,
 } from "@chakra-ui/react";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuExternalLink } from "react-icons/lu";
 import { MenuSelector } from "@/components/common/menu-selector";
 import { useLauncherConfig } from "@/contexts/config";
+import { useToast } from "@/contexts/toast";
 import { ConfigService } from "@/services/config";
 
-type VendorKey = "zulu" | "bellsoft" | "oracle" | "mojang";
+type VendorKey = "mojang" | "zulu" | "bellsoft" | "oracle";
 
 interface JavaVendor {
   label: string;
@@ -44,6 +45,12 @@ const buildDownloadUrl = (baseUrl: string, params: Record<string, string>) => {
 };
 
 const VENDORS: Record<VendorKey, JavaVendor> = {
+  mojang: {
+    label: "Mojang",
+    hasJre: true,
+    archMap: { x86_64: "x64", aarch64: "arm64" },
+    getUrl: () => "",
+  },
   zulu: {
     label: "Zulu",
     hasJre: true,
@@ -88,12 +95,6 @@ const VENDORS: Record<VendorKey, JavaVendor> = {
       return `https://www.oracle.com/java/technologies/downloads/#${javaOrJdk}${version}-${os.replace("macos", "mac")}`;
     },
   },
-  mojang: {
-    label: "Mojang",
-    hasJre: true,
-    archMap: { x86_64: "x64", aarch64: "arm64" },
-    getUrl: () => "",
-  },
 };
 
 export const DownloadJavaModal: React.FC<Omit<ModalProps, "children">> = ({
@@ -102,6 +103,7 @@ export const DownloadJavaModal: React.FC<Omit<ModalProps, "children">> = ({
   const { t } = useTranslation();
   const { config } = useLauncherConfig();
   const toast = useToast();
+  const router = useRouter();
   const primaryColor = config.appearance.theme.primaryColor;
   const os = config.basicInfo.osType;
   const arch = config.basicInfo.arch;
@@ -110,34 +112,21 @@ export const DownloadJavaModal: React.FC<Omit<ModalProps, "children">> = ({
   const [version, setVersion] = useState<"" | "8" | "11" | "17" | "21">("");
   const [type, setType] = useState<"" | "jdk" | "jre">("");
 
-  const handleMojangDownloadError = (error: any) => {
-    console.error("Failed to start Java download:", error);
-    let errorMessage = t("DownloadJavaModal.error.unknown");
-    if (
-      error?.message?.includes("network") ||
-      error?.message?.includes("fetch")
-    ) {
-      errorMessage = t("DownloadJavaModal.error.network");
-    } else if (error?.message?.includes("parse")) {
-      errorMessage = t("DownloadJavaModal.error.parse");
-    }
-    toast({
-      title: t("DownloadJavaModal.error.title"),
-      description: errorMessage,
-      status: "error",
-    });
-  };
-
   const handleConfirm = async () => {
     if (!vendor || !version || !type) return;
 
     if (vendor === "mojang") {
-      try {
-        await ConfigService.downloadMojangJavaRuntime(version);
-        props.onClose?.();
-      } catch (error) {
-        handleMojangDownloadError(error);
-      }
+      ConfigService.downloadMojangJava(version).then((res) => {
+        if (res.status === "success") {
+          router.push("/downloads");
+          props.onClose?.();
+        } else {
+          toast({
+            title: res.message,
+            status: "error",
+          });
+        }
+      });
     } else {
       const selectedVendor = VENDORS[vendor as VendorKey];
       const archParam = selectedVendor.archMap[arch] || "";
@@ -148,8 +137,8 @@ export const DownloadJavaModal: React.FC<Omit<ModalProps, "children">> = ({
         type: type as "jdk" | "jre",
       });
       openUrl(url);
-      props.onClose?.();
     }
+    props.onClose?.();
   };
 
   return (
@@ -206,8 +195,10 @@ export const DownloadJavaModal: React.FC<Omit<ModalProps, "children">> = ({
               />
             </Grid>
 
-            {vendor === "oracle" && (
-              <Text color="gray.500">{t("DownloadJavaModal.warning")}</Text>
+            {["mojang", "oracle"].includes(vendor) && (
+              <Text color="gray.500">
+                {t(`DownloadJavaModal.warning.${vendor}`)}
+              </Text>
             )}
           </VStack>
         </ModalBody>

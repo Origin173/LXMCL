@@ -451,24 +451,14 @@
       "version": "Version",
       "type": "Type"
     },
-    "warning": "Downloading from Oracle may require login.",
-    "error": {
-      "title": "Java Download Failed",
-      "network": "Failed to download Java runtime due to network error. Please check your connection and try again.",
-      "parse": "Failed to parse Java runtime manifest. The download source may be temporarily unavailable.",
-      "unknown": "Failed to start Java runtime download. Please try again later."
+    "warning": {
+      "mojang": "Java runtime from Mojang will be installed by SJMCL into a specific directory.",
+      "oracle": "Downloading from Oracle may require login."
     }
   },
   "DownloadModpackModal": {
     "header": {
-      "title": "Download Modpack",
-      "retry": "Retry",
-      "neoforge-libraries": "NeoForge Libraries",
-      "forge-libraries": "Forge Libraries",
-      "java-8": "Java 8 Runtime",
-      "java-11": "Java 11 Runtime",
-      "java-17": "Java 17 Runtime",
-      "java-21": "Java 21 Runtime"
+      "title": "Download Modpack"
     }
   },
   "DownloadResourceModal": {
@@ -587,7 +577,8 @@
       "retry": "Retry",
       "neoforge-libraries": "NeoForge Libraries",
       "forge-libraries": "Forge Libraries",
-      "launcher-update": "Update Launcher"
+      "launcher-update": "Update Launcher",
+      "mojang-java": "Java {{param}} Runtime"
     }
   },
   "Editable": {
@@ -1786,8 +1777,13 @@
         "error": {
           "title": "Failed to validate Java",
           "description": {
-            "JAVA_EXEC_INVALID": "Java executable is invalid "
+            "JAVA_EXEC_INVALID": "Java executable is invalid"
           }
+        }
+      },
+      "downloadMojangJava": {
+        "error": {
+          "title": "Failed to download Mojang Java runtime"
         }
       },
       "checkGameDirectory": {

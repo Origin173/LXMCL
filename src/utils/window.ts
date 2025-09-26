@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 
 export const createWindow = (
@@ -38,8 +37,4 @@ export const parseIdFromWindowLabel = (label: string): number => {
     return parseInt(match[2], 10);
   }
   return 0; // or throw an error if preferred
-};
-
-export const openUrl = async (url: string): Promise<void> => {
-  await invoke("plugin:opener|open", { path: url });
 };
