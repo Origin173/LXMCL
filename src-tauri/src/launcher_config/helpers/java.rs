@@ -112,6 +112,11 @@ pub fn get_java_paths(app: &AppHandle) -> Vec<String> {
     paths.insert(java_path);
   }
 
+  // Scan Mojang Java downloaded by SJMCL itself
+  for java_path in scan_java_paths_in_sjmcl_data_directory(app) {
+    paths.insert(java_path);
+  }
+
   // Scan java paths in all configured game directories (may downloaded by PCL)
   for java_path in scan_java_paths_in_game_directories(app) {
     paths.insert(java_path);
@@ -194,10 +199,6 @@ fn scan_java_paths_in_common_directories(app: &AppHandle) -> Vec<String> {
   if let Ok(home_dir) = app.path().home_dir() {
     java_paths.extend(search_java_homes_in_directory(home_dir.join(".jdks")));
   }
-  // downloaded by SJMCL itself
-  if let Ok(app_data_dir) = app.path().app_data_dir() {
-    java_paths.extend(search_java_homes_in_directory(app_data_dir.join("runtime")));
-  }
   #[cfg(target_os = "windows")]
   {
     let common_vendors = [
@@ -263,7 +264,21 @@ fn scan_java_paths_in_common_directories(app: &AppHandle) -> Vec<String> {
         }
       }
     }
-    // downloaded by SJMCL itself
+  }
+  java_paths
+}
+
+fn scan_java_paths_in_sjmcl_data_directory(app: &AppHandle) -> Vec<String> {
+  let mut java_paths = Vec::new();
+  #[cfg(any(target_os = "linux", target_os = "windows"))]
+  {
+    if let Ok(app_data_dir) = app.path().app_data_dir() {
+      java_paths.extend(search_java_homes_in_directory(app_data_dir.join("runtime")));
+    }
+    // TODO: test on the Linux.
+  }
+  #[cfg(target_os = "macos")]
+  {
     if let Ok(rt) = app.path().app_data_dir().map(|p| p.join("runtime")) {
       for v in [8, 11, 17, 21] {
         java_paths.extend(search_java_homes_in_mac_java_virtual_machines(
