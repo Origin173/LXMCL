@@ -28,6 +28,7 @@ interface JavaVendor {
   label: string;
   hasJre: boolean;
   archMap: Record<string, string>;
+  versions?: string[];
   getUrl: (params: {
     version: string;
     os: string;
@@ -44,59 +45,6 @@ const buildDownloadUrl = (baseUrl: string, params: Record<string, string>) => {
   return url.toString();
 };
 
-const VENDORS: Record<VendorKey, JavaVendor> = {
-  mojang: {
-    label: "Mojang",
-    hasJre: true,
-    archMap: { x86_64: "x64", aarch64: "arm64" },
-    getUrl: () => "",
-  },
-  zulu: {
-    label: "Zulu",
-    hasJre: true,
-    archMap: {
-      x86_64: "x86-64-bit",
-      aarch64: "arm-64-bit",
-    },
-    getUrl: ({ version, os, archParam, type }) => {
-      return (
-        buildDownloadUrl("https://www.azul.com/downloads/", {
-          version: `java-${version}-lts`,
-          os,
-          architecture: archParam,
-          package: type,
-          "show-old-builds": "true",
-        }) + "#zulu"
-      );
-    },
-  },
-  bellsoft: {
-    label: "BellSoft",
-    hasJre: true,
-    archMap: {
-      x86_64: "x86",
-      aarch64: "arm",
-    },
-    getUrl: ({ version, os, archParam, type }) => {
-      return buildDownloadUrl("https://bell-sw.com/pages/downloads/", {
-        version: `java-${version}`,
-        os,
-        package: type,
-        architecture: archParam,
-      });
-    },
-  },
-  oracle: {
-    label: "Oracle",
-    hasJre: false,
-    archMap: {},
-    getUrl: ({ version, os }) => {
-      const javaOrJdk = ["8", "11", "17"].includes(version) ? "java" : "jdk";
-      return `https://www.oracle.com/java/technologies/downloads/#${javaOrJdk}${version}-${os.replace("macos", "mac")}`;
-    },
-  },
-};
-
 export const DownloadJavaModal: React.FC<Omit<ModalProps, "children">> = ({
   ...props
 }) => {
@@ -111,6 +59,60 @@ export const DownloadJavaModal: React.FC<Omit<ModalProps, "children">> = ({
   const [vendor, setVendor] = useState<VendorKey | "">("");
   const [version, setVersion] = useState<"" | "8" | "11" | "17" | "21">("");
   const [type, setType] = useState<"" | "jdk" | "jre">("");
+
+  const VENDORS: Record<VendorKey, JavaVendor> = {
+    mojang: {
+      label: "Mojang",
+      hasJre: true,
+      archMap: { x86_64: "x64", aarch64: "arm64" },
+      versions: [...(os === "macos" ? [] : ["8"]), "17", "21"],
+      getUrl: () => "",
+    },
+    zulu: {
+      label: "Zulu",
+      hasJre: true,
+      archMap: {
+        x86_64: "x86-64-bit",
+        aarch64: "arm-64-bit",
+      },
+      getUrl: ({ version, os, archParam, type }) => {
+        return (
+          buildDownloadUrl("https://www.azul.com/downloads/", {
+            version: `java-${version}-lts`,
+            os,
+            architecture: archParam,
+            package: type,
+            "show-old-builds": "true",
+          }) + "#zulu"
+        );
+      },
+    },
+    bellsoft: {
+      label: "BellSoft",
+      hasJre: true,
+      archMap: {
+        x86_64: "x86",
+        aarch64: "arm",
+      },
+      getUrl: ({ version, os, archParam, type }) => {
+        return buildDownloadUrl("https://bell-sw.com/pages/downloads/", {
+          version: `java-${version}`,
+          os,
+          package: type,
+          architecture: archParam,
+        });
+      },
+    },
+    oracle: {
+      label: "Oracle",
+      hasJre: false,
+      archMap: {},
+      getUrl: ({ version, os }) => {
+        const javaOrJdk = ["8", "11", "17"].includes(version) ? "java" : "jdk";
+        return `https://www.oracle.com/java/technologies/downloads/#${javaOrJdk}${version}-${os.replace("macos", "mac")}`;
+      },
+    },
+  };
 
   const handleConfirm = async () => {
     if (!vendor || !version || !type) return;
@@ -163,6 +165,12 @@ export const DownloadJavaModal: React.FC<Omit<ModalProps, "children">> = ({
                   } else if (selected === "mojang") {
                     setType("jre");
                   }
+                  if (
+                    VENDORS[selected].versions &&
+                    !VENDORS[selected].versions.includes(version)
+                  ) {
+                    setVersion("");
+                  }
                   setVendor(selected);
                 }}
                 placeholder={t("DownloadJavaModal.selector.vendor")}
@@ -171,7 +179,14 @@ export const DownloadJavaModal: React.FC<Omit<ModalProps, "children">> = ({
               />
 
               <MenuSelector
-                options={["8", "11", "17", "21"]}
+                options={
+                  VENDORS[vendor as VendorKey].versions || [
+                    "8",
+                    "11",
+                    "17",
+                    "21",
+                  ]
+                }
                 value={version}
                 onSelect={(val) => setVersion(val as typeof version)}
                 placeholder={t("DownloadJavaModal.selector.version")}

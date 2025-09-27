@@ -1,19 +1,15 @@
 use super::helpers::java::{
-  get_java_info_from_command, get_java_info_from_release_file, refresh_and_update_javas,
+  build_mojang_java_download_params, get_java_info_from_command, get_java_info_from_release_file,
+  refresh_and_update_javas,
 };
 use super::helpers::updater::{self, download_target_version, fetch_latest_version};
 use super::models::{
   GameDirectory, JavaInfo, LauncherConfig, LauncherConfigError, VersionMetaInfo,
 };
-use crate::error::{SJMCLError, SJMCLResult};
+use crate::error::SJMCLResult;
 use crate::instance::helpers::misc::refresh_instances;
-use crate::resource::helpers::misc::{get_download_api, get_source_priority_list};
-use crate::resource::models::ResourceType;
 use crate::storage::Storage;
-use crate::tasks::{
-  commands::schedule_progressive_task_group, download::DownloadParam, monitor::TaskMonitor,
-  PTaskParam,
-};
+use crate::tasks::{commands::schedule_progressive_task_group, monitor::TaskMonitor};
 use crate::utils::fs::{generate_unique_filename, get_subdirectories};
 use crate::utils::string::camel_to_snake_case;
 use serde_json::{json, Value};
@@ -231,67 +227,7 @@ pub async fn validate_java(java_path: String) -> SJMCLResult<()> {
 
 #[tauri::command]
 pub async fn download_mojang_java(app: AppHandle, version: String) -> SJMCLResult<()> {
-  let config = app.state::<Mutex<LauncherConfig>>().lock()?.clone();
-  let client = app.state::<reqwest::Client>();
-
-  let platform = match (&*config.basic_info.os_type, &*config.basic_info.arch) {
-    ("windows", "aarch64") => "windows-arm64",
-    ("windows", "x86_64") => "windows-x64",
-    ("windows", _) => "windows-x86",
-    ("macos", "aarch64") => "mac-os-arm64",
-    ("macos", _) => "mac-os",
-    ("linux", "x86_64") => "linux",
-    _ => "linux-i386",
-  };
-
-  let runtime_type = match version.as_str() {
-    "8" => "jre-legacy",
-    "21" => "java-runtime-delta",
-    _ => "java-runtime-gamma",
-  };
-
-  let priority_list = get_source_priority_list(&config);
-  let mut json: Option<Value> = None;
-
-  for source_type in priority_list.iter() {
-    if let Ok(api_url) = get_download_api(*source_type, ResourceType::MojangJava) {
-      if let Ok(response) = client.get(api_url).send().await {
-        if let Ok(parsed_json) = response.json::<Value>().await {
-          json = Some(parsed_json);
-          break;
-        }
-      }
-    }
-  }
-
-  let json =
-    json.ok_or_else(|| SJMCLError("Failed to fetch Mojang Java runtime manifest".into()))?;
-  let manifest_url = json[platform][runtime_type][0]["manifest"]["url"]
-    .as_str()
-    .ok_or_else(|| SJMCLError("Failed to parse manifest URL".into()))?;
-
-  let manifest: Value = client.get(manifest_url).send().await?.json().await?;
-  let runtime_dir = app.path().resolve(
-    format!("runtime/java-{}", version),
-    tauri::path::BaseDirectory::AppData,
-  )?;
-
-  let download_params: Vec<_> = manifest["files"]
-    .as_object()
-    .ok_or_else(|| SJMCLError("Invalid files data".into()))?
-    .iter()
-    .filter_map(|(path, info)| {
-      let raw = info["downloads"]["raw"].as_object()?;
-      let (url, sha1) = (raw["url"].as_str()?, raw["sha1"].as_str()?);
-
-      Some(PTaskParam::Download(DownloadParam {
-        src: url.parse().ok()?,
-        dest: runtime_dir.join(path),
-        filename: None,
-        sha1: Some(sha1.into()),
-      }))
-    })
-    .collect();
+  let download_params = build_mojang_java_download_params(&app, &version).await?;
 
   schedule_progressive_task_group(
     app,
