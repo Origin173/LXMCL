@@ -166,7 +166,7 @@ export const DownloadJavaModal: React.FC<Omit<ModalProps, "children">> = ({
                     setType("jre");
                   }
                   if (
-                    VENDORS[selected].versions &&
+                    VENDORS[selected]?.versions &&
                     !VENDORS[selected].versions.includes(version)
                   ) {
                     setVersion("");
@@ -180,7 +180,7 @@ export const DownloadJavaModal: React.FC<Omit<ModalProps, "children">> = ({
 
               <MenuSelector
                 options={
-                  VENDORS[vendor as VendorKey].versions || [
+                  VENDORS[vendor as VendorKey]?.versions || [
                     "8",
                     "11",
                     "17",
