@@ -74,6 +74,7 @@ pub async fn run() {
       launcher_config::commands::delete_custom_background,
       launcher_config::commands::retrieve_java_list,
       launcher_config::commands::validate_java,
+      launcher_config::commands::download_mojang_java,
       launcher_config::commands::check_game_directory,
       launcher_config::commands::clear_download_cache,
       launcher_config::commands::check_launcher_update,
