@@ -26,7 +26,7 @@ pub async fn login(
   auth_server_url: String,
   username: String,
   password: String,
-) -> SJMCLResult<Vec<PlayerInfo>> {
+) -> SJMCLResult<(Vec<PlayerInfo>, bool)> {
   let client = app.state::<reqwest::Client>();
 
   let response = client
@@ -57,18 +57,21 @@ pub async fn login(
     let id = selected_profile.id;
     let profile = retrieve_profile(app, auth_server_url.clone(), id).await?;
 
-    Ok(vec![
-      parse_profile(
-        app,
-        &profile,
-        Some(access_token),
-        None,
-        Some(auth_server_url),
-        Some(username),
-        Some(password),
-      )
-      .await?,
-    ])
+    Ok((
+      vec![
+        parse_profile(
+          app,
+          &profile,
+          Some(access_token),
+          None,
+          Some(auth_server_url),
+          Some(username),
+          Some(password),
+        )
+        .await?,
+      ],
+      true,
+    ))
   } else {
     let available_profiles = content.available_profiles.unwrap_or_default();
 
@@ -94,7 +97,7 @@ pub async fn login(
       players.push(player);
     }
 
-    Ok(players)
+    Ok((players, false))
   }
 }
 
