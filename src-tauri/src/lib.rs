@@ -28,7 +28,6 @@ use utils::portable::is_portable;
 use utils::web::build_sjmcl_client;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-use tauri::menu::MenuBuilder;
 use tauri::path::BaseDirectory;
 use tauri::Manager;
 
@@ -239,6 +238,7 @@ pub async fn run() {
       // On macOS, some shortcuts depend on default menu: https://github.com/tauri-apps/tauri/issues/12458
       #[cfg(not(target_os = "macos"))]
       {
+        use tauri::menu::MenuBuilder;
         let menu = MenuBuilder::new(app).build()?;
         app.set_menu(menu)?;
       }

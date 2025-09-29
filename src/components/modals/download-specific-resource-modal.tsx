@@ -580,6 +580,7 @@ const DownloadSpecificResourceModal: React.FC<
                   className="secondary-text"
                   wordBreak="break-all"
                   whiteSpace="pre-wrap"
+                  noOfLines={3}
                   mt={1}
                 >
                   {(showZhTrans && resource.translatedDescription) ||
@@ -596,6 +597,7 @@ const DownloadSpecificResourceModal: React.FC<
               }
               fontWeight={400}
               flex={1}
+              titleFlex
             />
             {resource.websiteUrl && (
               <HStack spacing={1}>
