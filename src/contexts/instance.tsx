@@ -104,13 +104,11 @@ export const InstanceContextProvider: React.FC<{
     : instanceIdRaw;
 
   const summaryIdRef = React.useRef<string | undefined>(undefined);
-  useEffect(() => {
-    if (instanceId) {
-      summaryIdRef.current = instanceId;
-    } else {
-      summaryIdRef.current = undefined;
-    }
-  }, [instanceId]);
+  if (instanceId) {
+    summaryIdRef.current = instanceId;
+  } else {
+    summaryIdRef.current = undefined;
+  }
 
   const clearAllResState = useCallback(() => {
     setWorlds(undefined);
@@ -513,37 +511,44 @@ export const InstanceContextProvider: React.FC<{
 
   const [getWorldList, isWorldListLoading] = usePromisedGetState(
     worlds,
+    summaryIdRef,
     handleRetrieveWorldList
   );
 
   const [getLocalModList, isLocalModListLoading] = usePromisedGetState(
     localMods,
+    summaryIdRef,
     handleRetrieveLocalModList
   );
 
   const [getResourcePackList, isResourcePackListLoading] = usePromisedGetState(
     resourcePacks,
+    summaryIdRef,
     handleRetrieveResourcePackList
   );
 
   const [getServerResourcePackList, isServerResourcePackListLoading] =
     usePromisedGetState(
       serverResourcePacks,
+      summaryIdRef,
       handleServerRetrieveResourcePackList
     );
 
   const [getSchematicList, isSchematicListLoading] = usePromisedGetState(
     schematics,
+    summaryIdRef,
     handleRetrieveSchematicList
   );
 
   const [getShaderPackList, isShaderPackListLoading] = usePromisedGetState(
     shaderPacks,
+    summaryIdRef,
     handleRetrieveShaderPackList
   );
 
   const [getScreenshotList, isScreenshotListLoading] = usePromisedGetState(
     screenshots,
+    summaryIdRef,
     handleRetrieveScreenshotList
   );
 
