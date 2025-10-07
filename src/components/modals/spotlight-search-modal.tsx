@@ -48,6 +48,10 @@ interface SearchResult {
 const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
   ...props
 }) => {
+  // constants for online resource search
+  const MIN_RELEVANCE_SCORE = 0.6;
+  const MAX_SEARCH_RESULTS = 3;
+
   const { t } = useTranslation();
   const router = useRouter();
   const { history } = useRoutingHistory();
@@ -255,7 +259,9 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
 
                 return { resource, source, relevanceScore };
               })
-              .filter(({ relevanceScore }) => relevanceScore > 0.6)
+              .filter(
+                ({ relevanceScore }) => relevanceScore > MIN_RELEVANCE_SCORE
+              )
               .map(({ resource, source }) =>
                 convertResourceToSearchResult(resource, source)
               );
@@ -277,7 +283,7 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
             stringSimilarity.compareTwoStrings(query, a.title)
         );
 
-        return results.slice(0, 3);
+        return results.slice(0, MAX_SEARCH_RESULTS);
       } catch (error) {
         if (!signal?.aborted) {
           console.error("Network search error:", error);
