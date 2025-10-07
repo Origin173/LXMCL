@@ -13,20 +13,25 @@ import {
   ModalHeader,
   ModalOverlay,
   ModalProps,
+  Spinner,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuSearch } from "react-icons/lu";
+import stringSimilarity from "string-similarity";
 import CountTag from "@/components/common/count-tag";
 import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
+import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
 import { useRoutingHistory } from "@/contexts/routing-history";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { OtherResourceSource, OtherResourceType } from "@/enums/resource";
+import { OtherResourceInfo } from "@/models/resource";
+import { ResourceService } from "@/services/resource";
 import { generatePlayerDesc } from "@/utils/account";
 import { generateInstanceDesc } from "@/utils/instance";
 import { base64ImgSrc } from "@/utils/string";
@@ -47,11 +52,39 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
   const router = useRouter();
   const { history } = useRoutingHistory();
   const { openSharedModal } = useSharedModals();
+  const { config } = useLauncherConfig();
+  const showZhTrans =
+    config.general.general.language === "zh-Hans" &&
+    config.general.functionality.resourceTranslation;
+  const searchAbortControllerRef = useRef<AbortController | null>(null);
 
   const [queryText, setQueryText] = useState<string>("");
   const [instantRes, setInstantRes] = useState<SearchResult[]>([]);
+  const [networkSearchResults, setNetworkSearchResults] = useState<
+    SearchResult[]
+  >([]);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
 
   const { getPlayerList, getInstanceList } = useGlobalData();
+
+  const convertResourceToSearchResult = useCallback(
+    (
+      resource: OtherResourceInfo,
+      source: OtherResourceSource
+    ): SearchResult => ({
+      type:
+        source === OtherResourceSource.CurseForge ? "curseforge" : "modrinth",
+      icon: resource.iconSrc,
+      title: (showZhTrans && resource.translatedName) || resource.name,
+      description:
+        (showZhTrans && resource.translatedDescription) || resource.description,
+      action: () =>
+        openSharedModal("download-specific-resource", {
+          resource,
+        }),
+    }),
+    [showZhTrans, openSharedModal]
+  );
 
   const handleInstantSearch = useCallback(
     (query: string): SearchResult[] => {
@@ -132,9 +165,9 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
       const resourceTypes = Object.values(OtherResourceType);
 
       const createResult =
-        (platform: string, source: OtherResourceSource) =>
+        (platform: "curseforge" | "modrinth", source: OtherResourceSource) =>
         (type: OtherResourceType): SearchResult => ({
-          type: platform as "curseforge" | "modrinth",
+          type: platform,
           icon: "",
           description: "",
           title: t(`SpotlightSearchModal.resource.${type}`, { query }),
@@ -171,14 +204,155 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
     (query: string): SearchResult[] => {
       const instantResults = handleInstantSearch(query);
       const resourceResults = handleResourceSearch(query);
-      return [...instantResults, ...resourceResults];
+      return [...instantResults, ...networkSearchResults, ...resourceResults];
     },
-    [handleInstantSearch, handleResourceSearch]
+    [handleInstantSearch, handleResourceSearch, networkSearchResults]
+  );
+
+  const performNetworkSearch = useCallback(
+    async (query: string, signal?: AbortSignal): Promise<SearchResult[]> => {
+      if (!query.trim()) return [];
+
+      const results: SearchResult[] = [];
+      const priorityResourceTypes = [
+        OtherResourceType.Mod,
+        OtherResourceType.ModPack,
+        OtherResourceType.ResourcePack,
+        OtherResourceType.ShaderPack,
+      ];
+      const sources = [
+        OtherResourceSource.CurseForge,
+        OtherResourceSource.Modrinth,
+      ];
+
+      try {
+        for (const resourceType of priorityResourceTypes) {
+          if (signal?.aborted || results.length >= 3) break;
+
+          for (const source of sources) {
+            if (signal?.aborted || results.length >= 3) break;
+
+            try {
+              const response = await ResourceService.fetchResourceListByName(
+                resourceType,
+                query,
+                "All",
+                "All",
+                source === OtherResourceSource.CurseForge
+                  ? "Popularity"
+                  : "relevance",
+                source,
+                0,
+                3
+              );
+
+              if (signal?.aborted) break;
+
+              if (
+                response.status === "success" &&
+                response.data.list.length > 0
+              ) {
+                const resource = response.data.list[0];
+                const relevanceScore = Math.max(
+                  stringSimilarity.compareTwoStrings(query, resource.name),
+                  stringSimilarity.compareTwoStrings(
+                    query,
+                    resource.translatedName || ""
+                  )
+                );
+
+                if (relevanceScore > 0.5) {
+                  const searchResult = convertResourceToSearchResult(
+                    resource,
+                    source
+                  );
+                  const isDuplicate = results.some(
+                    (existing) =>
+                      existing.type === searchResult.type &&
+                      existing.title.toLowerCase() ===
+                        searchResult.title.toLowerCase()
+                  );
+
+                  if (!isDuplicate) {
+                    results.push(searchResult);
+                  }
+                }
+              }
+            } catch (error) {
+              if (!signal?.aborted) {
+                console.warn(
+                  `Failed to search ${resourceType} on ${source}:`,
+                  error
+                );
+              }
+            }
+          }
+        }
+      } catch (error) {
+        if (!signal?.aborted) {
+          console.error("Network search error:", error);
+        }
+      }
+
+      return results.slice(0, 3);
+    },
+    [convertResourceToSearchResult]
   );
 
   useEffect(() => {
     setInstantRes(handleAllSearch(queryText));
   }, [queryText, handleAllSearch]);
+
+  // Handle network search with debounce and abort control
+  useEffect(() => {
+    if (searchAbortControllerRef.current) {
+      searchAbortControllerRef.current.abort();
+    }
+
+    if (!queryText.trim()) {
+      setNetworkSearchResults([]);
+      setIsSearching(false);
+      searchAbortControllerRef.current = null;
+      return;
+    }
+
+    const debounceTimer = setTimeout(() => {
+      const controller = new AbortController();
+      searchAbortControllerRef.current = controller;
+      setIsSearching(true);
+
+      performNetworkSearch(queryText, controller.signal)
+        .then((results) => {
+          if (!controller.signal.aborted) {
+            setNetworkSearchResults(results);
+            setIsSearching(false);
+            searchAbortControllerRef.current = null;
+          }
+        })
+        .catch((error) => {
+          if (!controller.signal.aborted) {
+            console.error("Network search error:", error);
+            setNetworkSearchResults([]);
+            setIsSearching(false);
+            searchAbortControllerRef.current = null;
+          }
+        });
+    }, 500);
+
+    return () => clearTimeout(debounceTimer);
+  }, [queryText, performNetworkSearch]);
+
+  useEffect(() => {
+    if (!props.isOpen) {
+      setQueryText("");
+      setNetworkSearchResults([]);
+      setIsSearching(false);
+      if (searchAbortControllerRef.current) {
+        searchAbortControllerRef.current.abort();
+        searchAbortControllerRef.current = null;
+      }
+    }
+  }, [props.isOpen]);
 
   const groupSearchResults = () => {
     const groupedMap = new Map<string, React.ReactNode[]>();
@@ -258,7 +432,7 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
         <ModalHeader>
           <InputGroup size="md">
             <InputLeftElement pointerEvents="none" h="100%" w="auto">
-              <LuSearch />
+              {isSearching ? <Spinner size="sm" /> : <LuSearch />}
             </InputLeftElement>
             <Input
               variant="unstyled"
