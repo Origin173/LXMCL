@@ -213,46 +213,38 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
     async (query: string, signal?: AbortSignal): Promise<SearchResult[]> => {
       if (!query.trim()) return [];
 
-      const results: SearchResult[] = [];
       const priorityResourceTypes = [
         OtherResourceType.Mod,
         OtherResourceType.ModPack,
         OtherResourceType.ResourcePack,
         OtherResourceType.ShaderPack,
       ];
-      const sources = [
-        OtherResourceSource.CurseForge,
-        OtherResourceSource.Modrinth,
-      ];
+      const sources = Object.values(OtherResourceSource);
 
       try {
-        for (const resourceType of priorityResourceTypes) {
-          if (signal?.aborted || results.length >= 3) break;
+        const searchPromises = priorityResourceTypes.flatMap((resourceType) =>
+          sources.map(async (source) => {
+            if (signal?.aborted) return [];
 
-          for (const source of sources) {
-            if (signal?.aborted || results.length >= 3) break;
+            const response = await ResourceService.fetchResourceListByName(
+              resourceType,
+              query,
+              "All",
+              "All",
+              source === OtherResourceSource.CurseForge
+                ? "Popularity"
+                : "relevance",
+              source,
+              0,
+              3
+            );
 
-            try {
-              const response = await ResourceService.fetchResourceListByName(
-                resourceType,
-                query,
-                "All",
-                "All",
-                source === OtherResourceSource.CurseForge
-                  ? "Popularity"
-                  : "relevance",
-                source,
-                0,
-                3
-              );
+            if (signal?.aborted || response.status !== "success") {
+              return [];
+            }
 
-              if (signal?.aborted) break;
-
-              if (
-                response.status === "success" &&
-                response.data.list.length > 0
-              ) {
-                const resource = response.data.list[0];
+            return response.data.list
+              .map((resource) => {
                 const relevanceScore = Math.max(
                   stringSimilarity.compareTwoStrings(query, resource.name),
                   stringSimilarity.compareTwoStrings(
@@ -261,40 +253,37 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
                   )
                 );
 
-                if (relevanceScore > 0.5) {
-                  const searchResult = convertResourceToSearchResult(
-                    resource,
-                    source
-                  );
-                  const isDuplicate = results.some(
-                    (existing) =>
-                      existing.type === searchResult.type &&
-                      existing.title.toLowerCase() ===
-                        searchResult.title.toLowerCase()
-                  );
+                return { resource, source, relevanceScore };
+              })
+              .filter(({ relevanceScore }) => relevanceScore > 0.6)
+              .map(({ resource, source }) =>
+                convertResourceToSearchResult(resource, source)
+              );
+          })
+        );
 
-                  if (!isDuplicate) {
-                    results.push(searchResult);
-                  }
-                }
-              }
-            } catch (error) {
-              if (!signal?.aborted) {
-                console.warn(
-                  `Failed to search ${resourceType} on ${source}:`,
-                  error
-                );
-              }
-            }
+        const searchResults = await Promise.allSettled(searchPromises);
+
+        const results: SearchResult[] = [];
+        searchResults.forEach((result) => {
+          if (result.status === "fulfilled") {
+            results.push(...result.value);
           }
-        }
+        });
+
+        results.sort(
+          (a, b) =>
+            stringSimilarity.compareTwoStrings(query, b.title) -
+            stringSimilarity.compareTwoStrings(query, a.title)
+        );
+
+        return results.slice(0, 3);
       } catch (error) {
         if (!signal?.aborted) {
           console.error("Network search error:", error);
         }
+        return [];
       }
-
-      return results.slice(0, 3);
     },
     [convertResourceToSearchResult]
   );
