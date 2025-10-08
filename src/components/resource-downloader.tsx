@@ -38,6 +38,7 @@ import {
   worldTagList,
 } from "@/enums/resource";
 import { GetStateFlag } from "@/hooks/get-state";
+import { useTranslateTag } from "@/hooks/use-translate-tag";
 import { InstanceSummary } from "@/models/instance/misc";
 import { GameClientResourceInfo, OtherResourceInfo } from "@/models/resource";
 import { ResourceService } from "@/services/resource";
@@ -146,29 +147,7 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
   );
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { t } = useTranslation();
-
-  const translateTag = (
-    tag: string,
-    resourceType: string,
-    downloadSource?: OtherResourceSource
-  ) => {
-    if (downloadSource) {
-      const tagList = (tagLists[resourceType] || modpackTagList)[
-        downloadSource
-      ];
-      let allTags: string[] = [];
-      if (typeof tagList === "object" && tagList !== null) {
-        const keys = Object.keys(tagList);
-        const values = Object.values(tagList).flat() as string[];
-        allTags = [...keys, ...values];
-      }
-      if (!allTags.includes(tag)) return "";
-      return t(
-        `ResourceDownloader.${resourceType}TagList.${downloadSource}.${tag}`
-      );
-    }
-    return tag;
-  };
+  const { translateTag } = useTranslateTag();
 
   const buildOptionItems = (item: OtherResourceInfo): OptionItemProps => ({
     title: (

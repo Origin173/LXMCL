@@ -1,6 +1,7 @@
 import {
   Center,
   Divider,
+  HStack,
   Highlight,
   Image,
   Input,
@@ -14,6 +15,7 @@ import {
   ModalOverlay,
   ModalProps,
   Spinner,
+  Tag,
   Text,
   VStack,
 } from "@chakra-ui/react";
@@ -30,6 +32,7 @@ import { useGlobalData } from "@/contexts/global-data";
 import { useRoutingHistory } from "@/contexts/routing-history";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { OtherResourceSource, OtherResourceType } from "@/enums/resource";
+import { useTranslateTag } from "@/hooks/use-translate-tag";
 import { OtherResourceInfo } from "@/models/resource";
 import { ResourceService } from "@/services/resource";
 import { generatePlayerDesc } from "@/utils/account";
@@ -43,6 +46,12 @@ interface SearchResult {
   description: string;
   url?: string;
   action?: () => void;
+  // Optional members for online resource search
+  translatedDescription?: string;
+  translatedTitle?: string;
+  tags?: string[];
+  source?: OtherResourceSource;
+  resourceType?: OtherResourceType;
 }
 
 const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
@@ -56,7 +65,9 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
   const router = useRouter();
   const { history } = useRoutingHistory();
   const { openSharedModal } = useSharedModals();
+  const { translateTag } = useTranslateTag();
   const { config } = useLauncherConfig();
+  const primaryColor = config.appearance.theme.primaryColor;
   const showZhTrans =
     config.general.general.language === "zh-Hans" &&
     config.general.functionality.resourceTranslation;
@@ -72,22 +83,25 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
   const { getPlayerList, getInstanceList } = useGlobalData();
 
   const convertResourceToSearchResult = useCallback(
-    (
-      resource: OtherResourceInfo,
-      source: OtherResourceSource
-    ): SearchResult => ({
+    (resource: OtherResourceInfo): SearchResult => ({
       type:
-        source === OtherResourceSource.CurseForge ? "curseforge" : "modrinth",
+        resource.source === OtherResourceSource.CurseForge
+          ? "curseforge"
+          : "modrinth",
       icon: resource.iconSrc,
-      title: (showZhTrans && resource.translatedName) || resource.name,
-      description:
-        (showZhTrans && resource.translatedDescription) || resource.description,
+      title: resource.name,
+      translatedTitle: resource.translatedName,
+      description: resource.description,
+      translatedDescription: resource.translatedDescription,
+      tags: resource.tags,
+      source: resource.source,
+      resourceType: resource.type,
       action: () =>
         openSharedModal("download-specific-resource", {
           resource,
         }),
     }),
-    [showZhTrans, openSharedModal]
+    [openSharedModal]
   );
 
   const handleInstantSearch = useCallback(
@@ -257,14 +271,12 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
                   )
                 );
 
-                return { resource, source, relevanceScore };
+                return { resource, relevanceScore };
               })
               .filter(
                 ({ relevanceScore }) => relevanceScore > MIN_RELEVANCE_SCORE
               )
-              .map(({ resource, source }) =>
-                convertResourceToSearchResult(resource, source)
-              );
+              .map(({ resource }) => convertResourceToSearchResult(resource));
           })
         );
 
@@ -364,9 +376,29 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
                 query={queryText.trim().toLowerCase().split(/\s+/)}
                 styles={{ bg: "yellow.200" }}
               >
-                {res.title}
+                {showZhTrans && res.translatedTitle
+                  ? `${res.translatedTitle} | ${res.title}`
+                  : res.title}
               </Highlight>
             </Text>
+          }
+          titleExtra={
+            res.tags &&
+            res.tags.length > 0 && (
+              <HStack spacing={1}>
+                {res.tags
+                  .filter((t) => translateTag(t, res.resourceType, res.source))
+                  .map((tag) => (
+                    <Tag
+                      key={tag}
+                      colorScheme={primaryColor}
+                      className="tag-xs"
+                    >
+                      {translateTag(tag, res.resourceType, res.source)}
+                    </Tag>
+                  ))}
+              </HStack>
+            )
           }
           description={
             <Text fontSize="xs" className="secondary-text">
@@ -374,7 +406,7 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
                 query={queryText.trim().toLowerCase().split(/\s+/)}
                 styles={{ bg: "yellow.200" }}
               >
-                {res.description}
+                {(showZhTrans && res.translatedDescription) || res.description}
               </Highlight>
             </Text>
           }
