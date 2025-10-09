@@ -38,11 +38,11 @@ import {
   worldTagList,
 } from "@/enums/resource";
 import { GetStateFlag } from "@/hooks/get-state";
-import { useTranslateTag } from "@/hooks/use-translate-tag";
 import { InstanceSummary } from "@/models/instance/misc";
 import { GameClientResourceInfo, OtherResourceInfo } from "@/models/resource";
 import { ResourceService } from "@/services/resource";
 import { ISOToDate } from "@/utils/datetime";
+import { translateTag } from "@/utils/resource";
 import { formatDisplayCount } from "@/utils/string";
 
 interface ResourceDownloaderProps {
@@ -146,8 +146,6 @@ const ResourceDownloaderList: React.FC<ResourceDownloaderListProps> = ({
     null
   );
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { t } = useTranslation();
-  const { translateTag } = useTranslateTag();
 
   const buildOptionItems = (item: OtherResourceInfo): OptionItemProps => ({
     title: (

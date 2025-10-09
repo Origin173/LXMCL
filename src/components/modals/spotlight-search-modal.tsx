@@ -32,11 +32,11 @@ import { useGlobalData } from "@/contexts/global-data";
 import { useRoutingHistory } from "@/contexts/routing-history";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { OtherResourceSource, OtherResourceType } from "@/enums/resource";
-import { useTranslateTag } from "@/hooks/use-translate-tag";
 import { OtherResourceInfo } from "@/models/resource";
 import { ResourceService } from "@/services/resource";
 import { generatePlayerDesc } from "@/utils/account";
 import { generateInstanceDesc } from "@/utils/instance";
+import { translateTag } from "@/utils/resource";
 import { base64ImgSrc } from "@/utils/string";
 
 interface SearchResult {
@@ -58,6 +58,7 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
   ...props
 }) => {
   // constants for online resource search
+  const RESOURCES_PER_REQUEST = 3;
   const MIN_RELEVANCE_SCORE = 0.6;
   const MAX_SEARCH_RESULTS = 3;
 
@@ -65,7 +66,6 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
   const router = useRouter();
   const { history } = useRoutingHistory();
   const { openSharedModal } = useSharedModals();
-  const { translateTag } = useTranslateTag();
   const { config } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const showZhTrans =
@@ -254,7 +254,7 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
                 : "relevance",
               source,
               0,
-              3
+              RESOURCES_PER_REQUEST
             );
 
             if (signal?.aborted || response.status !== "success") {

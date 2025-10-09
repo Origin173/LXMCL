@@ -43,7 +43,6 @@ import { InstanceSubdirType, ModLoaderType } from "@/enums/instance";
 import { OtherResourceSource, OtherResourceType } from "@/enums/resource";
 import { GetStateFlag } from "@/hooks/get-state";
 import { useThemedCSSStyle } from "@/hooks/themed-css";
-import { useTranslateTag } from "@/hooks/use-translate-tag";
 import {
   GameClientResourceInfo,
   OtherResourceFileInfo,
@@ -55,6 +54,7 @@ import { InstanceService } from "@/services/instance";
 import { ResourceService } from "@/services/resource";
 import { TaskService } from "@/services/task";
 import { ISOToDate } from "@/utils/datetime";
+import { translateTag } from "@/utils/resource";
 import { formatDisplayCount } from "@/utils/string";
 
 interface DownloadSpecificResourceModalProps
@@ -79,7 +79,6 @@ const DownloadSpecificResourceModal: React.FC<
   const router = useRouter();
   const toast = useToast();
   const themedStyles = useThemedCSSStyle();
-  const { translateTag } = useTranslateTag();
   const primaryColor = config.appearance.theme.primaryColor;
   const showZhTrans =
     config.general.general.language === "zh-Hans" &&
