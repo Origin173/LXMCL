@@ -59,7 +59,7 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
 }) => {
   // constants for online resource search
   const RESOURCES_PER_REQUEST = 3;
-  const MIN_RELEVANCE_SCORE = 0.6;
+  const MIN_RELEVANCE_SCORE = 0.45;
   const MAX_SEARCH_RESULTS = 3;
 
   const { t } = useTranslation();
@@ -180,7 +180,14 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
     (query: string): SearchResult[] => {
       if (!query.trim()) return [];
 
-      const resourceTypes = Object.values(OtherResourceType);
+      const resourceTypes = [
+        OtherResourceType.Mod,
+        OtherResourceType.ModPack,
+        OtherResourceType.ResourcePack,
+        OtherResourceType.ShaderPack,
+        OtherResourceType.World,
+        OtherResourceType.DataPack,
+      ]; // ordered by popularity
 
       const createResult =
         (platform: "curseforge" | "modrinth", source: OtherResourceSource) =>
@@ -264,7 +271,10 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
             return response.data.list
               .map((resource) => {
                 const relevanceScore = Math.max(
-                  stringSimilarity.compareTwoStrings(query, resource.name),
+                  stringSimilarity.compareTwoStrings(
+                    query.toLowerCase(),
+                    resource.name.toLowerCase()
+                  ),
                   stringSimilarity.compareTwoStrings(
                     query,
                     resource.translatedName || ""
@@ -288,12 +298,6 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
             results.push(...result.value);
           }
         });
-
-        results.sort(
-          (a, b) =>
-            stringSimilarity.compareTwoStrings(query, b.title) -
-            stringSimilarity.compareTwoStrings(query, a.title)
-        );
 
         return results.slice(0, MAX_SEARCH_RESULTS);
       } catch (error) {
@@ -327,6 +331,8 @@ const SpotlightSearchModal: React.FC<Omit<ModalProps, "children">> = ({
       const controller = new AbortController();
       searchAbortControllerRef.current = controller;
       setIsSearching(true);
+
+      setNetworkSearchResults([]);
 
       performNetworkSearch(queryText, controller.signal)
         .then((results) => {
