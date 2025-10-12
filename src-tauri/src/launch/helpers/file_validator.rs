@@ -164,8 +164,8 @@ struct LibraryKey {
 
 // merge two vectors of libraries, remove duplicates by name, keep the one with the highest version. also remove libraries with invalid names
 pub fn merge_library_lists(
-  libraries_a: &Vec<LibrariesValue>,
-  libraries_b: &Vec<LibrariesValue>,
+  libraries_a: &[LibrariesValue],
+  libraries_b: &[LibrariesValue],
 ) -> Vec<LibrariesValue> {
   let mut library_map: HashMap<LibraryKey, LibrariesValue> = HashMap::new();
 
@@ -246,7 +246,7 @@ pub fn get_nonnative_library_paths(
     }
     libraries.push(library.clone());
   }
-  libraries = merge_library_lists(&libraries, &Vec::new()); // remove duplicates (just for the libraries vec, leave another vec as empty)
+  libraries = merge_library_lists(&libraries, &[]); // remove duplicates to prevent launch errors
   let mut result = Vec::new();
   for library in libraries {
     result.push(library_path.join(convert_library_name_to_path(&library.name, None)?));
