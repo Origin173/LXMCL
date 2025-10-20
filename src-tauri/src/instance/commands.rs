@@ -966,11 +966,7 @@ pub async fn create_instance(
       extract_overrides(&String::from("overrides/"), &file, &version_path)?;
     } else if let Ok(manifest) = MultiMcManifest::from_archive(&file) {
       let base_path = manifest.base_path;
-      extract_overrides(
-        &String::from(format!("{}.minecraft/", base_path)),
-        &file,
-        &version_path,
-      )?;
+      extract_overrides(&format!("{}.minecraft/", base_path), &file, &version_path)?;
     } else {
       return Err(InstanceError::ModpackManifestParseError.into());
     }
@@ -1078,6 +1074,38 @@ pub async fn finish_mod_loader_install(app: AppHandle, instance_id: String) -> S
 }
 
 #[tauri::command]
+pub async fn check_change_mod_loader_availablity(
+  app: AppHandle,
+  instance_id: String,
+) -> SJMCLResult<bool> {
+  let instance = {
+    let binding = app.state::<Mutex<HashMap<String, Instance>>>();
+    let launcher_config_state = binding.lock()?;
+    launcher_config_state
+      .get(&instance_id)
+      .ok_or(InstanceError::InstanceNotFoundByID)?
+      .clone()
+  };
+
+  let json_path = instance
+    .version_path
+    .join(format!("{}.json", instance.name));
+  if !json_path.exists() {
+    return Err(InstanceError::NotSupportChangeModLoader.into());
+  }
+
+  let current_info: McClientInfo = load_json_async(&json_path)
+    .await
+    .map_err(|_| InstanceError::NotSupportChangeModLoader)?;
+
+  if current_info.patches.is_empty() {
+    return Err(InstanceError::NotSupportChangeModLoader.into());
+  }
+
+  Ok(true)
+}
+
+#[tauri::command]
 pub async fn change_mod_loader(
   app: AppHandle,
   instance_id: String,
@@ -1105,7 +1133,11 @@ pub async fn change_mod_loader(
     .version_path
     .join(format!("{}.json", instance.name));
   let current_info: McClientInfo = load_json_async(&json_path).await?;
-  let vanilla_info = current_info.patches[0].clone();
+  let vanilla_info = current_info
+    .patches
+    .first()
+    .cloned()
+    .ok_or(InstanceError::NotSupportChangeModLoader)?;
 
   let mod_loader = ModLoader {
     loader_type: new_mod_loader.loader_type.clone(),

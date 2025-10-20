@@ -93,9 +93,30 @@ const InstanceModsPage = () => {
     onClose: onModInfoModalClose,
   } = useDisclosure();
 
-  const handleTypeSelect = (type: ModLoaderType) => {
-    setTargetLoaderType(type);
-    onChangeModLoaderModalOpen();
+  const handleTypeSelect = async (type: ModLoaderType) => {
+    if (!summary?.id) return;
+
+    const response = await InstanceService.checkChangeModLoaderAvailablity(
+      summary.id
+    );
+
+    if (response.status === "success") {
+      if (response.data) {
+        setTargetLoaderType(type);
+        onChangeModLoaderModalOpen();
+      } else {
+        toast({
+          title: t("Services.instance.changeModLoader.error.title"),
+          status: "error",
+        });
+      }
+    } else {
+      toast({
+        title: response.message,
+        description: response.details,
+        status: "error",
+      });
+    }
   };
 
   const getLocalModListWrapper = useCallback(
