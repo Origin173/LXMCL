@@ -339,6 +339,12 @@
       "renameOldMod": "重命名旧文件失败"
     }
   },
+  "ChangeModLoaderModal": {
+    "header": {
+      "title": "修改模组加载器"
+    },
+    "notSelectedLoader": "未选择新的加载器"
+  },
   "ClearDownloadCacheAlertDialog": {
     "dialog": {
       "title": "清除下载缓存",
@@ -572,6 +578,7 @@
     "task": {
       "game-client": "游戏客户端 {{param}}",
       "game-server": "游戏服务端 {{param}}",
+      "change-mod-loader": "修改模组加载器 {{param}}",
       "mod": "模组",
       "world": "存档",
       "resourcepack": "资源包",
@@ -2307,6 +2314,11 @@
             "MAIN_CLASS_NOT_FOUND": "主类未找到",
             "PROCESSOR_EXECUTION_FAILED": "安装任务执行失败"
           }
+        }
+      },
+      "changeModLoader": {
+        "error": {
+          "title": "修改模组加载器失败"
         }
       },
       "retrieveModpackMetaInfo": {

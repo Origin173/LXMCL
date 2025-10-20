@@ -387,6 +387,23 @@ export class InstanceService {
   }
 
   /**
+   * CHANGE the mod loader for a given instance.
+   * @param {string} instanceId - The ID of the instance to update.
+   * @param {ModLoaderResourceInfo} newModLoader - The new mod loader information.
+   * @returns {Promise<InvokeResponse<void>>}
+   */
+  @responseHandler("instance")
+  static async changeModLoader(
+    instanceId: string,
+    newModLoader: ModLoaderResourceInfo
+  ): Promise<InvokeResponse<void>> {
+    return await invoke("change_mod_loader", {
+      instanceId,
+      newModLoader,
+    });
+  }
+
+  /**
    * RETRIEVE the modpack meta info from a given manifest path.
    * @param {string} path - The path to the modpack manifest file.
    * @returns {Promise<InvokeResponse<ModpackMetaInfo>>}
