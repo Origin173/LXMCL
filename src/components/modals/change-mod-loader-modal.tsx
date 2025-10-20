@@ -31,6 +31,7 @@ import {
   defaultModLoaderResourceInfo,
 } from "@/models/resource";
 import { InstanceService } from "@/services/instance";
+import { parseModLoaderVersion } from "@/utils/instance";
 
 interface ChangeModLoaderModalProps extends Omit<ModalProps, "children"> {
   defaultSelectedType?: ModLoaderType;
@@ -109,7 +110,8 @@ export const ChangeModLoaderModal: React.FC<ChangeModLoaderModalProps> = ({
 
   const isSameAsCurrent =
     selectedModLoader.loaderType === currentModLoader.loaderType &&
-    selectedModLoader.version === currentModLoader.version;
+    selectedModLoader.version ===
+      parseModLoaderVersion(currentModLoader.version);
 
   return (
     <Modal
@@ -147,7 +149,7 @@ export const ChangeModLoaderModal: React.FC<ChangeModLoaderModalProps> = ({
                 }
                 description={
                   <Text fontSize="xs" color="gray.500">
-                    {currentModLoader.version}
+                    {parseModLoaderVersion(currentModLoader.version)}
                   </Text>
                 }
               />
