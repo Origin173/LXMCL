@@ -348,12 +348,25 @@ pub async fn retrieve_world_list(
   app: AppHandle,
   instance_id: String,
 ) -> SJMCLResult<Vec<WorldInfo>> {
+  let game_version = {
+    let binding = app.state::<Mutex<HashMap<String, Instance>>>();
+    let state = binding.lock()?;
+    let instance = state
+      .get(&instance_id)
+      .ok_or(InstanceError::InstanceNotFoundByID)?;
+    instance.version.clone()
+  };
+
+  // difficulty setting was introduced in game version 14w02a
+  let has_difficulty_support = compare_game_versions(&app, &game_version, "14w02a", false)
+    .await
+    .is_ge();
+
   let worlds_dir =
     match get_instance_subdir_path_by_id(&app, &instance_id, &InstanceSubdirType::Saves) {
       Some(path) => path,
       None => return Ok(Vec::new()),
     };
-
   let world_dirs = match get_subdirectories(worlds_dir) {
     Ok(val) => val,
     Err(_) => return Ok(Vec::new()), // if dir not exists, no need to error
@@ -369,7 +382,8 @@ pub async fn retrieve_world_list(
       world_list.push(WorldInfo {
         name: name.to_string(),
         last_played_at: last_played,
-        difficulty: difficulty.to_string(),
+        // newer game clients return a default "normal" difficulty when reading older worlds; older clients omit this field
+        difficulty: has_difficulty_support.then(|| difficulty.to_string()),
         gamemode: gamemode.to_string(),
         icon_src: icon_path,
         dir_path: path,
