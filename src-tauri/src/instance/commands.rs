@@ -190,40 +190,45 @@ pub fn retrieve_instance_subdir_path(
 }
 
 #[tauri::command]
-pub fn delete_instance(app: AppHandle, instance_id: String) -> SJMCLResult<()> {
-  let instance_binding = app.state::<Mutex<HashMap<String, Instance>>>();
-  let instance_state = instance_binding.lock().unwrap();
+pub async fn delete_instance(app: AppHandle, instance_id: String) -> SJMCLResult<()> {
+  let version_path = {
+    let instance_binding = app.state::<Mutex<HashMap<String, Instance>>>();
+    let instance_state = instance_binding.lock()?;
+
+    let instance = instance_state
+      .get(&instance_id)
+      .ok_or(InstanceError::InstanceNotFoundByID)?;
+
+    instance.version_path.clone()
+  };
+
+  let path = Path::new(&version_path);
+  if path.exists() {
+    tokio::fs::remove_dir_all(path).await?;
+  }
+
+  // not update instance state here. if send success to frontend, it will call retrieve_instance_list and update state there.
 
   let config_binding = app.state::<Mutex<LauncherConfig>>();
   let mut config_state = config_binding.lock()?;
 
-  let instance = instance_state
-    .get(&instance_id)
-    .ok_or(InstanceError::InstanceNotFoundByID)?;
+  if instance_id == config_state.states.shared.selected_instance_id {
+    let instance_binding = app.state::<Mutex<HashMap<String, Instance>>>();
+    let instance_state = instance_binding.lock()?;
+    let new_selected_id = instance_state
+      .keys()
+      .next()
+      .cloned()
+      .unwrap_or_else(|| "".to_string());
 
-  let version_path = &instance.version_path;
-  let path = Path::new(version_path);
-
-  if path.exists() {
-    fs::remove_dir_all(path)?;
-  }
-  // not update state here. if send success to frontend, it will call retrieve_instance_list and update state there.
-
-  if config_state.states.shared.selected_instance_id == instance_id {
     config_state.partial_update(
       &app,
       "states.shared.selected_instance_id",
-      &serde_json::to_string(
-        &instance_state
-          .keys()
-          .next()
-          .cloned()
-          .unwrap_or_else(|| "".to_string()),
-      )
-      .unwrap_or_default(),
+      &serde_json::to_string(&new_selected_id).unwrap_or_default(),
     )?;
     config_state.save()?;
   }
+
   Ok(())
 }
 
