@@ -4,6 +4,7 @@ mod error;
 mod instance;
 mod launch;
 mod launcher_config;
+mod openlist;
 mod partial;
 mod resource;
 mod storage;
@@ -59,7 +60,6 @@ pub async fn run() {
                                   // FIXME: this show() seems no use in macOS build mode (ref: https://github.com/tauri-apps/tauri/issues/13400#issuecomment-2866462355).
       let _ = main_window.set_focus();
     }))
-    .plugin(tauri_plugin_window_state::Builder::new().build())
     .invoke_handler(tauri::generate_handler![
       launcher_config::commands::retrieve_launcher_config,
       launcher_config::commands::update_launcher_config,
@@ -139,6 +139,16 @@ pub async fn run() {
       resource::commands::fetch_remote_resource_by_id,
       discover::commands::fetch_news_sources_info,
       discover::commands::fetch_news_post_summaries,
+      openlist::commands::openlist_browse,
+      openlist::commands::openlist_download_modpack,
+      // 以下 OpenList 下载管理命令已废弃，使用任务系统的命令替代:
+      // - cancel_progressive_task
+      // - resume_progressive_task_group
+      // - retrieve_progressive_task_list
+      // openlist::commands::openlist_pause_download,
+      // openlist::commands::openlist_resume_download,
+      // openlist::commands::openlist_get_download_status,
+      // openlist::commands::openlist_cancel_download,
       tasks::commands::schedule_progressive_task_group,
       tasks::commands::cancel_progressive_task,
       tasks::commands::resume_progressive_task,
@@ -157,6 +167,7 @@ pub async fn run() {
       utils::commands::delete_directory,
       utils::commands::retrieve_truetype_font_list,
       utils::commands::check_service_availability,
+      openlist::test_api::test_openlist_connection,
     ])
     .setup(|app| {
       // init APP_DATA_DIR
@@ -196,6 +207,10 @@ pub async fn run() {
 
       let launching_queue = Vec::<LaunchingState>::new();
       app.manage(Mutex::new(launching_queue));
+
+      // OpenList 下载管理器已废弃，现在使用任务系统
+      // let download_manager = openlist::commands::DownloadManager::new();
+      // app.manage(download_manager);
 
       // check if full account feature (offline and 3rd-party login) is available
       let app_handle = app.handle().clone();
