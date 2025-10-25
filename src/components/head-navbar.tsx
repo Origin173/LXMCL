@@ -17,6 +17,7 @@ import {
   LuBox,
   LuCircleUserRound,
   LuCompass,
+  LuDownload,
   LuSearch,
   LuSettings,
   LuZap,
@@ -58,6 +59,7 @@ const HeadNavBar = () => {
     { icon: LuZap, label: "launch", path: "/launch" },
     { icon: LuBox, label: "instances", path: "/instances" },
     { icon: LuCircleUserRound, label: "accounts", path: "/accounts" },
+    { icon: LuDownload, label: "openlist", path: "/openlist" },
     ...(config.general.functionality.discoverPage
       ? [{ icon: LuCompass, label: "discover", path: "/discover" }]
       : [

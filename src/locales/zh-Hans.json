@@ -596,6 +596,18 @@
       "mojang-java": "Java {{param}} 运行时"
     }
   },
+  "OpenListPage": {
+    "title": "整合包下载站",
+    "loading": "正在加载下载站...",
+    "download": {
+      "success": "下载成功",
+      "failed": "下载失败"
+    },
+    "error": {
+      "title": "错误",
+      "loadFailed": "无法加载下载站，请检查网络连接"
+    }
+  },
   "Editable": {
     "edit": "编辑",
     "save": "保存",
@@ -1079,6 +1091,7 @@
       "launch": "启动",
       "instances": "实例",
       "accounts": "账户",
+      "openlist": "下载站",
       "discover": "发现",
       "search": "搜索",
       "settings": "设置"

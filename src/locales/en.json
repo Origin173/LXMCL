@@ -596,6 +596,18 @@
       "mojang-java": "Java {{param}} Runtime"
     }
   },
+  "OpenListPage": {
+    "title": "Modpack Download Center",
+    "loading": "Loading download center...",
+    "download": {
+      "success": "Download successful",
+      "failed": "Download failed"
+    },
+    "error": {
+      "title": "Error",
+      "loadFailed": "Failed to load download center, please check your network connection"
+    }
+  },
   "Editable": {
     "edit": "Edit",
     "save": "Save",
@@ -1079,6 +1091,7 @@
       "launch": "Launch",
       "instances": "Games",
       "accounts": "Accounts",
+      "openlist": "Downloads",
       "discover": "Discover",
       "search": "Search",
       "settings": "Settings"
