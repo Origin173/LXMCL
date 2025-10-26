@@ -11,7 +11,7 @@ import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuChevronRight, LuSettings } from "react-icons/lu";
+import { LuChevronRight, LuPackageOpen, LuSettings } from "react-icons/lu";
 import {
   LuChevronDown,
   LuPause,
@@ -24,6 +24,7 @@ import Empty from "@/components/common/empty";
 import { OptionItem, OptionItemGroup } from "@/components/common/option-item";
 import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
+import { useSharedModals } from "@/contexts/shared-modal";
 import { parseTaskGroup, useTaskContext } from "@/contexts/task";
 import {
   GTaskEventStatusEnums,
@@ -38,6 +39,7 @@ export const DownloadTasksPage = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { config } = useLauncherConfig();
+  const { openSharedModal } = useSharedModals();
   const primaryColor = config.appearance.theme.primaryColor;
 
   const {
@@ -239,6 +241,30 @@ export const DownloadTasksPage = () => {
                             variant="ghost"
                             onClick={() =>
                               handleCancelProgressiveTaskGroup(group.taskGroup)
+                            }
+                          />
+                        </Tooltip>
+                      )}
+
+                    {/* OpenList 任务完成后显示导入按钮 */}
+                    {group.status === GTaskEventStatusEnums.Completed &&
+                      parseTaskGroup(group.taskGroup).name.startsWith(
+                        "openlist"
+                      ) &&
+                      group.taskDescs.length > 0 && (
+                        <Tooltip label="导入整合包">
+                          <IconButton
+                            aria-label="import modpack"
+                            icon={<LuPackageOpen />}
+                            size="xs"
+                            fontSize="sm"
+                            h={21}
+                            ml={1}
+                            variant="ghost"
+                            onClick={() =>
+                              openSharedModal("import-modpack", {
+                                path: group.taskDescs[0].payload.dest,
+                              })
                             }
                           />
                         </Tooltip>

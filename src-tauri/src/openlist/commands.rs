@@ -106,7 +106,13 @@ pub async fn openlist_download_modpack(
     if let Ok(metadata) = tokio::fs::metadata(&dest_file).await {
       if metadata.len() == size {
         println!("[Rust] File already exists with matching size, skipping download");
-        return Ok(dest_file.to_string_lossy().to_string());
+        // 返回 JSON 格式,与下载完成时的返回格式保持一致
+        let result = serde_json::json!({
+          "path": dest_file.to_string_lossy().to_string(),
+          "taskGroupPrefix": null, // 文件已存在,无需任务组
+        });
+        return serde_json::to_string(&result)
+          .map_err(|e| Error(format!("序列化 JSON 失败: {}", e)));
       }
     }
   }

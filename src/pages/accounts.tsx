@@ -26,6 +26,10 @@ import {
   LuServerOff,
   LuUsersRound,
 } from "react-icons/lu";
+import {
+  CAUCLoginModal,
+  useCAUCLogin,
+} from "@/components/cauc-login-modal-simple";
 import NavMenu from "@/components/common/nav-menu";
 import { Section } from "@/components/common/section";
 import SegmentedControl from "@/components/common/segmented";
@@ -68,6 +72,13 @@ const AccountsPage = () => {
     onOpen: onAddPlayerModalOpen,
     onClose: onAddPlayerModalClose,
   } = useDisclosure();
+
+  // CAUC 登录相关
+  const {
+    isOpen: isCAUCLoginOpen,
+    openCAUCLogin,
+    closeCAUCLogin,
+  } = useCAUCLogin();
 
   const playerTypeList = [
     {
@@ -274,6 +285,14 @@ const AccountsPage = () => {
                   withTooltip
                 />
                 <Button
+                  leftIcon={<LuServer />}
+                  size="xs"
+                  colorScheme="green"
+                  onClick={openCAUCLogin}
+                >
+                  CAUC 登录
+                </Button>
+                <Button
                   leftIcon={<LuPlus />}
                   size="xs"
                   colorScheme={primaryColor}
@@ -309,6 +328,16 @@ const AccountsPage = () => {
             ? ""
             : selectedPlayerType
         }
+      />
+      <CAUCLoginModal
+        isOpen={isCAUCLoginOpen}
+        onClose={closeCAUCLogin}
+        onSuccess={() => {
+          const refreshed = getPlayerList(true);
+          if (refreshed) {
+            setPlayerList(refreshed);
+          }
+        }}
       />
     </>
   );
