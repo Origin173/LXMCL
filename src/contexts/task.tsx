@@ -412,7 +412,31 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             return task;
           });
 
-          const { name, version } = parseTaskGroup(payload.taskGroup);
+          const parsed = parseTaskGroup(payload.taskGroup);
+          const fullName = parsed.name;
+          const baseName = fullName.split(":")[0];
+          const version = parsed.version;
+
+          // Prepare a friendly, i18n-aware parameter for the toast.
+          // For openlist tasks prefer the downloaded filename; otherwise try
+          // to resolve a translation for the task name and fall back to version/name.
+          let displayParam: string = "";
+
+          if (baseName === "openlist") {
+            const group = newTasks.find(
+              (t) => t.taskGroup === payload.taskGroup
+            );
+            const filename =
+              group && group.taskDescs && group.taskDescs.length > 0
+                ? group.taskDescs[0].payload.filename || ""
+                : "";
+            displayParam = filename || version || baseName;
+          } else {
+            const translationKey = `DownloadTasksPage.task.${baseName}`;
+            const translated = t(translationKey, { param: version || "" });
+            displayParam =
+              translated === translationKey ? version || baseName : translated;
+          }
 
           toast({
             status:
@@ -422,15 +446,13 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             title: t(
               `Services.task.onTaskGroupUpdate.status.${payload.event}`,
               {
-                param: t(`DownloadTasksPage.task.${name}`, {
-                  param: version || "",
-                }),
+                param: displayParam,
               }
             ),
           });
 
           if (payload.event === GTaskEventStatusEnums.Completed) {
-            switch (name) {
+            switch (baseName) {
               case "game-client":
               case "change-mod-loader":
                 getInstanceList(true);
@@ -490,6 +512,17 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
                 );
                 break;
               case "modpack": {
+                let group = newTasks.find(
+                  (t) => t.taskGroup === payload.taskGroup
+                );
+                if (group && group.taskDescs.length > 0) {
+                  openSharedModal("import-modpack", {
+                    path: group.taskDescs[0].payload.dest,
+                  });
+                }
+                break;
+              }
+              case "openlist": {
                 let group = newTasks.find(
                   (t) => t.taskGroup === payload.taskGroup
                 );

@@ -25,6 +25,7 @@ dependencies = [
  "log",
  "md5",
  "murmur2",
+ "once_cell",
  "partial_derive",
  "pin-project",
  "plist",

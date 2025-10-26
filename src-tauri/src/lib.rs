@@ -94,6 +94,9 @@ pub async fn run() {
       account::commands::add_auth_server,
       account::commands::delete_auth_server,
       account::commands::fetch_auth_server,
+      account::commands::cauc_eduroam_login,
+      account::commands::cauc_bind_player_name,
+      account::commands::cauc_complete_login,
       instance::commands::retrieve_instance_list,
       instance::commands::create_instance,
       instance::commands::update_instance_config,
@@ -190,6 +193,11 @@ pub async fn run() {
       let account_info = AccountInfo::load().unwrap_or_default();
       app.manage(Mutex::new(account_info.clone()));
       account_info.save().unwrap(); // TODO: add migration helper
+
+      // CAUC auth state for temporary session storage
+      app.manage(Mutex::new(
+        None::<account::helpers::authlib_injector::cauc::CAUCAuthState>,
+      ));
 
       let instances: HashMap<String, Instance> = HashMap::new();
       app.manage(Mutex::new(instances));

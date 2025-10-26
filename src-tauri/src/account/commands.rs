@@ -558,3 +558,202 @@ pub fn delete_auth_server(app: AppHandle, url: String) -> SJMCLResult<()> {
   config_state.save()?;
   Ok(())
 }
+
+// ==================== CAUC 登录命令 ====================
+
+use crate::account::helpers::authlib_injector::cauc;
+
+/// CAUC 步骤 1: eduroam 登录
+///
+/// 返回是否需要绑定昵称
+#[tauri::command]
+pub async fn cauc_eduroam_login(
+  app: AppHandle,
+  student_id: String,
+  oa_password: String,
+) -> SJMCLResult<bool> {
+  let auth_state = cauc::eduroam_login(&app, student_id, oa_password).await?;
+
+  // 将 auth_state 临时存储到应用状态中
+  // 这样后续的绑定操作可以使用
+  app
+    .state::<std::sync::Mutex<Option<cauc::CAUCAuthState>>>()
+    .lock()
+    .map_err(|_| AccountError::Invalid)?
+    .replace(auth_state.clone());
+
+  Ok(auth_state.requires_bind)
+}
+
+/// CAUC 步骤 2: 绑定游戏昵称
+#[tauri::command]
+pub async fn cauc_bind_player_name(app: AppHandle, player_name: String) -> SJMCLResult<()> {
+  // 从应用状态中获取之前保存的 auth_state
+  let auth_state_mutex = app.state::<std::sync::Mutex<Option<cauc::CAUCAuthState>>>();
+  let auth_state = {
+    let guard = auth_state_mutex.lock().map_err(|_| AccountError::Invalid)?;
+    guard.clone().ok_or(AccountError::Invalid)?
+  };
+
+  // 执行绑定
+  cauc::bind_player_name(&app, &auth_state, player_name.clone()).await?;
+
+  // 更新 auth_state 中的 player_name
+  let mut guard = auth_state_mutex.lock().map_err(|_| AccountError::Invalid)?;
+  if let Some(state) = guard.as_mut() {
+    state.player_name = Some(player_name);
+    log::info!("Updated auth_state with player_name after binding");
+  }
+
+  Ok(())
+}
+
+/// CAUC 步骤 3: 完成登录并添加账号
+#[tauri::command]
+pub async fn cauc_complete_login(
+  app: AppHandle,
+  _student_id: String,
+  oa_password: String,
+) -> SJMCLResult<Vec<Player>> {
+  log::info!("CAUC complete_login called");
+
+  // 从应用状态中获取之前保存的 auth_state
+  let auth_state_option = app
+    .state::<std::sync::Mutex<Option<cauc::CAUCAuthState>>>()
+    .lock()
+    .map_err(|_| AccountError::Invalid)?
+    .clone();
+
+  log::info!("Auth state retrieved: {:?}", auth_state_option.is_some());
+
+  let auth_state = auth_state_option.ok_or_else(|| {
+    log::error!("Auth state is None - user must call cauc_eduroam_login first!");
+    AccountError::Invalid
+  })?;
+
+  // 使用 OA 密码进行 Yggdrasil 认证
+  let (mut new_players, has_selected_player) =
+    cauc::authenticate(&app, &auth_state, oa_password).await?;
+
+  log::info!("Authentication returned {} players", new_players.len());
+  if !new_players.is_empty() {
+    log::info!(
+      "First player: {} ({})",
+      new_players[0].name,
+      new_players[0].id
+    );
+  }
+
+  if new_players.is_empty() {
+    log::error!("No players returned from authenticate");
+    return Err(AccountError::NotFound.into());
+  }
+
+  let original_count = new_players.len();
+
+  {
+    let account_binding = app.state::<Mutex<AccountInfo>>();
+    let account_state = account_binding.lock()?;
+    log::info!(
+      "Current account list has {} players",
+      account_state.players.len()
+    );
+    for existing_player in &account_state.players {
+      log::info!(
+        "  Existing: {} ({})",
+        existing_player.name,
+        existing_player.id
+      );
+    }
+    new_players.retain_mut(|new_player| {
+      let is_new = account_state
+        .players
+        .iter()
+        .all(|player| new_player.id != player.id);
+      if !is_new {
+        log::info!(
+          "Player {} ({}) already exists, filtering out",
+          new_player.name,
+          new_player.id
+        );
+      }
+      is_new
+    });
+  }
+
+  log::info!(
+    "After deduplication: {} players (was {})",
+    new_players.len(),
+    original_count
+  );
+
+  if new_players.is_empty() {
+    log::warn!("All players were duplicates");
+    // 清除临时状态
+    app
+      .state::<std::sync::Mutex<Option<cauc::CAUCAuthState>>>()
+      .lock()
+      .map_err(|_| AccountError::Invalid)?
+      .take();
+    return Err(AccountError::Duplicate.into());
+  }
+
+  if new_players.len() == 1 || has_selected_player {
+    // 只有一个玩家或服务器已选定,直接添加
+    let new_player = new_players[0].clone();
+    log::info!(
+      "Adding single player: {} ({})",
+      new_player.name,
+      new_player.id
+    );
+
+    {
+      let account_binding = app.state::<Mutex<AccountInfo>>();
+      let mut account_state = account_binding.lock()?;
+      let config_binding = app.state::<Mutex<LauncherConfig>>();
+      let mut config_state = config_binding.lock()?;
+
+      log::info!("Updating config with current account ID: {}", new_player.id);
+      config_state.partial_update(
+        &app,
+        "states.shared.selected_player_id",
+        &serde_json::to_string(&new_player.id).unwrap_or_default(),
+      )?;
+
+      log::info!("Pushing player to account state");
+      account_state.players.push(new_player.clone());
+
+      log::info!("Saving account state");
+      account_state.save().map_err(|e| {
+        log::error!("Failed to save account state: {:?}", e);
+        e
+      })?;
+
+      log::info!("Saving config state");
+      config_state.save().map_err(|e| {
+        log::error!("Failed to save config state: {:?}", e);
+        e
+      })?;
+
+      log::info!("Successfully saved player: {}", new_player.name);
+    }
+
+    // 清除临时状态
+    log::info!("Clearing temporary auth state");
+    app
+      .state::<std::sync::Mutex<Option<cauc::CAUCAuthState>>>()
+      .lock()
+      .map_err(|_| AccountError::Invalid)?
+      .take();
+
+    log::info!("CAUC login completed successfully");
+    Ok(vec![])
+  } else {
+    // 多个玩家,返回列表让前端选择
+    let players = new_players
+      .iter()
+      .map(|player| Player::from(player.clone()))
+      .collect();
+    Ok(players)
+  }
+}

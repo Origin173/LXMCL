@@ -258,31 +258,30 @@ export default function OpenListPage() {
           taskGroupPrefix
         );
 
-        // 使用全局注册方法（在 GlobalEventHandler 中监听）
-        if ((window as any).registerOpenListDownload) {
-          (window as any).registerOpenListDownload(
-            taskGroupPrefix,
-            downloadedPath
-          );
+        // 如果文件已存在(taskGroupPrefix 为 null),直接打开导入向导
+        if (taskGroupPrefix === null) {
           console.log(
-            "[handleDownload] Registered with global handler:",
-            taskGroupPrefix,
-            "->",
-            downloadedPath
+            "[handleDownload] File already exists, opening import wizard directly"
           );
+          openSharedModal("import-modpack", {
+            path: downloadedPath,
+          });
+          toast({
+            title: "文件已存在",
+            description: "已为您打开导入向导",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
         } else {
-          console.error(
-            "[handleDownload] Global registerOpenListDownload not available!"
-          );
+          toast({
+            title: "下载已开始",
+            description: "文件正在后台下载,下载完成后将自动打开导入向导",
+            status: "info",
+            duration: 5000,
+            isClosable: true,
+          });
         }
-
-        toast({
-          title: "下载已开始",
-          description: "文件正在后台下载,下载完成后将自动打开导入向导",
-          status: "info",
-          duration: 5000,
-          isClosable: true,
-        });
       } catch (error) {
         console.error("[handleDownload] Download failed:", error);
 
@@ -295,7 +294,7 @@ export default function OpenListPage() {
         });
       }
     },
-    [currentPath, toast]
+    [currentPath, toast, openSharedModal]
   );
 
   /**
