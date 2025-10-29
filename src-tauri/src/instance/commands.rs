@@ -836,7 +836,7 @@ pub fn create_launch_desktop_shortcut(app: AppHandle, instance_id: String) -> SJ
     .append_pair("id", &instance.id)
     .finish()
     .replace("+", "%20");
-  let url = format!("sjmcl://launch?{}", encoded_id);
+  let url = format!("lxmcl://launch?{}", encoded_id);
 
   create_url_shortcut(&app, name, url, None).map_err(|_| InstanceError::ShortcutCreationFailed)?;
 

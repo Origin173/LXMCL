@@ -12,7 +12,7 @@ use std::env;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
-const CURSEFORGE_API_KEY: &str = env!("SJMCL_CURSEFORGE_API_KEY");
+const CURSEFORGE_API_KEY: &str = env!("LXMCL_CURSEFORGE_API_KEY");
 
 pub async fn make_curseforge_request<T, P>(
   client: &reqwest::Client,

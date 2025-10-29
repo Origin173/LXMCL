@@ -54,7 +54,7 @@
       "settings": {
         "copyright": {
           "title": "版權",
-          "description": "版權所有 © 2024-2025 LXMCL 開發團隊."
+          "description": "版權所有 © 2024-2025 SJMCL 開發團隊."
         },
         "userAgreement": {
           "title": "使用者協議",
@@ -153,7 +153,7 @@
         "title": "高階選項",
         "uuid": {
           "label": "UUID",
-          "placeholder": "（由 LXMCL 自動生成）",
+          "placeholder": "（由 SJMCL 自動生成）",
           "errorMessage": "UUID 格式不正確"
         }
       }
@@ -182,7 +182,7 @@
       "description": {
         "start": {
           "3rdparty": "此認證源支援 Yggdrasil Connect 規範提案",
-          "microsoft": "LXMCL 支援微軟 OAuth 2.0 裝置許可權授予流"
+          "microsoft": "SJMCL 支援微軟 OAuth 2.0 裝置許可權授予流"
         },
         "next": "請點選繼續登入按鈕跳轉登入頁面，輸入以上程式碼（已自動複製）"
       },
@@ -467,7 +467,7 @@
       "type": "型別"
     },
     "warning": {
-      "mojang": "由 Mojang 分發的 Java 執行時將由 LXMCL 安裝到特定目錄",
+      "mojang": "由 Mojang 分發的 Java 執行時將由 SJMCL 安裝到特定目錄",
       "oracle": "從 Oracle 源下載可能需要登入"
     }
   },
@@ -522,7 +522,8 @@
       "settings": {
         "directory": {
           "title": "下載快取目錄",
-          "select": "修改"
+          "select": "修改",
+          "open": "開啟"
         },
         "clear": {
           "title": "清除下載快取",
@@ -594,18 +595,6 @@
       "forge-libraries": "Forge 執行庫",
       "launcher-update": "更新啟動器",
       "mojang-java": "Java {{param}} 執行時"
-    }
-  },
-  "OpenListPage": {
-    "title": "Modpack Download Center",
-    "loading": "Loading download center...",
-    "download": {
-      "success": "Download successful",
-      "failed": "Download failed"
-    },
-    "error": {
-      "title": "Error",
-      "loadFailed": "Failed to load download center, please check your network connection"
     }
   },
   "Editable": {
@@ -966,10 +955,8 @@
       "settings": {
         "openConfigJson": {
           "title": "啟動器設定檔案",
-          "description": "在{{opener}}中顯示啟動器的原始設定檔案"
-        },
-        "launcherLogDir": {
-          "title": "Launcher Logs Directory"
+          "description": "在{{opener}}中顯示啟動器的原始設定檔案",
+          "button": "開啟"
         }
       }
     }
@@ -981,14 +968,14 @@
         "directories": {
           "special": {
             "CURRENT_DIR": "當前資料夾",
-            "APP_DATA_SUBDIR": "LXMCL 資料資料夾",
+            "APP_DATA_SUBDIR": "SJMCL 資料資料夾",
             "OFFICIAL_DIR": "官方啟動器資料夾"
           }
         }
       },
       "deleteDialog": {
         "title": "刪除遊戲目錄",
-        "content": "確定要刪除遊戲目錄 {{dirName}} 嗎？（LXMCL 將不會掃描此目錄，但不會刪除硬碟上的檔案）"
+        "content": "確定要刪除遊戲目錄 {{dirName}} 嗎？（SJMCL 將不會掃描此目錄，但不會刪除硬碟上的檔案）"
       },
       "directoryNotExist": "該目錄不存在，請刪除並重新新增"
     },
@@ -1091,7 +1078,6 @@
       "launch": "啟動",
       "instances": "例項",
       "accounts": "賬戶",
-      "openlist": "Downloads",
       "discover": "發現",
       "search": "搜尋",
       "settings": "設定"
@@ -1133,7 +1119,7 @@
     "top": {
       "settings": {
         "LauncherDocs": {
-          "title": "LXMC Launcher 文件",
+          "title": "SJMC Launcher 文件",
           "url": "https://mc.sjtu.cn/sjmcl/zh/docs"
         }
       }
@@ -1318,7 +1304,7 @@
     },
     "confirmDelete": {
       "title": "移除 Java",
-      "description": "確認要移除此版本 Java 嗎？（LXMCL 將無法使用此 Java 啟動遊戲，但不會刪除硬碟上的檔案）"
+      "description": "確認要移除此版本 Java 嗎？（SJMCL 將無法使用此 Java 啟動遊戲，但不會刪除硬碟上的檔案）"
     }
   },
   "LaunchPage": {
@@ -1426,7 +1412,7 @@
       "neoforge": "NeoForge",
       "authlibInjector": "Authlib Injector",
       "github": "GitHub",
-      "sjmclapi": "LXMC Launcher API"
+      "sjmclapi": "SJMC Launcher API"
     }
   },
   "ReLoginPlayerModal": {
@@ -1446,8 +1432,8 @@
   },
   "RestartForUpdateConfirmDialog": {
     "title": "啟動器更新",
-    "body": "新版本已完成下載，重新啟動 LXMCL 以完成更新",
-    "bodyMSI": "新版本已完成下載，點選安裝將關閉 LXMCL 並執行安裝程式",
+    "body": "新版本已完成下載，重新啟動 SJMCL 以完成更新",
+    "bodyMSI": "新版本已完成下載，點選安裝將關閉 SJMCL 並執行安裝程式",
     "button": {
       "restart": "重新啟動",
       "install": "安裝",
@@ -2440,7 +2426,7 @@
     "header": {
       "title": "在 GitHub 為我們點亮星標"
     },
-    "body": "如果您喜愛 LXMCL，並希望支援我們，可以在 GitHub 為我們點一顆星嗎？這個小小的動作對我們來說意義重大，能激勵我們為您持續提供特性體驗。",
+    "body": "如果您喜愛 SJMCL，並希望支援我們，可以在 GitHub 為我們點一顆星嗎？這個小小的動作對我們來說意義重大，能激勵我們為您持續提供特性體驗。",
     "button": {
       "later": "稍後",
       "starUs": "點亮星標"
@@ -2515,12 +2501,12 @@
       "title": "歡迎！"
     },
     "body": {
-      "part1": "歡迎使用 LXMCL！在開始使用之前，請務必閱讀並同意我們的",
+      "part1": "歡迎使用 SJMCL！在開始使用之前，請務必閱讀並同意我們的",
       "terms": "使用者協議",
       "periods": "。"
     },
     "warning": {
-      "unstableVersion": "您正在使用{{versionLabel}}的 LXMCL，部分功能可能不穩定或未開發完成，歡迎報告使用問題與功能建議。"
+      "unstableVersion": "您正在使用{{versionLabel}}的 SJMCL，部分功能可能不穩定或未開發完成，歡迎報告使用問題與功能建議。"
     },
     "button": {
       "exit": "退出",

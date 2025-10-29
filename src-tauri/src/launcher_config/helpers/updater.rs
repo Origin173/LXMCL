@@ -13,23 +13,8 @@ use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
 type SourceTuple = (&'static str, &'static str, fn(&str, &str) -> String);
-const SOURCES: [SourceTuple; 2] = [
-  (
-    "https://mc.sjtu.cn/api-sjmcl/releases/latest",
-    "version",
-    |_, fname| format!("https://mc.sjtu.cn/sjmcl/releases/{}", fname),
-  ),
-  (
-    "https://api.github.com/repos/UNIkeEN/SJMCL/releases/latest",
-    "tag_name",
-    |ver, fname| {
-      format!(
-        "https://github.com/UNIkeEN/SJMCL/releases/download/v{}/{}",
-        ver, fname
-      )
-    },
-  ),
-];
+// Update sources disabled for LXMCL - configure your own release server if needed
+const SOURCES: [SourceTuple; 0] = [];
 
 // Generate the new version filename on remote origin according to the current os, arch and is_portable
 fn build_resource_filename(ver: &str, os: &str, arch: &str, is_portable: bool) -> String {
@@ -46,7 +31,7 @@ fn build_resource_filename(ver: &str, os: &str, arch: &str, is_portable: bool) -
     "macos" => ".app.tar.gz",
     _ => "",
   };
-  format!("SJMCL_{}_{}_{}{}", ver, os, arch, suffix)
+  format!("LXMCL_{}_{}_{}{}", ver, os, arch, suffix)
 }
 
 // Generate the new filename on the local disk.

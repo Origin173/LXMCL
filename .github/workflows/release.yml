@@ -65,32 +65,10 @@ jobs:
       version: ${{ needs.Version-Check.outputs.version }}
       upload_artifacts: true
     secrets:
-      SJMCL_CURSEFORGE_API_KEY: ${{ secrets.SJMCL_CURSEFORGE_API_KEY }}
-
-  Code-Sign-macOS:
-    needs: [Version-Check, Build-and-Release]
-    uses: ./.github/workflows/sign-macos.yml
-    with:
-      version: ${{ needs.Version-Check.outputs.version }}
-    secrets:
-      MACOS_CERT_P12_BASE64: ${{ secrets.MACOS_CERT_P12_BASE64 }}
-      MACOS_CERT_P12_PASSWORD: ${{ secrets.MACOS_CERT_P12_PASSWORD }}
-      MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
-      MACOS_NOTARY_APPLE_ID: ${{ secrets.MACOS_NOTARY_APPLE_ID }}
-      MACOS_NOTARY_PASSWORD: ${{ secrets.MACOS_NOTARY_PASSWORD }}
-      MACOS_NOTARY_TEAM_ID: ${{ secrets.MACOS_NOTARY_TEAM_ID }}
-
-  Upload-release-to-AUR:
-    needs: [Version-Check, Build-and-Release]
-    if: always() && needs.Build-and-Release.result == 'success'
-    uses: ./.github/workflows/publish-aur.yml
-    with:
-      version: ${{ needs.Version-Check.outputs.version }}
-    secrets:
-      AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+      LXMCL_CURSEFORGE_API_KEY: ${{ secrets.LXMCL_CURSEFORGE_API_KEY }}
 
   Create-Release:
-    needs: [Version-Check, Build-and-Release, Code-Sign-macOS, Upload-release-to-AUR]
+    needs: [Version-Check, Build-and-Release]
     if: always() && needs.Build-and-Release.result == 'success'
     runs-on: ubuntu-latest
     
@@ -99,82 +77,30 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download non-macOS artifacts
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: 'SJMCL_${{ needs.Version-Check.outputs.version }}_*'
+          pattern: 'LXMCL_${{ needs.Version-Check.outputs.version }}_*'
           path: artifacts
-          merge-multiple: true
-
-      - name: Download signed macOS artifacts
-        if: needs.Code-Sign-macOS.result == 'success'
-        uses: actions/download-artifact@v4
-        with:
-          pattern: 'SJMCL_${{ needs.Version-Check.outputs.version }}_macos_*_signed'
-          path: artifacts-signed
           merge-multiple: true
 
       - name: Organize release artifacts
         env:
           VERSION: ${{ needs.Version-Check.outputs.version }}
-          SIGNING_SUCCESS: ${{ needs.Code-Sign-macOS.result == 'success' }}
         run: |
           mkdir -p release-artifacts
-          
-          # Copy non-macOS artifacts
-          find artifacts -name "SJMCL_${{ env.VERSION }}_windows_*" -exec cp {} release-artifacts/ \;
-          find artifacts -name "SJMCL_${{ env.VERSION }}_linux_*" -exec cp {} release-artifacts/ \;
-          
-          # Copy macOS artifacts (signed if available, unsigned otherwise)
-          if [ "${{ env.SIGNING_SUCCESS }}" = "true" ] && [ -d artifacts-signed ]; then
-            echo "Using signed macOS artifacts"
-            # Copy signed macOS artifacts (rename to remove _signed suffix)
-            find artifacts-signed -name "SJMCL_${{ env.VERSION }}_macos_*" -type f | while read file; do
-              basename=$(basename "$file")
-              # Remove _signed suffix before the file extension
-              newname=$(echo "$basename" | sed 's/_signed\./\./')
-              cp "$file" "release-artifacts/$newname"
-            done
-          else
-            echo "⚠️ WARNING: Using unsigned macOS artifacts (signing failed or was skipped)"
-            # Copy unsigned macOS artifacts
-            find artifacts -name "SJMCL_${{ env.VERSION }}_macos_*" -exec cp {} release-artifacts/ \;
-          fi
-          
+
+          # Copy all platform artifacts
+          find artifacts -name "LXMCL_${{ env.VERSION }}_*" -exec cp {} release-artifacts/ \;
+
           echo "Final release artifacts:"
           ls -la release-artifacts/
 
-      - name: Upload artifacts to remote server
-        env:
-          SJMC_SECRET_KEY: ${{ secrets.SJMC_DEPLOY_SECRET_KEY }}
-          SJMC_DEPLOY_API: ${{ secrets.SJMC_DEPLOY_API }}
-          SJMC_DEPLOY_PROJECT: ${{ secrets.SJMC_DEPLOY_PROJECT }}
-        run: |
-          bash scripts/release/upload_to_sjmc_server.sh
-        shell: bash
-
       - name: Generate Changelog
         id: changelog
-        env:
-          SIGNING_SUCCESS: ${{ needs.Code-Sign-macOS.result == 'success' }}
-          UPLOAD_AUR_SUCCESS: ${{ needs.Upload-release-to-AUR.result == 'success' }}
         run: |
           pip install requests packaging
           python scripts/release/generate_changelog_draft.py > release-notes.md
-          
-          # Add warning if macOS signing failed
-          if [ "${{ env.SIGNING_SUCCESS }}" != "true" ]; then
-            echo "" >> release-notes.md
-            echo "---" >> release-notes.md
-            echo "" >> release-notes.md
-            echo "⚠️ **Note:** macOS artifacts in this release are **not code-signed**. macOS users may see security warnings when running the application." >> release-notes.md
-          fi
-          if [ "${{ env.UPLOAD_AUR_SUCCESS }}" != "true" ]; then
-            echo "" >> release-notes.md
-            echo "---" >> release-notes.md
-            echo "" >> release-notes.md
-            echo "⚠️ **Note:** version of this release are **not updated** in AUR. The AUR package may be outdated." >> release-notes.md
-          fi
         shell: bash
 
       - name: Create Release
@@ -186,7 +112,7 @@ jobs:
           
           # Create the release
           gh release create "$GITHUB_REF_NAME" \
-            --title "SJMCL ${{ env.VERSION }}" \
+            --title "LXMCL ${{ env.VERSION }}" \
             --draft \
             $PRERELEASE \
             --notes-file release-notes.md \

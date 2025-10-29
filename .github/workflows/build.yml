@@ -20,7 +20,7 @@ on:
         type: string
         default: 'main'
     secrets:
-      SJMCL_CURSEFORGE_API_KEY:
+      LXMCL_CURSEFORGE_API_KEY:
         required: true
 
 jobs:
@@ -104,39 +104,39 @@ jobs:
         if: matrix.platform == 'macos'
         run: pnpm run tauri build --bundles app --target ${{ matrix.target }}
         env:
-          SJMCL_CURSEFORGE_API_KEY: ${{ secrets.SJMCL_CURSEFORGE_API_KEY }}
+          LXMCL_CURSEFORGE_API_KEY: ${{ secrets.LXMCL_CURSEFORGE_API_KEY }}
 
       - name: Build the app
         if: matrix.platform != 'macos'
         run: pnpm run tauri build --target ${{ matrix.target }}
         env:
-          SJMCL_CURSEFORGE_API_KEY: ${{ secrets.SJMCL_CURSEFORGE_API_KEY }}
+          LXMCL_CURSEFORGE_API_KEY: ${{ secrets.LXMCL_CURSEFORGE_API_KEY }}
 
       - name: Prepare release artifact
         shell: bash
         env:
           VERSION: ${{ inputs.version }}
         run: |
-          ARTIFACT_NAME="SJMCL_${{ env.VERSION }}_${{ matrix.platform }}_${{ matrix.arch }}"
+          ARTIFACT_NAME="LXMCL_${{ env.VERSION }}_${{ matrix.platform }}_${{ matrix.arch }}"
           echo "Artifact Name: $ARTIFACT_NAME"
           mkdir artifacts
           if [ "${{ matrix.platform }}" = "windows" ]; then
-            python scripts/release/bundle_portable_assets.py -p "src-tauri/target/${{ matrix.target }}/release/" "SJMCL.exe"
+            python scripts/release/bundle_portable_assets.py -p "src-tauri/target/${{ matrix.target }}/release/" "LXMCL.exe"
             # For Windows, copy the portable exe
-            mv "src-tauri/target/${{ matrix.target }}/release/SJMCL-patched.exe" artifacts/"$ARTIFACT_NAME"_portable.exe
+            mv "src-tauri/target/${{ matrix.target }}/release/LXMCL-patched.exe" artifacts/"$ARTIFACT_NAME"_portable.exe
             mv "src-tauri/target/${{ matrix.target }}/release/bundle/msi/"*.msi artifacts/"$ARTIFACT_NAME".msi
             ls -la artifacts
           elif [ "${{ matrix.platform }}" = "macos" ]; then
             ls src-tauri/target/${{ matrix.target }}/release/bundle/macos
             # For MacOS, compress the .app folder
-            tar -cvzf artifacts/"$ARTIFACT_NAME".app.tar.gz -C "src-tauri/target/${{ matrix.target }}/release/bundle/macos" "SJMCL.app"
+            tar -cvzf artifacts/"$ARTIFACT_NAME".app.tar.gz -C "src-tauri/target/${{ matrix.target }}/release/bundle/macos" "LXMCL.app"
             ls -la artifacts
           elif [ "${{ matrix.platform }}" = "linux" ]; then
-            python scripts/release/bundle_portable_assets.py -p "src-tauri/target/${{ matrix.target }}/release/" "SJMCL"
+            python scripts/release/bundle_portable_assets.py -p "src-tauri/target/${{ matrix.target }}/release/" "LXMCL"
             mv "src-tauri/target/${{ matrix.target }}/release/bundle/appimage/"*.AppImage artifacts/"$ARTIFACT_NAME".AppImage
             mv "src-tauri/target/${{ matrix.target }}/release/bundle/deb/"*.deb artifacts/"$ARTIFACT_NAME".deb
             mv "src-tauri/target/${{ matrix.target }}/release/bundle/rpm/"*.rpm artifacts/"$ARTIFACT_NAME".rpm
-            mv "src-tauri/target/${{ matrix.target }}/release/SJMCL-patched" artifacts/"$ARTIFACT_NAME"_portable
+            mv "src-tauri/target/${{ matrix.target }}/release/LXMCL-patched" artifacts/"$ARTIFACT_NAME"_portable
             ls -la artifacts
           fi
           

@@ -119,7 +119,7 @@ impl CurseForgeManifest {
         let class_id = {
           let project_resp = client
             .get(format!("https://api.curseforge.com/v1/mods/{project_id}"))
-            .header("x-api-key", env!("SJMCL_CURSEFORGE_API_KEY"))
+            .header("x-api-key", env!("LXMCL_CURSEFORGE_API_KEY"))
             .header("accept", "application/json")
             .send()
             .await
@@ -133,7 +133,7 @@ impl CurseForgeManifest {
             .get(format!(
               "https://api.curseforge.com/v1/mods/{project_id}/files/{file_id}"
             ))
-            .header("x-api-key", env!("SJMCL_CURSEFORGE_API_KEY"))
+            .header("x-api-key", env!("LXMCL_CURSEFORGE_API_KEY"))
             .header("accept", "application/json")
             .send()
             .await
