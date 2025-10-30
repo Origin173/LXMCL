@@ -8,10 +8,6 @@ import { WrapCardGroup } from "@/components/common/wrap-card";
 
 export const CoreContributorsList = [
   {
-    username: "Origin173",
-    contribution: "fullStackDev",
-  },
-  {
     username: "UNIkeEN",
     contribution: "fullStackDev",
   },

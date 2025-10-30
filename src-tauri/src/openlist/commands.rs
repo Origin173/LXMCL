@@ -12,6 +12,9 @@ use crate::{
   tasks::{commands::schedule_progressive_task_group, download::DownloadParam, PTaskParam},
 };
 
+/// OpenList 服务器地址（从环境变量读取）
+const OPENLIST_BASE_URL: &str = env!("LXMCL_OPENLIST_BASE_URL");
+
 /// OpenList API 响应结构
 #[derive(Debug, Serialize, Deserialize)]
 pub struct OpenListResponse {
@@ -40,7 +43,7 @@ pub async fn openlist_browse(request: BrowseRequest) -> Result<OpenListResponse,
   let client = reqwest::Client::new();
 
   let response = client
-    .post("https://shindobaddo.cauc.fun/api/fs/list")
+    .post(format!("{}/api/fs/list", OPENLIST_BASE_URL))
     .json(&serde_json::json!({
       "path": request.path,
       "page": request.page.unwrap_or(1),
@@ -122,7 +125,7 @@ pub async fn openlist_download_modpack(
   let client = reqwest::Client::new();
 
   let get_response = client
-    .post("https://shindobaddo.cauc.fun/api/fs/get")
+    .post(format!("{}/api/fs/get", OPENLIST_BASE_URL))
     .json(&serde_json::json!({
       "path": file_path,
     }))
