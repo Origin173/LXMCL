@@ -7,6 +7,10 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { FsListRequest, FsListResponse, FsObject } from "@/types/openlist";
 
+// OpenList 服务器地址（从环境变量读取）
+const OPENLIST_BASE_URL =
+  process.env.NEXT_PUBLIC_OPENLIST_BASE_URL || "https://shindobaddo.cauc.fun";
+
 /**
  * OpenList API 客户端类
  */
@@ -182,8 +186,8 @@ export class OpenListAPI {
 
     // 构建下载 URL
     const downloadUrl = sign
-      ? `https://shindobaddo.cauc.fun/d${filePath}?sign=${sign}`
-      : `https://shindobaddo.cauc.fun/d${filePath}`;
+      ? `${OPENLIST_BASE_URL}/d${filePath}?sign=${sign}`
+      : `${OPENLIST_BASE_URL}/d${filePath}`;
 
     console.log(`  - Download URL: ${downloadUrl}`);
 
