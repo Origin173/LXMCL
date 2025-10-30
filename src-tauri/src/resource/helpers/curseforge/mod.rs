@@ -1,6 +1,6 @@
 pub mod misc;
 
-use crate::error::SJMCLResult;
+use crate::error::LXMCLResult;
 use crate::resource::helpers::misc::apply_other_resource_enhancements;
 use crate::resource::helpers::mod_db::handle_search_query;
 use crate::resource::models::{
@@ -29,7 +29,7 @@ const ALL_FILTER: &str = "All";
 pub async fn fetch_resource_list_by_name_curseforge(
   app: &AppHandle,
   query: &OtherResourceSearchQuery,
-) -> SJMCLResult<OtherResourceSearchRes> {
+) -> LXMCLResult<OtherResourceSearchRes> {
   let url = get_curseforge_api(OtherResourceApiEndpoint::Search, None)?;
 
   let OtherResourceSearchQuery {
@@ -90,7 +90,7 @@ pub async fn fetch_resource_list_by_name_curseforge(
 pub async fn fetch_resource_version_packs_curseforge(
   app: &AppHandle,
   query: &OtherResourceVersionPackQuery,
-) -> SJMCLResult<Vec<OtherResourceVersionPack>> {
+) -> LXMCLResult<Vec<OtherResourceVersionPack>> {
   let mut aggregated_files: Vec<CurseForgeFileInfo> = Vec::new();
   let mut page = 0;
   let page_size = 50;
@@ -147,7 +147,7 @@ pub async fn fetch_resource_version_packs_curseforge(
 pub async fn fetch_remote_resource_by_local_curseforge(
   app: &AppHandle,
   file_path: &str,
-) -> SJMCLResult<OtherResourceFileInfo> {
+) -> LXMCLResult<OtherResourceFileInfo> {
   let file_path = Path::new(file_path);
   if !file_path.exists() {
     return Err(ResourceError::ParseError.into());
@@ -201,7 +201,7 @@ pub async fn fetch_remote_resource_by_local_curseforge(
 pub async fn fetch_remote_resource_by_id_curseforge(
   app: &AppHandle,
   resource_id: &str,
-) -> SJMCLResult<OtherResourceInfo> {
+) -> LXMCLResult<OtherResourceInfo> {
   let url = get_curseforge_api(OtherResourceApiEndpoint::ById, Some(resource_id))?;
   let client = app.state::<reqwest::Client>();
 

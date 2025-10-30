@@ -9,7 +9,7 @@ use crate::account::models::{
   AccountError, DeviceAuthResponse, DeviceAuthResponseInfo, OAuthTokens, PlayerInfo, PlayerType,
   Texture,
 };
-use crate::error::SJMCLResult;
+use crate::error::LXMCLResult;
 use serde_json::{json, Value};
 use std::str::FromStr;
 use tauri::{AppHandle, Manager};
@@ -17,7 +17,7 @@ use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_http::reqwest;
 use uuid::Uuid;
 
-pub async fn device_authorization(app: &AppHandle) -> SJMCLResult<DeviceAuthResponseInfo> {
+pub async fn device_authorization(app: &AppHandle) -> LXMCLResult<DeviceAuthResponseInfo> {
   let client = app.state::<reqwest::Client>();
   let response = client
     .post(DEVICE_AUTH_ENDPOINT)
@@ -48,7 +48,7 @@ pub async fn device_authorization(app: &AppHandle) -> SJMCLResult<DeviceAuthResp
   })
 }
 
-async fn fetch_xbl_token(app: &AppHandle, microsoft_token: String) -> SJMCLResult<String> {
+async fn fetch_xbl_token(app: &AppHandle, microsoft_token: String) -> LXMCLResult<String> {
   let client = app.state::<reqwest::Client>();
 
   let response = client
@@ -75,7 +75,7 @@ async fn fetch_xbl_token(app: &AppHandle, microsoft_token: String) -> SJMCLResul
   Ok(response["Token"].as_str().unwrap_or("").to_string())
 }
 
-async fn fetch_xsts_token(app: &AppHandle, xbl_token: String) -> SJMCLResult<(String, String)> {
+async fn fetch_xsts_token(app: &AppHandle, xbl_token: String) -> LXMCLResult<(String, String)> {
   let client = app.state::<reqwest::Client>();
 
   let response = client
@@ -114,7 +114,7 @@ async fn fetch_minecraft_token(
   app: &AppHandle,
   xsts_userhash: String,
   xsts_token: String,
-) -> SJMCLResult<String> {
+) -> LXMCLResult<String> {
   let client = app.state::<reqwest::Client>();
 
   let response: Value = client
@@ -135,7 +135,7 @@ async fn fetch_minecraft_token(
 async fn fetch_minecraft_profile(
   app: &AppHandle,
   minecraft_token: String,
-) -> SJMCLResult<MinecraftProfile> {
+) -> LXMCLResult<MinecraftProfile> {
   let client = app.state::<reqwest::Client>();
 
   let response = client
@@ -153,7 +153,7 @@ async fn fetch_minecraft_profile(
   )
 }
 
-async fn parse_profile(app: &AppHandle, tokens: &OAuthTokens) -> SJMCLResult<PlayerInfo> {
+async fn parse_profile(app: &AppHandle, tokens: &OAuthTokens) -> LXMCLResult<PlayerInfo> {
   let xbl_token = fetch_xbl_token(app, tokens.access_token.clone()).await?;
   let (xsts_userhash, xsts_token) = fetch_xsts_token(app, xbl_token).await?;
   let minecraft_token = fetch_minecraft_token(app, xsts_userhash, xsts_token).await?;
@@ -206,7 +206,7 @@ async fn parse_profile(app: &AppHandle, tokens: &OAuthTokens) -> SJMCLResult<Pla
   )
 }
 
-pub async fn login(app: &AppHandle, auth_info: DeviceAuthResponseInfo) -> SJMCLResult<PlayerInfo> {
+pub async fn login(app: &AppHandle, auth_info: DeviceAuthResponseInfo) -> LXMCLResult<PlayerInfo> {
   let client = app.state::<reqwest::Client>();
   let sender = client.post(OAUTH_TOKEN_ENDPOINT).form(&[
     ("client_id", CLIENT_ID),
@@ -217,7 +217,7 @@ pub async fn login(app: &AppHandle, auth_info: DeviceAuthResponseInfo) -> SJMCLR
   parse_profile(app, &tokens).await
 }
 
-pub async fn refresh(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<PlayerInfo> {
+pub async fn refresh(app: &AppHandle, player: &PlayerInfo) -> LXMCLResult<PlayerInfo> {
   let client = app.state::<reqwest::Client>();
 
   let token_response = client
@@ -246,7 +246,7 @@ pub async fn refresh(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<Player
   parse_profile(app, &tokens).await
 }
 
-pub async fn validate(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<bool> {
+pub async fn validate(app: &AppHandle, player: &PlayerInfo) -> LXMCLResult<bool> {
   let client = app.state::<reqwest::Client>();
   let response = client
     .get(PROFILE_ENDPOINT)

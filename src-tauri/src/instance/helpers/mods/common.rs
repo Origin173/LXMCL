@@ -1,4 +1,4 @@
-use crate::error::{SJMCLError, SJMCLResult};
+use crate::error::{LXMCLError, LXMCLResult};
 use crate::instance::helpers::mods::{fabric, forge, legacy_forge, liteloader, quilt};
 use crate::instance::models::misc::{LocalModInfo, ModLoaderType};
 use crate::resource::helpers::curseforge::{
@@ -82,7 +82,7 @@ async fn save_local_mod_translations_cache(
   fs::write(cache_path, content).await.is_ok()
 }
 
-pub async fn get_mod_info_from_jar(path: &PathBuf) -> SJMCLResult<LocalModInfo> {
+pub async fn get_mod_info_from_jar(path: &PathBuf) -> LXMCLResult<LocalModInfo> {
   let file = Cursor::new(tokio::fs::read(path).await?);
   let file_name = path.file_name().unwrap().to_string_lossy().to_string();
   let file_stem = PathBuf::from(file_name.strip_suffix(".disabled").unwrap_or(&file_name))
@@ -187,13 +187,13 @@ pub async fn get_mod_info_from_jar(path: &PathBuf) -> SJMCLResult<LocalModInfo> 
       file_path,
     });
   }
-  Err(SJMCLError(format!(
+  Err(LXMCLError(format!(
     "{} cannot be recognized as known",
     file_name
   )))
 }
 
-pub async fn get_mod_info_from_dir(path: &Path) -> SJMCLResult<LocalModInfo> {
+pub async fn get_mod_info_from_dir(path: &Path) -> LXMCLResult<LocalModInfo> {
   let dir_name = path.file_name().unwrap().to_string_lossy().to_string();
   // only remove .disabled suffix if exists, not consider other extension-like suffix in dir name.
   let dir_stem = dir_name
@@ -302,7 +302,7 @@ pub async fn get_mod_info_from_dir(path: &Path) -> SJMCLResult<LocalModInfo> {
     });
   }
 
-  Err(SJMCLError(format!(
+  Err(LXMCLError(format!(
     "{} cannot be recognized as known",
     dir_name
   )))
@@ -311,7 +311,7 @@ pub async fn get_mod_info_from_dir(path: &Path) -> SJMCLResult<LocalModInfo> {
 pub async fn add_local_mod_translations(
   app: &AppHandle,
   mod_info: &mut LocalModInfo,
-) -> SJMCLResult<()> {
+) -> LXMCLResult<()> {
   const CACHE_EXPIRY_HOURS: u64 = 24;
 
   let file_path = mod_info.file_path.to_string_lossy().to_string();
@@ -333,7 +333,7 @@ pub async fn add_local_mod_translations(
       let file_info = fetch_remote_resource_by_local_modrinth(&app_clone, &file_path_clone).await?;
       let resource_info =
         fetch_remote_resource_by_id_modrinth(&app_clone, &file_info.resource_id).await?;
-      Ok::<_, SJMCLError>(resource_info)
+      Ok::<_, LXMCLError>(resource_info)
     })
   };
 
@@ -345,7 +345,7 @@ pub async fn add_local_mod_translations(
         fetch_remote_resource_by_local_curseforge(&app_clone, &file_path_clone).await?;
       let resource_info =
         fetch_remote_resource_by_id_curseforge(&app_clone, &file_info.resource_id).await?;
-      Ok::<_, SJMCLError>(resource_info)
+      Ok::<_, LXMCLError>(resource_info)
     })
   };
 

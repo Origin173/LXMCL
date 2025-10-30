@@ -65,7 +65,7 @@ jobs:
       version: ${{ needs.Version-Check.outputs.version }}
       upload_artifacts: true
     secrets:
-      SJMCL_CURSEFORGE_API_KEY: ${{ secrets.SJMCL_CURSEFORGE_API_KEY }}
+      LXMCL_CURSEFORGE_API_KEY: ${{ secrets.LXMCL_CURSEFORGE_API_KEY }}
 
   Code-Sign-macOS:
     needs: [Version-Check, Build-and-Release]
@@ -102,7 +102,7 @@ jobs:
       - name: Download non-macOS artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: 'SJMCL_${{ needs.Version-Check.outputs.version }}_*'
+          pattern: 'LXMCL_${{ needs.Version-Check.outputs.version }}_*'
           path: artifacts
           merge-multiple: true
 
@@ -110,7 +110,7 @@ jobs:
         if: needs.Code-Sign-macOS.result == 'success'
         uses: actions/download-artifact@v4
         with:
-          pattern: 'SJMCL_${{ needs.Version-Check.outputs.version }}_macos_*_signed'
+          pattern: 'LXMCL_${{ needs.Version-Check.outputs.version }}_macos_*_signed'
           path: artifacts-signed
           merge-multiple: true
 
@@ -122,14 +122,14 @@ jobs:
           mkdir -p release-artifacts
           
           # Copy non-macOS artifacts
-          find artifacts -name "SJMCL_${{ env.VERSION }}_windows_*" -exec cp {} release-artifacts/ \;
-          find artifacts -name "SJMCL_${{ env.VERSION }}_linux_*" -exec cp {} release-artifacts/ \;
+          find artifacts -name "LXMCL_${{ env.VERSION }}_windows_*" -exec cp {} release-artifacts/ \;
+          find artifacts -name "LXMCL_${{ env.VERSION }}_linux_*" -exec cp {} release-artifacts/ \;
           
           # Copy macOS artifacts (signed if available, unsigned otherwise)
           if [ "${{ env.SIGNING_SUCCESS }}" = "true" ] && [ -d artifacts-signed ]; then
             echo "Using signed macOS artifacts"
             # Copy signed macOS artifacts (rename to remove _signed suffix)
-            find artifacts-signed -name "SJMCL_${{ env.VERSION }}_macos_*" -type f | while read file; do
+            find artifacts-signed -name "LXMCL_${{ env.VERSION }}_macos_*" -type f | while read file; do
               basename=$(basename "$file")
               # Remove _signed suffix before the file extension
               newname=$(echo "$basename" | sed 's/_signed\./\./')
@@ -138,20 +138,21 @@ jobs:
           else
             echo "⚠️ WARNING: Using unsigned macOS artifacts (signing failed or was skipped)"
             # Copy unsigned macOS artifacts
-            find artifacts -name "SJMCL_${{ env.VERSION }}_macos_*" -exec cp {} release-artifacts/ \;
+            find artifacts -name "LXMCL_${{ env.VERSION }}_macos_*" -exec cp {} release-artifacts/ \;
           fi
           
           echo "Final release artifacts:"
           ls -la release-artifacts/
 
-      - name: Upload artifacts to remote server
-        env:
-          SJMC_SECRET_KEY: ${{ secrets.SJMC_DEPLOY_SECRET_KEY }}
-          SJMC_DEPLOY_API: ${{ secrets.SJMC_DEPLOY_API }}
-          SJMC_DEPLOY_PROJECT: ${{ secrets.SJMC_DEPLOY_PROJECT }}
-        run: |
-          bash scripts/release/upload_to_sjmc_server.sh
-        shell: bash
+      # Commented out: SJMC server deployment is not used in LXMCL
+      # - name: Upload artifacts to remote server
+      #   env:
+      #     SJMC_SECRET_KEY: ${{ secrets.SJMC_DEPLOY_SECRET_KEY }}
+      #     SJMC_DEPLOY_API: ${{ secrets.SJMC_DEPLOY_API }}
+      #     SJMC_DEPLOY_PROJECT: ${{ secrets.SJMC_DEPLOY_PROJECT }}
+      #   run: |
+      #     bash scripts/release/upload_to_sjmc_server.sh
+      #   shell: bash
 
       - name: Generate Changelog
         id: changelog
@@ -186,7 +187,7 @@ jobs:
           
           # Create the release
           gh release create "$GITHUB_REF_NAME" \
-            --title "SJMCL ${{ env.VERSION }}" \
+            --title "LXMCL ${{ env.VERSION }}" \
             --draft \
             $PRERELEASE \
             --notes-file release-notes.md \

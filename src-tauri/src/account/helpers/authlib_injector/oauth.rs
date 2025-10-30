@@ -5,7 +5,7 @@ use crate::account::helpers::misc::oauth_polling;
 use crate::account::models::{
   AccountError, DeviceAuthResponse, DeviceAuthResponseInfo, OAuthTokens, PlayerInfo,
 };
-use crate::error::SJMCLResult;
+use crate::error::LXMCLResult;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -23,7 +23,7 @@ struct OpenIDConfig {
 async fn fetch_openid_configuration(
   app: &AppHandle,
   openid_configuration_url: String,
-) -> SJMCLResult<OpenIDConfig> {
+) -> LXMCLResult<OpenIDConfig> {
   let client = app.state::<reqwest::Client>();
 
   let res = client
@@ -38,7 +38,7 @@ async fn fetch_openid_configuration(
   Ok(res)
 }
 
-async fn fetch_jwks(app: &AppHandle, jwks_uri: String) -> SJMCLResult<Value> {
+async fn fetch_jwks(app: &AppHandle, jwks_uri: String) -> LXMCLResult<Value> {
   let client = app.state::<reqwest::Client>();
 
   let res = client
@@ -57,10 +57,16 @@ pub async fn device_authorization(
   app: &AppHandle,
   openid_configuration_url: String,
   client_id: Option<String>,
-) -> SJMCLResult<DeviceAuthResponseInfo> {
+) -> LXMCLResult<DeviceAuthResponseInfo> {
   let client = app.state::<reqwest::Client>();
 
   let openid_configuration = fetch_openid_configuration(app, openid_configuration_url).await?;
+
+  log::info!(
+    "Device authorization endpoint: {}, client_id: {:?}",
+    openid_configuration.device_authorization_endpoint,
+    client_id
+  );
 
   let response = client
     .post(openid_configuration.device_authorization_endpoint)
@@ -70,18 +76,35 @@ pub async fn device_authorization(
     ])
     .send()
     .await
-    .map_err(|_| AccountError::NetworkError)?
-    .json::<DeviceAuthResponse>()
-    .await
-    .map_err(|_| AccountError::ParseError)?;
+    .map_err(|e| {
+      log::error!("Device authorization request failed: {}", e);
+      AccountError::NetworkError
+    })?;
 
-  let device_code = response.device_code;
-  let user_code = response.user_code;
-  let verification_uri = response
+  let status = response.status();
+  let response_text = response.text().await.map_err(|e| {
+    log::error!("Failed to read response body: {}", e);
+    AccountError::NetworkError
+  })?;
+
+  log::info!(
+    "Device authorization response status: {}, body: {}",
+    status,
+    response_text
+  );
+
+  let parsed: DeviceAuthResponse = serde_json::from_str(&response_text).map_err(|e| {
+    log::error!("Failed to parse device authorization response: {}", e);
+    AccountError::ParseError
+  })?;
+
+  let device_code = parsed.device_code;
+  let user_code = parsed.user_code;
+  let verification_uri = parsed
     .verification_uri_complete
-    .unwrap_or(response.verification_uri);
-  let interval = response.interval;
-  let expires_in = response.expires_in;
+    .unwrap_or(parsed.verification_uri);
+  let interval = parsed.interval;
+  let expires_in = parsed.expires_in;
 
   app.clipboard().write_text(user_code.clone())?;
 
@@ -100,7 +123,7 @@ async fn parse_token(
   tokens: &OAuthTokens,
   auth_server_url: Option<String>,
   client_id: Option<String>,
-) -> SJMCLResult<PlayerInfo> {
+) -> LXMCLResult<PlayerInfo> {
   let key = &jwks["keys"].as_array().ok_or(AccountError::ParseError)?[0];
 
   let e = key["e"].as_str().unwrap_or_default();
@@ -149,7 +172,7 @@ pub async fn login(
   openid_configuration_url: String,
   client_id: Option<String>,
   auth_info: DeviceAuthResponseInfo,
-) -> SJMCLResult<PlayerInfo> {
+) -> LXMCLResult<PlayerInfo> {
   let client = app.state::<reqwest::Client>();
   let openid_configuration = fetch_openid_configuration(app, openid_configuration_url).await?;
   let jwks = fetch_jwks(app, openid_configuration.jwks_uri).await?;
@@ -170,7 +193,7 @@ pub async fn refresh(
   player: &PlayerInfo,
   client_id: Option<String>,
   openid_configuration_url: String,
-) -> SJMCLResult<PlayerInfo> {
+) -> LXMCLResult<PlayerInfo> {
   let openid_configuration = fetch_openid_configuration(app, openid_configuration_url).await?;
   let jwks = fetch_jwks(app, openid_configuration.jwks_uri).await?;
 

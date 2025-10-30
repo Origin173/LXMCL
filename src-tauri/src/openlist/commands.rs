@@ -7,7 +7,7 @@ use tauri::AppHandle;
 use tauri_plugin_http::reqwest;
 
 use crate::{
-  error::SJMCLError as Error,
+  error::LXMCLError as Error,
   launcher_config::models::LauncherConfig,
   tasks::{commands::schedule_progressive_task_group, download::DownloadParam, PTaskParam},
 };

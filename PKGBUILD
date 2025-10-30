@@ -1,25 +1,20 @@
-# Maintainer: SJMC <launcher@sjmc.club>
-# Maintainer: xpe-online <xpecnh2n@gmail.com>
-# Maintainer: raindropqwq <raindropqwq@outlook.com>
+# Maintainer: Origin173 <https://github.com/Origin173>
 
-pkgname=sjmcl-bin
-pkgdesc='🌟 A Minecraft launcher from @SJMC-Dev'
-pkgver=0.0.0
+pkgname=lxmcl-bin
+pkgdesc='A Minecraft launcher forked from SJMCL'
+pkgver=0.1.0
 pkgrel=1
 arch=(x86_64)
-license=(GPL-3.0,custom:LICENSE.EXTRA)
-url='https://github.com/UNIkeEN/SJMCL'
-source=("https://github.com/UNIkeEN/SJMCL/releases/download/v${pkgver}/SJMCL_${pkgver}_linux_x86_64.deb"
-        'LICENSE.EXTRA')
-sha512sums=('SKIP'
-            'SKIP')
+license=(GPL-3.0)
+url='https://github.com/Origin173/LXMCL'
+source=("https://github.com/Origin173/LXMCL/releases/download/v${pkgver}/LXMCL_${pkgver}_linux_x86_64.deb")
+sha512sums=('SKIP')
 depends=('cairo' 'desktop-file-utils' 'gdk-pixbuf2' 'glib2' 'gtk3' 'hicolor-icon-theme' 'libsoup' 'pango' 'webkit2gtk-4.1')
 options=('!strip' '!emptydirs')
-provides=('sjmcl')
-conflicts=('sjmcl')
+provides=('lxmcl')
+conflicts=('lxmcl')
 
 package() {
   bsdtar -xf data.tar.gz -C "${pkgdir}"
-  chmod +x ${pkgdir}/usr/bin/SJMCL
-  install -Dm 644 "${srcdir}/LICENSE.EXTRA" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE.EXTRA"
+  chmod +x ${pkgdir}/usr/bin/LXMCL
 }

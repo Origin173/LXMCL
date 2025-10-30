@@ -1,9 +1,9 @@
 pub static PRESET_AUTH_SERVERS: [&str; 2] = [
-  "https://skin.mc.sjtu.cn/api/yggdrasil",
+  "https://skin.cauc.fun/api/yggdrasil",
   "https://skin.mualliance.ltd/api/yggdrasil",
 ];
 pub static CLIENT_IDS: [(&str, &str); 3] = [
-  ("skin.mc.sjtu.cn", "6"),
+  ("skin.cauc.fun", "10"),
   ("skin.mualliance.ltd", "27"),
   ("littleskin.cn", "1014"),
 ];

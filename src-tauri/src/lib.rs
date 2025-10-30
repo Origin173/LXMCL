@@ -25,7 +25,7 @@ use std::sync::{LazyLock, Mutex, OnceLock};
 use storage::Storage;
 use tasks::monitor::TaskMonitor;
 use utils::portable::is_portable;
-use utils::web::build_sjmcl_client;
+use utils::web::build_lxmcl_client;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use tauri::path::BaseDirectory;
@@ -192,7 +192,6 @@ pub async fn run() {
 
       let account_info = AccountInfo::load().unwrap_or_default();
       app.manage(Mutex::new(account_info.clone()));
-      account_info.save().unwrap(); // TODO: add migration helper
 
       // CAUC auth state for temporary session storage
       app.manage(Mutex::new(
@@ -210,7 +209,7 @@ pub async fn run() {
 
       app.manage(Box::pin(TaskMonitor::new(app.handle().clone())));
 
-      let client = build_sjmcl_client(app.handle(), true, false);
+      let client = build_lxmcl_client(app.handle(), true, false);
       app.manage(client);
 
       let launching_queue = Vec::<LaunchingState>::new();
@@ -228,7 +227,7 @@ pub async fn run() {
           .unwrap_or_default();
       });
 
-      // Refresh all auth servers
+      // Refresh all auth servers - use spawn to avoid blocking but prioritize it
       let app_handle = app.handle().clone();
       tauri::async_runtime::spawn(async move {
         refresh_and_update_auth_servers(&app_handle)
