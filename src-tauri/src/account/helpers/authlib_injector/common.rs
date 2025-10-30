@@ -4,7 +4,7 @@ use crate::account::helpers::authlib_injector::{oauth, password};
 use crate::account::helpers::misc::fetch_image;
 use crate::account::helpers::offline::load_preset_skin;
 use crate::account::models::{AccountError, AuthServer, PlayerInfo, PlayerType, Texture};
-use crate::error::SJMCLResult;
+use crate::error::LXMCLResult;
 use base64::engine::general_purpose;
 use base64::Engine;
 use serde_json::json;
@@ -16,7 +16,7 @@ pub async fn retrieve_profile(
   app: &AppHandle,
   auth_server_url: String,
   id: String,
-) -> SJMCLResult<MinecraftProfile> {
+) -> LXMCLResult<MinecraftProfile> {
   let client = app.state::<reqwest::Client>();
   Ok(
     client
@@ -40,7 +40,7 @@ pub async fn parse_profile(
   refresh_token: Option<String>,
   auth_server_url: Option<String>,
   auth_account: Option<String>,
-) -> SJMCLResult<PlayerInfo> {
+) -> LXMCLResult<PlayerInfo> {
   let uuid = Uuid::parse_str(&profile.id).map_err(|_| AccountError::ParseError)?;
   let name = profile.name.clone();
   let mut textures: Vec<Texture> = vec![];
@@ -97,7 +97,7 @@ pub async fn parse_profile(
   )
 }
 
-pub async fn validate(app: &AppHandle, player: &PlayerInfo) -> SJMCLResult<bool> {
+pub async fn validate(app: &AppHandle, player: &PlayerInfo) -> LXMCLResult<bool> {
   let client = app.state::<reqwest::Client>();
 
   let response = client
@@ -119,7 +119,7 @@ pub async fn refresh(
   app: &AppHandle,
   player: &PlayerInfo,
   auth_server: &AuthServer,
-) -> SJMCLResult<PlayerInfo> {
+) -> LXMCLResult<PlayerInfo> {
   if player.refresh_token.is_none() || Some("") == player.refresh_token.as_deref() {
     // to be compatible with legacy version of account config
     password::refresh(app, player, false).await

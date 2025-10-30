@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "SJMCL",
-  "version": "0.5.0",
-  "identifier": "SJMCL",
+  "productName": "LXMCL",
+  "version": "0.1.0",
+  "identifier": "LXMCL",
   "build": {
     "frontendDist": "../out",
     "devUrl": "http://localhost:3000",
@@ -93,7 +93,7 @@
     "deep-link": {
       "desktop": {
         "schemes": [
-          "sjmcl"
+          "lxmcl"
         ]
       }
     },

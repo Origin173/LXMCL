@@ -1,6 +1,7 @@
 use crate::account::constants::TEXTURE_ROLES;
 use crate::account::helpers::authlib_injector::info::{
   fetch_auth_server_info, fetch_auth_url, get_auth_server_info_by_url,
+  refresh_and_update_auth_servers,
 };
 use crate::account::helpers::authlib_injector::jar::check_authlib_jar;
 use crate::account::helpers::authlib_injector::{self};
@@ -8,7 +9,7 @@ use crate::account::helpers::{microsoft, misc, offline};
 use crate::account::models::{
   AccountError, AccountInfo, AuthServer, DeviceAuthResponseInfo, Player, PlayerInfo, PlayerType,
 };
-use crate::error::SJMCLResult;
+use crate::error::LXMCLResult;
 use crate::launcher_config::models::LauncherConfig;
 use crate::storage::Storage;
 use std::sync::Mutex;
@@ -16,7 +17,7 @@ use tauri::{AppHandle, Manager};
 use url::Url;
 
 #[tauri::command]
-pub fn retrieve_player_list(app: AppHandle) -> SJMCLResult<Vec<Player>> {
+pub fn retrieve_player_list(app: AppHandle) -> LXMCLResult<Vec<Player>> {
   let binding = app.state::<Mutex<AccountInfo>>();
   let state = binding.lock()?;
 
@@ -30,7 +31,7 @@ pub fn retrieve_player_list(app: AppHandle) -> SJMCLResult<Vec<Player>> {
 }
 
 #[tauri::command]
-pub async fn add_player_offline(app: AppHandle, username: String, uuid: String) -> SJMCLResult<()> {
+pub async fn add_player_offline(app: AppHandle, username: String, uuid: String) -> LXMCLResult<()> {
   let new_player = offline::login(&app, username, uuid).await?;
 
   let account_binding = app.state::<Mutex<AccountInfo>>();
@@ -64,7 +65,7 @@ pub async fn fetch_oauth_code(
   app: AppHandle,
   server_type: PlayerType,
   auth_server_url: String,
-) -> SJMCLResult<DeviceAuthResponseInfo> {
+) -> LXMCLResult<DeviceAuthResponseInfo> {
   if server_type == PlayerType::ThirdParty {
     let auth_server = AuthServer::from(get_auth_server_info_by_url(&app, auth_server_url)?);
 
@@ -87,7 +88,7 @@ pub async fn add_player_oauth(
   server_type: PlayerType,
   auth_info: DeviceAuthResponseInfo,
   auth_server_url: String,
-) -> SJMCLResult<()> {
+) -> LXMCLResult<()> {
   let new_player = match server_type {
     PlayerType::ThirdParty => {
       let _ = check_authlib_jar(&app).await; // ignore the error when logging in
@@ -146,7 +147,7 @@ pub async fn relogin_player_oauth(
   app: AppHandle,
   player_id: String,
   auth_info: DeviceAuthResponseInfo,
-) -> SJMCLResult<()> {
+) -> LXMCLResult<()> {
   let account_binding = app.state::<Mutex<AccountInfo>>();
 
   let cloned_account_state = account_binding.lock()?.clone();
@@ -198,7 +199,7 @@ pub async fn relogin_player_oauth(
 }
 
 #[tauri::command]
-pub fn cancel_oauth(app: AppHandle) -> SJMCLResult<()> {
+pub fn cancel_oauth(app: AppHandle) -> LXMCLResult<()> {
   let account_binding = app.state::<Mutex<AccountInfo>>();
   let mut account_state = account_binding.lock()?;
   account_state.is_oauth_processing = false;
@@ -212,7 +213,7 @@ pub async fn add_player_3rdparty_password(
   auth_server_url: String,
   username: String,
   password: String,
-) -> SJMCLResult<Vec<Player>> {
+) -> LXMCLResult<Vec<Player>> {
   let _ = check_authlib_jar(&app).await; // ignore the error when logging in
 
   let (mut new_players, is_token_binded) =
@@ -275,7 +276,7 @@ pub async fn relogin_player_3rdparty_password(
   app: AppHandle,
   player_id: String,
   password: String,
-) -> SJMCLResult<()> {
+) -> LXMCLResult<()> {
   let account_binding = app.state::<Mutex<AccountInfo>>();
 
   let cloned_account_state = account_binding.lock()?.clone();
@@ -324,7 +325,7 @@ pub async fn relogin_player_3rdparty_password(
 }
 
 #[tauri::command]
-pub async fn add_player_from_selection(app: AppHandle, player: Player) -> SJMCLResult<()> {
+pub async fn add_player_from_selection(app: AppHandle, player: Player) -> LXMCLResult<()> {
   let player_info: PlayerInfo = player.into();
   let refreshed_player = authlib_injector::password::refresh(&app, &player_info, true).await?;
 
@@ -362,7 +363,7 @@ pub fn update_player_skin_offline_preset(
   app: AppHandle,
   player_id: String,
   preset_role: String,
-) -> SJMCLResult<()> {
+) -> LXMCLResult<()> {
   let account_binding = app.state::<Mutex<AccountInfo>>();
   let mut account_state = account_binding.lock()?;
 
@@ -385,7 +386,7 @@ pub fn update_player_skin_offline_preset(
 }
 
 #[tauri::command]
-pub async fn delete_player(app: AppHandle, player_id: String) -> SJMCLResult<()> {
+pub async fn delete_player(app: AppHandle, player_id: String) -> LXMCLResult<()> {
   {
     let account_binding = app.state::<Mutex<AccountInfo>>();
     let mut account_state = account_binding.lock()?;
@@ -421,7 +422,7 @@ pub async fn delete_player(app: AppHandle, player_id: String) -> SJMCLResult<()>
 }
 
 #[tauri::command]
-pub async fn refresh_player(app: AppHandle, player_id: String) -> SJMCLResult<()> {
+pub async fn refresh_player(app: AppHandle, player_id: String) -> LXMCLResult<()> {
   let account_binding = app.state::<Mutex<AccountInfo>>();
 
   let cloned_account_state = account_binding.lock()?.clone();
@@ -464,19 +465,41 @@ pub async fn refresh_player(app: AppHandle, player_id: String) -> SJMCLResult<()
 }
 
 #[tauri::command]
-pub fn retrieve_auth_server_list(app: AppHandle) -> SJMCLResult<Vec<AuthServer>> {
+pub async fn retrieve_auth_server_list(app: AppHandle) -> LXMCLResult<Vec<AuthServer>> {
+  // Check if auth servers need to be refreshed (if metadata is null)
+  let needs_refresh = {
+    let binding = app.state::<Mutex<AccountInfo>>();
+    let state = binding.lock()?;
+    state.auth_servers.iter().any(|s| s.metadata.is_null())
+  };
+
+  // If any server has null metadata, refresh them first
+  if needs_refresh {
+    log::info!("Auth servers metadata is null, refreshing...");
+    refresh_and_update_auth_servers(&app).await?;
+    log::info!("Auth servers metadata refreshed successfully");
+  }
+
   let binding = app.state::<Mutex<AccountInfo>>();
   let state = binding.lock()?;
-  let auth_servers = state
+  let auth_servers: Vec<AuthServer> = state
     .auth_servers
     .iter()
-    .map(|server| AuthServer::from(server.clone()))
+    .map(|server| {
+      let auth_server = AuthServer::from(server.clone());
+      log::debug!(
+        "Auth server: {} ({})",
+        auth_server.name,
+        auth_server.auth_url
+      );
+      auth_server
+    })
     .collect();
   Ok(auth_servers)
 }
 
 #[tauri::command]
-pub async fn fetch_auth_server(app: AppHandle, url: String) -> SJMCLResult<AuthServer> {
+pub async fn fetch_auth_server(app: AppHandle, url: String) -> LXMCLResult<AuthServer> {
   // check the url integrity following the standard
   // https://github.com/yushijinhun/authlib-injector/wiki/%E5%90%AF%E5%8A%A8%E5%99%A8%E6%8A%80%E6%9C%AF%E8%A7%84%E8%8C%83#%E5%9C%A8%E5%90%AF%E5%8A%A8%E5%99%A8%E4%B8%AD%E8%BE%93%E5%85%A5%E5%9C%B0%E5%9D%80
   let parsed_url = Url::parse(&url)
@@ -495,7 +518,7 @@ pub async fn fetch_auth_server(app: AppHandle, url: String) -> SJMCLResult<AuthS
 }
 
 #[tauri::command]
-pub async fn add_auth_server(app: AppHandle, auth_url: String) -> SJMCLResult<()> {
+pub async fn add_auth_server(app: AppHandle, auth_url: String) -> LXMCLResult<()> {
   if get_auth_server_info_by_url(&app, auth_url.clone()).is_ok() {
     return Err(AccountError::Duplicate.into());
   }
@@ -510,7 +533,7 @@ pub async fn add_auth_server(app: AppHandle, auth_url: String) -> SJMCLResult<()
 }
 
 #[tauri::command]
-pub fn delete_auth_server(app: AppHandle, url: String) -> SJMCLResult<()> {
+pub fn delete_auth_server(app: AppHandle, url: String) -> LXMCLResult<()> {
   let account_binding = app.state::<Mutex<AccountInfo>>();
   let mut account_state = account_binding.lock()?;
 
@@ -571,7 +594,7 @@ pub async fn cauc_eduroam_login(
   app: AppHandle,
   student_id: String,
   oa_password: String,
-) -> SJMCLResult<bool> {
+) -> LXMCLResult<bool> {
   let auth_state = cauc::eduroam_login(&app, student_id, oa_password).await?;
 
   // 将 auth_state 临时存储到应用状态中
@@ -587,7 +610,7 @@ pub async fn cauc_eduroam_login(
 
 /// CAUC 步骤 2: 绑定游戏昵称
 #[tauri::command]
-pub async fn cauc_bind_player_name(app: AppHandle, player_name: String) -> SJMCLResult<()> {
+pub async fn cauc_bind_player_name(app: AppHandle, player_name: String) -> LXMCLResult<()> {
   // 从应用状态中获取之前保存的 auth_state
   let auth_state_mutex = app.state::<std::sync::Mutex<Option<cauc::CAUCAuthState>>>();
   let auth_state = {
@@ -614,7 +637,7 @@ pub async fn cauc_complete_login(
   app: AppHandle,
   _student_id: String,
   oa_password: String,
-) -> SJMCLResult<Vec<Player>> {
+) -> LXMCLResult<Vec<Player>> {
   log::info!("CAUC complete_login called");
 
   // 从应用状态中获取之前保存的 auth_state

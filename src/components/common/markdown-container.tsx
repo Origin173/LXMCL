@@ -43,7 +43,7 @@ const MarkdownContainer: React.FC<MarkdownContainerProps> = ({
             color={`${primaryColor}.500`}
             onClick={() =>
               openUrl(
-                `https://github.com/UNIkeEN/SJMCL/pull/${issueNumber}`
+                `https://github.com/Origin173/LXMCL/pull/${issueNumber}`
               ).catch(console.error)
             }
           >

@@ -1,6 +1,6 @@
 use crate::account::helpers::authlib_injector::constants::CLIENT_IDS;
 use crate::account::models::{AccountError, AccountInfo, AuthServerInfo};
-use crate::error::SJMCLResult;
+use crate::error::LXMCLResult;
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
@@ -9,7 +9,7 @@ use url::Url;
 pub async fn fetch_auth_server_info(
   app: &AppHandle,
   auth_url: String,
-) -> SJMCLResult<AuthServerInfo> {
+) -> LXMCLResult<AuthServerInfo> {
   let client = app.state::<reqwest::Client>();
   match client.get(&auth_url).send().await {
     Ok(response) => {
@@ -54,7 +54,7 @@ pub fn get_client_id(domain: String) -> Option<String> {
     .map(|(_, id)| id.to_string())
 }
 
-pub async fn fetch_auth_url(app: &AppHandle, root: Url) -> SJMCLResult<String> {
+pub async fn fetch_auth_url(app: &AppHandle, root: Url) -> LXMCLResult<String> {
   let client = app.state::<reqwest::Client>();
   let response = client
     .get(root.clone())
@@ -76,7 +76,7 @@ pub async fn fetch_auth_url(app: &AppHandle, root: Url) -> SJMCLResult<String> {
   }
 }
 
-pub async fn refresh_and_update_auth_servers(app: &AppHandle) -> SJMCLResult<()> {
+pub async fn refresh_and_update_auth_servers(app: &AppHandle) -> LXMCLResult<()> {
   let account_binding = app.state::<Mutex<AccountInfo>>();
   let cloned_account_state = account_binding.lock()?.clone();
 
@@ -101,7 +101,7 @@ pub async fn refresh_and_update_auth_servers(app: &AppHandle) -> SJMCLResult<()>
 pub fn get_auth_server_info_by_url(
   app: &AppHandle,
   auth_url: String,
-) -> SJMCLResult<AuthServerInfo> {
+) -> LXMCLResult<AuthServerInfo> {
   let account_binding = app.state::<Mutex<AccountInfo>>();
   let account_state = account_binding.lock()?;
 

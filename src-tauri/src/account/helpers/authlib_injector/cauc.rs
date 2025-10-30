@@ -1,6 +1,6 @@
 use crate::account::helpers::authlib_injector::common::{parse_profile, retrieve_profile};
 use crate::account::models::{AccountError, PlayerInfo};
-use crate::error::SJMCLResult;
+use crate::error::LXMCLResult;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tauri::AppHandle;
@@ -10,7 +10,7 @@ use urlencoding::decode;
 const CAUC_BASE_URL: &str = "https://skin.cauc.fun";
 
 /// 从 /user 页面提取玩家名
-async fn get_player_name(client: &Client, cookie_jar: &[(String, String)]) -> SJMCLResult<String> {
+async fn get_player_name(client: &Client, cookie_jar: &[(String, String)]) -> LXMCLResult<String> {
   let user_page_url = format!("{}/user", CAUC_BASE_URL);
 
   // 构建 Cookie header
@@ -102,7 +102,7 @@ pub async fn eduroam_login(
   _app: &AppHandle,
   student_id: String,
   oa_password: String,
-) -> SJMCLResult<CAUCAuthState> {
+) -> LXMCLResult<CAUCAuthState> {
   log::info!("CAUC eduroam login attempt for student: {}", student_id);
 
   // 创建一个不自动跟随重定向的客户端
@@ -328,7 +328,7 @@ pub async fn bind_player_name(
   _app: &AppHandle,
   auth_state: &CAUCAuthState,
   player_name: String,
-) -> SJMCLResult<()> {
+) -> LXMCLResult<()> {
   let client = auth_state.client.clone();
 
   let bind_url = format!("{}/user/player/bind", CAUC_BASE_URL);
@@ -417,7 +417,7 @@ pub async fn authenticate(
   app: &AppHandle,
   auth_state: &CAUCAuthState,
   oa_password: String,
-) -> SJMCLResult<(Vec<PlayerInfo>, bool)> {
+) -> LXMCLResult<(Vec<PlayerInfo>, bool)> {
   let mut candidate_usernames: Vec<String> = vec![];
 
   if let Some(player_name) = auth_state.player_name.as_ref() {
@@ -660,7 +660,7 @@ pub async fn login_flow(
   student_id: String,
   oa_password: String,
   player_name: Option<String>,
-) -> SJMCLResult<LoginFlowResult> {
+) -> LXMCLResult<LoginFlowResult> {
   // 步骤 1: eduroam 登录
   let auth_state = eduroam_login(app, student_id.clone(), oa_password.clone()).await?;
 

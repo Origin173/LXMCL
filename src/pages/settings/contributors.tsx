@@ -8,6 +8,10 @@ import { WrapCardGroup } from "@/components/common/wrap-card";
 
 export const CoreContributorsList = [
   {
+    username: "Origin173",
+    contribution: "fullStackDev",
+  },
+  {
     username: "UNIkeEN",
     contribution: "fullStackDev",
   },
@@ -92,7 +96,7 @@ const ContributorsPage = () => {
             title: t("ContributorsPage.all"),
             children: (
               <CommonIconButton
-                label="https://github.com/UNIkeEN/SJMCL/graphs/contributors"
+                label="https://github.com/Origin173/LXMCL/graphs/contributors"
                 icon="external"
                 withTooltip
                 tooltipPlacement="bottom-end"
@@ -100,7 +104,7 @@ const ContributorsPage = () => {
                 h={18}
                 onClick={() =>
                   openUrl(
-                    "https://github.com/UNIkeEN/SJMCL/graphs/contributors"
+                    "https://github.com/Origin173/LXMCL/graphs/contributors"
                   )
                 }
               />

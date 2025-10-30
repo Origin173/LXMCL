@@ -1,8 +1,18 @@
 [English](../CHANGELOG.md) · **简体中文**
 
-SJMCL 遵循 [语义化版本规范 2.0.0](https://semver.org/lang/zh-CN/)。
+LXMCL 遵循 [语义化版本规范 2.0.0](https://semver.org/lang/zh-CN/)。
 
-## 0.5.0
+## 0.1.0
+
+`2025-10-29`
+
+- LXMCL 首次发布，基于 SJMCL 0.5.0
+
+---
+
+## 之前的 SJMCL 版本（供参考）
+
+### 0.5.0
 
 `2025-10-20`
 

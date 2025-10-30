@@ -1,4 +1,4 @@
-use crate::error::{SJMCLError, SJMCLResult};
+use crate::error::{LXMCLError, LXMCLResult};
 use crate::launcher_config::models::{LauncherConfig, LauncherConfigError};
 use crate::tasks::commands::schedule_progressive_task_group;
 use crate::tasks::download::DownloadParam;
@@ -13,23 +13,16 @@ use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
 type SourceTuple = (&'static str, &'static str, fn(&str, &str) -> String);
-const SOURCES: [SourceTuple; 2] = [
-  (
-    "https://mc.sjtu.cn/api-sjmcl/releases/latest",
-    "version",
-    |_, fname| format!("https://mc.sjtu.cn/sjmcl/releases/{}", fname),
-  ),
-  (
-    "https://api.github.com/repos/UNIkeEN/SJMCL/releases/latest",
-    "tag_name",
-    |ver, fname| {
-      format!(
-        "https://github.com/UNIkeEN/SJMCL/releases/download/v{}/{}",
-        ver, fname
-      )
-    },
-  ),
-];
+const SOURCES: [SourceTuple; 1] = [(
+  "https://api.github.com/repos/Origin173/LXMCL/releases/latest",
+  "tag_name",
+  |ver, fname| {
+    format!(
+      "https://github.com/Origin173/LXMCL/releases/download/v{}/{}",
+      ver, fname
+    )
+  },
+)];
 
 // Generate the new version filename on remote origin according to the current os, arch and is_portable
 fn build_resource_filename(ver: &str, os: &str, arch: &str, is_portable: bool) -> String {
@@ -46,7 +39,7 @@ fn build_resource_filename(ver: &str, os: &str, arch: &str, is_portable: bool) -
     "macos" => ".app.tar.gz",
     _ => "",
   };
-  format!("SJMCL_{}_{}_{}{}", ver, os, arch, suffix)
+  format!("LXMCL_{}_{}_{}{}", ver, os, arch, suffix)
 }
 
 // Generate the new filename on the local disk.
@@ -66,7 +59,7 @@ fn build_local_new_filename(old_name: &str, old_version: &str, new_version: &str
 
 pub async fn fetch_latest_version(
   app: &AppHandle,
-) -> SJMCLResult<Option<(String, String, String, String)>> {
+) -> LXMCLResult<Option<(String, String, String, String)>> {
   let config_binding = app.state::<Mutex<LauncherConfig>>();
   let (os, arch, is_portable, is_china_mainland_ip) = {
     let config_state = config_binding.lock()?;
@@ -118,7 +111,7 @@ pub async fn download_target_version(
   app: &AppHandle,
   version: String,
   fname: String,
-) -> SJMCLResult<()> {
+) -> LXMCLResult<()> {
   let config_binding = app.state::<Mutex<LauncherConfig>>();
   let (download_cache_dir, is_china_mainland_ip) = {
     let config_state = config_binding.lock()?;
@@ -166,7 +159,7 @@ pub async fn install_update_windows(
   app: &AppHandle,
   downloaded_filename: String,
   restart: bool,
-) -> SJMCLResult<()> {
+) -> LXMCLResult<()> {
   use std::os::windows::process::CommandExt;
 
   let config_binding = app.state::<Mutex<LauncherConfig>>();
@@ -193,11 +186,11 @@ pub async fn install_update_windows(
     // Portable: replace current exe with the newly downloaded one via a temp cmd script.
     let cur_dir = cur_exe
       .parent()
-      .ok_or_else(|| SJMCLError("No parent dir for exe".to_string()))?;
+      .ok_or_else(|| LXMCLError("No parent dir for exe".to_string()))?;
     let old_name = cur_exe
       .file_name()
       .and_then(|s| s.to_str())
-      .ok_or_else(|| SJMCLError("Invalid exe name".to_string()))?
+      .ok_or_else(|| LXMCLError("Invalid exe name".to_string()))?
       .to_string();
 
     let target_name = build_local_new_filename(&old_name, &old_version, &new_version);
@@ -273,7 +266,7 @@ pub async fn install_update_macos(
   app: &AppHandle,
   downloaded_filename: String,
   restart: bool,
-) -> SJMCLResult<()> {
+) -> LXMCLResult<()> {
   use std::ffi::OsStr;
 
   let config_binding = app.state::<Mutex<LauncherConfig>>();
@@ -300,16 +293,16 @@ pub async fn install_update_macos(
   let app_bundle = cur_exe
     .ancestors()
     .find(|p| p.extension().and_then(OsStr::to_str) == Some("app"))
-    .ok_or_else(|| SJMCLError("Not inside .app bundle".to_string()))?
+    .ok_or_else(|| LXMCLError("Not inside .app bundle".to_string()))?
     .to_path_buf();
   let app_dir = app_bundle
     .parent()
-    .ok_or_else(|| SJMCLError("No parent dir for .app".to_string()))?
+    .ok_or_else(|| LXMCLError("No parent dir for .app".to_string()))?
     .to_path_buf();
   let old_name = app_bundle
     .file_name()
     .and_then(|s| s.to_str())
-    .ok_or_else(|| SJMCLError("Invalid .app name".to_string()))?
+    .ok_or_else(|| LXMCLError("Invalid .app name".to_string()))?
     .to_string();
 
   let target_name = build_local_new_filename(&old_name, &old_version, &new_version);

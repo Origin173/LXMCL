@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-The following releases of SJMCL are currently supported.
+The following releases of LXMCL are currently supported.
 
 | Version | Supported |
 | ------- | --------- |
@@ -13,14 +13,13 @@ The following releases of SJMCL are currently supported.
 
 If you believe you have found a security vulnerability in our launcher, please report it to us through the following steps:
 
-1. **DO NOT** create a GitHub issue for security vulnerabilities
-2. Send an email to [launcher@sjmc.club](mailto:launcher@sjmc.club)
-   - Start your email subject with `[SJMCL Security]`
+1. **DO NOT** create a public GitHub issue for security vulnerabilities
+2. Report the vulnerability via [GitHub Security Advisories](https://github.com/Origin173/LXMCL/security/advisories/new)
    - Provide as much information as possible about the vulnerability
 
 ## Response Time
 
-We regularly monitor our security mailbox during China working days. You can typically expect an initial response within 2-3 working days.
+We will do our best to respond to security reports in a timely manner.
 
 ## What to Expect
 
