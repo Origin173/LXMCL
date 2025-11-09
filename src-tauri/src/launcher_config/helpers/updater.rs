@@ -1,14 +1,10 @@
-use crate::error::{LXMCLError, LXMCLResult};
+use crate::error::LXMCLResult;
 use crate::launcher_config::models::{LauncherConfig, LauncherConfigError};
 use crate::tasks::commands::schedule_progressive_task_group;
 use crate::tasks::download::DownloadParam;
 use crate::tasks::PTaskParam;
 use serde_json::Value;
-use std::fs;
-use std::path::PathBuf;
-use std::process::Command;
 use std::sync::Mutex;
-use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
@@ -42,9 +38,6 @@ fn build_resource_filename(ver: &str, os: &str, arch: &str, is_portable: bool) -
   format!("LXMCL_{}_{}_{}{}", ver, os, arch, suffix)
 }
 
-// Generate the new filename on the local disk.
-// If old_name contains old_version, replace the first occurrence with new_version.
-// Otherwise, keep the old_name unchanged.
 fn build_local_new_filename(old_name: &str, old_version: &str, new_version: &str) -> String {
   if let Some(idx) = old_name.find(old_version) {
     let mut s = String::with_capacity(old_name.len() - old_version.len() + new_version.len());

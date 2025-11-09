@@ -1,10 +1,5 @@
-/**
- * OpenList 数据模型
- * 与前端 TypeScript 类型保持一致
- */
 use serde::{Deserialize, Serialize};
 
-/// OpenList 文件对象（从前端传递）
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FsObject {
   pub id: String,

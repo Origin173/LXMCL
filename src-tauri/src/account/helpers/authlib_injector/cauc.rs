@@ -9,7 +9,6 @@ use urlencoding::decode;
 
 const CAUC_BASE_URL: &str = "https://skin.cauc.fun";
 
-/// 从 /user 页面提取玩家名
 async fn get_player_name(client: &Client, cookie_jar: &[(String, String)]) -> LXMCLResult<String> {
   let user_page_url = format!("{}/user", CAUC_BASE_URL);
 
@@ -43,11 +42,8 @@ async fn get_player_name(client: &Client, cookie_jar: &[(String, String)]) -> LX
   Err(AccountError::Invalid.into())
 }
 
-/// eduroam登录流程
-///
 const CAUC_YGGDRASIL_URL: &str = "https://skin.cauc.fun/api/yggdrasil";
 
-/// CAUC 登录响应结构
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct CAUCLoginResponse {
@@ -55,16 +51,14 @@ struct CAUCLoginResponse {
   #[serde(default)]
   message: String,
   #[serde(default)]
-  requires_bind: bool, // 是否需要绑定昵称
+  requires_bind: bool,
 }
 
-/// CAUC 用户绑定请求
 #[derive(Debug, Clone, Deserialize, Serialize)]
 struct CAUCBindRequest {
   player_name: String,
 }
 
-/// CAUC 完整认证响应
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct CAUCAuthResponse {
@@ -80,7 +74,6 @@ struct YggdrasilProfile {
   name: String,
 }
 
-/// CAUC 认证状态
 #[derive(Debug, Clone)]
 pub struct CAUCAuthState {
   pub student_id: String,
@@ -88,16 +81,9 @@ pub struct CAUCAuthState {
   pub requires_bind: bool,
   pub xsrf_token: Option<String>,
   pub client: reqwest::Client,
-  pub player_name: Option<String>, // Minecraft 玩家名(从网站获取)
+  pub player_name: Option<String>,
 }
 
-/// 步骤 1: 使用学工号和 OA 密码登录 eduroam
-///
-/// 这个函数会:
-/// 1. GET 登录页面获取 CSRF token
-/// 2. POST 到 /auth/eduroam/login 提交登录
-/// 3. 保存 Cookie/Session
-/// 4. 检查是否需要绑定昵称
 pub async fn eduroam_login(
   _app: &AppHandle,
   student_id: String,
@@ -318,12 +304,6 @@ pub async fn eduroam_login(
   }
 }
 
-/// 步骤 2: 绑定游戏昵称 (仅新用户需要)
-///
-/// 这个函数会:
-/// 1. POST 到 /user/player/bind
-/// 2. 使用步骤 1 获取的 Cookie
-/// 3. 绑定玩家昵称
 pub async fn bind_player_name(
   _app: &AppHandle,
   auth_state: &CAUCAuthState,
@@ -408,11 +388,6 @@ pub async fn bind_player_name(
   Ok(())
 }
 
-/// 步骤 3: 完整的 Yggdrasil 认证
-///
-/// 这个函数会:
-/// 1. 使用保存的 Cookie 和密码进行 Yggdrasil 标准认证
-/// 2. 获取 access_token 和角色信息
 pub async fn authenticate(
   app: &AppHandle,
   auth_state: &CAUCAuthState,
@@ -648,13 +623,6 @@ async fn perform_auth_request(
   Ok(content)
 }
 
-/// 完整的 CAUC 登录流程
-///
-/// 这个函数会自动处理:
-/// 1. eduroam 登录
-/// 2. 检查是否需要绑定昵称
-/// 3. 如果需要,返回需要绑定的状态
-/// 4. 如果不需要,直接完成认证
 pub async fn login_flow(
   app: &AppHandle,
   student_id: String,
@@ -690,14 +658,13 @@ pub async fn login_flow(
   }
 }
 
-/// 登录流程结果
 #[derive(Debug, Clone)]
 pub enum LoginFlowResult {
-  /// 登录成功
   Success {
     players: Vec<PlayerInfo>,
     has_selected: bool,
   },
-  /// 需要绑定昵称
-  RequiresBind { auth_state: CAUCAuthState },
+  RequiresBind {
+    auth_state: CAUCAuthState,
+  },
 }

@@ -1,8 +1,4 @@
 use serde::{Deserialize, Serialize};
-/**
- * OpenList Tauri 命令
- * 提供前端可调用的 API
- */
 use tauri::AppHandle;
 use tauri_plugin_http::reqwest;
 
@@ -12,10 +8,8 @@ use crate::{
   tasks::{commands::schedule_progressive_task_group, download::DownloadParam, PTaskParam},
 };
 
-/// OpenList 服务器地址（从环境变量读取）
 const OPENLIST_BASE_URL: &str = env!("LXMCL_OPENLIST_BASE_URL");
 
-/// OpenList API 响应结构
 #[derive(Debug, Serialize, Deserialize)]
 pub struct OpenListResponse {
   pub code: i32,
@@ -23,7 +17,6 @@ pub struct OpenListResponse {
   pub data: serde_json::Value,
 }
 
-/// OpenList 浏览请求参数
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BrowseRequest {
   pub path: String,
@@ -32,7 +25,6 @@ pub struct BrowseRequest {
   pub per_page: Option<i32>,
 }
 
-/// 浏览 OpenList 目录（通过 Rust 后端代理）
 #[tauri::command]
 pub async fn openlist_browse(request: BrowseRequest) -> Result<OpenListResponse, Error> {
   println!(
@@ -74,8 +66,6 @@ pub async fn openlist_browse(request: BrowseRequest) -> Result<OpenListResponse,
   Ok(result)
 }
 
-/// 下载整合包到临时目录（使用现有任务系统）
-/// 返回任务组ID，前端可以监听任务进度
 #[tauri::command]
 pub async fn openlist_download_modpack(
   file_name: String,

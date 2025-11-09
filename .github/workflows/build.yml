@@ -105,12 +105,18 @@ jobs:
         run: pnpm run tauri build --bundles app --target ${{ matrix.target }}
         env:
           LXMCL_CURSEFORGE_API_KEY: ${{ secrets.LXMCL_CURSEFORGE_API_KEY }}
+          LXMCL_OPENLIST_BASE_URL: ${{ secrets.LXMCL_OPENLIST_BASE_URL }}
+          NEXT_PUBLIC_OPENLIST_BASE_URL: ${{ secrets.NEXT_PUBLIC_OPENLIST_BASE_URL }}
+
 
       - name: Build the app
         if: matrix.platform != 'macos'
         run: pnpm run tauri build --target ${{ matrix.target }}
         env:
           LXMCL_CURSEFORGE_API_KEY: ${{ secrets.LXMCL_CURSEFORGE_API_KEY }}
+          LXMCL_OPENLIST_BASE_URL: ${{ secrets.LXMCL_OPENLIST_BASE_URL }}
+          NEXT_PUBLIC_OPENLIST_BASE_URL: ${{ secrets.NEXT_PUBLIC_OPENLIST_BASE_URL }}
+
 
       - name: Prepare release artifact
         shell: bash

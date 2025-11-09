@@ -5,9 +5,7 @@ use crate::launcher_config::helpers::java::{
   build_mojang_java_download_params, get_java_info_from_command, get_java_info_from_release_file,
   refresh_and_update_javas,
 };
-use crate::launcher_config::helpers::updater::{
-  self, download_target_version, fetch_latest_version,
-};
+use crate::launcher_config::helpers::updater::{download_target_version, fetch_latest_version};
 use crate::launcher_config::models::{
   GameDirectory, JavaInfo, LauncherConfig, LauncherConfigError, VersionMetaInfo,
 };
@@ -380,20 +378,20 @@ pub async fn download_launcher_update(app: AppHandle, version: VersionMetaInfo) 
 
 #[tauri::command]
 pub async fn install_launcher_update(
-  app: AppHandle,
-  downloaded_filename: String,
-  restart: bool,
+  _app: AppHandle,
+  _downloaded_filename: String,
+  _restart: bool,
 ) -> LXMCLResult<()> {
   #[cfg(target_os = "windows")]
   {
-    updater::install_update_windows(&app, downloaded_filename, restart).await
+    return Ok(());
   }
   #[cfg(target_os = "macos")]
   {
-    updater::install_update_macos(&app, downloaded_filename, restart).await
+    return Ok(());
   }
   #[cfg(target_os = "linux")]
   {
-    Ok(()) // No supported
+    return Ok(());
   }
 }
