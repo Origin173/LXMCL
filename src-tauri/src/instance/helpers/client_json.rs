@@ -1,19 +1,15 @@
 use crate::error::{LXMCLError, LXMCLResult};
-use crate::instance::helpers::game_version::compare_game_versions;
 use crate::instance::models::misc::{Instance, ModLoaderType};
-use crate::launcher_config::models::LauncherConfig;
 use crate::utils::fs::get_app_resource_filepath;
 use regex::RegexBuilder;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 use serde_with::formats::PreferMany;
 use serde_with::{serde_as, OneOrMany};
-use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fs;
 use std::str::FromStr;
-use std::sync::Mutex;
-use tauri::{AppHandle, Manager};
+use tauri::AppHandle;
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 #[serde(rename_all = "camelCase", default)]
@@ -424,9 +420,9 @@ pub fn load_native_libraries_replace_map(
 }
 
 pub async fn replace_native_libraries(
-  app: &AppHandle,
-  client_info: &mut McClientInfo,
-  instance: &Instance,
+  _app: &AppHandle,
+  _client_info: &mut McClientInfo,
+  _instance: &Instance,
 ) -> LXMCLResult<()> {
   #[cfg(any(
     all(
@@ -441,62 +437,20 @@ pub async fn replace_native_libraries(
 
   #[cfg(all(target_arch = "aarch64", target_os = "macos"))]
   {
-    if compare_game_versions(app, instance.version.as_str(), "1.20.1", true).await
-      == Ordering::Greater
-    {
-      return Ok(());
-    }
+    return Ok(());
   }
 
-  let all_replace_map = load_native_libraries_replace_map(app)?;
-
-  let (os, arch) = {
-    let launcher_config_state = app.state::<Mutex<LauncherConfig>>();
-    let cfg = launcher_config_state.lock().unwrap();
-    (cfg.basic_info.os_type.clone(), cfg.basic_info.arch.clone())
-  };
-  let platform_key = format!("{}-{}", os.to_lowercase(), arch.to_lowercase());
-  let platform_map = match all_replace_map.get(platform_key.as_str()) {
-    Some(m) if !m.is_empty() => m,
-    _ => {
-      return Ok(());
-    }
-  };
-
-  for lib in &mut client_info.libraries {
-    let key = lib.name.clone();
-
-    if lib.natives.is_some() {
-      let natives_key = format!("{key}:natives");
-      if let Some(Some(new_lib)) = platform_map.get(&natives_key) {
-        lib.name = new_lib.name.clone();
-        if new_lib.downloads.is_some() {
-          lib.downloads = new_lib.downloads.clone();
-        }
-        if new_lib.natives.is_some() {
-          lib.natives = new_lib.natives.clone();
-        }
-        if new_lib.extract.is_some() {
-          lib.extract = new_lib.extract.clone();
-        }
-        continue;
-      }
-    }
-
-    if let Some(Some(new_lib_opt)) = platform_map.get(&key) {
-      lib.name = new_lib_opt.name.clone();
-      if new_lib_opt.downloads.is_some() {
-        lib.downloads = new_lib_opt.downloads.clone();
-      }
-      if new_lib_opt.natives.is_some() {
-        lib.natives = new_lib_opt.natives.clone();
-      }
-      if new_lib_opt.extract.is_some() {
-        lib.extract = new_lib_opt.extract.clone();
-      }
-    }
+  #[cfg(not(any(
+    all(
+      any(target_arch = "x86", target_arch = "x86_64"),
+      any(target_os = "linux", target_os = "macos")
+    ),
+    target_os = "windows",
+    all(target_arch = "aarch64", target_os = "macos")
+  )))]
+  {
+    return Ok(());
   }
-  Ok(())
 }
 
 // Convert McClientInfo to PatchesInfo
