@@ -1,6 +1,6 @@
 [package]
 name = "LXMCL"
-version = "0.1.0"
+version = "0.0.0"
 description = "A Minecraft launcher from CAUCraft"
 authors = ["CAUCraft Team"]
 license = "GNU General Public License v3.0 (with additional terms)"
